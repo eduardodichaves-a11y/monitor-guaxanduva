@@ -4,16 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#08151d">
+
 <title>Monitor Guaxanduva</title>
 
 <style>
-*{box-sizing:border-box}
+
+*{
+box-sizing:border-box
+}
 
 body{
 margin:0;
 background:#08151d;
 color:#eef8fc;
-font-family:Arial
+font-family:Arial,sans-serif
 }
 
 main{
@@ -22,7 +26,8 @@ margin:auto;
 padding:12px
 }
 
-header,.card{
+header,
+.card{
 background:#112632;
 border:1px solid #294956;
 border-radius:18px;
@@ -30,8 +35,14 @@ padding:18px;
 margin-bottom:14px
 }
 
-h1{margin:6px 0;font-size:27px}
-h2{margin:6px 0}
+h1{
+margin:6px 0;
+font-size:27px
+}
+
+h2{
+margin:6px 0
+}
 
 .local{
 color:#8fc8df;
@@ -39,7 +50,10 @@ font-size:12px;
 letter-spacing:2px
 }
 
-.sub,small{color:#a8c0ca}
+.sub,
+small{
+color:#a8c0ca
+}
 
 .grid{
 display:grid;
@@ -61,9 +75,17 @@ margin-top:14px;
 line-height:1.6
 }
 
-.ok{color:#8fe3a1}
-.aviso{color:#f1d277}
-.erro{color:#ff9b9b}
+.ok{
+color:#8fe3a1
+}
+
+.aviso{
+color:#f1d277
+}
+
+.erro{
+color:#ff9b9b
+}
 
 a{
 display:block;
@@ -160,6 +182,23 @@ font-weight:bold;
 margin-top:4px
 }
 
+/* PREVISÃO 7 DIAS */
+
+.dia-previsao{
+padding:13px 0;
+border-bottom:1px solid #294956
+}
+
+.dia-previsao:last-child{
+border-bottom:0
+}
+
+.dia-titulo{
+color:#8fc8df;
+font-weight:bold;
+margin-bottom:5px
+}
+
 @media(max-width:520px){
 
 .grid{
@@ -175,11 +214,15 @@ grid-template-columns:1fr 1fr
 }
 
 }
+
 </style>
 </head>
 
+
 <body>
+
 <main>
+
 
 <header>
 
@@ -195,7 +238,9 @@ COMASA • JOINVILLE/SC
 Chuva • Maré • Rio • Vento • Tempestades • Riscos
 </div>
 
-<div id="hora" style="margin-top:15px">
+<div
+id="hora"
+style="margin-top:15px">
 🕒 --
 </div>
 
@@ -204,15 +249,20 @@ Chuva • Maré • Rio • Vento • Tempestades • Riscos
 
 <section class="grid">
 
+
 <div class="card">
 
 <div class="local">
 🌧️ CHUVA OBSERVADA
 </div>
 
-<h2>CEMADEN</h2>
+<h2>
+CEMADEN
+</h2>
 
-<div class="valor" id="chuva">
+<div
+class="valor"
+id="chuva">
 --
 </div>
 
@@ -223,16 +273,20 @@ mm na última leitura
 <div class="box">
 
 1 hora:
-<b id="h1">--</b> mm
+<b id="h1">--</b>
+mm
 
 <br>
 
 24 horas:
-<b id="h24">--</b> mm
+<b id="h24">--</b>
+mm
 
 <br>
 
-<span id="cs" class="aviso">
+<span
+id="cs"
+class="aviso">
 Carregando...
 </span>
 
@@ -262,6 +316,7 @@ Tábua de maré • extremos previstos
 </div>
 
 <div class="mare-grid">
+
 
 <div class="mare-item">
 
@@ -304,6 +359,7 @@ id="mareProximaHora">
 
 </div>
 
+
 </div>
 
 
@@ -314,7 +370,9 @@ EPAGRI/CIRAM
 
 <br>
 
-<span id="ms" class="aviso">
+<span
+id="ms"
+class="aviso">
 Carregando...
 </span>
 
@@ -335,6 +393,7 @@ ABRIR EPAGRI/CIRAM
 
 </div>
 
+
 </section>
 
 
@@ -351,6 +410,7 @@ Comasa • Joinville
 <div class="sub">
 Modelo meteorológico • Open-Meteo Best Match
 </div>
+
 
 <div class="meteo">
 
@@ -380,16 +440,67 @@ Modelo meteorológico • Open-Meteo Best Match
 </div>
 
 <div>
-🕐 Referência
+🕐 Próxima hora
 <b id="prevhora">--</b>
 </div>
 
 </div>
 
+
 <div
 id="ps"
 class="box aviso">
 Carregando previsão...
+</div>
+
+</section>
+
+
+<!-- PREVISÃO DOS PRÓXIMOS 7 DIAS -->
+
+<section class="card">
+
+<div class="local">
+🌧️ PREVISÃO DE CHUVA — PRÓXIMOS 7 DIAS
+</div>
+
+<h2>
+Tendência para Comasa • Joinville
+</h2>
+
+<div class="sub">
+Probabilidade e quantidade prevista de chuva • Open-Meteo
+</div>
+
+<div
+id="previsao7dias"
+class="box">
+Carregando previsão dos próximos dias...
+</div>
+
+
+<div class="box">
+
+<small>
+
+☔
+<b>Probabilidade</b>
+= maior probabilidade de chuva prevista para o dia.
+
+<br><br>
+
+🌧️
+<b>Chuva prevista</b>
+= quantidade total estimada para o dia em
+milímetros (mm).
+
+<br><br>
+
+As previsões podem mudar conforme novas informações
+meteorológicas são recebidas.
+
+</small>
+
 </div>
 
 </section>
@@ -568,6 +679,7 @@ observacionais confiáveis.
 
 <div class="em">
 
+
 <div>
 
 Defesa Civil
@@ -589,12 +701,14 @@ Bombeiros
 
 </div>
 
+
 </div>
 
 </section>
 
 
 <script>
+
 
 const $=x=>
 document.getElementById(x);
@@ -896,6 +1010,121 @@ $("ps").innerHTML=
 }
 
 
+/* PREVISÃO DOS PRÓXIMOS 7 DIAS */
+
+const dias7=
+Array.isArray(
+p.proximos_7_dias
+)
+?p.proximos_7_dias
+:[];
+
+
+if(
+dias7.length
+){
+
+const nomesDias=[
+"domingo",
+"segunda-feira",
+"terça-feira",
+"quarta-feira",
+"quinta-feira",
+"sexta-feira",
+"sábado"
+];
+
+let html="";
+
+
+dias7.forEach(
+(dia,i)=>{
+
+const data=
+new Date(
+dia.data+
+"T12:00:00"
+);
+
+const nome=
+i===0
+?"HOJE"
+:nomesDias[
+data.getDay()
+].toUpperCase();
+
+
+const dataBR=
+data.toLocaleDateString(
+"pt-BR",
+{
+day:"2-digit",
+month:"2-digit"
+}
+);
+
+
+const prob=
+dia.probabilidade_chuva_pct==null
+?"--"
+:Math.round(
+dia.probabilidade_chuva_pct
+)+"%";
+
+
+const mm=
+dia.precipitacao_total_mm==null
+?"--"
+:f(
+dia.precipitacao_total_mm,
+1
+)+" mm";
+
+
+html+=
+'<div class="dia-previsao">'+
+
+'<div class="dia-titulo">'+
+nome+
+' • '+
+dataBR+
+'</div>'+
+
+'☔ Probabilidade: '+
+'<b>'+
+prob+
+'</b>'+
+
+'<br>'+
+
+'🌧️ Chuva prevista: '+
+'<b>'+
+mm+
+'</b>'+
+
+'</div>';
+
+});
+
+
+$("previsao7dias").innerHTML=
+html+
+'<div class="ok" '+
+'style="margin-top:12px">'+
+'🟢 Previsão de 7 dias recebida automaticamente'+
+'</div>';
+
+
+}else{
+
+$("previsao7dias").innerHTML=
+'<span class="erro">'+
+'🔴 Previsão de 7 dias indisponível'+
+'</span>';
+
+}
+
+
 /* GRANIZO */
 
 $("granizo").textContent=
@@ -927,7 +1156,9 @@ carregar,
 60000
 );
 
+
 </script>
+
 
 </main>
 </body>

@@ -8,25 +8,106 @@
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#08151d;color:#eef8fc;font-family:Arial}
-main{max-width:700px;margin:auto;padding:12px}
-header,.card{background:#112632;border:1px solid #294956;border-radius:18px;padding:18px;margin-bottom:14px}
+
+body{
+margin:0;
+background:#08151d;
+color:#eef8fc;
+font-family:Arial
+}
+
+main{
+max-width:700px;
+margin:auto;
+padding:12px
+}
+
+header,.card{
+background:#112632;
+border:1px solid #294956;
+border-radius:18px;
+padding:18px;
+margin-bottom:14px
+}
+
 h1{margin:6px 0;font-size:27px}
 h2{margin:6px 0}
-.local{color:#8fc8df;font-size:12px;letter-spacing:2px}
+
+.local{
+color:#8fc8df;
+font-size:12px;
+letter-spacing:2px
+}
+
 .sub,small{color:#a8c0ca}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.valor{font-size:38px;font-weight:bold;margin:20px 0 4px}
-.box{background:#091a23;border-radius:12px;padding:14px;margin-top:14px;line-height:1.6}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px
+}
+
+.valor{
+font-size:38px;
+font-weight:bold;
+margin:20px 0 4px
+}
+
+.box{
+background:#091a23;
+border-radius:12px;
+padding:14px;
+margin-top:14px;
+line-height:1.6
+}
+
 .ok{color:#8fe3a1}
 .aviso{color:#f1d277}
 .erro{color:#ff9b9b}
-a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decoration:none;font-weight:bold;padding:13px;border-radius:12px;margin-top:14px}
-.risco{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
-.risco div{background:#091a23;text-align:center;padding:10px 2px;border-radius:10px;font-size:12px}
-.em{display:flex;gap:10px}
-.em div{flex:1;background:#091a23;text-align:center;padding:12px;border-radius:12px}
-.num{font-size:27px;font-weight:bold}
+
+a{
+display:block;
+background:#d9eef6;
+color:#09202b;
+text-align:center;
+text-decoration:none;
+font-weight:bold;
+padding:13px;
+border-radius:12px;
+margin-top:14px
+}
+
+.risco{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:5px
+}
+
+.risco div{
+background:#091a23;
+text-align:center;
+padding:10px 2px;
+border-radius:10px;
+font-size:12px
+}
+
+.em{
+display:flex;
+gap:10px
+}
+
+.em div{
+flex:1;
+background:#091a23;
+text-align:center;
+padding:12px;
+border-radius:12px
+}
+
+.num{
+font-size:27px;
+font-weight:bold
+}
 
 .meteo{
 display:grid;
@@ -47,9 +128,52 @@ font-size:25px;
 margin-top:7px
 }
 
+/* MARÉ */
+
+.mare-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-top:15px
+}
+
+.mare-item{
+background:#091a23;
+border-radius:12px;
+padding:14px
+}
+
+.mare-titulo{
+color:#a8c0ca;
+font-size:13px
+}
+
+.mare-valor{
+font-size:28px;
+font-weight:bold;
+margin-top:7px
+}
+
+.mare-hora{
+color:#8fc8df;
+font-weight:bold;
+margin-top:4px
+}
+
 @media(max-width:520px){
-.grid{grid-template-columns:1fr}
-h1{font-size:24px}
+
+.grid{
+grid-template-columns:1fr
+}
+
+h1{
+font-size:24px
+}
+
+.mare-grid{
+grid-template-columns:1fr 1fr
+}
+
 }
 </style>
 </head>
@@ -58,49 +182,175 @@ h1{font-size:24px}
 <main>
 
 <header>
-<div class="local">COMASA • JOINVILLE/SC</div>
-<h1>🌧️🌊 Monitor Guaxanduva</h1>
-<div class="sub">Chuva • Maré • Rio • Vento • Tempestades • Riscos</div>
-<div id="hora" style="margin-top:15px">🕒 --</div>
+
+<div class="local">
+COMASA • JOINVILLE/SC
+</div>
+
+<h1>
+🌧️🌊 Monitor Guaxanduva
+</h1>
+
+<div class="sub">
+Chuva • Maré • Rio • Vento • Tempestades • Riscos
+</div>
+
+<div id="hora" style="margin-top:15px">
+🕒 --
+</div>
+
 </header>
+
 
 <section class="grid">
 
 <div class="card">
-<div class="local">🌧️ CHUVA OBSERVADA</div>
+
+<div class="local">
+🌧️ CHUVA OBSERVADA
+</div>
+
 <h2>CEMADEN</h2>
-<div class="valor" id="chuva">--</div>
-<div class="sub">mm na última leitura</div>
+
+<div class="valor" id="chuva">
+--
+</div>
+
+<div class="sub">
+mm na última leitura
+</div>
 
 <div class="box">
-1 hora: <b id="h1">--</b> mm<br>
-24 horas: <b id="h24">--</b> mm<br>
-<span id="cs" class="aviso">Carregando...</span>
+
+1 hora:
+<b id="h1">--</b> mm
+
+<br>
+
+24 horas:
+<b id="h24">--</b> mm
+
+<br>
+
+<span id="cs" class="aviso">
+Carregando...
+</span>
+
 </div>
 
-<a href="https://mapainterativo.cemaden.gov.br/" target="_blank">ABRIR CEMADEN</a>
+<a
+href="https://mapainterativo.cemaden.gov.br/"
+target="_blank">
+ABRIR CEMADEN
+</a>
+
 </div>
+
 
 <div class="card">
-<div class="local">🌊 MARÉ</div>
-<h2>Joinville • Babitonga</h2>
-<div class="valor" id="mare">--</div>
-<div class="sub">metros</div>
 
-<div class="box">
-<b>Fonte:</b> EPAGRI/CIRAM<br>
-<span id="ms" class="aviso">Carregando...</span>
+<div class="local">
+🌊 MARÉ PREVISTA
 </div>
 
-<a href="https://ciram.epagri.sc.gov.br/index.php/maregrafos/" target="_blank">ABRIR MARÉ</a>
+<h2>
+Joinville • Babitonga
+</h2>
+
+<div class="sub">
+Tábua de maré • extremos previstos
+</div>
+
+<div class="mare-grid">
+
+<div class="mare-item">
+
+<div class="mare-titulo">
+⬅️ Último extremo
+</div>
+
+<div
+class="mare-valor"
+id="mareAnterior">
+--
+</div>
+
+<div
+class="mare-hora"
+id="mareAnteriorHora">
+--
+</div>
+
+</div>
+
+
+<div class="mare-item">
+
+<div class="mare-titulo">
+➡️ Próximo extremo
+</div>
+
+<div
+class="mare-valor"
+id="mareProxima">
+--
+</div>
+
+<div
+class="mare-hora"
+id="mareProximaHora">
+--
+</div>
+
+</div>
+
+</div>
+
+
+<div class="box">
+
+<b>Fonte:</b>
+EPAGRI/CIRAM
+
+<br>
+
+<span id="ms" class="aviso">
+Carregando...
+</span>
+
+<br>
+
+<small>
+Tábua de maré prevista.
+Não representa medição instantânea do nível da água.
+</small>
+
+</div>
+
+<a
+href="https://ciram.epagri.sc.gov.br/index.php/maregrafos/"
+target="_blank">
+ABRIR EPAGRI/CIRAM
+</a>
+
 </div>
 
 </section>
 
+
 <section class="card">
-<div class="local">📡 PREVISÃO METEOROLÓGICA</div>
-<h2>Comasa • Joinville</h2>
-<div class="sub">Modelo meteorológico • Open-Meteo Best Match</div>
+
+<div class="local">
+📡 PREVISÃO METEOROLÓGICA
+</div>
+
+<h2>
+Comasa • Joinville
+</h2>
+
+<div class="sub">
+Modelo meteorológico • Open-Meteo Best Match
+</div>
 
 <div class="meteo">
 
@@ -136,232 +386,547 @@ h1{font-size:24px}
 
 </div>
 
-<div id="ps" class="box aviso">
+<div
+id="ps"
+class="box aviso">
 Carregando previsão...
 </div>
+
 </section>
 
-<section class="card">
-<div class="local">🧊 GRANIZO</div>
-<h2>Alertas</h2>
 
-<div id="granizo" class="box aviso">
+<section class="card">
+
+<div class="local">
+🧊 GRANIZO
+</div>
+
+<h2>
+Alertas
+</h2>
+
+<div
+id="granizo"
+class="box aviso">
+
 ⚪ Alerta oficial ainda não integrado
+
 </div>
 
 <small>
+
 Granizo não é inferido apenas pela previsão de chuva.
 O painel aguardará integração com fonte oficial de alertas.
+
 </small>
+
 </section>
 
+
 <section class="card">
-<div class="local">🏞️ RIO GUAXANDUVA</div>
-<h2>Nível do rio</h2>
-<div class="valor" id="rio">--</div>
-<div id="rs" class="box aviso">Verificando sensor...</div>
+
+<div class="local">
+🏞️ RIO GUAXANDUVA
+</div>
+
+<h2>
+Nível do rio
+</h2>
+
+<div
+class="valor"
+id="rio">
+--
+</div>
+
+<div
+id="rs"
+class="box aviso">
+Verificando sensor...
+</div>
+
 </section>
 
-<section class="card">
-<div class="local">📐 ALTITUDE DO TERRENO</div>
-<h2>Rua Itapoá • Comasa</h2>
 
-<div class="valor">≈ 5 m</div>
-<div class="sub">acima do nível do mar</div>
+<section class="card">
+
+<div class="local">
+📐 ALTITUDE DO TERRENO
+</div>
+
+<h2>
+Rua Itapoá • Comasa
+</h2>
+
+<div class="valor">
+≈ 5 m
+</div>
+
+<div class="sub">
+acima do nível do mar
+</div>
 
 <div class="box">
-<b>Fonte:</b> Prefeitura de Joinville / SIMGeo<br>
+
+<b>Fonte:</b>
+Prefeitura de Joinville / SIMGeo
+
+<br>
+
 <small>
 Cota aproximada do terreno.
 Não representa nível de inundação.
 </small>
+
 </div>
+
 </section>
 
-<section class="card">
-<div class="local">📡 SISTEMA AUTOMÁTICO</div>
-<h2>Estado da coleta</h2>
 
-<div id="sistema" class="box aviso">
+<section class="card">
+
+<div class="local">
+📡 SISTEMA AUTOMÁTICO
+</div>
+
+<h2>
+Estado da coleta
+</h2>
+
+<div
+id="sistema"
+class="box aviso">
+
 Carregando dados.json...
+
 </div>
 
 <p>
-<small id="coleta">Última coleta: --</small>
+
+<small id="coleta">
+Última coleta: --
+</small>
+
 </p>
+
 </section>
 
+
 <section class="card">
-<div class="local">PAINEL DE RISCOS</div>
-<h2>Monitoramento combinado</h2>
+
+<div class="local">
+PAINEL DE RISCOS
+</div>
+
+<h2>
+Monitoramento combinado
+</h2>
 
 <div class="risco">
-<div>🟢<br>Normal</div>
-<div>🟡<br>Atenção</div>
-<div>🟠<br>Alerta</div>
-<div>🔴<br>Crítico</div>
+
+<div>
+🟢
+<br>
+Normal
+</div>
+
+<div>
+🟡
+<br>
+Atenção
+</div>
+
+<div>
+🟠
+<br>
+Alerta
+</div>
+
+<div>
+🔴
+<br>
+Crítico
+</div>
+
 </div>
 
 <div class="box aviso">
-⚪ Sem classificação enquanto faltarem dados observacionais confiáveis.
+
+⚪ Sem classificação enquanto faltarem dados
+observacionais confiáveis.
+
 </div>
+
 </section>
+
 
 <section class="card">
-<h2>🚨 Emergência</h2>
+
+<h2>
+🚨 Emergência
+</h2>
 
 <div class="em">
-<div>
-Defesa Civil
-<div class="num">199</div>
-</div>
 
 <div>
+
+Defesa Civil
+
+<div class="num">
+199
+</div>
+
+</div>
+
+
+<div>
+
 Bombeiros
-<div class="num">193</div>
+
+<div class="num">
+193
 </div>
+
 </div>
+
+</div>
+
 </section>
 
+
 <script>
-const $=x=>document.getElementById(x);
+
+const $=x=>
+document.getElementById(x);
+
 
 const f=(v,n=1)=>
-v==null?"--":Number(v).toFixed(n).replace(".",",");
+v==null
+?"--"
+:Number(v)
+.toFixed(n)
+.replace(".",",");
+
 
 function relogio(){
+
 $("hora").textContent=
-"🕒 "+new Date().toLocaleString("pt-BR");
+"🕒 "+
+new Date()
+.toLocaleString("pt-BR");
+
 }
+
 
 function pontoCardinal(g){
-if(g==null)return "--";
-const p=["N","NE","L","SE","S","SO","O","NO"];
-return p[Math.round(Number(g)/45)%8]+" • "+Math.round(g)+"°";
+
+if(g==null)
+return "--";
+
+const p=[
+"N",
+"NE",
+"L",
+"SE",
+"S",
+"SO",
+"O",
+"NO"
+];
+
+return (
+p[
+Math.round(
+Number(g)/45
+)%8
+]
++
+" • "
++
+Math.round(g)
++
+"°"
+);
+
 }
+
 
 function horaCurta(t){
-if(!t)return "--";
-const d=new Date(t);
-if(isNaN(d))return t.slice(11,16);
-return d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+
+if(!t)
+return "--";
+
+const d=
+new Date(t);
+
+if(isNaN(d))
+return t.slice(11,16);
+
+return d.toLocaleTimeString(
+"pt-BR",
+{
+hour:"2-digit",
+minute:"2-digit"
+}
+);
+
 }
 
+
 relogio();
-setInterval(relogio,1000);
+
+setInterval(
+relogio,
+1000
+);
+
 
 async function carregar(){
 
 try{
 
-const r=await fetch(
+const r=
+await fetch(
 "dados.json?"+Date.now(),
-{cache:"no-store"}
+{
+cache:"no-store"
+}
 );
 
 if(!r.ok)
-throw Error("HTTP "+r.status);
+throw Error(
+"HTTP "+r.status
+);
 
-const d=await r.json();
+const d=
+await r.json();
 
-const c=d.chuva||{};
-const m=d.mare||{};
-const q=d.rio||{};
-const p=d.previsao||{};
-const a=p.atual||{};
-const ph=p.proxima_hora||{};
-const g=d.granizo||{};
+
+const c=
+d.chuva||{};
+
+const m=
+d.mare||{};
+
+const q=
+d.rio||{};
+
+const p=
+d.previsao||{};
+
+const a=
+p.atual||{};
+
+const ph=
+p.proxima_hora||{};
+
+const g=
+d.granizo||{};
+
 
 $("sistema").innerHTML=
-'<span class="ok">🟢 Monitor automático conectado</span>';
+'<span class="ok">'+
+'🟢 Monitor automático conectado'+
+'</span>';
+
 
 $("coleta").textContent=
 "Última coleta: "+
-new Date(d.gerado_em).toLocaleString("pt-BR");
+new Date(
+d.gerado_em
+).toLocaleString(
+"pt-BR"
+);
 
-$("chuva").textContent=f(c.leitura_mm);
 
-$("h1").textContent=f(c.acumulado_1h_mm);
+/* CHUVA */
 
-$("h24").textContent=f(c.acumulado_24h_mm);
+$("chuva").textContent=
+f(
+c.leitura_mm
+);
+
+$("h1").textContent=
+f(
+c.acumulado_1h_mm
+);
+
+$("h24").textContent=
+f(
+c.acumulado_24h_mm
+);
 
 $("cs").textContent=
 c.leitura_mm==null
 ?"⚪ CEMADEN ainda sem leitura integrada"
 :"🟢 Leitura automática recebida";
 
-$("mare").textContent=f(m.altura_m,2);
 
-const on=
-m.teste_fonte&&
-m.teste_fonte.status=="online";
+/* MARÉ */
 
-$("ms").textContent=
-m.altura_m!=null
-?"🟢 Leitura automática recebida"
-:on
-?"🟡 Fonte online; altura ainda não integrada"
-:"⚪ Fonte indisponível";
+const ma=
+m.anterior||null;
+
+const mp=
+m.proximo||null;
+
+
+$("mareAnterior").textContent=
+ma
+?f(
+ma.altura_m,
+1
+)+" m"
+:"--";
+
+
+$("mareAnteriorHora").textContent=
+ma
+?"às "+ma.hora
+:"--";
+
+
+$("mareProxima").textContent=
+mp
+?f(
+mp.altura_m,
+1
+)+" m"
+:"--";
+
+
+$("mareProximaHora").textContent=
+mp
+?"às "+mp.hora
+:"--";
+
+
+if(
+m.status=="online"
+){
+
+$("ms").innerHTML=
+'<span class="ok">'+
+'🟢 Tábua de maré recebida automaticamente'+
+'</span>';
+
+}else{
+
+$("ms").innerHTML=
+'<span class="erro">'+
+'🔴 Tábua de maré indisponível'+
+'</span>';
+
+}
+
+
+/* RIO */
 
 $("rio").textContent=
 q.nivel_m==null
 ?"SEM SENSOR"
-:f(q.nivel_m,2)+" m";
+:f(
+q.nivel_m,
+2
+)+" m";
+
 
 $("rs").textContent=
 q.nivel_m==null
 ?"⚪ Sem sensor público confirmado para o Rio Guaxanduva"
 :"🟢 Nível automático recebido";
 
-if(p.status=="online"){
+
+/* PREVISÃO */
+
+if(
+p.status=="online"
+){
 
 $("prob").textContent=
 ph.probabilidade_chuva_pct==null
 ?"--"
-:Math.round(ph.probabilidade_chuva_pct)+"%";
+:Math.round(
+ph.probabilidade_chuva_pct
+)+"%";
+
 
 $("prevchuva").textContent=
-f(ph.precipitacao_mm)+" mm";
+f(
+ph.precipitacao_mm
+)+" mm";
+
 
 $("vento").textContent=
-f(a.vento_kmh)+" km/h";
+f(
+a.vento_kmh
+)+" km/h";
+
 
 $("rajada").textContent=
-f(a.rajada_kmh)+" km/h";
+f(
+a.rajada_kmh
+)+" km/h";
+
 
 $("direcao").textContent=
-pontoCardinal(a.direcao_graus);
+pontoCardinal(
+a.direcao_graus
+);
+
 
 $("prevhora").textContent=
-horaCurta(ph.horario);
+horaCurta(
+ph.horario
+);
+
 
 $("ps").innerHTML=
-'<span class="ok">🟢 Previsão automática recebida</span>';
+'<span class="ok">'+
+'🟢 Previsão automática recebida'+
+'</span>';
 
 }else{
 
 $("ps").innerHTML=
-'<span class="erro">🔴 Previsão indisponível</span>';
+'<span class="erro">'+
+'🔴 Previsão indisponível'+
+'</span>';
 
 }
 
+
+/* GRANIZO */
+
 $("granizo").textContent=
-g.status=="sem_alerta_integrado"
+g.status==
+"sem_alerta_integrado"
 ?"⚪ Alerta oficial ainda não integrado"
 :"🟡 "+g.status;
+
 
 }catch(e){
 
 $("sistema").innerHTML=
-'<span class="erro">🔴 Falha ao carregar dados.json</span>';
+'<span class="erro">'+
+'🔴 Falha ao carregar dados.json'+
+'</span>';
 
-$("coleta").textContent=e.message;
+$("coleta").textContent=
+e.message;
 
 }
+
 }
+
 
 carregar();
-setInterval(carregar,60000);
+
+setInterval(
+carregar,
+60000
+);
+
 </script>
 
 </main>

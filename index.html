@@ -1,87 +1,101 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08151d">
+<title>Monitor Guaxanduva</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#08151d;color:#eef8fc;font-family:Arial}main{max-width:700px;margin:auto;padding:12px}
+header,.card{background:#112632;border:1px solid #294956;border-radius:18px;padding:18px;margin-bottom:14px}
+h1{margin:6px 0;font-size:27px}h2{margin:6px 0}.local{color:#8fc8df;font-size:12px;letter-spacing:2px}.sub,small{color:#a8c0ca}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.valor{font-size:38px;font-weight:bold;margin:20px 0 4px}
+.box{background:#091a23;border-radius:12px;padding:14px;margin-top:14px;line-height:1.6}.ok{color:#8fe3a1}.aviso{color:#f1d277}.erro{color:#ff9b9b}
+a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decoration:none;font-weight:bold;padding:13px;border-radius:12px;margin-top:14px}
+.risco{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.risco div{background:#091a23;text-align:center;padding:10px 2px;border-radius:10px;font-size:12px}
+.em{display:flex;gap:10px}.em div{flex:1;background:#091a23;text-align:center;padding:12px;border-radius:12px}.num{font-size:27px;font-weight:bold}
+@media(max-width:520px){.grid{grid-template-columns:1fr}h1{font-size:24px}}
+</style>
+</head>
+<body><main>
 
-  <meta name="theme-color"
-        content="#08151d">
+<header>
+<div class="local">COMASA • JOINVILLE/SC</div>
+<h1>🌧️🌊 Monitor Guaxanduva</h1>
+<div class="sub">Chuva • Maré • Rio Guaxanduva • Risco de alagamento</div>
+<div id="hora" style="margin-top:15px">🕒 --</div>
+</header>
 
-  <title>Monitor Guaxanduva</title>
+<section class="grid">
+<div class="card">
+<div class="local">🌧️ CHUVA</div><h2>CEMADEN</h2>
+<div class="valor" id="chuva">--</div><div class="sub">mm na última leitura</div>
+<div class="box">1 hora: <b id="h1">--</b> mm<br>24 horas: <b id="h24">--</b> mm<br><span id="cs" class="aviso">Carregando...</span></div>
+<a href="https://mapainterativo.cemaden.gov.br/" target="_blank">ABRIR CEMADEN</a>
+</div>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<div class="card">
+<div class="local">🌊 MARÉ</div><h2>Joinville • Babitonga</h2>
+<div class="valor" id="mare">--</div><div class="sub">metros</div>
+<div class="box"><b>Fonte:</b> EPAGRI/CIRAM<br><span id="ms" class="aviso">Carregando...</span></div>
+<a href="https://ciram.epagri.sc.gov.br/index.php/maregrafos/" target="_blank">ABRIR MARÉ</a>
+</div>
+</section>
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #08151d;
-      color: #eef8fc;
-    }
+<section class="card">
+<div class="local">🏞️ RIO GUAXANDUVA</div><h2>Nível do rio</h2>
+<div class="valor" id="rio">--</div>
+<div id="rs" class="box aviso">Verificando sensor...</div>
+</section>
 
-    main {
-      max-width: 700px;
-      margin: auto;
-      padding: 16px;
-    }
+<section class="card">
+<div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2>
+<div id="sistema" class="box aviso">Carregando dados.json...</div>
+<p><small id="coleta">Última coleta: --</small></p>
+</section>
 
-    header,
-    .card {
-      background: #112632;
-      border: 1px solid #294956;
-      border-radius: 18px;
-      padding: 18px;
-      margin-bottom: 14px;
-    }
+<section class="card">
+<div class="local">RISCO COMBINADO</div><h2>Chuva + Maré + Rio</h2>
+<div class="risco"><div>🟢<br>Normal</div><div>🟡<br>Atenção</div><div>🟠<br>Alerta</div><div>🔴<br>Crítico</div></div>
+<div class="box aviso">⚪ Sem classificação enquanto faltarem dados confiáveis.</div>
+</section>
 
-    h1 {
-      margin: 5px 0;
-      font-size: 27px;
-    }
+<section class="card"><h2>🚨 Emergência</h2>
+<div class="em"><div>Defesa Civil<div class="num">199</div></div><div>Bombeiros<div class="num">193</div></div></div>
+</section>
 
-    h2 {
-      margin: 5px 0;
-      font-size: 19px;
-    }
+<script>
+const $=x=>document.getElementById(x);
+const f=(v,n=1)=>v==null?"--":Number(v).toFixed(n).replace(".",",");
+function relogio(){$("hora").textContent="🕒 "+new Date().toLocaleString("pt-BR")}
+relogio();setInterval(relogio,1000);
 
-    .sub {
-      color: #a8c0ca;
-    }
+async function carregar(){
+try{
+const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});
+if(!r.ok)throw Error("HTTP "+r.status);
+const d=await r.json(),c=d.chuva||{},m=d.mare||{},q=d.rio||{};
 
-    .local {
-      font-size: 12px;
-      letter-spacing: 2px;
-      color: #8fc8df;
-    }
+$("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
+$("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+$("chuva").textContent=f(c.leitura_mm);
+$("h1").textContent=f(c.acumulado_1h_mm);
+$("h24").textContent=f(c.acumulado_24h_mm);
+$("cs").textContent=c.leitura_mm==null?"⚪ CEMADEN ainda sem leitura integrada":"🟢 Leitura automática recebida";
 
-    .icon {
-      font-size: 30px;
-    }
+$("mare").textContent=f(m.altura_m,2);
+const on=m.teste_fonte&&m.teste_fonte.status=="online";
+$("ms").textContent=m.altura_m!=null?"🟢 Leitura automática recebida":on?"🟡 Fonte online; altura ainda não integrada":"⚪ Fonte indisponível";
 
-    .valor {
-      margin-top: 22px;
-      font-size: 38px;
-      font-weight: bold;
-    }
+$("rio").textContent=q.nivel_m==null?"SEM SENSOR":f(q.nivel_m,2)+" m";
+$("rs").textContent=q.nivel_m==null?"⚪ Sem sensor público confirmado para o Rio Guaxanduva":"🟢 Nível automático recebido";
+}catch(e){
+$("sistema").innerHTML='<span class="erro">🔴 Falha ao carregar dados.json</span>';
+$("coleta").textContent=e.message;
+}}
+carregar();setInterval(carregar,60000);
+</script>
 
-    .unidade {
-      margin-top: 5px;
-      color: #a8c0ca;
-      font-size: 17px;
-    }
-
-    .painel {
-      background: #091a23;
-      border-radius: 12px;
-      padding: 14px;
-      margin-top: 15px;
+</main></body>
+</html>

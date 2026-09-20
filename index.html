@@ -9,9 +9,7 @@
 
 <style>
 
-*{
-box-sizing:border-box
-}
+*{box-sizing:border-box}
 
 body{
 margin:0;
@@ -26,8 +24,7 @@ margin:auto;
 padding:12px
 }
 
-header,
-.card{
+header,.card{
 background:#112632;
 border:1px solid #294956;
 border-radius:18px;
@@ -35,14 +32,8 @@ padding:18px;
 margin-bottom:14px
 }
 
-h1{
-margin:6px 0;
-font-size:27px
-}
-
-h2{
-margin:6px 0
-}
+h1{margin:6px 0;font-size:27px}
+h2{margin:6px 0}
 
 .local{
 color:#8fc8df;
@@ -50,10 +41,7 @@ font-size:12px;
 letter-spacing:2px
 }
 
-.sub,
-small{
-color:#a8c0ca
-}
+.sub,small{color:#a8c0ca}
 
 .grid{
 display:grid;
@@ -75,17 +63,9 @@ margin-top:14px;
 line-height:1.6
 }
 
-.ok{
-color:#8fe3a1
-}
-
-.aviso{
-color:#f1d277
-}
-
-.erro{
-color:#ff9b9b
-}
+.ok{color:#8fe3a1}
+.aviso{color:#f1d277}
+.erro{color:#ff9b9b}
 
 a{
 display:block;
@@ -199,6 +179,29 @@ font-weight:bold;
 margin-bottom:5px
 }
 
+/* GLOSSÁRIO */
+
+.medida{
+background:#091a23;
+border-radius:12px;
+padding:15px;
+margin-top:10px;
+line-height:1.5
+}
+
+.medida-sigla{
+font-size:24px;
+font-weight:bold;
+color:#8fc8df;
+margin-bottom:4px
+}
+
+.medida-exemplo{
+color:#a8c0ca;
+font-size:14px;
+margin-top:5px
+}
+
 @media(max-width:520px){
 
 .grid{
@@ -218,11 +221,9 @@ grid-template-columns:1fr 1fr
 </style>
 </head>
 
-
 <body>
 
 <main>
-
 
 <header>
 
@@ -238,9 +239,7 @@ COMASA • JOINVILLE/SC
 Chuva • Maré • Rio • Vento • Tempestades • Riscos
 </div>
 
-<div
-id="hora"
-style="margin-top:15px">
+<div id="hora" style="margin-top:15px">
 🕒 --
 </div>
 
@@ -249,20 +248,15 @@ style="margin-top:15px">
 
 <section class="grid">
 
-
 <div class="card">
 
 <div class="local">
 🌧️ CHUVA OBSERVADA
 </div>
 
-<h2>
-CEMADEN
-</h2>
+<h2>CEMADEN</h2>
 
-<div
-class="valor"
-id="chuva">
+<div class="valor" id="chuva">
 --
 </div>
 
@@ -273,20 +267,16 @@ mm na última leitura
 <div class="box">
 
 1 hora:
-<b id="h1">--</b>
-mm
+<b id="h1">--</b> mm
 
 <br>
 
 24 horas:
-<b id="h24">--</b>
-mm
+<b id="h24">--</b> mm
 
 <br>
 
-<span
-id="cs"
-class="aviso">
+<span id="cs" class="aviso">
 Carregando...
 </span>
 
@@ -317,22 +307,17 @@ Tábua de maré • extremos previstos
 
 <div class="mare-grid">
 
-
 <div class="mare-item">
 
 <div class="mare-titulo">
 ⬅️ Último extremo
 </div>
 
-<div
-class="mare-valor"
-id="mareAnterior">
+<div class="mare-valor" id="mareAnterior">
 --
 </div>
 
-<div
-class="mare-hora"
-id="mareAnteriorHora">
+<div class="mare-hora" id="mareAnteriorHora">
 --
 </div>
 
@@ -345,20 +330,15 @@ id="mareAnteriorHora">
 ➡️ Próximo extremo
 </div>
 
-<div
-class="mare-valor"
-id="mareProxima">
+<div class="mare-valor" id="mareProxima">
 --
 </div>
 
-<div
-class="mare-hora"
-id="mareProximaHora">
+<div class="mare-hora" id="mareProximaHora">
 --
 </div>
 
 </div>
-
 
 </div>
 
@@ -370,9 +350,7 @@ EPAGRI/CIRAM
 
 <br>
 
-<span
-id="ms"
-class="aviso">
+<span id="ms" class="aviso">
 Carregando...
 </span>
 
@@ -393,7 +371,6 @@ ABRIR EPAGRI/CIRAM
 
 </div>
 
-
 </section>
 
 
@@ -410,7 +387,6 @@ Comasa • Joinville
 <div class="sub">
 Modelo meteorológico • Open-Meteo Best Match
 </div>
-
 
 <div class="meteo">
 
@@ -446,17 +422,12 @@ Modelo meteorológico • Open-Meteo Best Match
 
 </div>
 
-
-<div
-id="ps"
-class="box aviso">
+<div id="ps" class="box aviso">
 Carregando previsão...
 </div>
 
 </section>
 
-
-<!-- PREVISÃO DOS PRÓXIMOS 7 DIAS -->
 
 <section class="card">
 
@@ -472,27 +443,21 @@ Tendência para Comasa • Joinville
 Probabilidade e quantidade prevista de chuva • Open-Meteo
 </div>
 
-<div
-id="previsao7dias"
-class="box">
+<div id="previsao7dias" class="box">
 Carregando previsão dos próximos dias...
 </div>
-
 
 <div class="box">
 
 <small>
 
-☔
-<b>Probabilidade</b>
+☔ <b>Probabilidade</b>
 = maior probabilidade de chuva prevista para o dia.
 
 <br><br>
 
-🌧️
-<b>Chuva prevista</b>
-= quantidade total estimada para o dia em
-milímetros (mm).
+🌧️ <b>Chuva prevista</b>
+= quantidade total estimada para o dia em milímetros (mm).
 
 <br><br>
 
@@ -512,23 +477,15 @@ meteorológicas são recebidas.
 🧊 GRANIZO
 </div>
 
-<h2>
-Alertas
-</h2>
+<h2>Alertas</h2>
 
-<div
-id="granizo"
-class="box aviso">
-
+<div id="granizo" class="box aviso">
 ⚪ Alerta oficial ainda não integrado
-
 </div>
 
 <small>
-
 Granizo não é inferido apenas pela previsão de chuva.
 O painel aguardará integração com fonte oficial de alertas.
-
 </small>
 
 </section>
@@ -540,19 +497,13 @@ O painel aguardará integração com fonte oficial de alertas.
 🏞️ RIO GUAXANDUVA
 </div>
 
-<h2>
-Nível do rio
-</h2>
+<h2>Nível do rio</h2>
 
-<div
-class="valor"
-id="rio">
+<div class="valor" id="rio">
 --
 </div>
 
-<div
-id="rs"
-class="box aviso">
+<div id="rs" class="box aviso">
 Verificando sensor...
 </div>
 
@@ -594,6 +545,184 @@ Não representa nível de inundação.
 </section>
 
 
+<!-- GLOSSÁRIO -->
+
+<section class="card">
+
+<div class="local">
+📖 ENTENDA AS MEDIDAS
+</div>
+
+<h2>
+O que significam os números?
+</h2>
+
+<div class="sub">
+Guia rápido para interpretar o Monitor Guaxanduva
+</div>
+
+
+<div class="medida">
+
+<div class="medida-sigla">
+🌧️ mm
+</div>
+
+<b>Milímetros de chuva</b>
+
+<div class="medida-exemplo">
+1 mm de chuva equivale aproximadamente a
+1 litro de água caindo sobre cada metro quadrado de superfície.
+</div>
+
+</div>
+
+
+<div class="medida">
+
+<div class="medida-sigla">
+🌧️ mm/h
+</div>
+
+<b>Milímetros por hora</b>
+
+<div class="medida-exemplo">
+Indica a intensidade da chuva:
+quantos milímetros estão caindo ou são estimados em uma hora.
+</div>
+
+</div>
+
+
+<div class="medida">
+
+<div class="medida-sigla">
+📏 m
+</div>
+
+<b>Metros</b>
+
+<div class="medida-exemplo">
+Unidade de altura ou nível.
+No painel pode ser usada para altitude,
+maré e futuramente nível do rio.
+</div>
+
+</div>
+
+
+<div class="medida">
+
+<div class="medida-sigla">
+🌬️ km/h
+</div>
+
+<b>Quilômetros por hora</b>
+
+<div class="medida-exemplo">
+Indica a velocidade do vento e das rajadas.
+</div>
+
+</div>
+
+
+<div class="medida">
+
+<div class="medida-sigla">
+☔ %
+</div>
+
+<b>Porcentagem</b>
+
+<div class="medida-exemplo">
+Na previsão de chuva representa uma probabilidade meteorológica.
+Não representa a quantidade de chuva que cairá.
+</div>
+
+</div>
+
+
+<div class="medida">
+
+<div class="medida-sigla">
+🧭 °
+</div>
+
+<b>Graus de direção</b>
+
+<div class="medida-exemplo">
+Indicam a direção do vento em uma escala de 0° a 360°.
+O painel também traduz o valor para pontos cardeais.
+</div>
+
+</div>
+
+
+<div class="medida">
+
+<div class="medida-sigla">
+🧭 N • NE • L • SE • S • SO • O • NO
+</div>
+
+<b>Pontos cardeais e colaterais</b>
+
+<div class="medida-exemplo">
+N = Norte • NE = Nordeste • L = Leste •
+SE = Sudeste • S = Sul • SO = Sudoeste •
+O = Oeste • NO = Noroeste.
+</div>
+
+</div>
+
+
+<div class="medida">
+
+<div class="medida-sigla">
+🌡️ °C
+</div>
+
+<b>Graus Celsius</b>
+
+<div class="medida-exemplo">
+Unidade usada para temperatura.
+Será utilizada quando a temperatura for incorporada ao painel.
+</div>
+
+</div>
+
+
+<div class="medida">
+
+<div class="medida-sigla">
+📡 dBZ
+</div>
+
+<b>Refletividade do radar meteorológico</b>
+
+<div class="medida-exemplo">
+É uma medida usada por radares meteorológicos para representar
+a intensidade dos ecos de precipitação.
+Valores maiores normalmente indicam ecos mais intensos,
+mas dBZ não deve ser interpretado sozinho como quantidade exata
+de chuva ou presença garantida de granizo.
+</div>
+
+</div>
+
+
+<div class="box">
+
+<small>
+ℹ️ Este glossário explica as unidades do painel.
+Previsões são estimativas meteorológicas e não substituem
+avisos oficiais da Defesa Civil.
+</small>
+
+</div>
+
+</section>
+
+
 <section class="card">
 
 <div class="local">
@@ -604,20 +733,14 @@ Não representa nível de inundação.
 Estado da coleta
 </h2>
 
-<div
-id="sistema"
-class="box aviso">
-
+<div id="sistema" class="box aviso">
 Carregando dados.json...
-
 </div>
 
 <p>
-
 <small id="coleta">
 Última coleta: --
 </small>
-
 </p>
 
 </section>
@@ -662,10 +785,8 @@ Crítico
 </div>
 
 <div class="box aviso">
-
 ⚪ Sem classificação enquanto faltarem dados
 observacionais confiáveis.
-
 </div>
 
 </section>
@@ -678,7 +799,6 @@ observacionais confiáveis.
 </h2>
 
 <div class="em">
-
 
 <div>
 
@@ -701,14 +821,12 @@ Bombeiros
 
 </div>
 
-
 </div>
 
 </section>
 
 
 <script>
-
 
 const $=x=>
 document.getElementById(x);
@@ -816,26 +934,13 @@ const d=
 await r.json();
 
 
-const c=
-d.chuva||{};
-
-const m=
-d.mare||{};
-
-const q=
-d.rio||{};
-
-const p=
-d.previsao||{};
-
-const a=
-p.atual||{};
-
-const ph=
-p.proxima_hora||{};
-
-const g=
-d.granizo||{};
+const c=d.chuva||{};
+const m=d.mare||{};
+const q=d.rio||{};
+const p=d.previsao||{};
+const a=p.atual||{};
+const ph=p.proxima_hora||{};
+const g=d.granizo||{};
 
 
 $("sistema").innerHTML=
@@ -1156,9 +1261,7 @@ carregar,
 60000
 );
 
-
 </script>
-
 
 </main>
 </body>

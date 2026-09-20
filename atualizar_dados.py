@@ -26,8 +26,7 @@ def baixar_pagina(url):
         url,
         timeout=30,
         headers={
-            "User-Agent":
-            "Monitor-Guaxanduva/1.0"
+            "User-Agent": "Mozilla/5.0 Monitor-Guaxanduva/1.0"
         },
     )
 
@@ -35,52 +34,95 @@ def baixar_pagina(url):
     return resposta.text
 
 
-def numero(texto):
-    texto = texto.strip().replace(",", ".")
-
+def converter_numero(texto):
     try:
-        return float(texto)
-    except ValueError:
+        return float(
+            texto.strip().replace(",", ".")
+        )
+    except (ValueError, AttributeError):
         return None
 
 
-def procurar_mare_joinville(html):
+def coletar_mare():
     """
-    Procura na tabela oficial da EPAGRI/CIRAM
-    as previsões de maré referentes a Joinville.
+    Busca a página oficial da EPAGRI/CIRAM.
 
-    Como a apresentação da página pode mudar,
-    o coletor é conservador: se não reconhecer
-    os dados com segurança, informa indisponível
-    em vez de fabricar valores.
+    O programa somente publica valores que
+    conseguir identificar na fonte.
+
+    Se a estrutura da página mudar, retorna
+    indisponível em vez de inventar informação.
     """
 
-    soup = BeautifulSoup(html, "html.parser")
+    try:
+        html = baixar_pagina(URL_MARE)
 
-    texto = soup.get_text(
-        "\n",
-        strip=True
-    )
+        soup = BeautifulSoup(
+            html,
+            "html.parser"
+        )
 
-    linhas = [
-        linha.strip()
-        for linha in texto.splitlines()
-        if linha.strip()
-    ]
+        texto = soup.get_text(
+            "\n",
+            strip=True
+        )
 
-    hoje = agora()
+        linhas = [
+            linha.strip()
+            for linha in texto.splitlines()
+            if linha.strip()
+        ]
 
-    formatos_data = [
-        hoje.strftime("%d/%m/%Y"),
-        hoje.strftime("%d/%m/%y"),
-        hoje.strftime("%d/%m"),
-    ]
+        # Localiza a área referente a Joinville.
+        posicao_joinville = None
 
-    inicio = None
+        for indice, linha in enumerate(linhas):
+            linha_minuscula = linha.lower()
 
-    for i, linha in enumerate(linhas):
-        minuscula = linha.lower()
+            if (
+                "joinville" in linha_minuscula
+                or "babitonga" in linha_minuscula
+            ):
+                posicao_joinville = indice
+                break
 
-        if (
-            "joinville" in minuscula
-            or
+        if posicao_joinville is None:
+            return {
+                "status": "indisponivel",
+                "fonte": "EPAGRI/CIRAM",
+                "tipo": "mare_astronomica_prevista",
+                "local": "Joinville / Baía da Babitonga",
+                "eventos": [],
+                "proxima": None,
+                "motivo": (
+                    "Joinville não foi localizada "
+                    "na página oficial."
+                ),
+            }
+
+        # Trabalha apenas com uma região limitada
+        # da página depois de encontrar Joinville.
+        trecho = linhas[
+            posicao_joinville:
+            posicao_joinville + 300
+        ]
+
+        padrao_data = re.compile(
+            r"\b\d{1,2}/\d{1,2}/(?:\d{2}|\d{4})\b"
+        )
+
+        padrao_hora = re.compile(
+            r"\b(?:[01]?\d|2[0-3]):[0-5]\d\b"
+        )
+
+        padrao_altura = re.compile(
+            r"(?<!\d)(-?\d+[,.]\d+)\s*(?:m\b)?",
+            re.IGNORECASE,
+        )
+
+        eventos = []
+        data_atual = None
+
+        for indice, linha in enumerate(trecho):
+
+            data_encontrada = padrao_data.search(

@@ -300,4 +300,70 @@ $("ms").textContent=
 m.altura_m!=null
 ?"🟢 Leitura automática recebida"
 :on
-?"🟡 Fonte online; altura ainda não integrada
+?"🟡 Fonte online; altura ainda não integrada"
+:"⚪ Fonte indisponível";
+
+$("rio").textContent=
+q.nivel_m==null
+?"SEM SENSOR"
+:f(q.nivel_m,2)+" m";
+
+$("rs").textContent=
+q.nivel_m==null
+?"⚪ Sem sensor público confirmado para o Rio Guaxanduva"
+:"🟢 Nível automático recebido";
+
+if(p.status=="online"){
+
+$("prob").textContent=
+ph.probabilidade_chuva_pct==null
+?"--"
+:Math.round(ph.probabilidade_chuva_pct)+"%";
+
+$("prevchuva").textContent=
+f(ph.precipitacao_mm)+" mm";
+
+$("vento").textContent=
+f(a.vento_kmh)+" km/h";
+
+$("rajada").textContent=
+f(a.rajada_kmh)+" km/h";
+
+$("direcao").textContent=
+pontoCardinal(a.direcao_graus);
+
+$("prevhora").textContent=
+horaCurta(ph.horario);
+
+$("ps").innerHTML=
+'<span class="ok">🟢 Previsão automática recebida</span>';
+
+}else{
+
+$("ps").innerHTML=
+'<span class="erro">🔴 Previsão indisponível</span>';
+
+}
+
+$("granizo").textContent=
+g.status=="sem_alerta_integrado"
+?"⚪ Alerta oficial ainda não integrado"
+:"🟡 "+g.status;
+
+}catch(e){
+
+$("sistema").innerHTML=
+'<span class="erro">🔴 Falha ao carregar dados.json</span>';
+
+$("coleta").textContent=e.message;
+
+}
+}
+
+carregar();
+setInterval(carregar,60000);
+</script>
+
+</main>
+</body>
+</html>

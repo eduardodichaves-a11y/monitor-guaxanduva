@@ -1,21 +1,20 @@
 import json
-import re
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import requests
-from bs4 import BeautifulSoup
 
 ARQUIVO = "dados.json"
 
-URL_MARE = (
+URL_MARE_CSV = (
     "https://ciram.epagri.sc.gov.br/"
-    "ciram_arquivos/oceano/tabuamare/tabuamare.html"
+    "ciram_arquivos/oceano/tabuamare/csv/"
+    "Tabua_Mare_Joinville.csv"
 )
 
 # Referência aproximada da região do Comasa
-LAT = -26.27018
-LON = -48.81041
+LAT = -26.27
+LON = -48.81
 
 
 def buscar_previsao():
@@ -82,18 +81,13 @@ def buscar_previsao():
             "modelo": "Best Match",
 
             "atual": {
-                "horario":
-                    atual.get("time"),
-
+                "horario": atual.get("time"),
                 "precipitacao_mm":
                     atual.get("precipitation"),
-
                 "vento_kmh":
                     atual.get("wind_speed_10m"),
-
                 "direcao_graus":
                     atual.get("wind_direction_10m"),
-
                 "rajada_kmh":
                     atual.get("wind_gusts_10m"),
             },
@@ -154,10 +148,21 @@ def buscar_previsao():
         }
 
 
-def buscar_mare():
+def diagnosticar_mare():
+    """
+    Diagnóstico temporário.
+
+    Baixa o CSV oficial de Joinville sem tentar
+    interpretar suas colunas.
+
+    Uma pequena amostra será colocada em dados.json
+    para descobrirmos exatamente o formato recebido
+    pelo GitHub Actions.
+    """
+
     try:
         r = requests.get(
-            URL_MARE,
+            URL_MARE_CSV,
             timeout=30,
             headers={
                 "User-Agent": "Monitor-Guaxanduva/1.0"
@@ -166,138 +171,46 @@ def buscar_mare():
 
         r.raise_for_status()
 
-        soup = BeautifulSoup(
-            r.text,
-            "html.parser",
-        )
+        # Requests normalmente identifica a codificação.
+        # Caso não identifique, usamos apparent_encoding.
+        if not r.encoding:
+            r.encoding = r.apparent_encoding
 
-        texto = soup.get_text(
-            "\n",
-            strip=True,
-        )
+        texto = r.text
 
-        agora = datetime.now(
-            ZoneInfo("America/Sao_Paulo")
-        )
+        # Remove BOM, caso exista.
+        texto = texto.lstrip("\ufeff")
 
-        data = agora.strftime("%d/%m/%Y")
+        linhas = texto.splitlines()
 
-        # Localiza um bloco de Joinville
-        # cuja primeira data seja hoje.
-        inicio = texto.find(
-            "Joinville\n" + data
-        )
-
-        if inicio == -1:
-            inicio = texto.find(
-                "Joinville " + data
-            )
-
-        if inicio == -1:
-            raise ValueError(
-                "Bloco de Joinville "
-                "para hoje não encontrado"
-            )
-
-        trecho = texto[inicio:]
-
-        # Limita ao começo do dia seguinte.
-        data_amanha = (
-            datetime.fromtimestamp(
-                agora.timestamp() + 86400,
-                ZoneInfo("America/Sao_Paulo"),
-            ).strftime("%d/%m/%Y")
-        )
-
-        pos_amanha = trecho.find(
-            data_amanha
-        )
-
-        # As datas aparecem no cabeçalho.
-        # Depois do cabeçalho vem Hora Alt.(m).
-        pos_hora = trecho.find(
-            "Hora Alt.(m)"
-        )
-
-        if pos_hora == -1:
-            raise ValueError(
-                "Cabeçalho Hora Alt.(m) "
-                "não encontrado"
-            )
-
-        dados_dia = trecho[
-            pos_hora + len("Hora Alt.(m)") :
-        ]
-
-        # Para no próximo cabeçalho Hora Alt.(m),
-        # que corresponde ao dia seguinte.
-        fim = dados_dia.find(
-            "Hora Alt.(m)"
-        )
-
-        if fim != -1:
-            dados_dia = dados_dia[:fim]
-
-        encontrados = re.findall(
-            r"(\d{2}:\d{2})\s+(-?\d+[.,]\d+)",
-            dados_dia,
-        )
-
-        eventos = []
-
-        for hora, altura in encontrados:
-            eventos.append({
-                "hora": hora,
-                "altura_m": float(
-                    altura.replace(",", ".")
-                ),
-            })
-
-        if not eventos:
-            raise ValueError(
-                "Eventos de maré "
-                "não encontrados"
-            )
-
-        agora_min = (
-            agora.hour * 60
-            + agora.minute
-        )
-
-        anterior = None
-        proximo = None
-
-        for evento in eventos:
-            h, m = map(
-                int,
-                evento["hora"].split(":"),
-            )
-
-            minutos = h * 60 + m
-
-            if minutos <= agora_min:
-                anterior = evento
-
-            if (
-                minutos > agora_min
-                and proximo is None
-            ):
-                proximo = evento
+        # Guardamos somente uma pequena amostra.
+        # Isso evita jogar o CSV inteiro no dados.json.
+        amostra = linhas[:30]
 
         return {
-            "status": "online",
+            "status": "diagnostico_csv",
             "fonte": "EPAGRI/CIRAM",
             "tipo": "tabua_de_mare_prevista",
             "local": "Joinville",
-            "data": data,
-            "eventos": eventos,
-            "anterior": anterior,
-            "proximo": proximo,
+
+            "http_status": r.status_code,
+
+            "content_type":
+                r.headers.get("Content-Type"),
+
+            "encoding":
+                r.encoding,
+
+            "quantidade_linhas":
+                len(linhas),
+
+            "amostra_csv":
+                amostra,
         }
 
     except Exception as erro:
         return {
-            "status": "indisponivel",
+            "status": "erro_diagnostico",
             "fonte": "EPAGRI/CIRAM",
             "tipo": "tabua_de_mare_prevista",
             "erro": str(erro),
@@ -310,7 +223,7 @@ def main():
     )
 
     previsao = buscar_previsao()
-    mare = buscar_mare()
+    mare = diagnosticar_mare()
 
     dados = {
         "monitor": "Monitor Guaxanduva",
@@ -361,11 +274,9 @@ def main():
             indent=2,
         )
 
-    print(
-        "dados.json criado com sucesso"
-    )
+    print("dados.json criado com sucesso")
 
-    print("MARÉ:")
+    print("DIAGNÓSTICO DA MARÉ:")
 
     print(
         json.dumps(

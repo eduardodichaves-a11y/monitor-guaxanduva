@@ -17,7 +17,7 @@ jobs:
       - name: Baixar repositório
         uses: actions/checkout@v4
 
-      - name: Instalar Python
+      - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -25,21 +25,21 @@ jobs:
       - name: Instalar dependências
         run: |
           python -m pip install --upgrade pip
-          pip install requests beautifulsoup4
+          pip install requests beautifulsoup4 pillow
 
       - name: Atualizar dados
         run: python atualizar_dados.py
 
       - name: Salvar dados atualizados
         run: |
-          git config user.name "Monitor Guaxanduva"
-          git config user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add dados.json
 
           if git diff --cached --quiet; then
-            echo "Nenhuma alteração."
+            echo "Nenhuma alteração em dados.json."
           else
-            git commit -m "Atualização automática dos dados"
+            git commit -m "Atualiza dados do Monitor Guaxanduva"
             git push
           fi

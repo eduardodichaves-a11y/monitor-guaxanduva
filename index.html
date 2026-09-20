@@ -31,4 +31,160 @@ h2{font-size:19px;margin:5px 0}
 .sub{color:#a8c0ca}
 .local{
  font-size:12px;
- letter-spacing:2
+ letter-spacing:2px;
+ color:#8fc8df
+}
+.grid{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px
+}
+.icon{font-size:30px}
+a.botao{
+ display:block;
+ background:#d9eef6;
+ color:#09202b;
+ text-decoration:none;
+ text-align:center;
+ font-weight:bold;
+ padding:12px;
+ margin-top:14px;
+ border-radius:12px
+}
+.risco{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:5px;
+ margin-top:15px
+}
+.risco div{
+ background:#091a23;
+ text-align:center;
+ border-radius:10px;
+ padding:10px 2px;
+ font-size:12px
+}
+.aviso{
+ color:#9db4be;
+ font-size:13px;
+ line-height:1.5
+}
+.emergencia{
+ display:flex;
+ gap:10px
+}
+.emergencia div{
+ flex:1;
+ background:#091a23;
+ text-align:center;
+ border-radius:12px;
+ padding:12px
+}
+.numero{
+ font-size:27px;
+ font-weight:bold
+}
+.status{
+ background:#091a23;
+ border-radius:12px;
+ padding:12px;
+ margin-top:12px
+}
+@media(max-width:420px){
+ main{padding:10px}
+ header,.card{padding:14px}
+ h1{font-size:24px}
+}
+</style>
+</head>
+
+<body>
+<main>
+
+<header>
+ <div class="local">COMASA • JOINVILLE/SC</div>
+ <h1>🌧️🌊 Monitor Guaxanduva</h1>
+ <div class="sub">Chuva, maré e risco de alagamento</div>
+</header>
+
+<section class="grid">
+
+<div class="card">
+ <div class="icon">🌧️</div>
+ <h2>Chuva real</h2>
+ <div class="sub">CEMADEN</div>
+ <a class="botao"
+ href="https://mapainterativo.cemaden.gov.br/"
+ target="_blank">ABRIR CEMADEN</a>
+</div>
+
+<div class="card">
+ <div class="icon">🌊</div>
+ <h2>Maré</h2>
+ <div class="sub">EPAGRI/CIRAM</div>
+ <a class="botao"
+ href="https://ciram.epagri.sc.gov.br/index.php/maregrafos/"
+ target="_blank">ABRIR MARÉ</a>
+</div>
+
+</section>
+
+<section class="card">
+ <div class="local">RISCO COMBINADO</div>
+ <h2>Chuva + Maré + Rio Guaxanduva</h2>
+
+ <div class="risco">
+  <div>🟢<br>Normal</div>
+  <div>🟡<br>Atenção</div>
+  <div>🟠<br>Alerta</div>
+  <div>🔴<br>Crítico</div>
+ </div>
+
+ <div class="status">
+  📡 <strong>Monitoramento:</strong><br>
+  <span class="aviso">
+  A integração automática dos dados será adicionada
+  somente com fontes confiáveis.
+  </span>
+ </div>
+
+ <p class="aviso">
+ Nenhum nível de risco será inventado. Caso uma fonte esteja
+ indisponível ou desatualizada, o monitor informará isso claramente.
+ </p>
+</section>
+
+<section class="card">
+ <h2>🎯 Região monitorada</h2>
+ <p>Comasa — Joinville/SC</p>
+ <p>Rio Guaxanduva • chuva regional • influência da maré</p>
+</section>
+
+<section class="card">
+ <h2>🚨 Emergência</h2>
+
+ <div class="emergencia">
+  <div>
+   Defesa Civil
+   <div class="numero">199</div>
+  </div>
+
+  <div>
+   Bombeiros
+   <div class="numero">193</div>
+  </div>
+ </div>
+</section>
+
+<section class="card">
+ <h2>ℹ️ Importante</h2>
+ <p class="aviso">
+ O Monitor Guaxanduva é uma central complementar de consulta.
+ Em situações de risco, prevalecem os avisos e orientações
+ oficiais da Defesa Civil.
+ </p>
+</section>
+
+</main>
+</body>
+</html>

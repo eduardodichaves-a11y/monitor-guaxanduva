@@ -13,52 +13,23 @@ URL_MARE = (
     "ciram_arquivos/oceano/tabuamare/tabuamare.html"
 )
 
-# Referência aproximada da região do Comasa - Joinville/SC
+# Referência aproximada da região do Comasa
 LAT = -26.27018
 LON = -48.81041
 
 
-def testar_fonte(url):
-    try:
-        r = requests.get(
-            url,
-            timeout=30,
-            headers={
-                "User-Agent": "Monitor-Guaxanduva/1.0"
-            },
-        )
-
-        r.raise_for_status()
-
-        return {
-            "status": "online",
-            "http": r.status_code,
-        }
-
-    except Exception as erro:
-        return {
-            "status": "indisponivel",
-            "erro": str(erro),
-        }
-
-
 def buscar_previsao():
-    url = (
-        "https://api.open-meteo.com/"
-        "v1/forecast"
-    )
+    url = "https://api.open-meteo.com/v1/forecast"
 
     parametros = {
         "latitude": LAT,
         "longitude": LON,
-
         "current": (
             "precipitation,"
             "wind_speed_10m,"
             "wind_direction_10m,"
             "wind_gusts_10m"
         ),
-
         "hourly": (
             "precipitation_probability,"
             "precipitation,"
@@ -66,7 +37,6 @@ def buscar_previsao():
             "wind_direction_10m,"
             "wind_gusts_10m"
         ),
-
         "forecast_days": 2,
         "timezone": "America/Sao_Paulo",
     }
@@ -77,28 +47,16 @@ def buscar_previsao():
             params=parametros,
             timeout=30,
             headers={
-                "User-Agent":
-                "Monitor-Guaxanduva/1.0"
+                "User-Agent": "Monitor-Guaxanduva/1.0"
             },
         )
 
         r.raise_for_status()
         resposta = r.json()
 
-        atual = resposta.get(
-            "current",
-            {},
-        )
-
-        horario = resposta.get(
-            "hourly",
-            {},
-        )
-
-        tempos = horario.get(
-            "time",
-            [],
-        )
+        atual = resposta.get("current", {})
+        horario = resposta.get("hourly", {})
+        tempos = horario.get("time", [])
 
         agora = datetime.now(
             ZoneInfo("America/Sao_Paulo")
@@ -107,14 +65,10 @@ def buscar_previsao():
         indice = 0
 
         if tempos:
-            alvo = agora.strftime(
-                "%Y-%m-%dT%H:00"
-            )
+            alvo = agora.strftime("%Y-%m-%dT%H:00")
 
             if alvo in tempos:
-                indice = tempos.index(
-                    alvo
-                )
+                indice = tempos.index(alvo)
 
         def valor(lista):
             try:
@@ -132,33 +86,22 @@ def buscar_previsao():
                     atual.get("time"),
 
                 "precipitacao_mm":
-                    atual.get(
-                        "precipitation"
-                    ),
+                    atual.get("precipitation"),
 
                 "vento_kmh":
-                    atual.get(
-                        "wind_speed_10m"
-                    ),
+                    atual.get("wind_speed_10m"),
 
                 "direcao_graus":
-                    atual.get(
-                        "wind_direction_10m"
-                    ),
+                    atual.get("wind_direction_10m"),
 
                 "rajada_kmh":
-                    atual.get(
-                        "wind_gusts_10m"
-                    ),
+                    atual.get("wind_gusts_10m"),
             },
 
             "proxima_hora": {
                 "horario":
                     valor(
-                        horario.get(
-                            "time",
-                            [],
-                        )
+                        horario.get("time", [])
                     ),
 
                 "probabilidade_chuva_pct":
@@ -217,8 +160,7 @@ def buscar_mare():
             URL_MARE,
             timeout=30,
             headers={
-                "User-Agent":
-                "Monitor-Guaxanduva/1.0"
+                "User-Agent": "Monitor-Guaxanduva/1.0"
             },
         )
 
@@ -229,134 +171,91 @@ def buscar_mare():
             "html.parser",
         )
 
+        texto = soup.get_text(
+            "\n",
+            strip=True,
+        )
+
         agora = datetime.now(
             ZoneInfo("America/Sao_Paulo")
         )
 
-        data = agora.strftime(
-            "%d/%m/%Y"
+        data = agora.strftime("%d/%m/%Y")
+
+        # Localiza um bloco de Joinville
+        # cuja primeira data seja hoje.
+        inicio = texto.find(
+            "Joinville\n" + data
         )
 
-        tabela_joinville = None
-
-        for tabela in soup.find_all(
-            "table"
-        ):
-            texto = tabela.get_text(
-                " ",
-                strip=True,
+        if inicio == -1:
+            inicio = texto.find(
+                "Joinville " + data
             )
 
-            if (
-                "Joinville" in texto
-                and data in texto
-            ):
-                tabela_joinville = tabela
-                break
-
-        if tabela_joinville is None:
+        if inicio == -1:
             raise ValueError(
-                "Tabela de Joinville "
-                "não encontrada"
+                "Bloco de Joinville "
+                "para hoje não encontrado"
             )
 
-        linhas = (
-            tabela_joinville.find_all(
-                "tr"
-            )
+        trecho = texto[inicio:]
+
+        # Limita ao começo do dia seguinte.
+        data_amanha = (
+            datetime.fromtimestamp(
+                agora.timestamp() + 86400,
+                ZoneInfo("America/Sao_Paulo"),
+            ).strftime("%d/%m/%Y")
         )
 
-        indice_coluna = None
-        linha_datas = None
+        pos_amanha = trecho.find(
+            data_amanha
+        )
 
-        for linha in linhas:
-            celulas = linha.find_all(
-                ["th", "td"]
-            )
+        # As datas aparecem no cabeçalho.
+        # Depois do cabeçalho vem Hora Alt.(m).
+        pos_hora = trecho.find(
+            "Hora Alt.(m)"
+        )
 
-            textos = [
-                c.get_text(
-                    " ",
-                    strip=True,
-                )
-                for c in celulas
-            ]
-
-            if data in textos:
-                indice_coluna = (
-                    textos.index(data)
-                )
-
-                linha_datas = linha
-                break
-
-        if indice_coluna is None:
+        if pos_hora == -1:
             raise ValueError(
-                "Data de hoje "
-                "não encontrada"
+                "Cabeçalho Hora Alt.(m) "
+                "não encontrado"
             )
 
-        pos = linhas.index(
-            linha_datas
+        dados_dia = trecho[
+            pos_hora + len("Hora Alt.(m)") :
+        ]
+
+        # Para no próximo cabeçalho Hora Alt.(m),
+        # que corresponde ao dia seguinte.
+        fim = dados_dia.find(
+            "Hora Alt.(m)"
+        )
+
+        if fim != -1:
+            dados_dia = dados_dia[:fim]
+
+        encontrados = re.findall(
+            r"(\d{2}:\d{2})\s+(-?\d+[.,]\d+)",
+            dados_dia,
         )
 
         eventos = []
 
-        for linha in linhas[
-            pos + 1:
-        ]:
-            celulas = linha.find_all(
-                ["th", "td"]
-            )
-
-            if not celulas:
-                continue
-
-            if (
-                indice_coluna
-                >= len(celulas)
-            ):
-                continue
-
-            texto = (
-                celulas[
-                    indice_coluna
-                ].get_text(
-                    " ",
-                    strip=True,
-                )
-            )
-
-            encontrados = re.findall(
-                (
-                    r"(\d{2}:\d{2})"
-                    r"\s+"
-                    r"(-?\d+[.,]\d+)"
+        for hora, altura in encontrados:
+            eventos.append({
+                "hora": hora,
+                "altura_m": float(
+                    altura.replace(",", ".")
                 ),
-                texto,
-            )
-
-            if encontrados:
-                for (
-                    hora,
-                    altura,
-                ) in encontrados:
-
-                    eventos.append({
-                        "hora": hora,
-                        "altura_m": float(
-                            altura.replace(
-                                ",",
-                                ".",
-                            )
-                        ),
-                    })
-
-                break
+            })
 
         if not eventos:
             raise ValueError(
-                "Horários e alturas "
+                "Eventos de maré "
                 "não encontrados"
             )
 
@@ -371,27 +270,24 @@ def buscar_mare():
         for evento in eventos:
             h, m = map(
                 int,
-                evento[
-                    "hora"
-                ].split(":"),
+                evento["hora"].split(":"),
             )
 
-            minutos = (
-                h * 60 + m
-            )
+            minutos = h * 60 + m
 
             if minutos <= agora_min:
                 anterior = evento
 
-            if minutos > agora_min:
+            if (
+                minutos > agora_min
+                and proximo is None
+            ):
                 proximo = evento
-                break
 
         return {
             "status": "online",
             "fonte": "EPAGRI/CIRAM",
-            "tipo":
-                "tabua_de_mare_prevista",
+            "tipo": "tabua_de_mare_prevista",
             "local": "Joinville",
             "data": data,
             "eventos": eventos,
@@ -403,8 +299,7 @@ def buscar_mare():
         return {
             "status": "indisponivel",
             "fonte": "EPAGRI/CIRAM",
-            "tipo":
-                "tabua_de_mare_prevista",
+            "tipo": "tabua_de_mare_prevista",
             "erro": str(erro),
         }
 
@@ -418,62 +313,38 @@ def main():
     mare = buscar_mare()
 
     dados = {
-        "monitor":
-            "Monitor Guaxanduva",
-
-        "local":
-            "Comasa - Joinville/SC",
-
-        "gerado_em":
-            agora.isoformat(),
+        "monitor": "Monitor Guaxanduva",
+        "local": "Comasa - Joinville/SC",
+        "gerado_em": agora.isoformat(),
 
         "chuva": {
-            "status":
-                "aguardando_integracao",
-
-            "fonte":
-                "CEMADEN",
-
-            "leitura_mm":
-                None,
-
-            "acumulado_1h_mm":
-                None,
-
-            "acumulado_24h_mm":
-                None,
+            "status": "aguardando_integracao",
+            "fonte": "CEMADEN",
+            "leitura_mm": None,
+            "acumulado_1h_mm": None,
+            "acumulado_24h_mm": None,
         },
 
         "mare": mare,
 
         "rio": {
-            "nome":
-                "Rio Guaxanduva",
-
+            "nome": "Rio Guaxanduva",
             "status":
                 "sem_sensor_publico_confirmado",
-
-            "nivel_m":
-                None,
+            "nivel_m": None,
         },
 
-        "previsao":
-            previsao,
+        "previsao": previsao,
 
         "granizo": {
-            "status":
-                "sem_alerta_integrado",
-
+            "status": "sem_alerta_integrado",
             "fonte":
                 "Defesa Civil - integração futura",
         },
 
         "emergencia": {
-            "defesa_civil":
-                "199",
-
-            "bombeiros":
-                "193",
+            "defesa_civil": "199",
+            "bombeiros": "193",
         },
     }
 
@@ -491,13 +362,10 @@ def main():
         )
 
     print(
-        "dados.json criado "
-        "com sucesso"
+        "dados.json criado com sucesso"
     )
 
-    print(
-        "MARÉ:"
-    )
+    print("MARÉ:")
 
     print(
         json.dumps(
@@ -507,9 +375,7 @@ def main():
         )
     )
 
-    print(
-        "PREVISÃO:"
-    )
+    print("PREVISÃO:")
 
     print(
         json.dumps(

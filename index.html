@@ -3,188 +3,717 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#102431">
+<meta name="theme-color" content="#08151d">
 <title>Monitor Guaxanduva</title>
 
 <style>
 *{box-sizing:border-box}
+
 body{
- margin:0;
- font-family:Arial,sans-serif;
- background:#08151d;
- color:#eef8fc
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#08151d;
+  color:#eef8fc;
 }
+
 main{
- max-width:700px;
- margin:auto;
- padding:16px
+  max-width:760px;
+  margin:auto;
+  padding:14px;
 }
+
 header,.card{
- background:#112632;
- border:1px solid #294956;
- border-radius:18px;
- padding:18px;
- margin-bottom:14px
+  background:#112632;
+  border:1px solid #294956;
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:14px;
 }
-h1{margin:5px 0;font-size:27px}
-h2{font-size:19px;margin:5px 0}
-.sub{color:#a8c0ca}
+
+h1{margin:5px 0;font-size:28px}
+h2{margin:5px 0 10px;font-size:19px}
+
 .local{
- font-size:12px;
- letter-spacing:2px;
- color:#8fc8df
+  font-size:12px;
+  letter-spacing:2px;
+  color:#8fc8df;
 }
+
+.sub{color:#a8c0ca}
+
 .grid{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:10px
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
 }
-.icon{font-size:30px}
-a.botao{
- display:block;
- background:#d9eef6;
- color:#09202b;
- text-decoration:none;
- text-align:center;
- font-weight:bold;
- padding:12px;
- margin-top:14px;
- border-radius:12px
+
+.valor{
+  font-size:31px;
+  font-weight:bold;
+  margin:12px 0 3px;
 }
-.risco{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:5px;
- margin-top:15px
+
+.unidade{
+  color:#a8c0ca;
+  font-size:14px;
 }
-.risco div{
- background:#091a23;
- text-align:center;
- border-radius:10px;
- padding:10px 2px;
- font-size:12px
-}
-.aviso{
- color:#9db4be;
- font-size:13px;
- line-height:1.5
-}
-.emergencia{
- display:flex;
- gap:10px
-}
-.emergencia div{
- flex:1;
- background:#091a23;
- text-align:center;
- border-radius:12px;
- padding:12px
-}
-.numero{
- font-size:27px;
- font-weight:bold
-}
+
 .status{
- background:#091a23;
- border-radius:12px;
- padding:12px;
- margin-top:12px
+  background:#091a23;
+  border-radius:12px;
+  padding:12px;
+  margin-top:12px;
+  line-height:1.5;
 }
-@media(max-width:420px){
- main{padding:10px}
- header,.card{padding:14px}
- h1{font-size:24px}
+
+.atualizacao{
+  color:#9db4be;
+  font-size:12px;
+  margin-top:7px;
+}
+
+.ok{color:#8ee5a5}
+.atencao{color:#ffd36a}
+.erro{color:#ff9d9d}
+
+a.botao{
+  display:block;
+  background:#d9eef6;
+  color:#09202b;
+  text-decoration:none;
+  text-align:center;
+  font-weight:bold;
+  padding:12px;
+  margin-top:14px;
+  border-radius:12px;
+}
+
+.risco{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:5px;
+  margin-top:15px;
+}
+
+.risco div{
+  background:#091a23;
+  text-align:center;
+  border-radius:10px;
+  padding:10px 2px;
+  font-size:12px;
+}
+
+.aviso{
+  color:#9db4be;
+  font-size:13px;
+  line-height:1.5;
+}
+
+.emergencia{
+  display:flex;
+  gap:10px;
+}
+
+.emergencia div{
+  flex:1;
+  background:#091a23;
+  text-align:center;
+  border-radius:12px;
+  padding:12px;
+}
+
+.numero{
+  font-size:28px;
+  font-weight:bold;
+}
+
+#relogio{
+  font-size:13px;
+  color:#a8c0ca;
+  margin-top:8px;
+}
+
+@media(max-width:520px){
+  main{padding:10px}
+  header,.card{padding:14px}
+  h1{font-size:24px}
+  .grid{grid-template-columns:1fr}
 }
 </style>
 </head>
 
 <body>
+
 <main>
 
 <header>
- <div class="local">COMASA • JOINVILLE/SC</div>
- <h1>🌧️🌊 Monitor Guaxanduva</h1>
- <div class="sub">Chuva, maré e risco de alagamento</div>
+  <div class="local">COMASA • JOINVILLE/SC</div>
+  <h1>🌧️🌊 Monitor Guaxanduva</h1>
+  <div class="sub">
+    Chuva • Maré • Rio Guaxanduva • Risco de alagamento
+  </div>
+  <div id="relogio"></div>
 </header>
+
 
 <section class="grid">
 
 <div class="card">
- <div class="icon">🌧️</div>
- <h2>Chuva real</h2>
- <div class="sub">CEMADEN</div>
- <a class="botao"
- href="https://mapainterativo.cemaden.gov.br/"
- target="_blank">ABRIR CEMADEN</a>
+
+  <div class="local">🌧️ CHUVA</div>
+  <h2>CEMADEN</h2>
+
+  <div id="chuvaValor" class="valor">--</div>
+  <div class="unidade">mm na última leitura</div>
+
+  <div class="status">
+
+    <div>
+      <strong>Estação:</strong>
+      <span id="chuvaEstacao">procurando...</span>
+    </div>
+
+    <div>
+      <strong>Município:</strong>
+      Joinville
+    </div>
+
+    <div id="chuvaHora" class="atualizacao">
+      Tentando obter dados...
+    </div>
+
+    <div id="chuvaEstado" class="atualizacao">
+      📡 Conectando ao CEMADEN
+    </div>
+
+  </div>
+
+  <a class="botao"
+     href="https://mapainterativo.cemaden.gov.br/"
+     target="_blank">
+     ABRIR CEMADEN
+  </a>
+
 </div>
+
 
 <div class="card">
- <div class="icon">🌊</div>
- <h2>Maré</h2>
- <div class="sub">EPAGRI/CIRAM</div>
- <a class="botao"
- href="https://ciram.epagri.sc.gov.br/index.php/maregrafos/"
- target="_blank">ABRIR MARÉ</a>
+
+  <div class="local">🌊 MARÉ</div>
+  <h2>Joinville • Babitonga</h2>
+
+  <div class="valor">--</div>
+  <div class="unidade">metros</div>
+
+  <div class="status">
+
+    <div>
+      <strong>Fonte:</strong> EPAGRI/CIRAM
+    </div>
+
+    <div class="atualizacao atencao">
+      ⚪ Integração automática em validação
+    </div>
+
+    <div class="atualizacao">
+      Consulte a leitura oficial pelo botão abaixo.
+    </div>
+
+  </div>
+
+  <a class="botao"
+     href="https://ciram.epagri.sc.gov.br/index.php/maregrafos/"
+     target="_blank">
+     ABRIR MARÉ
+  </a>
+
 </div>
 
 </section>
 
-<section class="card">
- <div class="local">RISCO COMBINADO</div>
- <h2>Chuva + Maré + Rio Guaxanduva</h2>
-
- <div class="risco">
-  <div>🟢<br>Normal</div>
-  <div>🟡<br>Atenção</div>
-  <div>🟠<br>Alerta</div>
-  <div>🔴<br>Crítico</div>
- </div>
-
- <div class="status">
-  📡 <strong>Monitoramento:</strong><br>
-  <span class="aviso">
-  A integração automática dos dados será adicionada
-  somente com fontes confiáveis.
-  </span>
- </div>
-
- <p class="aviso">
- Nenhum nível de risco será inventado. Caso uma fonte esteja
- indisponível ou desatualizada, o monitor informará isso claramente.
- </p>
-</section>
 
 <section class="card">
- <h2>🎯 Região monitorada</h2>
- <p>Comasa — Joinville/SC</p>
- <p>Rio Guaxanduva • chuva regional • influência da maré</p>
-</section>
 
-<section class="card">
- <h2>🚨 Emergência</h2>
+  <div class="local">🏞️ RIO GUAXANDUVA</div>
+  <h2>Nível do rio</h2>
 
- <div class="emergencia">
-  <div>
-   Defesa Civil
-   <div class="numero">199</div>
+  <div class="valor">--</div>
+
+  <div class="status atencao">
+    ⚪ SEM SENSOR PÚBLICO CONFIRMADO
   </div>
 
-  <div>
-   Bombeiros
-   <div class="numero">193</div>
-  </div>
- </div>
+  <p class="aviso">
+    Nenhum nível será estimado ou inventado.
+    Um valor somente aparecerá quando houver uma fonte pública,
+    verificável e atualizada para o Rio Guaxanduva.
+  </p>
+
 </section>
 
+
 <section class="card">
- <h2>ℹ️ Importante</h2>
- <p class="aviso">
- O Monitor Guaxanduva é uma central complementar de consulta.
- Em situações de risco, prevalecem os avisos e orientações
- oficiais da Defesa Civil.
- </p>
+
+  <div class="local">🚦 RISCO COMBINADO</div>
+  <h2>Chuva + Maré + Rio Guaxanduva</h2>
+
+  <div class="risco">
+    <div>🟢<br>Normal</div>
+    <div>🟡<br>Atenção</div>
+    <div>🟠<br>Alerta</div>
+    <div>🔴<br>Crítico</div>
+  </div>
+
+  <div class="status">
+
+    <strong id="riscoAtual">
+      ⚪ DADOS INSUFICIENTES
+    </strong>
+
+    <p class="aviso" id="riscoTexto">
+      O risco não será classificado automaticamente enquanto
+      chuva, maré e condições do rio não puderem ser avaliadas
+      com dados confiáveis.
+    </p>
+
+  </div>
+
+</section>
+
+
+<section class="card">
+
+  <h2>📷 Monitoramento oficial</h2>
+
+  <p class="aviso">
+    Consulte também as câmeras e informações públicas
+    disponibilizadas pelo município de Joinville.
+  </p>
+
+  <a class="botao"
+     href="https://facil.joinville.sc.gov.br/"
+     target="_blank">
+     ABRIR JOINVILLE FÁCIL
+  </a>
+
+</section>
+
+
+<section class="card">
+
+  <h2>🔄 Atualização</h2>
+
+  <div class="status">
+    O Monitor tenta atualizar automaticamente os dados de chuva
+    a cada <strong>10 minutos</strong>.
+  </div>
+
+  <p class="aviso">
+    Caso uma fonte esteja indisponível, bloqueie consultas externas
+    ou apresente informação desatualizada, o painel indicará a falha.
+    Ausência de dados nunca significa situação normal.
+  </p>
+
+</section>
+
+
+<section class="card">
+
+  <h2>🚨 Emergência</h2>
+
+  <div class="emergencia">
+
+    <div>
+      Defesa Civil
+      <div class="numero">199</div>
+    </div>
+
+    <div>
+      Bombeiros
+      <div class="numero">193</div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="card">
+
+  <h2>ℹ️ Importante</h2>
+
+  <p class="aviso">
+    O Monitor Guaxanduva é uma ferramenta complementar de consulta.
+    Em situação de emergência, prevalecem os alertas e orientações
+    oficiais da Defesa Civil.
+  </p>
+
 </section>
 
 </main>
+
+
+<script>
+
+/* ===========================
+   RELÓGIO DE JOINVILLE
+   =========================== */
+
+function atualizarRelogio(){
+
+  const agora = new Date();
+
+  const texto =
+    agora.toLocaleString(
+      "pt-BR",
+      {
+        timeZone:"America/Sao_Paulo",
+        dateStyle:"short",
+        timeStyle:"medium"
+      }
+    );
+
+  document.getElementById("relogio").textContent =
+    "🕒 " + texto;
+}
+
+atualizarRelogio();
+setInterval(atualizarRelogio,1000);
+
+
+/* ===========================
+   CEMADEN
+   =========================== */
+
+const API_CEMADEN =
+"https://sws.cemaden.gov.br/PED/rest/pcds-dados-recentes";
+
+
+function texto(obj,...nomes){
+
+  for(const nome of nomes){
+
+    if(
+      obj &&
+      obj[nome] !== undefined &&
+      obj[nome] !== null
+    ){
+      return obj[nome];
+    }
+
+  }
+
+  return null;
+}
+
+
+function escolherEstacaoJoinville(lista){
+
+  const joinville = lista.filter(item=>{
+
+    const municipio =
+      String(
+        texto(
+          item,
+          "cidade",
+          "municipio",
+          "nomeMunicipio"
+        ) || ""
+      ).toLowerCase();
+
+    const uf =
+      String(
+        texto(
+          item,
+          "uf",
+          "estado"
+        ) || ""
+      ).toLowerCase();
+
+    return (
+      municipio.includes("joinville") ||
+      (
+        JSON.stringify(item)
+        .toLowerCase()
+        .includes("joinville")
+      )
+    ) &&
+    (
+      uf === "" ||
+      uf === "sc" ||
+      uf.includes("santa catarina")
+    );
+
+  });
+
+
+  if(joinville.length === 0){
+    return null;
+  }
+
+
+  const preferencias = [
+    "aventureiro",
+    "iririu",
+    "iririú",
+    "comasa"
+  ];
+
+
+  for(const preferida of preferencias){
+
+    const encontrada =
+      joinville.find(item=>
+        JSON.stringify(item)
+        .toLowerCase()
+        .includes(preferida)
+      );
+
+    if(encontrada){
+      return encontrada;
+    }
+
+  }
+
+
+  return joinville[0];
+}
+
+
+async function atualizarChuva(){
+
+  const valorEl =
+    document.getElementById("chuvaValor");
+
+  const estacaoEl =
+    document.getElementById("chuvaEstacao");
+
+  const horaEl =
+    document.getElementById("chuvaHora");
+
+  const estadoEl =
+    document.getElementById("chuvaEstado");
+
+
+  estadoEl.textContent =
+    "📡 Consultando CEMADEN...";
+
+  estadoEl.className =
+    "atualizacao";
+
+
+  try{
+
+    const resposta =
+      await fetch(
+        API_CEMADEN,
+        {
+          method:"GET",
+          cache:"no-store"
+        }
+      );
+
+
+    if(!resposta.ok){
+
+      throw new Error(
+        "HTTP " + resposta.status
+      );
+
+    }
+
+
+    const dados =
+      await resposta.json();
+
+
+    const lista =
+      Array.isArray(dados)
+      ? dados
+      : (
+          Array.isArray(dados.dados)
+          ? dados.dados
+          : []
+        );
+
+
+    if(lista.length === 0){
+
+      throw new Error(
+        "A API não retornou leituras."
+      );
+
+    }
+
+
+    const estacao =
+      escolherEstacaoJoinville(lista);
+
+
+    if(!estacao){
+
+      throw new Error(
+        "Nenhuma estação de Joinville foi encontrada."
+      );
+
+    }
+
+
+    const nome =
+      texto(
+        estacao,
+        "nome",
+        "nomeEstacao",
+        "estacao",
+        "nomePcd"
+      ) || "Joinville";
+
+
+    const chuva =
+      texto(
+        estacao,
+        "valorMedida",
+        "valor",
+        "chuva",
+        "precipitacao"
+      );
+
+
+    const horario =
+      texto(
+        estacao,
+        "dataHora",
+        "datahora",
+        "dataHoraMedicao",
+        "horario",
+        "data"
+      );
+
+
+    estacaoEl.textContent =
+      nome;
+
+
+    if(chuva !== null){
+
+      const numero =
+        Number(
+          String(chuva)
+          .replace(",",".")
+        );
+
+
+      if(Number.isFinite(numero)){
+
+        valorEl.textContent =
+          numero.toLocaleString(
+            "pt-BR",
+            {
+              minimumFractionDigits:1,
+              maximumFractionDigits:1
+            }
+          );
+
+      }else{
+
+        valorEl.textContent =
+          String(chuva);
+
+      }
+
+    }else{
+
+      valorEl.textContent =
+        "--";
+
+    }
+
+
+    if(horario){
+
+      const data =
+        new Date(horario);
+
+
+      if(!isNaN(data.getTime())){
+
+        horaEl.textContent =
+          "Última leitura: " +
+          data.toLocaleString(
+            "pt-BR",
+            {
+              timeZone:"America/Sao_Paulo"
+            }
+          );
+
+      }else{
+
+        horaEl.textContent =
+          "Horário informado: " +
+          horario;
+
+      }
+
+    }else{
+
+      horaEl.textContent =
+        "Horário da leitura não informado.";
+
+    }
+
+
+    estadoEl.textContent =
+      "🟢 Dados recebidos do CEMADEN";
+
+    estadoEl.className =
+      "atualizacao ok";
+
+
+  }catch(erro){
+
+    console.error(
+      "Falha CEMADEN:",
+      erro
+    );
+
+
+    valorEl.textContent =
+      "--";
+
+
+    estacaoEl.textContent =
+      "Dados automáticos indisponíveis";
+
+
+    horaEl.textContent =
+      "Use o botão ABRIR CEMADEN para consulta oficial.";
+
+
+    estadoEl.textContent =
+      "⚪ Fonte automática indisponível";
+
+
+    estadoEl.className =
+      "atualizacao atencao";
+
+  }
+
+}
+
+
+/* PRIMEIRA CONSULTA */
+
+atualizarChuva();
+
+
+/* NOVA TENTATIVA A CADA 10 MINUTOS */
+
+setInterval(
+  atualizarChuva,
+  10 * 60 * 1000
+);
+
+</script>
+
 </body>
 </html>

@@ -12,7 +12,8 @@ URL_MARE_CSV = (
     "Tabua_Mare_Joinville.csv"
 )
 
-# Referência aproximada da região do Comasa
+# Referência aproximada da região do Comasa.
+# Não representa endereço residencial.
 LAT = -26.27
 LON = -48.81
 
@@ -23,12 +24,14 @@ def buscar_previsao():
     parametros = {
         "latitude": LAT,
         "longitude": LON,
+
         "current": (
             "precipitation,"
             "wind_speed_10m,"
             "wind_direction_10m,"
             "wind_gusts_10m"
         ),
+
         "hourly": (
             "precipitation_probability,"
             "precipitation,"
@@ -36,7 +39,17 @@ def buscar_previsao():
             "wind_direction_10m,"
             "wind_gusts_10m"
         ),
-        "forecast_days": 2,
+
+        # NOVO:
+        # previsão diária para os próximos 7 dias
+        "daily": (
+            "precipitation_sum,"
+            "precipitation_probability_max,"
+            "wind_speed_10m_max,"
+            "wind_gusts_10m_max"
+        ),
+
+        "forecast_days": 7,
         "timezone": "America/Sao_Paulo",
     }
 
@@ -55,25 +68,87 @@ def buscar_previsao():
 
         atual = resposta.get("current", {})
         horario = resposta.get("hourly", {})
+        diario = resposta.get("daily", {})
+
         tempos = horario.get("time", [])
 
         agora = datetime.now(
             ZoneInfo("America/Sao_Paulo")
         )
 
-        indice = 0
+        # -------------------------------------------------
+        # PROCURA A PRIMEIRA HORA FUTURA
+        # -------------------------------------------------
 
-        if tempos:
-            alvo = agora.strftime("%Y-%m-%dT%H:00")
+        indice = None
 
-            if alvo in tempos:
-                indice = tempos.index(alvo)
+        for i, tempo in enumerate(tempos):
+            try:
+                momento = datetime.fromisoformat(tempo)
+
+                momento = momento.replace(
+                    tzinfo=ZoneInfo("America/Sao_Paulo")
+                )
+
+                if momento > agora:
+                    indice = i
+                    break
+
+            except Exception:
+                continue
 
         def valor(lista):
+            if indice is None:
+                return None
+
             try:
                 return lista[indice]
             except Exception:
                 return None
+
+        # -------------------------------------------------
+        # PREVISÃO DOS PRÓXIMOS 7 DIAS
+        # -------------------------------------------------
+
+        dias = []
+
+        datas = diario.get("time", [])
+        chuva_total = diario.get(
+            "precipitation_sum", []
+        )
+        probabilidade = diario.get(
+            "precipitation_probability_max", []
+        )
+        vento_max = diario.get(
+            "wind_speed_10m_max", []
+        )
+        rajada_max = diario.get(
+            "wind_gusts_10m_max", []
+        )
+
+        for i, data in enumerate(datas):
+
+            def diario_valor(lista):
+                try:
+                    return lista[i]
+                except Exception:
+                    return None
+
+            dias.append({
+                "data": data,
+
+                "probabilidade_chuva_pct":
+                    diario_valor(probabilidade),
+
+                "precipitacao_total_mm":
+                    diario_valor(chuva_total),
+
+                "vento_max_kmh":
+                    diario_valor(vento_max),
+
+                "rajada_max_kmh":
+                    diario_valor(rajada_max),
+            })
 
         return {
             "status": "online",
@@ -143,6 +218,9 @@ def buscar_previsao():
                         )
                     ),
             },
+
+            # NOVO BLOCO
+            "proximos_7_dias": dias,
         }
 
     except Exception as erro:
@@ -198,7 +276,6 @@ def buscar_mare():
                     altura.strip().replace(",", ".")
                 )
 
-                # Valida também o horário.
                 datetime.strptime(
                     hora.strip(),
                     "%H:%M",
@@ -218,7 +295,6 @@ def buscar_mare():
                 f"encontrado para {data_hoje}"
             )
 
-        # Garante ordem cronológica.
         eventos.sort(
             key=lambda evento:
                 datetime.strptime(
@@ -253,9 +329,8 @@ def buscar_mare():
             elif proximo is None:
                 proximo = evento
 
-        # IMPORTANTE:
-        # Não calculamos uma altura "agora".
         # A tábua fornece extremos previstos.
+        # Não calculamos uma altura instantânea.
         return {
             "status": "online",
             "fonte": "EPAGRI/CIRAM",
@@ -336,7 +411,6 @@ def main():
     print("dados.json criado com sucesso")
 
     print("MARÉ:")
-
     print(
         json.dumps(
             mare,
@@ -346,7 +420,6 @@ def main():
     )
 
     print("PREVISÃO:")
-
     print(
         json.dumps(
             previsao,

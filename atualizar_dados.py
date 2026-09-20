@@ -1,4 +1,6 @@
 import json
+import hashlib
+import struct
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -12,9 +14,17 @@ URL_MARE_CSV = (
     "Tabua_Mare_Joinville.csv"
 )
 
-URL_RADAR_LISTA = (
+URL_RADAR_BASE = (
     "https://sifap.defesacivil.sc.gov.br/"
-    "radarsc/rest/radar/getUltimasImagens"
+    "radarsc/rest/radar/"
+)
+
+URL_RADAR_LISTA = (
+    URL_RADAR_BASE + "getUltimasImagens"
+)
+
+URL_RADAR_IMAGEM = (
+    URL_RADAR_BASE + "getImagem"
 )
 
 # Referência aproximada da região do Comasa.
@@ -83,10 +93,14 @@ def buscar_previsao():
 
         for i, tempo in enumerate(tempos):
             try:
-                momento = datetime.fromisoformat(tempo)
+                momento = datetime.fromisoformat(
+                    tempo
+                )
 
                 momento = momento.replace(
-                    tzinfo=ZoneInfo("America/Sao_Paulo")
+                    tzinfo=ZoneInfo(
+                        "America/Sao_Paulo"
+                    )
                 )
 
                 if momento > agora:
@@ -108,17 +122,25 @@ def buscar_previsao():
         dias = []
 
         datas = diario.get("time", [])
+
         chuva_total = diario.get(
-            "precipitation_sum", []
+            "precipitation_sum",
+            [],
         )
+
         probabilidade = diario.get(
-            "precipitation_probability_max", []
+            "precipitation_probability_max",
+            [],
         )
+
         vento_max = diario.get(
-            "wind_speed_10m_max", []
+            "wind_speed_10m_max",
+            [],
         )
+
         rajada_max = diario.get(
-            "wind_gusts_10m_max", []
+            "wind_gusts_10m_max",
+            [],
         )
 
         for i, data in enumerate(datas):
@@ -133,16 +155,24 @@ def buscar_previsao():
                 "data": data,
 
                 "probabilidade_chuva_pct":
-                    diario_valor(probabilidade),
+                    diario_valor(
+                        probabilidade
+                    ),
 
                 "precipitacao_total_mm":
-                    diario_valor(chuva_total),
+                    diario_valor(
+                        chuva_total
+                    ),
 
                 "vento_max_kmh":
-                    diario_valor(vento_max),
+                    diario_valor(
+                        vento_max
+                    ),
 
                 "rajada_max_kmh":
-                    diario_valor(rajada_max),
+                    diario_valor(
+                        rajada_max
+                    ),
             })
 
         return {
@@ -155,22 +185,33 @@ def buscar_previsao():
                     atual.get("time"),
 
                 "precipitacao_mm":
-                    atual.get("precipitation"),
+                    atual.get(
+                        "precipitation"
+                    ),
 
                 "vento_kmh":
-                    atual.get("wind_speed_10m"),
+                    atual.get(
+                        "wind_speed_10m"
+                    ),
 
                 "direcao_graus":
-                    atual.get("wind_direction_10m"),
+                    atual.get(
+                        "wind_direction_10m"
+                    ),
 
                 "rajada_kmh":
-                    atual.get("wind_gusts_10m"),
+                    atual.get(
+                        "wind_gusts_10m"
+                    ),
             },
 
             "proxima_hora": {
                 "horario":
                     valor(
-                        horario.get("time", [])
+                        horario.get(
+                            "time",
+                            [],
+                        )
                     ),
 
                 "probabilidade_chuva_pct":
@@ -231,7 +272,8 @@ def buscar_mare():
             URL_MARE_CSV,
             timeout=30,
             headers={
-                "User-Agent": "Monitor-Guaxanduva/1.0"
+                "User-Agent":
+                    "Monitor-Guaxanduva/1.0"
             },
         )
 
@@ -243,7 +285,9 @@ def buscar_mare():
             ZoneInfo("America/Sao_Paulo")
         )
 
-        data_hoje = agora.strftime("%d/%m/%Y")
+        data_hoje = agora.strftime(
+            "%d/%m/%Y"
+        )
 
         eventos = []
 
@@ -266,7 +310,10 @@ def buscar_mare():
 
             try:
                 altura_m = float(
-                    altura.strip().replace(",", ".")
+                    altura.strip().replace(
+                        ",",
+                        ".",
+                    )
                 )
 
                 datetime.strptime(
@@ -316,7 +363,10 @@ def buscar_mare():
                 + hora_evento.minute
             )
 
-            if minutos_evento <= agora_minutos:
+            if (
+                minutos_evento
+                <= agora_minutos
+            ):
                 anterior = evento
 
             elif proximo is None:
@@ -325,7 +375,8 @@ def buscar_mare():
         return {
             "status": "online",
             "fonte": "EPAGRI/CIRAM",
-            "tipo": "tabua_de_mare_prevista",
+            "tipo":
+                "tabua_de_mare_prevista",
             "local": "Joinville",
             "data": data_hoje,
             "eventos": eventos,
@@ -337,18 +388,91 @@ def buscar_mare():
         return {
             "status": "indisponivel",
             "fonte": "EPAGRI/CIRAM",
-            "tipo": "tabua_de_mare_prevista",
+            "tipo":
+                "tabua_de_mare_prevista",
             "erro": str(erro),
         }
 
 
+def dimensoes_png(conteudo):
+    """
+    Lê largura e altura diretamente do cabeçalho
+    PNG, sem depender de Pillow.
+    """
+
+    assinatura = (
+        b"\x89PNG\r\n\x1a\n"
+    )
+
+    if not conteudo.startswith(
+        assinatura
+    ):
+        raise ValueError(
+            "Arquivo recebido não é PNG válido."
+        )
+
+    if len(conteudo) < 24:
+        raise ValueError(
+            "PNG incompleto."
+        )
+
+    largura, altura = struct.unpack(
+        ">II",
+        conteudo[16:24],
+    )
+
+    return largura, altura
+
+
+def baixar_quadro_radar(nome):
+    """
+    Baixa e valida um quadro individual do
+    MOSAICO C-MAX.
+    """
+
+    resposta = requests.get(
+        URL_RADAR_IMAGEM,
+        params={
+            "prod": 4,
+            "radar": "COMP",
+            "file": nome,
+        },
+        timeout=30,
+        headers={
+            "User-Agent":
+                "Monitor-Guaxanduva/1.0"
+        },
+
+        # Exceção restrita ao RadarSC devido
+        # ao problema já comprovado na cadeia
+        # do certificado do SIFAP.
+        verify=False,
+    )
+
+    resposta.raise_for_status()
+
+    conteudo = resposta.content
+
+    largura, altura = dimensoes_png(
+        conteudo
+    )
+
+    sha256 = hashlib.sha256(
+        conteudo
+    ).hexdigest()
+
+    return {
+        "bytes": len(conteudo),
+        "largura_px": largura,
+        "altura_px": altura,
+        "sha256": sha256,
+    }
+
+
 def buscar_radar():
     """
-    Consulta o MOSAICO / C-MAX do RadarSC.
-
-    Nesta etapa ainda não interpreta os pixels.
-    Valida a integração e a atualidade dos sete
-    quadros fornecidos pelo servidor oficial.
+    Consulta MOSAICO/C-MAX, recebe os sete
+    nomes e agora baixa e valida cada PNG.
     """
 
     try:
@@ -361,13 +485,9 @@ def buscar_radar():
             },
             timeout=30,
             headers={
-                "User-Agent": "Monitor-Guaxanduva/1.0"
+                "User-Agent":
+                    "Monitor-Guaxanduva/1.0"
             },
-
-            # O servidor RadarSC/SIFAP apresenta
-            # problema na cadeia de certificação HTTPS.
-            # A exceção fica restrita a esta consulta
-            # pública específica do RadarSC.
             verify=False,
         )
 
@@ -375,9 +495,13 @@ def buscar_radar():
 
         imagens = r.json()
 
-        if not isinstance(imagens, list):
+        if not isinstance(
+            imagens,
+            list,
+        ):
             raise ValueError(
-                "Resposta do radar não é uma lista."
+                "Resposta do radar "
+                "não é uma lista."
             )
 
         if not imagens:
@@ -385,25 +509,33 @@ def buscar_radar():
                 "Radar não retornou imagens."
             )
 
-        # Mantemos no máximo os 7 quadros usados
-        # pela própria interface RadarSC.
         imagens = imagens[-7:]
 
         quadros = []
 
         for nome in imagens:
             try:
-                # O RadarSC usa no início do arquivo:
-                # AAAAMMDDHHMMSS...
-                data_utc = datetime.strptime(
-                    nome[:14],
-                    "%Y%m%d%H%M%S",
-                ).replace(
-                    tzinfo=ZoneInfo("UTC")
+                data_utc = (
+                    datetime.strptime(
+                        nome[:14],
+                        "%Y%m%d%H%M%S",
+                    ).replace(
+                        tzinfo=ZoneInfo("UTC")
+                    )
                 )
 
-                data_local = data_utc.astimezone(
-                    ZoneInfo("America/Sao_Paulo")
+                data_local = (
+                    data_utc.astimezone(
+                        ZoneInfo(
+                            "America/Sao_Paulo"
+                        )
+                    )
+                )
+
+                info_imagem = (
+                    baixar_quadro_radar(
+                        nome
+                    )
                 )
 
                 quadros.append({
@@ -414,20 +546,59 @@ def buscar_radar():
 
                     "horario_local":
                         data_local.isoformat(),
+
+                    "download":
+                        "ok",
+
+                    "bytes":
+                        info_imagem[
+                            "bytes"
+                        ],
+
+                    "largura_px":
+                        info_imagem[
+                            "largura_px"
+                        ],
+
+                    "altura_px":
+                        info_imagem[
+                            "altura_px"
+                        ],
+
+                    "sha256":
+                        info_imagem[
+                            "sha256"
+                        ],
                 })
 
-            except Exception:
-                continue
+            except Exception as erro_quadro:
+                quadros.append({
+                    "arquivo": nome,
+                    "download": "erro",
+                    "erro":
+                        str(erro_quadro),
+                })
 
-        if not quadros:
+        quadros_validos = [
+            quadro
+            for quadro in quadros
+            if quadro.get(
+                "download"
+            ) == "ok"
+        ]
+
+        if not quadros_validos:
             raise ValueError(
-                "Nenhum quadro possui timestamp válido."
+                "Nenhum PNG do radar "
+                "foi baixado com sucesso."
             )
 
-        ultimo = quadros[-1]
+        ultimo = quadros_validos[-1]
 
-        ultimo_utc = datetime.fromisoformat(
-            ultimo["horario_utc"]
+        ultimo_utc = (
+            datetime.fromisoformat(
+                ultimo["horario_utc"]
+            )
         )
 
         agora_utc = datetime.now(
@@ -440,27 +611,37 @@ def buscar_radar():
 
         idade_minutos = max(
             0,
-            round(idade_minutos, 1),
+            round(
+                idade_minutos,
+                1,
+            ),
         )
 
-        # Trava conservadora de frescor.
-        atualizado = idade_minutos <= 30
+        atualizado = (
+            idade_minutos <= 30
+        )
+
+        todos_baixados = (
+            len(quadros_validos) == 7
+        )
 
         return {
             "status":
                 "online"
-                if atualizado
-                else "desatualizado",
+                if (
+                    atualizado
+                    and todos_baixados
+                )
+                else "parcial",
 
             "fonte":
-                "Defesa Civil de Santa Catarina - RadarSC",
+                "Defesa Civil de "
+                "Santa Catarina - RadarSC",
 
             "radar": "COMP",
             "produto": "C-MAX",
             "produto_codigo": 4,
 
-            # Limites geográficos definidos pelo
-            # próprio código da interface RadarSC.
             "extent": [
                 -58.0651279,
                 -33.8163446,
@@ -470,6 +651,12 @@ def buscar_radar():
 
             "quantidade_quadros":
                 len(quadros),
+
+            "quadros_png_validos":
+                len(quadros_validos),
+
+            "todos_png_validos":
+                todos_baixados,
 
             "quadros":
                 quadros,
@@ -483,6 +670,9 @@ def buscar_radar():
             "dados_frescos":
                 atualizado,
 
+            "analise_pixels":
+                "aguardando_proxima_etapa",
+
             "analise_movimento":
                 "aguardando_proxima_etapa",
         }
@@ -492,7 +682,8 @@ def buscar_radar():
             "status": "indisponivel",
 
             "fonte":
-                "Defesa Civil de Santa Catarina - RadarSC",
+                "Defesa Civil de "
+                "Santa Catarina - RadarSC",
 
             "radar": "COMP",
             "produto": "C-MAX",
@@ -514,43 +705,66 @@ def main():
     radar = buscar_radar()
 
     dados = {
-        "monitor": "Monitor Guaxanduva",
-        "local": "Comasa - Joinville/SC",
-        "gerado_em": agora.isoformat(),
+        "monitor":
+            "Monitor Guaxanduva",
+
+        "local":
+            "Comasa - Joinville/SC",
+
+        "gerado_em":
+            agora.isoformat(),
 
         "chuva": {
-            "status": "aguardando_integracao",
-            "fonte": "CEMADEN",
-            "leitura_mm": None,
-            "acumulado_1h_mm": None,
-            "acumulado_24h_mm": None,
+            "status":
+                "aguardando_integracao",
+
+            "fonte":
+                "CEMADEN",
+
+            "leitura_mm":
+                None,
+
+            "acumulado_1h_mm":
+                None,
+
+            "acumulado_24h_mm":
+                None,
         },
 
-        "mare": mare,
+        "mare":
+            mare,
 
         "rio": {
-            "nome": "Rio Guaxanduva",
+            "nome":
+                "Rio Guaxanduva",
 
             "status":
                 "sem_sensor_publico_confirmado",
 
-            "nivel_m": None,
+            "nivel_m":
+                None,
         },
 
-        "previsao": previsao,
+        "previsao":
+            previsao,
 
-        "radar": radar,
+        "radar":
+            radar,
 
         "granizo": {
-            "status": "sem_alerta_integrado",
+            "status":
+                "sem_alerta_integrado",
 
             "fonte":
                 "Defesa Civil - integração futura",
         },
 
         "emergencia": {
-            "defesa_civil": "199",
-            "bombeiros": "193",
+            "defesa_civil":
+                "199",
+
+            "bombeiros":
+                "193",
         },
     }
 
@@ -572,6 +786,7 @@ def main():
     )
 
     print("MARÉ:")
+
     print(
         json.dumps(
             mare,
@@ -581,6 +796,7 @@ def main():
     )
 
     print("PREVISÃO:")
+
     print(
         json.dumps(
             previsao,
@@ -590,6 +806,7 @@ def main():
     )
 
     print("RADAR:")
+
     print(
         json.dumps(
             radar,

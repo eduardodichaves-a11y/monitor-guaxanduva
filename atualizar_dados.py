@@ -81,13 +81,18 @@ def buscar_previsao():
             "modelo": "Best Match",
 
             "atual": {
-                "horario": atual.get("time"),
+                "horario":
+                    atual.get("time"),
+
                 "precipitacao_mm":
                     atual.get("precipitation"),
+
                 "vento_kmh":
                     atual.get("wind_speed_10m"),
+
                 "direcao_graus":
                     atual.get("wind_direction_10m"),
+
                 "rajada_kmh":
                     atual.get("wind_gusts_10m"),
             },
@@ -148,18 +153,7 @@ def buscar_previsao():
         }
 
 
-def diagnosticar_mare():
-    """
-    Diagnóstico temporário.
-
-    Baixa o CSV oficial de Joinville sem tentar
-    interpretar suas colunas.
-
-    Uma pequena amostra será colocada em dados.json
-    para descobrirmos exatamente o formato recebido
-    pelo GitHub Actions.
-    """
-
+def buscar_mare():
     try:
         r = requests.get(
             URL_MARE_CSV,
@@ -171,46 +165,111 @@ def diagnosticar_mare():
 
         r.raise_for_status()
 
-        # Requests normalmente identifica a codificação.
-        # Caso não identifique, usamos apparent_encoding.
-        if not r.encoding:
-            r.encoding = r.apparent_encoding
+        # O diagnóstico confirmou ISO-8859-1.
+        r.encoding = "ISO-8859-1"
 
-        texto = r.text
+        agora = datetime.now(
+            ZoneInfo("America/Sao_Paulo")
+        )
 
-        # Remove BOM, caso exista.
-        texto = texto.lstrip("\ufeff")
+        data_hoje = agora.strftime("%d/%m/%Y")
 
-        linhas = texto.splitlines()
+        eventos = []
 
-        # Guardamos somente uma pequena amostra.
-        # Isso evita jogar o CSV inteiro no dados.json.
-        amostra = linhas[:30]
+        for linha in r.text.splitlines():
 
+            linha = linha.strip()
+
+            if not linha:
+                continue
+
+            partes = linha.split(";")
+
+            if len(partes) != 3:
+                continue
+
+            data, hora, altura = partes
+
+            if data.strip() != data_hoje:
+                continue
+
+            try:
+                altura_m = float(
+                    altura.strip().replace(",", ".")
+                )
+
+                # Valida também o horário.
+                datetime.strptime(
+                    hora.strip(),
+                    "%H:%M",
+                )
+
+            except ValueError:
+                continue
+
+            eventos.append({
+                "hora": hora.strip(),
+                "altura_m": altura_m,
+            })
+
+        if not eventos:
+            raise ValueError(
+                "Nenhum evento de maré "
+                f"encontrado para {data_hoje}"
+            )
+
+        # Garante ordem cronológica.
+        eventos.sort(
+            key=lambda evento:
+                datetime.strptime(
+                    evento["hora"],
+                    "%H:%M",
+                )
+        )
+
+        agora_minutos = (
+            agora.hour * 60
+            + agora.minute
+        )
+
+        anterior = None
+        proximo = None
+
+        for evento in eventos:
+
+            hora_evento = datetime.strptime(
+                evento["hora"],
+                "%H:%M",
+            )
+
+            minutos_evento = (
+                hora_evento.hour * 60
+                + hora_evento.minute
+            )
+
+            if minutos_evento <= agora_minutos:
+                anterior = evento
+
+            elif proximo is None:
+                proximo = evento
+
+        # IMPORTANTE:
+        # Não calculamos uma altura "agora".
+        # A tábua fornece extremos previstos.
         return {
-            "status": "diagnostico_csv",
+            "status": "online",
             "fonte": "EPAGRI/CIRAM",
             "tipo": "tabua_de_mare_prevista",
             "local": "Joinville",
-
-            "http_status": r.status_code,
-
-            "content_type":
-                r.headers.get("Content-Type"),
-
-            "encoding":
-                r.encoding,
-
-            "quantidade_linhas":
-                len(linhas),
-
-            "amostra_csv":
-                amostra,
+            "data": data_hoje,
+            "eventos": eventos,
+            "anterior": anterior,
+            "proximo": proximo,
         }
 
     except Exception as erro:
         return {
-            "status": "erro_diagnostico",
+            "status": "indisponivel",
             "fonte": "EPAGRI/CIRAM",
             "tipo": "tabua_de_mare_prevista",
             "erro": str(erro),
@@ -223,7 +282,7 @@ def main():
     )
 
     previsao = buscar_previsao()
-    mare = diagnosticar_mare()
+    mare = buscar_mare()
 
     dados = {
         "monitor": "Monitor Guaxanduva",
@@ -276,7 +335,7 @@ def main():
 
     print("dados.json criado com sucesso")
 
-    print("DIAGNÓSTICO DA MARÉ:")
+    print("MARÉ:")
 
     print(
         json.dumps(

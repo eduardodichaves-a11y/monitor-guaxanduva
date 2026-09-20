@@ -12,6 +12,11 @@ URL_MARE_CSV = (
     "Tabua_Mare_Joinville.csv"
 )
 
+URL_RADAR_LISTA = (
+    "https://sifap.defesacivil.sc.gov.br/"
+    "radarsc/rest/radar/getUltimasImagens"
+)
+
 # Referência aproximada da região do Comasa.
 # Não representa endereço residencial.
 LAT = -26.27
@@ -40,8 +45,6 @@ def buscar_previsao():
             "wind_gusts_10m"
         ),
 
-        # NOVO:
-        # previsão diária para os próximos 7 dias
         "daily": (
             "precipitation_sum,"
             "precipitation_probability_max,"
@@ -76,10 +79,6 @@ def buscar_previsao():
             ZoneInfo("America/Sao_Paulo")
         )
 
-        # -------------------------------------------------
-        # PROCURA A PRIMEIRA HORA FUTURA
-        # -------------------------------------------------
-
         indice = None
 
         for i, tempo in enumerate(tempos):
@@ -105,10 +104,6 @@ def buscar_previsao():
                 return lista[indice]
             except Exception:
                 return None
-
-        # -------------------------------------------------
-        # PREVISÃO DOS PRÓXIMOS 7 DIAS
-        # -------------------------------------------------
 
         dias = []
 
@@ -136,16 +131,12 @@ def buscar_previsao():
 
             dias.append({
                 "data": data,
-
                 "probabilidade_chuva_pct":
                     diario_valor(probabilidade),
-
                 "precipitacao_total_mm":
                     diario_valor(chuva_total),
-
                 "vento_max_kmh":
                     diario_valor(vento_max),
-
                 "rajada_max_kmh":
                     diario_valor(rajada_max),
             })
@@ -158,26 +149,19 @@ def buscar_previsao():
             "atual": {
                 "horario":
                     atual.get("time"),
-
                 "precipitacao_mm":
                     atual.get("precipitation"),
-
                 "vento_kmh":
                     atual.get("wind_speed_10m"),
-
                 "direcao_graus":
                     atual.get("wind_direction_10m"),
-
                 "rajada_kmh":
                     atual.get("wind_gusts_10m"),
             },
 
             "proxima_hora": {
                 "horario":
-                    valor(
-                        horario.get("time", [])
-                    ),
-
+                    valor(horario.get("time", [])),
                 "probabilidade_chuva_pct":
                     valor(
                         horario.get(
@@ -185,7 +169,6 @@ def buscar_previsao():
                             [],
                         )
                     ),
-
                 "precipitacao_mm":
                     valor(
                         horario.get(
@@ -193,7 +176,6 @@ def buscar_previsao():
                             [],
                         )
                     ),
-
                 "vento_kmh":
                     valor(
                         horario.get(
@@ -201,7 +183,6 @@ def buscar_previsao():
                             [],
                         )
                     ),
-
                 "direcao_graus":
                     valor(
                         horario.get(
@@ -209,7 +190,6 @@ def buscar_previsao():
                             [],
                         )
                     ),
-
                 "rajada_kmh":
                     valor(
                         horario.get(
@@ -219,7 +199,6 @@ def buscar_previsao():
                     ),
             },
 
-            # NOVO BLOCO
             "proximos_7_dias": dias,
         }
 
@@ -242,8 +221,6 @@ def buscar_mare():
         )
 
         r.raise_for_status()
-
-        # O diagnóstico confirmou ISO-8859-1.
         r.encoding = "ISO-8859-1"
 
         agora = datetime.now(
@@ -329,8 +306,6 @@ def buscar_mare():
             elif proximo is None:
                 proximo = evento
 
-        # A tábua fornece extremos previstos.
-        # Não calculamos uma altura instantânea.
         return {
             "status": "online",
             "fonte": "EPAGRI/CIRAM",
@@ -351,6 +326,160 @@ def buscar_mare():
         }
 
 
+def buscar_radar():
+    """
+    Consulta o MOSAICO / C-MAX do RadarSC.
+
+    Nesta primeira etapa não interpreta os pixels.
+    Apenas valida a integração e a atualidade dos
+    sete quadros fornecidos pelo servidor oficial.
+    """
+
+    try:
+        r = requests.get(
+            URL_RADAR_LISTA,
+            params={
+                "prod": 4,
+                "radar": "COMP",
+                "data": "",
+            },
+            timeout=30,
+            headers={
+                "User-Agent": "Monitor-Guaxanduva/1.0"
+            },
+        )
+
+        r.raise_for_status()
+
+        imagens = r.json()
+
+        if not isinstance(imagens, list):
+            raise ValueError(
+                "Resposta do radar não é uma lista."
+            )
+
+        if not imagens:
+            raise ValueError(
+                "Radar não retornou imagens."
+            )
+
+        # Mantemos no máximo os 7 quadros usados
+        # pela própria interface RadarSC.
+        imagens = imagens[-7:]
+
+        quadros = []
+
+        for nome in imagens:
+            try:
+                # O RadarSC usa no início do arquivo:
+                # AAAAMMDDHHMMSS...
+                data_utc = datetime.strptime(
+                    nome[:14],
+                    "%Y%m%d%H%M%S",
+                ).replace(
+                    tzinfo=ZoneInfo("UTC")
+                )
+
+                data_local = data_utc.astimezone(
+                    ZoneInfo("America/Sao_Paulo")
+                )
+
+                quadros.append({
+                    "arquivo": nome,
+                    "horario_utc":
+                        data_utc.isoformat(),
+                    "horario_local":
+                        data_local.isoformat(),
+                })
+
+            except Exception:
+                # Não aceitamos arquivo cujo timestamp
+                # não possa ser interpretado.
+                continue
+
+        if not quadros:
+            raise ValueError(
+                "Nenhum quadro possui timestamp válido."
+            )
+
+        ultimo = quadros[-1]
+
+        ultimo_utc = datetime.fromisoformat(
+            ultimo["horario_utc"]
+        )
+
+        agora_utc = datetime.now(
+            ZoneInfo("UTC")
+        )
+
+        idade_minutos = (
+            agora_utc - ultimo_utc
+        ).total_seconds() / 60
+
+        # Evita idade negativa caso exista pequena
+        # diferença de relógio entre servidores.
+        idade_minutos = max(
+            0,
+            round(idade_minutos, 1),
+        )
+
+        # Nesta fase adotamos 30 minutos como trava
+        # conservadora de frescor. Poderemos ajustar
+        # depois de observar o comportamento real.
+        atualizado = idade_minutos <= 30
+
+        return {
+            "status":
+                "online"
+                if atualizado
+                else "desatualizado",
+
+            "fonte":
+                "Defesa Civil de Santa Catarina - RadarSC",
+
+            "radar": "COMP",
+            "produto": "C-MAX",
+            "produto_codigo": 4,
+
+            "extent": [
+                -58.0651279,
+                -33.8163446,
+                -46.4999942,
+                -24.7653703,
+            ],
+
+            "quantidade_quadros":
+                len(quadros),
+
+            "quadros":
+                quadros,
+
+            "ultimo_quadro":
+                ultimo,
+
+            "idade_ultimo_quadro_min":
+                idade_minutos,
+
+            "dados_frescos":
+                atualizado,
+
+            "analise_movimento":
+                "aguardando_proxima_etapa",
+        }
+
+    except Exception as erro:
+        return {
+            "status": "indisponivel",
+            "fonte":
+                "Defesa Civil de Santa Catarina - RadarSC",
+            "radar": "COMP",
+            "produto": "C-MAX",
+            "produto_codigo": 4,
+            "dados_frescos": False,
+            "erro": str(erro),
+        }
+
+
 def main():
     agora = datetime.now(
         ZoneInfo("America/Sao_Paulo")
@@ -358,6 +487,7 @@ def main():
 
     previsao = buscar_previsao()
     mare = buscar_mare()
+    radar = buscar_radar()
 
     dados = {
         "monitor": "Monitor Guaxanduva",
@@ -382,6 +512,8 @@ def main():
         },
 
         "previsao": previsao,
+
+        "radar": radar,
 
         "granizo": {
             "status": "sem_alerta_integrado",
@@ -423,6 +555,15 @@ def main():
     print(
         json.dumps(
             previsao,
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
+
+    print("RADAR:")
+    print(
+        json.dumps(
+            radar,
             ensure_ascii=False,
             indent=2,
         )

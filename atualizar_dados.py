@@ -131,12 +131,16 @@ def buscar_previsao():
 
             dias.append({
                 "data": data,
+
                 "probabilidade_chuva_pct":
                     diario_valor(probabilidade),
+
                 "precipitacao_total_mm":
                     diario_valor(chuva_total),
+
                 "vento_max_kmh":
                     diario_valor(vento_max),
+
                 "rajada_max_kmh":
                     diario_valor(rajada_max),
             })
@@ -149,19 +153,26 @@ def buscar_previsao():
             "atual": {
                 "horario":
                     atual.get("time"),
+
                 "precipitacao_mm":
                     atual.get("precipitation"),
+
                 "vento_kmh":
                     atual.get("wind_speed_10m"),
+
                 "direcao_graus":
                     atual.get("wind_direction_10m"),
+
                 "rajada_kmh":
                     atual.get("wind_gusts_10m"),
             },
 
             "proxima_hora": {
                 "horario":
-                    valor(horario.get("time", [])),
+                    valor(
+                        horario.get("time", [])
+                    ),
+
                 "probabilidade_chuva_pct":
                     valor(
                         horario.get(
@@ -169,6 +180,7 @@ def buscar_previsao():
                             [],
                         )
                     ),
+
                 "precipitacao_mm":
                     valor(
                         horario.get(
@@ -176,6 +188,7 @@ def buscar_previsao():
                             [],
                         )
                     ),
+
                 "vento_kmh":
                     valor(
                         horario.get(
@@ -183,6 +196,7 @@ def buscar_previsao():
                             [],
                         )
                     ),
+
                 "direcao_graus":
                     valor(
                         horario.get(
@@ -190,6 +204,7 @@ def buscar_previsao():
                             [],
                         )
                     ),
+
                 "rajada_kmh":
                     valor(
                         horario.get(
@@ -221,6 +236,7 @@ def buscar_mare():
         )
 
         r.raise_for_status()
+
         r.encoding = "ISO-8859-1"
 
         agora = datetime.now(
@@ -330,9 +346,9 @@ def buscar_radar():
     """
     Consulta o MOSAICO / C-MAX do RadarSC.
 
-    Nesta primeira etapa não interpreta os pixels.
-    Apenas valida a integração e a atualidade dos
-    sete quadros fornecidos pelo servidor oficial.
+    Nesta etapa ainda não interpreta os pixels.
+    Valida a integração e a atualidade dos sete
+    quadros fornecidos pelo servidor oficial.
     """
 
     try:
@@ -347,6 +363,12 @@ def buscar_radar():
             headers={
                 "User-Agent": "Monitor-Guaxanduva/1.0"
             },
+
+            # O servidor RadarSC/SIFAP apresenta
+            # problema na cadeia de certificação HTTPS.
+            # A exceção fica restrita a esta consulta
+            # pública específica do RadarSC.
+            verify=False,
         )
 
         r.raise_for_status()
@@ -386,15 +408,15 @@ def buscar_radar():
 
                 quadros.append({
                     "arquivo": nome,
+
                     "horario_utc":
                         data_utc.isoformat(),
+
                     "horario_local":
                         data_local.isoformat(),
                 })
 
             except Exception:
-                # Não aceitamos arquivo cujo timestamp
-                # não possa ser interpretado.
                 continue
 
         if not quadros:
@@ -416,16 +438,12 @@ def buscar_radar():
             agora_utc - ultimo_utc
         ).total_seconds() / 60
 
-        # Evita idade negativa caso exista pequena
-        # diferença de relógio entre servidores.
         idade_minutos = max(
             0,
             round(idade_minutos, 1),
         )
 
-        # Nesta fase adotamos 30 minutos como trava
-        # conservadora de frescor. Poderemos ajustar
-        # depois de observar o comportamento real.
+        # Trava conservadora de frescor.
         atualizado = idade_minutos <= 30
 
         return {
@@ -441,6 +459,8 @@ def buscar_radar():
             "produto": "C-MAX",
             "produto_codigo": 4,
 
+            # Limites geográficos definidos pelo
+            # próprio código da interface RadarSC.
             "extent": [
                 -58.0651279,
                 -33.8163446,
@@ -470,12 +490,16 @@ def buscar_radar():
     except Exception as erro:
         return {
             "status": "indisponivel",
+
             "fonte":
                 "Defesa Civil de Santa Catarina - RadarSC",
+
             "radar": "COMP",
             "produto": "C-MAX",
             "produto_codigo": 4,
+
             "dados_frescos": False,
+
             "erro": str(erro),
         }
 
@@ -506,8 +530,10 @@ def main():
 
         "rio": {
             "nome": "Rio Guaxanduva",
+
             "status":
                 "sem_sensor_publico_confirmado",
+
             "nivel_m": None,
         },
 
@@ -517,6 +543,7 @@ def main():
 
         "granizo": {
             "status": "sem_alerta_integrado",
+
             "fonte":
                 "Defesa Civil - integração futura",
         },
@@ -540,7 +567,9 @@ def main():
             indent=2,
         )
 
-    print("dados.json criado com sucesso")
+    print(
+        "dados.json criado com sucesso"
+    )
 
     print("MARÉ:")
     print(

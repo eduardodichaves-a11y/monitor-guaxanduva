@@ -1,7 +1,7 @@
 import json
 import hashlib
 import io
-from collections import Counter
+from collections import Counter, deque
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -12,6 +12,8 @@ from PIL import Image
 
 ARQUIVO = "dados.json"
 
+# Coordenada pública aproximada do Comasa.
+# Não representa endereço residencial.
 LAT = -26.27
 LON = -48.81
 
@@ -39,6 +41,8 @@ URL_RADAR_LEGENDA = (
     URL_RADAR_SITE + "img/legenda.png"
 )
 
+# Extensão geográfica oficial usada
+# pela interface RadarSC para COMP.
 RADAR_EXTENT = [
     -58.0651279,
     -33.8163446,
@@ -61,22 +65,28 @@ def requisicao_radar(url, params=None):
         },
         verify=False,
     )
+
     resposta.raise_for_status()
+
     return resposta
 
 
 def buscar_previsao():
-    url = "https://api.open-meteo.com/v1/forecast"
+    url = (
+        "https://api.open-meteo.com/v1/forecast"
+    )
 
     parametros = {
         "latitude": LAT,
         "longitude": LON,
+
         "current": (
             "precipitation,"
             "wind_speed_10m,"
             "wind_direction_10m,"
             "wind_gusts_10m"
         ),
+
         "hourly": (
             "precipitation_probability,"
             "precipitation,"
@@ -84,12 +94,14 @@ def buscar_previsao():
             "wind_direction_10m,"
             "wind_gusts_10m"
         ),
+
         "daily": (
             "precipitation_sum,"
             "precipitation_probability_max,"
             "wind_speed_10m_max,"
             "wind_gusts_10m_max"
         ),
+
         "forecast_days": 7,
         "timezone": "America/Sao_Paulo",
     }
@@ -100,18 +112,34 @@ def buscar_previsao():
             params=parametros,
             timeout=30,
             headers={
-                "User-Agent": "Monitor-Guaxanduva/1.0"
+                "User-Agent":
+                    "Monitor-Guaxanduva/1.0"
             },
         )
+
         r.raise_for_status()
 
         resposta = r.json()
-        atual = resposta.get("current", {})
-        horario = resposta.get("hourly", {})
-        diario = resposta.get("daily", {})
+
+        atual = resposta.get(
+            "current",
+            {},
+        )
+
+        horario = resposta.get(
+            "hourly",
+            {},
+        )
+
+        diario = resposta.get(
+            "daily",
+            {},
+        )
 
         agora = datetime.now(
-            ZoneInfo("America/Sao_Paulo")
+            ZoneInfo(
+                "America/Sao_Paulo"
+            )
         )
 
         indice = None
@@ -120,11 +148,14 @@ def buscar_previsao():
             horario.get("time", [])
         ):
             try:
-                momento = datetime.fromisoformat(
-                    tempo
-                ).replace(
-                    tzinfo=ZoneInfo(
-                        "America/Sao_Paulo"
+                momento = (
+                    datetime.fromisoformat(
+                        tempo
+                    )
+                    .replace(
+                        tzinfo=ZoneInfo(
+                            "America/Sao_Paulo"
+                        )
                     )
                 )
 
@@ -141,6 +172,7 @@ def buscar_previsao():
 
             try:
                 return lista[indice]
+
             except Exception:
                 return None
 
@@ -149,53 +181,86 @@ def buscar_previsao():
         for i, data in enumerate(
             diario.get("time", [])
         ):
+
             def dv(nome):
                 try:
                     return diario.get(
-                        nome, []
+                        nome,
+                        [],
                     )[i]
+
                 except Exception:
                     return None
 
             dias.append({
-                "data": data,
+                "data":
+                    data,
+
                 "probabilidade_chuva_pct":
                     dv(
                         "precipitation_probability_max"
                     ),
+
                 "precipitacao_total_mm":
-                    dv("precipitation_sum"),
+                    dv(
+                        "precipitation_sum"
+                    ),
+
                 "vento_max_kmh":
-                    dv("wind_speed_10m_max"),
+                    dv(
+                        "wind_speed_10m_max"
+                    ),
+
                 "rajada_max_kmh":
-                    dv("wind_gusts_10m_max"),
+                    dv(
+                        "wind_gusts_10m_max"
+                    ),
             })
 
         return {
-            "status": "online",
-            "fonte": "Open-Meteo",
-            "modelo": "Best Match",
+            "status":
+                "online",
+
+            "fonte":
+                "Open-Meteo",
+
+            "modelo":
+                "Best Match",
 
             "atual": {
                 "horario":
                     atual.get("time"),
+
                 "precipitacao_mm":
-                    atual.get("precipitation"),
+                    atual.get(
+                        "precipitation"
+                    ),
+
                 "vento_kmh":
-                    atual.get("wind_speed_10m"),
+                    atual.get(
+                        "wind_speed_10m"
+                    ),
+
                 "direcao_graus":
                     atual.get(
                         "wind_direction_10m"
                     ),
+
                 "rajada_kmh":
-                    atual.get("wind_gusts_10m"),
+                    atual.get(
+                        "wind_gusts_10m"
+                    ),
             },
 
             "proxima_hora": {
                 "horario":
                     valor(
-                        horario.get("time", [])
+                        horario.get(
+                            "time",
+                            [],
+                        )
                     ),
+
                 "probabilidade_chuva_pct":
                     valor(
                         horario.get(
@@ -203,6 +268,7 @@ def buscar_previsao():
                             [],
                         )
                     ),
+
                 "precipitacao_mm":
                     valor(
                         horario.get(
@@ -210,6 +276,7 @@ def buscar_previsao():
                             [],
                         )
                     ),
+
                 "vento_kmh":
                     valor(
                         horario.get(
@@ -217,6 +284,7 @@ def buscar_previsao():
                             [],
                         )
                     ),
+
                 "direcao_graus":
                     valor(
                         horario.get(
@@ -224,6 +292,7 @@ def buscar_previsao():
                             [],
                         )
                     ),
+
                 "rajada_kmh":
                     valor(
                         horario.get(
@@ -233,14 +302,20 @@ def buscar_previsao():
                     ),
             },
 
-            "proximos_7_dias": dias,
+            "proximos_7_dias":
+                dias,
         }
 
     except Exception as erro:
         return {
-            "status": "indisponivel",
-            "fonte": "Open-Meteo",
-            "erro": str(erro),
+            "status":
+                "indisponivel",
+
+            "fonte":
+                "Open-Meteo",
+
+            "erro":
+                str(erro),
         }
 
 
@@ -250,18 +325,25 @@ def buscar_mare():
             URL_MARE_CSV,
             timeout=30,
             headers={
-                "User-Agent": "Monitor-Guaxanduva/1.0"
+                "User-Agent":
+                    "Monitor-Guaxanduva/1.0"
             },
         )
 
         r.raise_for_status()
+
         r.encoding = "ISO-8859-1"
 
         agora = datetime.now(
-            ZoneInfo("America/Sao_Paulo")
+            ZoneInfo(
+                "America/Sao_Paulo"
+            )
         )
 
-        data_hoje = agora.strftime("%d/%m/%Y")
+        data_hoje = agora.strftime(
+            "%d/%m/%Y"
+        )
+
         eventos = []
 
         for linha in r.text.splitlines():
@@ -277,7 +359,9 @@ def buscar_mare():
 
             try:
                 altura_m = float(
-                    altura.strip().replace(",", ".")
+                    altura
+                    .strip()
+                    .replace(",", ".")
                 )
 
                 datetime.strptime(
@@ -289,8 +373,11 @@ def buscar_mare():
                 continue
 
             eventos.append({
-                "hora": hora.strip(),
-                "altura_m": altura_m,
+                "hora":
+                    hora.strip(),
+
+                "altura_m":
+                    altura_m,
             })
 
         if not eventos:
@@ -300,9 +387,9 @@ def buscar_mare():
             )
 
         eventos.sort(
-            key=lambda e:
+            key=lambda evento:
                 datetime.strptime(
-                    e["hora"],
+                    evento["hora"],
                     "%H:%M",
                 )
         )
@@ -333,22 +420,44 @@ def buscar_mare():
                 proximo = evento
 
         return {
-            "status": "online",
-            "fonte": "EPAGRI/CIRAM",
-            "tipo": "tabua_de_mare_prevista",
-            "local": "Joinville",
-            "data": data_hoje,
-            "eventos": eventos,
-            "anterior": anterior,
-            "proximo": proximo,
+            "status":
+                "online",
+
+            "fonte":
+                "EPAGRI/CIRAM",
+
+            "tipo":
+                "tabua_de_mare_prevista",
+
+            "local":
+                "Joinville",
+
+            "data":
+                data_hoje,
+
+            "eventos":
+                eventos,
+
+            "anterior":
+                anterior,
+
+            "proximo":
+                proximo,
         }
 
     except Exception as erro:
         return {
-            "status": "indisponivel",
-            "fonte": "EPAGRI/CIRAM",
-            "tipo": "tabua_de_mare_prevista",
-            "erro": str(erro),
+            "status":
+                "indisponivel",
+
+            "fonte":
+                "EPAGRI/CIRAM",
+
+            "tipo":
+                "tabua_de_mare_prevista",
+
+            "erro":
+                str(erro),
         }
 
 
@@ -358,7 +467,9 @@ def coordenada_para_pixel(
     largura,
     altura,
 ):
-    oeste, sul, leste, norte = RADAR_EXTENT
+    oeste, sul, leste, norte = (
+        RADAR_EXTENT
+    )
 
     x = round(
         (longitude - oeste)
@@ -374,12 +485,18 @@ def coordenada_para_pixel(
 
     x = max(
         0,
-        min(largura - 1, x),
+        min(
+            largura - 1,
+            x,
+        ),
     )
 
     y = max(
         0,
-        min(altura - 1, y),
+        min(
+            altura - 1,
+            y,
+        ),
     )
 
     return x, y
@@ -395,7 +512,10 @@ def analisar_png(conteudo):
     largura, altura = imagem.size
 
     rgba = imagem.convert("RGBA")
-    pixels = list(rgba.getdata())
+
+    pixels = list(
+        rgba.getdata()
+    )
 
     transparentes = sum(
         1
@@ -415,12 +535,17 @@ def analisar_png(conteudo):
         if p[3] > 0
     ]
 
-    contador = Counter(visiveis)
+    contador = Counter(
+        visiveis
+    )
 
     cores = [
         {
-            "rgba": list(cor),
-            "pixels": quantidade,
+            "rgba":
+                list(cor),
+
+            "pixels":
+                quantidade,
         }
         for cor, quantidade
         in contador.most_common(30)
@@ -438,15 +563,28 @@ def analisar_png(conteudo):
     )
 
     raio = 5
+
     janela = []
 
     for py in range(
-        max(0, y - raio),
-        min(altura, y + raio + 1),
+        max(
+            0,
+            y - raio,
+        ),
+        min(
+            altura,
+            y + raio + 1,
+        ),
     ):
         for px in range(
-            max(0, x - raio),
-            min(largura, x + raio + 1),
+            max(
+                0,
+                x - raio,
+            ),
+            min(
+                largura,
+                x + raio + 1,
+            ),
         ):
             janela.append(
                 rgba.getpixel(
@@ -466,21 +604,35 @@ def analisar_png(conteudo):
 
     cores_janela = [
         {
-            "rgba": list(cor),
-            "pixels": qtd,
+            "rgba":
+                list(cor),
+
+            "pixels":
+                quantidade,
         }
-        for cor, qtd
-        in contador_janela.most_common(10)
+        for cor, quantidade
+        in contador_janela.most_common(
+            10
+        )
     ]
 
     total = largura * altura
 
     return {
-        "formato": formato,
-        "modo_original": modo_original,
-        "largura_px": largura,
-        "altura_px": altura,
-        "total_pixels": total,
+        "formato":
+            formato,
+
+        "modo_original":
+            modo_original,
+
+        "largura_px":
+            largura,
+
+        "altura_px":
+            altura,
+
+        "total_pixels":
+            total,
 
         "pixels_transparentes":
             transparentes,
@@ -540,10 +692,6 @@ def segmentos_de_linha(
     imagem_rgba,
     y,
 ):
-    """
-    Divide uma linha horizontal da legenda
-    em segmentos consecutivos da mesma cor.
-    """
     largura, altura = imagem_rgba.size
 
     if y < 0 or y >= altura:
@@ -557,17 +705,25 @@ def segmentos_de_linha(
 
     inicio = 0
 
-    for x in range(1, largura):
+    for x in range(
+        1,
+        largura,
+    ):
         cor = imagem_rgba.getpixel(
             (x, y)
         )
 
         if cor != cor_atual:
             segmentos.append({
-                "x_inicio": inicio,
-                "x_fim": x - 1,
+                "x_inicio":
+                    inicio,
+
+                "x_fim":
+                    x - 1,
+
                 "largura":
                     x - inicio,
+
                 "rgba":
                     list(cor_atual),
             })
@@ -576,10 +732,15 @@ def segmentos_de_linha(
             cor_atual = cor
 
     segmentos.append({
-        "x_inicio": inicio,
-        "x_fim": largura - 1,
+        "x_inicio":
+            inicio,
+
+        "x_fim":
+            largura - 1,
+
         "largura":
             largura - inicio,
+
         "rgba":
             list(cor_atual),
     })
@@ -590,12 +751,6 @@ def segmentos_de_linha(
 def analisar_geometria_legenda(
     imagem_rgba
 ):
-    """
-    Procura linhas horizontais com vários
-    blocos sólidos de cor. Isso ajuda a
-    localizar geometricamente a escala
-    oficial sem OCR.
-    """
     largura, altura = imagem_rgba.size
 
     linhas = []
@@ -606,15 +761,13 @@ def analisar_geometria_legenda(
             y,
         )
 
-        # Eliminamos trechos muito pequenos,
-        # típicos de letras/antialiasing.
         relevantes = [
-            s
-            for s in segmentos
+            segmento
+            for segmento in segmentos
             if (
-                s["largura"] >= 5
-                and s["rgba"][3] > 0
-                and s["rgba"][:3]
+                segmento["largura"] >= 5
+                and segmento["rgba"][3] > 0
+                and segmento["rgba"][:3]
                 not in (
                     [255, 255, 255],
                     [0, 0, 0],
@@ -623,34 +776,47 @@ def analisar_geometria_legenda(
         ]
 
         cores = {
-            tuple(s["rgba"])
-            for s in relevantes
+            tuple(
+                segmento["rgba"]
+            )
+            for segmento
+            in relevantes
         }
 
         largura_colorida = sum(
-            s["largura"]
-            for s in relevantes
+            segmento["largura"]
+            for segmento
+            in relevantes
         )
 
         linhas.append({
-            "y": y,
+            "y":
+                y,
+
             "quantidade_segmentos":
                 len(relevantes),
+
             "cores_distintas":
                 len(cores),
+
             "largura_colorida_px":
                 largura_colorida,
+
             "segmentos":
                 relevantes,
         })
 
-    # Priorizamos linhas que contenham
-    # muitos segmentos coloridos sólidos.
     linhas.sort(
         key=lambda item: (
-            item["quantidade_segmentos"],
-            item["cores_distintas"],
-            item["largura_colorida_px"],
+            item[
+                "quantidade_segmentos"
+            ],
+            item[
+                "cores_distintas"
+            ],
+            item[
+                "largura_colorida_px"
+            ],
         ),
         reverse=True,
     )
@@ -678,6 +844,434 @@ def analisar_geometria_legenda(
     }
 
 
+def pixel_escuro(pixel):
+    """
+    Detecta pixels escuros usados nos
+    caracteres impressos da legenda.
+
+    Trabalhamos com luminância, não com
+    igualdade RGB, para incluir as bordas
+    antialiasadas das letras e números.
+    """
+    r, g, b, a = pixel
+
+    if a == 0:
+        return False
+
+    luminancia = (
+        0.2126 * r
+        + 0.7152 * g
+        + 0.0722 * b
+    )
+
+    return luminancia < 150
+
+
+def matriz_texto_legenda(
+    imagem_rgba,
+    y_inicio=13,
+):
+    """
+    Converte a região inferior da legenda
+    em desenho ASCII.
+
+    # = pixel escuro
+    . = fundo/outro pixel
+    """
+    largura, altura = imagem_rgba.size
+
+    y_inicio = max(
+        0,
+        min(
+            altura - 1,
+            y_inicio,
+        ),
+    )
+
+    linhas = []
+
+    for y in range(
+        y_inicio,
+        altura,
+    ):
+        linha = []
+
+        for x in range(largura):
+            pixel = imagem_rgba.getpixel(
+                (x, y)
+            )
+
+            linha.append(
+                "#"
+                if pixel_escuro(pixel)
+                else "."
+            )
+
+        linhas.append(
+            "".join(linha)
+        )
+
+    return {
+        "y_inicio":
+            y_inicio,
+
+        "y_fim":
+            altura - 1,
+
+        "largura_px":
+            largura,
+
+        "altura_px":
+            altura - y_inicio,
+
+        "linhas":
+            linhas,
+    }
+
+
+def componentes_texto_legenda(
+    imagem_rgba,
+    y_inicio=13,
+):
+    """
+    Encontra grupos conectados de pixels
+    escuros na parte inferior da legenda.
+
+    Cada componente recebe:
+    - bounding box
+    - centro
+    - quantidade de pixels
+    - desenho ASCII próprio
+
+    Isso permitirá reconstruir números
+    sem OCR externo.
+    """
+    largura, altura = imagem_rgba.size
+
+    y_inicio = max(
+        0,
+        min(
+            altura - 1,
+            y_inicio,
+        ),
+    )
+
+    mascara = set()
+
+    for y in range(
+        y_inicio,
+        altura,
+    ):
+        for x in range(largura):
+            if pixel_escuro(
+                imagem_rgba.getpixel(
+                    (x, y)
+                )
+            ):
+                mascara.add(
+                    (x, y)
+                )
+
+    visitados = set()
+    componentes = []
+
+    vizinhos = (
+        (-1, -1),
+        (0, -1),
+        (1, -1),
+        (-1, 0),
+        (1, 0),
+        (-1, 1),
+        (0, 1),
+        (1, 1),
+    )
+
+    for origem in sorted(
+        mascara,
+        key=lambda p: (
+            p[0],
+            p[1],
+        ),
+    ):
+        if origem in visitados:
+            continue
+
+        fila = deque(
+            [origem]
+        )
+
+        visitados.add(
+            origem
+        )
+
+        pontos = []
+
+        while fila:
+            atual = fila.popleft()
+
+            pontos.append(
+                atual
+            )
+
+            x, y = atual
+
+            for dx, dy in vizinhos:
+                vizinho = (
+                    x + dx,
+                    y + dy,
+                )
+
+                if (
+                    vizinho in mascara
+                    and vizinho
+                    not in visitados
+                ):
+                    visitados.add(
+                        vizinho
+                    )
+
+                    fila.append(
+                        vizinho
+                    )
+
+        xs = [
+            ponto[0]
+            for ponto in pontos
+        ]
+
+        ys = [
+            ponto[1]
+            for ponto in pontos
+        ]
+
+        x0 = min(xs)
+        x1 = max(xs)
+        y0 = min(ys)
+        y1 = max(ys)
+
+        largura_comp = (
+            x1 - x0 + 1
+        )
+
+        altura_comp = (
+            y1 - y0 + 1
+        )
+
+        # Pequenos ruídos isolados não
+        # interessam para os caracteres.
+        if len(pontos) < 2:
+            continue
+
+        conjunto = set(
+            pontos
+        )
+
+        desenho = []
+
+        for py in range(
+            y0,
+            y1 + 1,
+        ):
+            linha = []
+
+            for px in range(
+                x0,
+                x1 + 1,
+            ):
+                linha.append(
+                    "#"
+                    if (
+                        px,
+                        py,
+                    ) in conjunto
+                    else "."
+                )
+
+            desenho.append(
+                "".join(linha)
+            )
+
+        componentes.append({
+            "x_inicio":
+                x0,
+
+            "x_fim":
+                x1,
+
+            "y_inicio":
+                y0,
+
+            "y_fim":
+                y1,
+
+            "largura_px":
+                largura_comp,
+
+            "altura_px":
+                altura_comp,
+
+            "centro_x":
+                round(
+                    (
+                        x0
+                        + x1
+                    )
+                    / 2,
+                    1,
+                ),
+
+            "centro_y":
+                round(
+                    (
+                        y0
+                        + y1
+                    )
+                    / 2,
+                    1,
+                ),
+
+            "pixels_escuros":
+                len(pontos),
+
+            "desenho":
+                desenho,
+        })
+
+    componentes.sort(
+        key=lambda item: (
+            item["x_inicio"],
+            item["y_inicio"],
+        )
+    )
+
+    return {
+        "y_inicio_analise":
+            y_inicio,
+
+        "quantidade_componentes":
+            len(componentes),
+
+        "componentes":
+            componentes,
+    }
+
+
+def associar_componentes_blocos(
+    geometria,
+    componentes,
+):
+    """
+    Para cada um dos 16 blocos da escala,
+    informa quais componentes escuros estão
+    mais próximos horizontalmente.
+
+    Ainda NÃO tenta dizer qual algarismo é.
+    """
+    melhor = geometria.get(
+        "melhor_linha"
+    )
+
+    if not melhor:
+        return []
+
+    blocos = melhor.get(
+        "segmentos",
+        [],
+    )
+
+    comps = componentes.get(
+        "componentes",
+        [],
+    )
+
+    resultado = []
+
+    for indice, bloco in enumerate(
+        blocos,
+        start=1,
+    ):
+        centro_bloco = (
+            bloco["x_inicio"]
+            + bloco["x_fim"]
+        ) / 2
+
+        candidatos = []
+
+        for comp in comps:
+            distancia = abs(
+                comp["centro_x"]
+                - centro_bloco
+            )
+
+            # Janela deliberadamente ampla.
+            # Nesta etapa queremos observar
+            # a estrutura, não interpretar.
+            if distancia <= 18:
+                candidatos.append({
+                    "distancia_centro_px":
+                        round(
+                            distancia,
+                            1,
+                        ),
+
+                    "x_inicio":
+                        comp["x_inicio"],
+
+                    "x_fim":
+                        comp["x_fim"],
+
+                    "y_inicio":
+                        comp["y_inicio"],
+
+                    "y_fim":
+                        comp["y_fim"],
+
+                    "largura_px":
+                        comp["largura_px"],
+
+                    "altura_px":
+                        comp["altura_px"],
+
+                    "pixels_escuros":
+                        comp["pixels_escuros"],
+
+                    "desenho":
+                        comp["desenho"],
+                })
+
+        candidatos.sort(
+            key=lambda item:
+                item[
+                    "distancia_centro_px"
+                ]
+        )
+
+        resultado.append({
+            "indice_bloco":
+                indice,
+
+            "x_inicio_bloco":
+                bloco["x_inicio"],
+
+            "x_fim_bloco":
+                bloco["x_fim"],
+
+            "centro_x_bloco":
+                round(
+                    centro_bloco,
+                    1,
+                ),
+
+            "rgba":
+                bloco["rgba"],
+
+            "componentes_proximos":
+                candidatos,
+        })
+
+    return resultado
+
+
 def analisar_legenda():
     try:
         r = requisicao_radar(
@@ -694,7 +1288,9 @@ def analisar_legenda():
         modo = imagem.mode
         largura, altura = imagem.size
 
-        rgba = imagem.convert("RGBA")
+        rgba = imagem.convert(
+            "RGBA"
+        )
 
         pixels = list(
             rgba.getdata()
@@ -712,15 +1308,36 @@ def analisar_legenda():
                     list(cor),
 
                 "pixels":
-                    qtd,
+                    quantidade,
             }
-            for cor, qtd
+            for cor, quantidade
             in contador.most_common(50)
         ]
 
         geometria = (
             analisar_geometria_legenda(
                 rgba
+            )
+        )
+
+        matriz_texto = (
+            matriz_texto_legenda(
+                rgba,
+                y_inicio=13,
+            )
+        )
+
+        componentes = (
+            componentes_texto_legenda(
+                rgba,
+                y_inicio=13,
+            )
+        )
+
+        associacao = (
+            associar_componentes_blocos(
+                geometria,
+                componentes,
             )
         )
 
@@ -760,11 +1377,33 @@ def analisar_legenda():
             "geometria":
                 geometria,
 
+            "leitura_caracteres": {
+                "metodo":
+                    (
+                        "matriz_binaria_"
+                        "componentes_conectados"
+                    ),
+
+                "limiar_luminancia":
+                    150,
+
+                "matriz_regiao_inferior":
+                    matriz_texto,
+
+                "componentes":
+                    componentes,
+
+                "associacao_com_blocos":
+                    associacao,
+            },
+
             "observacao":
                 (
                     "Legenda oficial analisada "
-                    "geometricamente; dBZ ainda "
-                    "não atribuído às cores."
+                    "geometricamente e caracteres "
+                    "inferiores convertidos para "
+                    "matriz binária. Valores dBZ "
+                    "ainda não atribuídos."
                 ),
         }
 
@@ -781,13 +1420,20 @@ def analisar_legenda():
         }
 
 
-def baixar_e_analisar_quadro(nome):
+def baixar_e_analisar_quadro(
+    nome
+):
     resposta = requisicao_radar(
         URL_RADAR_IMAGEM,
         params={
-            "prod": 4,
-            "radar": "COMP",
-            "file": nome,
+            "prod":
+                4,
+
+            "radar":
+                "COMP",
+
+            "file":
+                nome,
         },
     )
 
@@ -803,7 +1449,9 @@ def baixar_e_analisar_quadro(nome):
             ).hexdigest(),
 
         "imagem":
-            analisar_png(conteudo),
+            analisar_png(
+                conteudo
+            ),
     }
 
 
@@ -812,9 +1460,14 @@ def buscar_radar():
         r = requisicao_radar(
             URL_RADAR_LISTA,
             params={
-                "prod": 4,
-                "radar": "COMP",
-                "data": "",
+                "prod":
+                    4,
+
+                "radar":
+                    "COMP",
+
+                "data":
+                    "",
             },
         )
 
@@ -846,7 +1499,9 @@ def buscar_radar():
                         "%Y%m%d%H%M%S",
                     )
                     .replace(
-                        tzinfo=ZoneInfo("UTC")
+                        tzinfo=ZoneInfo(
+                            "UTC"
+                        )
                     )
                 )
 
@@ -900,9 +1555,11 @@ def buscar_radar():
                 })
 
         validos = [
-            q
-            for q in quadros
-            if q.get("download") == "ok"
+            quadro
+            for quadro in quadros
+            if quadro.get(
+                "download"
+            ) == "ok"
         ]
 
         if not validos:
@@ -914,7 +1571,9 @@ def buscar_radar():
 
         ultimo_utc = (
             datetime.fromisoformat(
-                ultimo["horario_utc"]
+                ultimo[
+                    "horario_utc"
+                ]
             )
         )
 
@@ -938,13 +1597,25 @@ def buscar_radar():
 
         dimensoes = {
             (
-                q["imagem"]["largura_px"],
-                q["imagem"]["altura_px"],
+                quadro[
+                    "imagem"
+                ][
+                    "largura_px"
+                ],
+
+                quadro[
+                    "imagem"
+                ][
+                    "altura_px"
+                ],
             )
-            for q in validos
+            for quadro
+            in validos
         }
 
-        legenda = analisar_legenda()
+        legenda = (
+            analisar_legenda()
+        )
 
         return {
             "status":
@@ -955,7 +1626,8 @@ def buscar_radar():
                         and len(validos)
                         == len(imagens)
                     )
-                    else "parcial"
+                    else
+                    "parcial"
                 ),
 
             "fonte":
@@ -1011,9 +1683,10 @@ def buscar_radar():
 
             "interpretacao_dbz":
                 (
-                    "geometria_legenda_em_analise"
-                    if legenda.get("status")
-                    == "online"
+                    "caracteres_legenda_em_analise"
+                    if legenda.get(
+                        "status"
+                    ) == "online"
                     else
                     "aguardando_legenda"
                 ),
@@ -1052,11 +1725,15 @@ def buscar_radar():
 
 def main():
     agora = datetime.now(
-        ZoneInfo("America/Sao_Paulo")
+        ZoneInfo(
+            "America/Sao_Paulo"
+        )
     )
 
     previsao = buscar_previsao()
+
     mare = buscar_mare()
+
     radar = buscar_radar()
 
     dados = {
@@ -1143,6 +1820,7 @@ def main():
     )
 
     print("MARÉ:")
+
     print(
         json.dumps(
             mare,
@@ -1152,6 +1830,7 @@ def main():
     )
 
     print("PREVISÃO:")
+
     print(
         json.dumps(
             previsao,
@@ -1161,6 +1840,7 @@ def main():
     )
 
     print("RADAR:")
+
     print(
         json.dumps(
             radar,

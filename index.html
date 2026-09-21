@@ -4,1265 +4,179 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#08151d">
-
 <title>Monitor Guaxanduva</title>
-
 <style>
-
 *{box-sizing:border-box}
-
-body{
-margin:0;
-background:#08151d;
-color:#eef8fc;
-font-family:Arial,sans-serif
-}
-
-main{
-max-width:700px;
-margin:auto;
-padding:12px
-}
-
-header,.card{
-background:#112632;
-border:1px solid #294956;
-border-radius:18px;
-padding:18px;
-margin-bottom:14px
-}
-
-h1{margin:6px 0;font-size:27px}
-h2{margin:6px 0}
-
-.local{
-color:#8fc8df;
-font-size:12px;
-letter-spacing:2px
-}
-
-.sub,small{color:#a8c0ca}
-
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px
-}
-
-.valor{
-font-size:38px;
-font-weight:bold;
-margin:20px 0 4px
-}
-
-.box{
-background:#091a23;
-border-radius:12px;
-padding:14px;
-margin-top:14px;
-line-height:1.6
-}
-
-.ok{color:#8fe3a1}
-.aviso{color:#f1d277}
-.erro{color:#ff9b9b}
-
-a{
-display:block;
-background:#d9eef6;
-color:#09202b;
-text-align:center;
-text-decoration:none;
-font-weight:bold;
-padding:13px;
-border-radius:12px;
-margin-top:14px
-}
-
-.risco{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:5px
-}
-
-.risco div{
-background:#091a23;
-text-align:center;
-padding:10px 2px;
-border-radius:10px;
-font-size:12px
-}
-
-.em{
-display:flex;
-gap:10px
-}
-
-.em div{
-flex:1;
-background:#091a23;
-text-align:center;
-padding:12px;
-border-radius:12px
-}
-
-.num{
-font-size:27px;
-font-weight:bold
-}
-
-.meteo{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-top:15px
-}
-
-.meteo div{
-background:#091a23;
-border-radius:12px;
-padding:14px
-}
-
-.meteo b{
-display:block;
-font-size:25px;
-margin-top:7px
-}
-
-/* MARÉ */
-
-.mare-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-top:15px
-}
-
-.mare-item{
-background:#091a23;
-border-radius:12px;
-padding:14px
-}
-
-.mare-titulo{
-color:#a8c0ca;
-font-size:13px
-}
-
-.mare-valor{
-font-size:28px;
-font-weight:bold;
-margin-top:7px
-}
-
-.mare-hora{
-color:#8fc8df;
-font-weight:bold;
-margin-top:4px
-}
-
-/* PREVISÃO 7 DIAS */
-
-.dia-previsao{
-padding:13px 0;
-border-bottom:1px solid #294956
-}
-
-.dia-previsao:last-child{
-border-bottom:0
-}
-
-.dia-titulo{
-color:#8fc8df;
-font-weight:bold;
-margin-bottom:5px
-}
-
-/* GLOSSÁRIO */
-
-.medida{
-background:#091a23;
-border-radius:12px;
-padding:15px;
-margin-top:10px;
-line-height:1.5
-}
-
-.medida-sigla{
-font-size:24px;
-font-weight:bold;
-color:#8fc8df;
-margin-bottom:4px
-}
-
-.medida-exemplo{
-color:#a8c0ca;
-font-size:14px;
-margin-top:5px
-}
-
-@media(max-width:520px){
-
-.grid{
-grid-template-columns:1fr
-}
-
-h1{
-font-size:24px
-}
-
-.mare-grid{
-grid-template-columns:1fr 1fr
-}
-
-}
-
+body{margin:0;background:#08151d;color:#eef8fc;font-family:Arial,sans-serif}
+main{max-width:700px;margin:auto;padding:12px}
+header,.card{background:#112632;border:1px solid #294956;border-radius:18px;padding:18px;margin-bottom:14px}
+h1{margin:6px 0;font-size:27px} h2{margin:6px 0}
+.local{color:#8fc8df;font-size:12px;letter-spacing:2px}.sub,small{color:#a8c0ca}
+.grid,.meteo,.mare-grid,.radar-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.valor{font-size:38px;font-weight:bold;margin:20px 0 4px}
+.box,.meteo div,.mare-item,.radar-item,.medida{background:#091a23;border-radius:12px;padding:14px;margin-top:14px;line-height:1.6}
+.ok{color:#8fe3a1}.aviso{color:#f1d277}.erro{color:#ff9b9b}
+a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decoration:none;font-weight:bold;padding:13px;border-radius:12px;margin-top:14px}
+.meteo b,.radar-item b{display:block;font-size:24px;margin-top:7px}
+.mare-valor{font-size:28px;font-weight:bold;margin-top:7px}.mare-hora{color:#8fc8df;font-weight:bold;margin-top:4px}
+.dia-previsao{padding:13px 0;border-bottom:1px solid #294956}.dia-previsao:last-child{border-bottom:0}.dia-titulo{color:#8fc8df;font-weight:bold;margin-bottom:5px}
+.risco{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.risco div,.em div{background:#091a23;text-align:center;padding:10px 2px;border-radius:10px;font-size:12px}
+.em{display:flex;gap:10px}.em div{flex:1;padding:12px}.num{font-size:27px;font-weight:bold}
+.medida{padding:15px;margin-top:10px}.medida-sigla{font-size:24px;font-weight:bold;color:#8fc8df;margin-bottom:4px}.medida-exemplo{color:#a8c0ca;font-size:14px;margin-top:5px}
+.selo{display:inline-block;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:bold;margin-top:8px;background:#203945}
+@media(max-width:520px){.grid,.meteo,.radar-grid{grid-template-columns:1fr}.mare-grid{grid-template-columns:1fr 1fr}h1{font-size:24px}}
 </style>
 </head>
-
-<body>
-
-<main>
-
+<body><main>
 <header>
-
-<div class="local">
-COMASA • JOINVILLE/SC
-</div>
-
-<h1>
-🌧️🌊 Monitor Guaxanduva
-</h1>
-
-<div class="sub">
-Chuva • Maré • Rio • Vento • Tempestades • Riscos
-</div>
-
-<div id="hora" style="margin-top:15px">
-🕒 --
-</div>
-
+<div class="local">COMASA • JOINVILLE/SC</div>
+<h1>🌧️🌊 Monitor Guaxanduva</h1>
+<div class="sub">Chuva • Radar • Maré • Rio • Vento • Tempestades • Riscos</div>
+<div id="hora" style="margin-top:15px">🕒 --</div>
 </header>
 
+<section class="card">
+<div class="local">📡 RADAR METEOROLÓGICO</div>
+<h2>🌧️ Chuva se aproximando</h2>
+<div class="sub">RadarSC • Defesa Civil de Santa Catarina • produto C-MAX</div>
+<div id="radarEstado" class="box aviso">Carregando radar...</div>
+<div class="radar-grid">
+<div class="radar-item">🕐 Último quadro<b id="radarHora">--</b></div>
+<div class="radar-item">⏱️ Idade do dado<b id="radarIdade">--</b></div>
+<div class="radar-item">🧭 Trilhas acompanhadas<b id="radarTrilhas">--</b></div>
+<div class="radar-item">🎯 Trilhas elegíveis<b id="radarElegiveis">--</b></div>
+</div>
+<div id="etaEstado" class="box aviso">🧪 ETA em validação experimental</div>
+<small>O sistema acompanha ecos de radar e testa retrospectivamente suas previsões. Enquanto a validação não for concluída, não publica horário automático de chegada da chuva.</small>
+</section>
+
+<section class="card">
+<div class="local">🧪 AUTOVALIDAÇÃO DO RADAR</div>
+<h2>O sistema mede o próprio erro</h2>
+<div class="sub">Histórico persistente #120 • diagnóstico experimental</div>
+<div class="radar-grid">
+<div class="radar-item">📚 Quadros registrados<b id="histExec">--</b></div>
+<div class="radar-item">🧮 Previsões testadas<b id="histPrev">--</b></div>
+<div class="radar-item">📏 Erro médio da série<b id="histMedia">--</b></div>
+<div class="radar-item">🛡️ ETA liberado?<b id="histEta">NÃO</b></div>
+</div>
+<div id="histEstado" class="box aviso">Carregando histórico de validação...</div>
+<small>Erro em quilômetros é uma medida diagnóstica do algoritmo, não uma previsão de distância da chuva. Não há limiar de aprovação definido.</small>
+</section>
 
 <section class="grid">
-
 <div class="card">
-
-<div class="local">
-🌧️ CHUVA OBSERVADA
+<div class="local">🌧️ CHUVA OBSERVADA</div><h2>CEMADEN</h2>
+<div class="valor" id="chuva">--</div><div class="sub">mm na última leitura</div>
+<div class="box">1 hora: <b id="h1">--</b> mm<br>24 horas: <b id="h24">--</b> mm<br><span id="cs" class="aviso">Carregando...</span></div>
+<a href="https://mapainterativo.cemaden.gov.br/" target="_blank">ABRIR CEMADEN</a>
 </div>
-
-<h2>CEMADEN</h2>
-
-<div class="valor" id="chuva">
---
-</div>
-
-<div class="sub">
-mm na última leitura
-</div>
-
-<div class="box">
-
-1 hora:
-<b id="h1">--</b> mm
-
-<br>
-
-24 horas:
-<b id="h24">--</b> mm
-
-<br>
-
-<span id="cs" class="aviso">
-Carregando...
-</span>
-
-</div>
-
-<a
-href="https://mapainterativo.cemaden.gov.br/"
-target="_blank">
-ABRIR CEMADEN
-</a>
-
-</div>
-
-
 <div class="card">
-
-<div class="local">
-🌊 MARÉ PREVISTA
-</div>
-
-<h2>
-Joinville • Babitonga
-</h2>
-
-<div class="sub">
-Tábua de maré • extremos previstos
-</div>
-
+<div class="local">🌊 MARÉ PREVISTA</div><h2>Joinville • Babitonga</h2><div class="sub">Tábua de maré • extremos previstos</div>
 <div class="mare-grid">
-
-<div class="mare-item">
-
-<div class="mare-titulo">
-⬅️ Último extremo
+<div class="mare-item">⬅️ Último extremo<div class="mare-valor" id="mareAnterior">--</div><div class="mare-hora" id="mareAnteriorHora">--</div></div>
+<div class="mare-item">➡️ Próximo extremo<div class="mare-valor" id="mareProxima">--</div><div class="mare-hora" id="mareProximaHora">--</div></div>
 </div>
-
-<div class="mare-valor" id="mareAnterior">
---
+<div class="box"><b>Fonte:</b> EPAGRI/CIRAM<br><span id="ms" class="aviso">Carregando...</span><br><small>Tábua de maré prevista. Não representa medição instantânea do nível da água.</small></div>
+<a href="https://ciram.epagri.sc.gov.br/index.php/maregrafos/" target="_blank">ABRIR EPAGRI/CIRAM</a>
 </div>
-
-<div class="mare-hora" id="mareAnteriorHora">
---
-</div>
-
-</div>
-
-
-<div class="mare-item">
-
-<div class="mare-titulo">
-➡️ Próximo extremo
-</div>
-
-<div class="mare-valor" id="mareProxima">
---
-</div>
-
-<div class="mare-hora" id="mareProximaHora">
---
-</div>
-
-</div>
-
-</div>
-
-
-<div class="box">
-
-<b>Fonte:</b>
-EPAGRI/CIRAM
-
-<br>
-
-<span id="ms" class="aviso">
-Carregando...
-</span>
-
-<br>
-
-<small>
-Tábua de maré prevista.
-Não representa medição instantânea do nível da água.
-</small>
-
-</div>
-
-<a
-href="https://ciram.epagri.sc.gov.br/index.php/maregrafos/"
-target="_blank">
-ABRIR EPAGRI/CIRAM
-</a>
-
-</div>
-
 </section>
 
-
 <section class="card">
-
-<div class="local">
-📡 PREVISÃO METEOROLÓGICA
-</div>
-
-<h2>
-Comasa • Joinville
-</h2>
-
-<div class="sub">
-Modelo meteorológico • Open-Meteo Best Match
-</div>
-
+<div class="local">📡 PREVISÃO METEOROLÓGICA</div><h2>Comasa • Joinville</h2><div class="sub">Modelo meteorológico • Open-Meteo Best Match</div>
 <div class="meteo">
-
-<div>
-☔ Prob. de chuva
-<b id="prob">--</b>
-</div>
-
-<div>
-🌧️ Precipitação
-<b id="prevchuva">--</b>
-</div>
-
-<div>
-🌬️ Vento
-<b id="vento">--</b>
-</div>
-
-<div>
-💨 Rajadas
-<b id="rajada">--</b>
-</div>
-
-<div>
-🧭 Direção
-<b id="direcao">--</b>
-</div>
-
-<div>
-🕐 Próxima hora
-<b id="prevhora">--</b>
-</div>
-
-</div>
-
-<div id="ps" class="box aviso">
-Carregando previsão...
-</div>
-
+<div>☔ Prob. de chuva<b id="prob">--</b></div><div>🌧️ Precipitação<b id="prevchuva">--</b></div>
+<div>🌬️ Vento<b id="vento">--</b></div><div>💨 Rajadas<b id="rajada">--</b></div>
+<div>🧭 Direção<b id="direcao">--</b></div><div>🕐 Próxima hora<b id="prevhora">--</b></div>
+</div><div id="ps" class="box aviso">Carregando previsão...</div>
 </section>
-
 
 <section class="card">
-
-<div class="local">
-🌧️ PREVISÃO DE CHUVA — PRÓXIMOS 7 DIAS
-</div>
-
-<h2>
-Tendência para Comasa • Joinville
-</h2>
-
-<div class="sub">
-Probabilidade e quantidade prevista de chuva • Open-Meteo
-</div>
-
-<div id="previsao7dias" class="box">
-Carregando previsão dos próximos dias...
-</div>
-
-<div class="box">
-
-<small>
-
-☔ <b>Probabilidade</b>
-= maior probabilidade de chuva prevista para o dia.
-
-<br><br>
-
-🌧️ <b>Chuva prevista</b>
-= quantidade total estimada para o dia em milímetros (mm).
-
-<br><br>
-
-As previsões podem mudar conforme novas informações
-meteorológicas são recebidas.
-
-</small>
-
-</div>
-
+<div class="local">🌧️ PREVISÃO DE CHUVA — PRÓXIMOS 7 DIAS</div><h2>Tendência para Comasa • Joinville</h2>
+<div class="sub">Probabilidade e quantidade prevista de chuva • Open-Meteo</div>
+<div id="previsao7dias" class="box">Carregando previsão dos próximos dias...</div>
+<div class="box"><small>☔ <b>Probabilidade</b> = maior probabilidade de chuva prevista para o dia.<br><br>🌧️ <b>Chuva prevista</b> = quantidade total estimada para o dia em milímetros (mm).<br><br>As previsões podem mudar conforme novas informações meteorológicas são recebidas.</small></div>
 </section>
 
+<section class="card"><div class="local">🧊 GRANIZO</div><h2>Alertas</h2><div id="granizo" class="box aviso">⚪ Alerta oficial ainda não integrado</div><small>Granizo não é inferido apenas pela previsão de chuva. O painel aguardará integração com fonte oficial de alertas.</small></section>
+<section class="card"><div class="local">🏞️ RIO GUAXANDUVA</div><h2>Nível do rio</h2><div class="valor" id="rio">--</div><div id="rs" class="box aviso">Verificando sensor...</div></section>
+<section class="card"><div class="local">📐 ALTITUDE DO TERRENO</div><h2>Rua Itapoá • Comasa</h2><div class="valor">≈ 5 m</div><div class="sub">acima do nível do mar</div><div class="box"><b>Fonte:</b> Prefeitura de Joinville / SIMGeo<br><small>Cota aproximada do terreno. Não representa nível de inundação.</small></div></section>
 
 <section class="card">
-
-<div class="local">
-🧊 GRANIZO
-</div>
-
-<h2>Alertas</h2>
-
-<div id="granizo" class="box aviso">
-⚪ Alerta oficial ainda não integrado
-</div>
-
-<small>
-Granizo não é inferido apenas pela previsão de chuva.
-O painel aguardará integração com fonte oficial de alertas.
-</small>
-
+<div class="local">📖 ENTENDA AS MEDIDAS</div><h2>O que significam os números?</h2><div class="sub">Guia rápido para interpretar o Monitor Guaxanduva</div>
+<div class="medida"><div class="medida-sigla">🌧️ mm</div><b>Milímetros de chuva</b><div class="medida-exemplo">1 mm de chuva equivale aproximadamente a 1 litro de água sobre cada metro quadrado.</div></div>
+<div class="medida"><div class="medida-sigla">🌧️ mm/h</div><b>Milímetros por hora</b><div class="medida-exemplo">Indica a intensidade da chuva.</div></div>
+<div class="medida"><div class="medida-sigla">📏 m</div><b>Metros</b><div class="medida-exemplo">Unidade de altura ou nível.</div></div>
+<div class="medida"><div class="medida-sigla">🌬️ km/h</div><b>Quilômetros por hora</b><div class="medida-exemplo">Velocidade do vento e das rajadas.</div></div>
+<div class="medida"><div class="medida-sigla">☔ %</div><b>Porcentagem</b><div class="medida-exemplo">Na previsão de chuva representa probabilidade, não quantidade.</div></div>
+<div class="medida"><div class="medida-sigla">🧭 N • NE • L • SE • S • SO • O • NO</div><b>Direções</b><div class="medida-exemplo">Pontos cardeais e colaterais usados para o vento.</div></div>
+<div class="medida"><div class="medida-sigla">📡 dBZ</div><b>Refletividade do radar</b><div class="medida-exemplo">Representa a intensidade dos ecos de precipitação. Não prova sozinho quantidade exata de chuva ou granizo.</div></div>
+<div class="box"><small>ℹ️ Previsões e análises experimentais são estimativas e não substituem avisos oficiais da Defesa Civil.</small></div>
 </section>
 
-
-<section class="card">
-
-<div class="local">
-🏞️ RIO GUAXANDUVA
-</div>
-
-<h2>Nível do rio</h2>
-
-<div class="valor" id="rio">
---
-</div>
-
-<div id="rs" class="box aviso">
-Verificando sensor...
-</div>
-
-</section>
-
-
-<section class="card">
-
-<div class="local">
-📐 ALTITUDE DO TERRENO
-</div>
-
-<h2>
-Rua Itapoá • Comasa
-</h2>
-
-<div class="valor">
-≈ 5 m
-</div>
-
-<div class="sub">
-acima do nível do mar
-</div>
-
-<div class="box">
-
-<b>Fonte:</b>
-Prefeitura de Joinville / SIMGeo
-
-<br>
-
-<small>
-Cota aproximada do terreno.
-Não representa nível de inundação.
-</small>
-
-</div>
-
-</section>
-
-
-<!-- GLOSSÁRIO -->
-
-<section class="card">
-
-<div class="local">
-📖 ENTENDA AS MEDIDAS
-</div>
-
-<h2>
-O que significam os números?
-</h2>
-
-<div class="sub">
-Guia rápido para interpretar o Monitor Guaxanduva
-</div>
-
-
-<div class="medida">
-
-<div class="medida-sigla">
-🌧️ mm
-</div>
-
-<b>Milímetros de chuva</b>
-
-<div class="medida-exemplo">
-1 mm de chuva equivale aproximadamente a
-1 litro de água caindo sobre cada metro quadrado de superfície.
-</div>
-
-</div>
-
-
-<div class="medida">
-
-<div class="medida-sigla">
-🌧️ mm/h
-</div>
-
-<b>Milímetros por hora</b>
-
-<div class="medida-exemplo">
-Indica a intensidade da chuva:
-quantos milímetros estão caindo ou são estimados em uma hora.
-</div>
-
-</div>
-
-
-<div class="medida">
-
-<div class="medida-sigla">
-📏 m
-</div>
-
-<b>Metros</b>
-
-<div class="medida-exemplo">
-Unidade de altura ou nível.
-No painel pode ser usada para altitude,
-maré e futuramente nível do rio.
-</div>
-
-</div>
-
-
-<div class="medida">
-
-<div class="medida-sigla">
-🌬️ km/h
-</div>
-
-<b>Quilômetros por hora</b>
-
-<div class="medida-exemplo">
-Indica a velocidade do vento e das rajadas.
-</div>
-
-</div>
-
-
-<div class="medida">
-
-<div class="medida-sigla">
-☔ %
-</div>
-
-<b>Porcentagem</b>
-
-<div class="medida-exemplo">
-Na previsão de chuva representa uma probabilidade meteorológica.
-Não representa a quantidade de chuva que cairá.
-</div>
-
-</div>
-
-
-<div class="medida">
-
-<div class="medida-sigla">
-🧭 °
-</div>
-
-<b>Graus de direção</b>
-
-<div class="medida-exemplo">
-Indicam a direção do vento em uma escala de 0° a 360°.
-O painel também traduz o valor para pontos cardeais.
-</div>
-
-</div>
-
-
-<div class="medida">
-
-<div class="medida-sigla">
-🧭 N • NE • L • SE • S • SO • O • NO
-</div>
-
-<b>Pontos cardeais e colaterais</b>
-
-<div class="medida-exemplo">
-N = Norte • NE = Nordeste • L = Leste •
-SE = Sudeste • S = Sul • SO = Sudoeste •
-O = Oeste • NO = Noroeste.
-</div>
-
-</div>
-
-
-<div class="medida">
-
-<div class="medida-sigla">
-🌡️ °C
-</div>
-
-<b>Graus Celsius</b>
-
-<div class="medida-exemplo">
-Unidade usada para temperatura.
-Será utilizada quando a temperatura for incorporada ao painel.
-</div>
-
-</div>
-
-
-<div class="medida">
-
-<div class="medida-sigla">
-📡 dBZ
-</div>
-
-<b>Refletividade do radar meteorológico</b>
-
-<div class="medida-exemplo">
-É uma medida usada por radares meteorológicos para representar
-a intensidade dos ecos de precipitação.
-Valores maiores normalmente indicam ecos mais intensos,
-mas dBZ não deve ser interpretado sozinho como quantidade exata
-de chuva ou presença garantida de granizo.
-</div>
-
-</div>
-
-
-<div class="box">
-
-<small>
-ℹ️ Este glossário explica as unidades do painel.
-Previsões são estimativas meteorológicas e não substituem
-avisos oficiais da Defesa Civil.
-</small>
-
-</div>
-
-</section>
-
-
-<section class="card">
-
-<div class="local">
-📡 SISTEMA AUTOMÁTICO
-</div>
-
-<h2>
-Estado da coleta
-</h2>
-
-<div id="sistema" class="box aviso">
-Carregando dados.json...
-</div>
-
-<p>
-<small id="coleta">
-Última coleta: --
-</small>
-</p>
-
-</section>
-
-
-<section class="card">
-
-<div class="local">
-PAINEL DE RISCOS
-</div>
-
-<h2>
-Monitoramento combinado
-</h2>
-
-<div class="risco">
-
-<div>
-🟢
-<br>
-Normal
-</div>
-
-<div>
-🟡
-<br>
-Atenção
-</div>
-
-<div>
-🟠
-<br>
-Alerta
-</div>
-
-<div>
-🔴
-<br>
-Crítico
-</div>
-
-</div>
-
-<div class="box aviso">
-⚪ Sem classificação enquanto faltarem dados
-observacionais confiáveis.
-</div>
-
-</section>
-
-
-<section class="card">
-
-<h2>
-🚨 Emergência
-</h2>
-
-<div class="em">
-
-<div>
-
-Defesa Civil
-
-<div class="num">
-199
-</div>
-
-</div>
-
-
-<div>
-
-Bombeiros
-
-<div class="num">
-193
-</div>
-
-</div>
-
-</div>
-
-</section>
-
+<section class="card"><div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2><div id="sistema" class="box aviso">Carregando dados.json...</div><p><small id="coleta">Última coleta: --</small></p></section>
+<section class="card"><div class="local">PAINEL DE RISCOS</div><h2>Monitoramento combinado</h2><div class="risco"><div>🟢<br>Normal</div><div>🟡<br>Atenção</div><div>🟠<br>Alerta</div><div>🔴<br>Crítico</div></div><div class="box aviso">⚪ Sem classificação enquanto faltarem dados observacionais confiáveis.</div></section>
+<section class="card"><h2>🚨 Emergência</h2><div class="em"><div>Defesa Civil<div class="num">199</div></div><div>Bombeiros<div class="num">193</div></div></div></section>
 
 <script>
+const $=x=>document.getElementById(x);
+const f=(v,n=1)=>v==null?"--":Number(v).toFixed(n).replace(".",",");
+function relogio(){$("hora").textContent="🕒 "+new Date().toLocaleString("pt-BR")}
+function pontoCardinal(g){if(g==null)return "--";const p=["N","NE","L","SE","S","SO","O","NO"];return p[Math.round(Number(g)/45)%8]+" • "+Math.round(g)+"°"}
+function horaCurta(t){if(!t)return "--";const d=new Date(t);return isNaN(d)?String(t).slice(11,16):d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}
+relogio();setInterval(relogio,1000);
 
-const $=x=>
-document.getElementById(x);
-
-
-const f=(v,n=1)=>
-v==null
-?"--"
-:Number(v)
-.toFixed(n)
-.replace(".",",");
-
-
-function relogio(){
-
-$("hora").textContent=
-"🕒 "+
-new Date()
-.toLocaleString("pt-BR");
-
+async function carregarHistorico(){
+ try{
+  const r=await fetch("historico_validacao.json?"+Date.now(),{cache:"no-store"}); if(!r.ok)throw Error("HTTP "+r.status);
+  const h=await r.json(), s=h.resumo||{};
+  $("histExec").textContent=s.execucoes_registradas??"--";
+  $("histPrev").textContent=s.total_previsoes_testadas_somadas??"--";
+  $("histMedia").textContent=s.media_dos_erros_medios_km==null?"--":f(s.media_dos_erros_medios_km,2)+" km";
+  $("histEta").textContent=h.validado_para_eta?"SIM":"NÃO";
+  $("histEstado").innerHTML=h.validado_para_eta?'<span class="ok">🟢 Validação concluída</span>':'<span class="aviso">🧪 Coletando evidências • ETA continua bloqueado</span>';
+ }catch(e){$("histEstado").innerHTML='<span class="erro">🔴 Histórico de validação indisponível</span>'}
 }
-
-
-function pontoCardinal(g){
-
-if(g==null)
-return "--";
-
-const p=[
-"N",
-"NE",
-"L",
-"SE",
-"S",
-"SO",
-"O",
-"NO"
-];
-
-return (
-p[
-Math.round(
-Number(g)/45
-)%8
-]
-+
-" • "
-+
-Math.round(g)
-+
-"°"
-);
-
-}
-
-
-function horaCurta(t){
-
-if(!t)
-return "--";
-
-const d=
-new Date(t);
-
-if(isNaN(d))
-return t.slice(11,16);
-
-return d.toLocaleTimeString(
-"pt-BR",
-{
-hour:"2-digit",
-minute:"2-digit"
-}
-);
-
-}
-
-
-relogio();
-
-setInterval(
-relogio,
-1000
-);
-
 
 async function carregar(){
+ try{
+  const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
+  const d=await r.json(),c=d.chuva||{},m=d.mare||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{};
+  $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
+  $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
 
-try{
+  const rt=rad.rastreamento_temporal||{}, av=rad.avaliacao_trajetorias||{};
+  $("radarHora").textContent=horaCurta(rad.horario_ultimo_quadro);
+  $("radarIdade").textContent=rad.idade_ultimo_quadro_min==null?"--":f(rad.idade_ultimo_quadro_min,1)+" min";
+  $("radarTrilhas").textContent=rt.quantidade_trilhas??"--";
+  $("radarElegiveis").textContent=rt.quantidade_trilhas_elegiveis??"--";
+  if(rad.status==="online"&&rad.dados_frescos){$("radarEstado").innerHTML='<span class="ok">🟢 Radar online • dados frescos</span>'}
+  else if(rad.status){$("radarEstado").innerHTML='<span class="aviso">🟡 Radar '+rad.status+' • conferir frescor</span>'}
+  else{$("radarEstado").innerHTML='<span class="erro">🔴 Radar indisponível</span>'}
+  const cand=av.quantidade_candidatos_eta??0;
+  $("etaEstado").innerHTML='<span class="aviso">🧪 ETA experimental bloqueado • candidatos atuais: '+cand+'</span>';
 
-const r=
-await fetch(
-"dados.json?"+Date.now(),
-{
-cache:"no-store"
+  $("chuva").textContent=f(c.leitura_mm);$("h1").textContent=f(c.acumulado_1h_mm);$("h24").textContent=f(c.acumulado_24h_mm);
+  $("cs").textContent=c.leitura_mm==null?"⚪ CEMADEN ainda sem leitura integrada":"🟢 Leitura automática recebida";
+  const ma=m.anterior||null,mp=m.proximo||null;
+  $("mareAnterior").textContent=ma?f(ma.altura_m,1)+" m":"--";$("mareAnteriorHora").textContent=ma?"às "+ma.hora:"--";
+  $("mareProxima").textContent=mp?f(mp.altura_m,1)+" m":"--";$("mareProximaHora").textContent=mp?"às "+mp.hora:"--";
+  $("ms").innerHTML=m.status==="online"?'<span class="ok">🟢 Tábua de maré recebida automaticamente</span>':'<span class="erro">🔴 Tábua de maré indisponível</span>';
+  $("rio").textContent=q.nivel_m==null?"SEM SENSOR":f(q.nivel_m,2)+" m";$("rs").textContent=q.nivel_m==null?"⚪ Sem sensor público confirmado para o Rio Guaxanduva":"🟢 Nível automático recebido";
+  if(p.status==="online"){
+   $("prob").textContent=ph.probabilidade_chuva_pct==null?"--":Math.round(ph.probabilidade_chuva_pct)+"%";$("prevchuva").textContent=f(ph.precipitacao_mm)+" mm";
+   $("vento").textContent=f(a.vento_kmh)+" km/h";$("rajada").textContent=f(a.rajada_kmh)+" km/h";$("direcao").textContent=pontoCardinal(a.direcao_graus);$("prevhora").textContent=horaCurta(ph.horario);
+   $("ps").innerHTML='<span class="ok">🟢 Previsão automática recebida</span>';
+  }else{$("ps").innerHTML='<span class="erro">🔴 Previsão indisponível</span>'}
+  const dias=Array.isArray(p.proximos_7_dias)?p.proximos_7_dias:[];
+  if(dias.length){
+   const nomes=["domingo","segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado"];let html="";
+   dias.forEach((dia,i)=>{const dt=new Date(dia.data+"T12:00:00"),nome=i===0?"HOJE":nomes[dt.getDay()].toUpperCase(),dataBR=dt.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}),prob=dia.probabilidade_chuva_pct==null?"--":Math.round(dia.probabilidade_chuva_pct)+"%",mm=dia.precipitacao_total_mm==null?"--":f(dia.precipitacao_total_mm,1)+" mm";html+='<div class="dia-previsao"><div class="dia-titulo">'+nome+" • "+dataBR+"</div>☔ Probabilidade: <b>"+prob+"</b><br>🌧️ Chuva prevista: <b>"+mm+"</b></div>"});
+   $("previsao7dias").innerHTML=html+'<div class="ok" style="margin-top:12px">🟢 Previsão de 7 dias recebida automaticamente</div>';
+  }else{$("previsao7dias").innerHTML='<span class="erro">🔴 Previsão de 7 dias indisponível</span>'}
+  $("granizo").textContent=g.status==="sem_alerta_integrado"?"⚪ Alerta oficial ainda não integrado":"🟡 "+g.status;
+ }catch(e){$("sistema").innerHTML='<span class="erro">🔴 Falha ao carregar dados.json</span>';$("coleta").textContent=e.message;$("radarEstado").innerHTML='<span class="erro">🔴 Falha ao carregar radar</span>'}
 }
-);
-
-if(!r.ok)
-throw Error(
-"HTTP "+r.status
-);
-
-const d=
-await r.json();
-
-
-const c=d.chuva||{};
-const m=d.mare||{};
-const q=d.rio||{};
-const p=d.previsao||{};
-const a=p.atual||{};
-const ph=p.proxima_hora||{};
-const g=d.granizo||{};
-
-
-$("sistema").innerHTML=
-'<span class="ok">'+
-'🟢 Monitor automático conectado'+
-'</span>';
-
-
-$("coleta").textContent=
-"Última coleta: "+
-new Date(
-d.gerado_em
-).toLocaleString(
-"pt-BR"
-);
-
-
-/* CHUVA */
-
-$("chuva").textContent=
-f(
-c.leitura_mm
-);
-
-$("h1").textContent=
-f(
-c.acumulado_1h_mm
-);
-
-$("h24").textContent=
-f(
-c.acumulado_24h_mm
-);
-
-$("cs").textContent=
-c.leitura_mm==null
-?"⚪ CEMADEN ainda sem leitura integrada"
-:"🟢 Leitura automática recebida";
-
-
-/* MARÉ */
-
-const ma=
-m.anterior||null;
-
-const mp=
-m.proximo||null;
-
-
-$("mareAnterior").textContent=
-ma
-?f(
-ma.altura_m,
-1
-)+" m"
-:"--";
-
-
-$("mareAnteriorHora").textContent=
-ma
-?"às "+ma.hora
-:"--";
-
-
-$("mareProxima").textContent=
-mp
-?f(
-mp.altura_m,
-1
-)+" m"
-:"--";
-
-
-$("mareProximaHora").textContent=
-mp
-?"às "+mp.hora
-:"--";
-
-
-if(
-m.status=="online"
-){
-
-$("ms").innerHTML=
-'<span class="ok">'+
-'🟢 Tábua de maré recebida automaticamente'+
-'</span>';
-
-}else{
-
-$("ms").innerHTML=
-'<span class="erro">'+
-'🔴 Tábua de maré indisponível'+
-'</span>';
-
-}
-
-
-/* RIO */
-
-$("rio").textContent=
-q.nivel_m==null
-?"SEM SENSOR"
-:f(
-q.nivel_m,
-2
-)+" m";
-
-
-$("rs").textContent=
-q.nivel_m==null
-?"⚪ Sem sensor público confirmado para o Rio Guaxanduva"
-:"🟢 Nível automático recebido";
-
-
-/* PREVISÃO */
-
-if(
-p.status=="online"
-){
-
-$("prob").textContent=
-ph.probabilidade_chuva_pct==null
-?"--"
-:Math.round(
-ph.probabilidade_chuva_pct
-)+"%";
-
-
-$("prevchuva").textContent=
-f(
-ph.precipitacao_mm
-)+" mm";
-
-
-$("vento").textContent=
-f(
-a.vento_kmh
-)+" km/h";
-
-
-$("rajada").textContent=
-f(
-a.rajada_kmh
-)+" km/h";
-
-
-$("direcao").textContent=
-pontoCardinal(
-a.direcao_graus
-);
-
-
-$("prevhora").textContent=
-horaCurta(
-ph.horario
-);
-
-
-$("ps").innerHTML=
-'<span class="ok">'+
-'🟢 Previsão automática recebida'+
-'</span>';
-
-}else{
-
-$("ps").innerHTML=
-'<span class="erro">'+
-'🔴 Previsão indisponível'+
-'</span>';
-
-}
-
-
-/* PREVISÃO DOS PRÓXIMOS 7 DIAS */
-
-const dias7=
-Array.isArray(
-p.proximos_7_dias
-)
-?p.proximos_7_dias
-:[];
-
-
-if(
-dias7.length
-){
-
-const nomesDias=[
-"domingo",
-"segunda-feira",
-"terça-feira",
-"quarta-feira",
-"quinta-feira",
-"sexta-feira",
-"sábado"
-];
-
-let html="";
-
-
-dias7.forEach(
-(dia,i)=>{
-
-const data=
-new Date(
-dia.data+
-"T12:00:00"
-);
-
-const nome=
-i===0
-?"HOJE"
-:nomesDias[
-data.getDay()
-].toUpperCase();
-
-
-const dataBR=
-data.toLocaleDateString(
-"pt-BR",
-{
-day:"2-digit",
-month:"2-digit"
-}
-);
-
-
-const prob=
-dia.probabilidade_chuva_pct==null
-?"--"
-:Math.round(
-dia.probabilidade_chuva_pct
-)+"%";
-
-
-const mm=
-dia.precipitacao_total_mm==null
-?"--"
-:f(
-dia.precipitacao_total_mm,
-1
-)+" mm";
-
-
-html+=
-'<div class="dia-previsao">'+
-
-'<div class="dia-titulo">'+
-nome+
-' • '+
-dataBR+
-'</div>'+
-
-'☔ Probabilidade: '+
-'<b>'+
-prob+
-'</b>'+
-
-'<br>'+
-
-'🌧️ Chuva prevista: '+
-'<b>'+
-mm+
-'</b>'+
-
-'</div>';
-
-});
-
-
-$("previsao7dias").innerHTML=
-html+
-'<div class="ok" '+
-'style="margin-top:12px">'+
-'🟢 Previsão de 7 dias recebida automaticamente'+
-'</div>';
-
-
-}else{
-
-$("previsao7dias").innerHTML=
-'<span class="erro">'+
-'🔴 Previsão de 7 dias indisponível'+
-'</span>';
-
-}
-
-
-/* GRANIZO */
-
-$("granizo").textContent=
-g.status==
-"sem_alerta_integrado"
-?"⚪ Alerta oficial ainda não integrado"
-:"🟡 "+g.status;
-
-
-}catch(e){
-
-$("sistema").innerHTML=
-'<span class="erro">'+
-'🔴 Falha ao carregar dados.json'+
-'</span>';
-
-$("coleta").textContent=
-e.message;
-
-}
-
-}
-
-
-carregar();
-
-setInterval(
-carregar,
-60000
-);
-
+carregar();carregarHistorico();setInterval(carregar,60000);setInterval(carregarHistorico,60000);
 </script>
-
-</main>
-</body>
-</html>
+</main></body></html>

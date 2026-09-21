@@ -12,75 +12,71 @@ from PIL import Image
 
 ARQUIVO = "dados.json"
 
+LAT = -26.27
+LON = -48.81
+
 URL_MARE_CSV = (
     "https://ciram.epagri.sc.gov.br/"
     "ciram_arquivos/oceano/tabuamare/csv/"
     "Tabua_Mare_Joinville.csv"
 )
 
-URL_RADAR_BASE = (
-    "https://sifap.defesacivil.sc.gov.br/"
-    "radarsc/rest/radar/"
+URL_RADAR_SITE = (
+    "https://sifap.defesacivil.sc.gov.br/radarsc/"
 )
 
+URL_RADAR_BASE = URL_RADAR_SITE + "rest/radar/"
+
 URL_RADAR_LISTA = (
-    URL_RADAR_BASE
-    + "getUltimasImagens"
+    URL_RADAR_BASE + "getUltimasImagens"
 )
 
 URL_RADAR_IMAGEM = (
-    URL_RADAR_BASE
-    + "getImagem"
+    URL_RADAR_BASE + "getImagem"
 )
 
+URL_RADAR_LEGENDA = (
+    URL_RADAR_SITE + "img/legenda.png"
+)
 
-# Coordenada pública aproximada do Comasa.
-# NÃO representa endereço residencial.
-LAT = -26.27
-LON = -48.81
-
-
-# Extensão geográfica oficial utilizada
-# pela própria interface RadarSC para COMP.
 RADAR_EXTENT = [
-    -58.0651279,   # oeste
-    -33.8163446,   # sul
-    -46.4999942,   # leste
-    -24.7653703,   # norte
+    -58.0651279,
+    -33.8163446,
+    -46.4999942,
+    -24.7653703,
 ]
 
-
-# O servidor SIFAP/RadarSC apresenta
-# problema conhecido na cadeia HTTPS.
-# Desabilitamos apenas o aviso gerado
-# pelas requisições específicas ao radar.
 urllib3.disable_warnings(
     urllib3.exceptions.InsecureRequestWarning
 )
 
 
-def buscar_previsao():
-
-    url = (
-        "https://api.open-meteo.com/"
-        "v1/forecast"
+def requisicao_radar(url, params=None):
+    resposta = requests.get(
+        url,
+        params=params,
+        timeout=30,
+        headers={
+            "User-Agent": "Monitor-Guaxanduva/1.0"
+        },
+        verify=False,
     )
+    resposta.raise_for_status()
+    return resposta
+
+
+def buscar_previsao():
+    url = "https://api.open-meteo.com/v1/forecast"
 
     parametros = {
-
-        "latitude":
-            LAT,
-
-        "longitude":
-            LON,
-
+        "latitude": LAT,
+        "longitude": LON,
         "current": (
             "precipitation,"
             "wind_speed_10m,"
             "wind_direction_10m,"
             "wind_gusts_10m"
         ),
-
         "hourly": (
             "precipitation_probability,"
             "precipitation,"
@@ -88,223 +84,117 @@ def buscar_previsao():
             "wind_direction_10m,"
             "wind_gusts_10m"
         ),
-
         "daily": (
             "precipitation_sum,"
             "precipitation_probability_max,"
             "wind_speed_10m_max,"
             "wind_gusts_10m_max"
         ),
-
-        "forecast_days":
-            7,
-
-        "timezone":
-            "America/Sao_Paulo",
+        "forecast_days": 7,
+        "timezone": "America/Sao_Paulo",
     }
 
     try:
-
         r = requests.get(
             url,
             params=parametros,
             timeout=30,
             headers={
-                "User-Agent":
-                    "Monitor-Guaxanduva/1.0"
+                "User-Agent": "Monitor-Guaxanduva/1.0"
             },
         )
-
         r.raise_for_status()
-
         resposta = r.json()
 
-        atual = resposta.get(
-            "current",
-            {},
-        )
-
-        horario = resposta.get(
-            "hourly",
-            {},
-        )
-
-        diario = resposta.get(
-            "daily",
-            {},
-        )
-
-        tempos = horario.get(
-            "time",
-            [],
-        )
+        atual = resposta.get("current", {})
+        horario = resposta.get("hourly", {})
+        diario = resposta.get("daily", {})
 
         agora = datetime.now(
-            ZoneInfo(
-                "America/Sao_Paulo"
-            )
+            ZoneInfo("America/Sao_Paulo")
         )
 
         indice = None
 
         for i, tempo in enumerate(
-            tempos
+            horario.get("time", [])
         ):
-
             try:
-
-                momento = (
-                    datetime.fromisoformat(
-                        tempo
-                    )
-                )
-
-                momento = momento.replace(
+                momento = datetime.fromisoformat(
+                    tempo
+                ).replace(
                     tzinfo=ZoneInfo(
                         "America/Sao_Paulo"
                     )
                 )
 
                 if momento > agora:
-
                     indice = i
-
                     break
 
             except Exception:
-
                 continue
 
-
         def valor(lista):
-
             if indice is None:
                 return None
-
             try:
                 return lista[indice]
-
             except Exception:
                 return None
 
-
         dias = []
 
-        datas = diario.get(
-            "time",
-            [],
-        )
+        datas = diario.get("time", [])
 
-        chuva_total = diario.get(
-            "precipitation_sum",
-            [],
-        )
-
-        probabilidade = diario.get(
-            "precipitation_probability_max",
-            [],
-        )
-
-        vento_max = diario.get(
-            "wind_speed_10m_max",
-            [],
-        )
-
-        rajada_max = diario.get(
-            "wind_gusts_10m_max",
-            [],
-        )
-
-
-        for i, data in enumerate(
-            datas
-        ):
-
-            def diario_valor(lista):
-
+        for i, data in enumerate(datas):
+            def dv(nome):
                 try:
-                    return lista[i]
-
+                    return diario.get(
+                        nome, []
+                    )[i]
                 except Exception:
                     return None
 
-
             dias.append({
-
-                "data":
-                    data,
-
+                "data": data,
                 "probabilidade_chuva_pct":
-                    diario_valor(
-                        probabilidade
+                    dv(
+                        "precipitation_probability_max"
                     ),
-
                 "precipitacao_total_mm":
-                    diario_valor(
-                        chuva_total
-                    ),
-
+                    dv("precipitation_sum"),
                 "vento_max_kmh":
-                    diario_valor(
-                        vento_max
-                    ),
-
+                    dv("wind_speed_10m_max"),
                 "rajada_max_kmh":
-                    diario_valor(
-                        rajada_max
-                    ),
+                    dv("wind_gusts_10m_max"),
             })
 
-
         return {
-
-            "status":
-                "online",
-
-            "fonte":
-                "Open-Meteo",
-
-            "modelo":
-                "Best Match",
+            "status": "online",
+            "fonte": "Open-Meteo",
+            "modelo": "Best Match",
 
             "atual": {
-
                 "horario":
-                    atual.get(
-                        "time"
-                    ),
-
+                    atual.get("time"),
                 "precipitacao_mm":
-                    atual.get(
-                        "precipitation"
-                    ),
-
+                    atual.get("precipitation"),
                 "vento_kmh":
-                    atual.get(
-                        "wind_speed_10m"
-                    ),
-
+                    atual.get("wind_speed_10m"),
                 "direcao_graus":
                     atual.get(
                         "wind_direction_10m"
                     ),
-
                 "rajada_kmh":
-                    atual.get(
-                        "wind_gusts_10m"
-                    ),
+                    atual.get("wind_gusts_10m"),
             },
 
             "proxima_hora": {
-
                 "horario":
                     valor(
-                        horario.get(
-                            "time",
-                            [],
-                        )
+                        horario.get("time", [])
                     ),
-
                 "probabilidade_chuva_pct":
                     valor(
                         horario.get(
@@ -312,7 +202,6 @@ def buscar_previsao():
                             [],
                         )
                     ),
-
                 "precipitacao_mm":
                     valor(
                         horario.get(
@@ -320,7 +209,6 @@ def buscar_previsao():
                             [],
                         )
                     ),
-
                 "vento_kmh":
                     valor(
                         horario.get(
@@ -328,7 +216,6 @@ def buscar_previsao():
                             [],
                         )
                     ),
-
                 "direcao_graus":
                     valor(
                         horario.get(
@@ -336,7 +223,6 @@ def buscar_previsao():
                             [],
                         )
                     ),
-
                 "rajada_kmh":
                     valor(
                         horario.get(
@@ -346,205 +232,112 @@ def buscar_previsao():
                     ),
             },
 
-            "proximos_7_dias":
-                dias,
+            "proximos_7_dias": dias,
         }
 
-
     except Exception as erro:
-
         return {
-
-            "status":
-                "indisponivel",
-
-            "fonte":
-                "Open-Meteo",
-
-            "erro":
-                str(erro),
+            "status": "indisponivel",
+            "fonte": "Open-Meteo",
+            "erro": str(erro),
         }
 
 
 def buscar_mare():
-
     try:
-
         r = requests.get(
             URL_MARE_CSV,
             timeout=30,
             headers={
-                "User-Agent":
-                    "Monitor-Guaxanduva/1.0"
+                "User-Agent": "Monitor-Guaxanduva/1.0"
             },
         )
 
         r.raise_for_status()
-
         r.encoding = "ISO-8859-1"
 
         agora = datetime.now(
-            ZoneInfo(
-                "America/Sao_Paulo"
-            )
+            ZoneInfo("America/Sao_Paulo")
         )
 
-        data_hoje = agora.strftime(
-            "%d/%m/%Y"
-        )
-
+        data_hoje = agora.strftime("%d/%m/%Y")
         eventos = []
 
-
         for linha in r.text.splitlines():
-
-            linha = linha.strip()
-
-            if not linha:
-                continue
-
-            partes = linha.split(";")
+            partes = linha.strip().split(";")
 
             if len(partes) != 3:
                 continue
 
             data, hora, altura = partes
 
-            if (
-                data.strip()
-                != data_hoje
-            ):
+            if data.strip() != data_hoje:
                 continue
 
             try:
-
                 altura_m = float(
-                    altura
-                    .strip()
-                    .replace(
-                        ",",
-                        ".",
-                    )
+                    altura.strip().replace(",", ".")
                 )
-
                 datetime.strptime(
-                    hora.strip(),
-                    "%H:%M",
+                    hora.strip(), "%H:%M"
                 )
-
             except ValueError:
-
                 continue
 
-
             eventos.append({
-
-                "hora":
-                    hora.strip(),
-
-                "altura_m":
-                    altura_m,
+                "hora": hora.strip(),
+                "altura_m": altura_m,
             })
 
-
         if not eventos:
-
             raise ValueError(
                 "Nenhum evento de maré "
                 f"encontrado para {data_hoje}"
             )
 
-
         eventos.sort(
-
-            key=lambda evento:
-
+            key=lambda e:
                 datetime.strptime(
-                    evento["hora"],
-                    "%H:%M",
+                    e["hora"], "%H:%M"
                 )
         )
 
-
         agora_minutos = (
-            agora.hour * 60
-            + agora.minute
+            agora.hour * 60 + agora.minute
         )
 
         anterior = None
-
         proximo = None
 
-
         for evento in eventos:
-
-            hora_evento = (
-                datetime.strptime(
-                    evento["hora"],
-                    "%H:%M",
-                )
+            h = datetime.strptime(
+                evento["hora"], "%H:%M"
             )
 
-            minutos_evento = (
-                hora_evento.hour * 60
-                + hora_evento.minute
-            )
+            minutos = h.hour * 60 + h.minute
 
-            if (
-                minutos_evento
-                <= agora_minutos
-            ):
-
+            if minutos <= agora_minutos:
                 anterior = evento
-
             elif proximo is None:
-
                 proximo = evento
 
-
         return {
-
-            "status":
-                "online",
-
-            "fonte":
-                "EPAGRI/CIRAM",
-
-            "tipo":
-                "tabua_de_mare_prevista",
-
-            "local":
-                "Joinville",
-
-            "data":
-                data_hoje,
-
-            "eventos":
-                eventos,
-
-            "anterior":
-                anterior,
-
-            "proximo":
-                proximo,
+            "status": "online",
+            "fonte": "EPAGRI/CIRAM",
+            "tipo": "tabua_de_mare_prevista",
+            "local": "Joinville",
+            "data": data_hoje,
+            "eventos": eventos,
+            "anterior": anterior,
+            "proximo": proximo,
         }
 
-
     except Exception as erro:
-
         return {
-
-            "status":
-                "indisponivel",
-
-            "fonte":
-                "EPAGRI/CIRAM",
-
-            "tipo":
-                "tabua_de_mare_prevista",
-
-            "erro":
-                str(erro),
+            "status": "indisponivel",
+            "fonte": "EPAGRI/CIRAM",
+            "tipo": "tabua_de_mare_prevista",
+            "erro": str(erro),
         }
 
 
@@ -554,469 +347,285 @@ def coordenada_para_pixel(
     largura,
     altura,
 ):
+    oeste, sul, leste, norte = RADAR_EXTENT
 
-    oeste = RADAR_EXTENT[0]
-
-    sul = RADAR_EXTENT[1]
-
-    leste = RADAR_EXTENT[2]
-
-    norte = RADAR_EXTENT[3]
-
-
-    x = (
+    x = round(
         (longitude - oeste)
         / (leste - oeste)
         * (largura - 1)
     )
 
-
-    # Imagens têm origem no canto
-    # superior esquerdo.
-    y = (
+    y = round(
         (norte - latitude)
         / (norte - sul)
         * (altura - 1)
     )
 
-
-    x = int(
-        round(x)
-    )
-
-    y = int(
-        round(y)
-    )
-
-
-    x = max(
-        0,
-        min(
-            largura - 1,
-            x,
-        ),
-    )
-
-    y = max(
-        0,
-        min(
-            altura - 1,
-            y,
-        ),
-    )
-
+    x = max(0, min(largura - 1, x))
+    y = max(0, min(altura - 1, y))
 
     return x, y
 
 
-def analisar_png(
-    conteudo
-):
-
+def analisar_png(conteudo):
     imagem = Image.open(
-        io.BytesIO(
-            conteudo
-        )
+        io.BytesIO(conteudo)
     )
 
     formato = imagem.format
-
+    modo_original = imagem.mode
     largura, altura = imagem.size
 
-    modo_original = imagem.mode
+    rgba = imagem.convert("RGBA")
+    pixels = list(rgba.getdata())
 
-
-    # Convertemos para RGBA apenas para
-    # análise. O arquivo original permanece
-    # intacto.
-    rgba = imagem.convert(
-        "RGBA"
+    transparentes = sum(
+        1 for p in pixels if p[3] == 0
     )
 
-
-    pixels = list(
-        rgba.getdata()
-    )
-
-
-    total_pixels = len(
-        pixels
-    )
-
-
-    pixels_transparentes = sum(
+    semitransparentes = sum(
         1
-        for pixel in pixels
-        if pixel[3] == 0
+        for p in pixels
+        if 0 < p[3] < 255
     )
 
-
-    pixels_visiveis = (
-        total_pixels
-        - pixels_transparentes
-    )
-
-
-    pixels_semitransparentes = sum(
-        1
-        for pixel in pixels
-        if 0 < pixel[3] < 255
-    )
-
-
-    cores_visiveis = Counter(
-        pixel
-        for pixel in pixels
-        if pixel[3] > 0
-    )
-
-
-    cores_mais_frequentes = []
-
-    for cor, quantidade in (
-        cores_visiveis
-        .most_common(20)
-    ):
-
-        cores_mais_frequentes.append({
-
-            "rgba": [
-                int(cor[0]),
-                int(cor[1]),
-                int(cor[2]),
-                int(cor[3]),
-            ],
-
-            "pixels":
-                quantidade,
-        })
-
-
-    if total_pixels > 0:
-
-        percentual_visivel = round(
-            (
-                pixels_visiveis
-                / total_pixels
-            )
-            * 100,
-            4,
-        )
-
-    else:
-
-        percentual_visivel = 0
-
-
-    x_comasa, y_comasa = (
-        coordenada_para_pixel(
-            LON,
-            LAT,
-            largura,
-            altura,
-        )
-    )
-
-
-    pixel_comasa = rgba.getpixel(
-        (
-            x_comasa,
-            y_comasa,
-        )
-    )
-
-
-    # Pequena janela de 11x11 pixels
-    # em torno da referência aproximada
-    # do Comasa.
-    raio = 5
-
-    x0 = max(
-        0,
-        x_comasa - raio,
-    )
-
-    x1 = min(
-        largura - 1,
-        x_comasa + raio,
-    )
-
-    y0 = max(
-        0,
-        y_comasa - raio,
-    )
-
-    y1 = min(
-        altura - 1,
-        y_comasa + raio,
-    )
-
-
-    janela = []
-
-    for y in range(
-        y0,
-        y1 + 1,
-    ):
-
-        for x in range(
-            x0,
-            x1 + 1,
-        ):
-
-            janela.append(
-                rgba.getpixel(
-                    (x, y)
-                )
-            )
-
-
-    janela_visiveis = [
-        pixel
-        for pixel in janela
-        if pixel[3] > 0
+    visiveis = [
+        p for p in pixels if p[3] > 0
     ]
 
+    contador = Counter(visiveis)
 
-    janela_cores = Counter(
-        janela_visiveis
-    )
+    cores = []
 
-
-    janela_mais_frequentes = []
-
-    for cor, quantidade in (
-        janela_cores
-        .most_common(10)
+    for cor, quantidade in contador.most_common(
+        30
     ):
-
-        janela_mais_frequentes.append({
-
-            "rgba": [
-                int(cor[0]),
-                int(cor[1]),
-                int(cor[2]),
-                int(cor[3]),
-            ],
-
-            "pixels":
-                quantidade,
+        cores.append({
+            "rgba": list(cor),
+            "pixels": quantidade,
         })
 
+    x, y = coordenada_para_pixel(
+        LON,
+        LAT,
+        largura,
+        altura,
+    )
+
+    pixel_central = rgba.getpixel((x, y))
+
+    raio = 5
+    janela = []
+
+    for py in range(
+        max(0, y - raio),
+        min(altura, y + raio + 1),
+    ):
+        for px in range(
+            max(0, x - raio),
+            min(largura, x + raio + 1),
+        ):
+            janela.append(
+                rgba.getpixel((px, py))
+            )
+
+    janela_visivel = [
+        p for p in janela if p[3] > 0
+    ]
+
+    contador_janela = Counter(
+        janela_visivel
+    )
+
+    cores_janela = [
+        {
+            "rgba": list(cor),
+            "pixels": qtd,
+        }
+        for cor, qtd
+        in contador_janela.most_common(10)
+    ]
+
+    total = largura * altura
 
     return {
-
-        "formato":
-            formato,
-
-        "modo_original":
-            modo_original,
-
-        "largura_px":
-            largura,
-
-        "altura_px":
-            altura,
-
-        "total_pixels":
-            total_pixels,
-
+        "formato": formato,
+        "modo_original": modo_original,
+        "largura_px": largura,
+        "altura_px": altura,
+        "total_pixels": total,
         "pixels_transparentes":
-            pixels_transparentes,
-
+            transparentes,
         "pixels_semitransparentes":
-            pixels_semitransparentes,
-
+            semitransparentes,
         "pixels_visiveis":
-            pixels_visiveis,
-
+            len(visiveis),
         "percentual_visivel":
-            percentual_visivel,
-
-        "cores_visiveis_distintas":
-            len(
-                cores_visiveis
+            round(
+                len(visiveis)
+                / total
+                * 100,
+                4,
             ),
-
+        "cores_visiveis_distintas":
+            len(contador),
         "cores_mais_frequentes":
-            cores_mais_frequentes,
+            cores,
 
         "comasa": {
-
-            "longitude_aproximada":
-                LON,
-
-            "latitude_aproximada":
-                LAT,
-
-            "pixel_x":
-                x_comasa,
-
-            "pixel_y":
-                y_comasa,
-
-            "pixel_rgba": [
-                int(pixel_comasa[0]),
-                int(pixel_comasa[1]),
-                int(pixel_comasa[2]),
-                int(pixel_comasa[3]),
-            ],
-
-            "janela_px":
-                "11x11",
-
+            "longitude_aproximada": LON,
+            "latitude_aproximada": LAT,
+            "pixel_x": x,
+            "pixel_y": y,
+            "pixel_rgba":
+                list(pixel_central),
+            "janela_px": "11x11",
             "pixels_visiveis_janela":
-                len(
-                    janela_visiveis
-                ),
-
+                len(janela_visivel),
             "cores_visiveis_janela":
-                len(
-                    janela_cores
-                ),
-
+                len(contador_janela),
             "cores_mais_frequentes_janela":
-                janela_mais_frequentes,
+                cores_janela,
         },
     }
 
 
-def baixar_e_analisar_quadro(
-    nome
-):
+def analisar_legenda():
+    """
+    Baixa a legenda oficial usada pela
+    própria interface RadarSC e extrai
+    informações objetivas da imagem.
 
-    resposta = requests.get(
+    Nesta etapa NÃO atribuímos valores dBZ
+    automaticamente às cores.
+    """
+    try:
+        r = requisicao_radar(
+            URL_RADAR_LEGENDA
+        )
 
+        conteudo = r.content
+
+        imagem = Image.open(
+            io.BytesIO(conteudo)
+        )
+
+        formato = imagem.format
+        modo = imagem.mode
+        largura, altura = imagem.size
+
+        rgba = imagem.convert("RGBA")
+
+        pixels = list(rgba.getdata())
+
+        contador = Counter(
+            p
+            for p in pixels
+            if p[3] > 0
+        )
+
+        cores_frequentes = [
+            {
+                "rgba": list(cor),
+                "pixels": qtd,
+            }
+            for cor, qtd
+            in contador.most_common(50)
+        ]
+
+        return {
+            "status": "online",
+            "url_relativa":
+                "img/legenda.png",
+            "formato": formato,
+            "modo_original": modo,
+            "largura_px": largura,
+            "altura_px": altura,
+            "bytes": len(conteudo),
+            "sha256":
+                hashlib.sha256(
+                    conteudo
+                ).hexdigest(),
+            "cores_distintas_visiveis":
+                len(contador),
+            "cores_mais_frequentes":
+                cores_frequentes,
+            "observacao":
+                (
+                    "Legenda oficial baixada; "
+                    "valores dBZ ainda não "
+                    "atribuídos automaticamente."
+                ),
+        }
+
+    except Exception as erro:
+        return {
+            "status": "indisponivel",
+            "url_relativa":
+                "img/legenda.png",
+            "erro": str(erro),
+        }
+
+
+def baixar_e_analisar_quadro(nome):
+    resposta = requisicao_radar(
         URL_RADAR_IMAGEM,
-
         params={
-            "prod":
-                4,
-
-            "radar":
-                "COMP",
-
-            "file":
-                nome,
+            "prod": 4,
+            "radar": "COMP",
+            "file": nome,
         },
-
-        timeout=30,
-
-        headers={
-            "User-Agent":
-                "Monitor-Guaxanduva/1.0"
-        },
-
-        # Exceção restrita ao RadarSC.
-        verify=False,
     )
-
-
-    resposta.raise_for_status()
-
 
     conteudo = resposta.content
 
-
-    sha256 = hashlib.sha256(
-        conteudo
-    ).hexdigest()
-
-
-    analise = analisar_png(
-        conteudo
-    )
-
-
     return {
-
-        "bytes":
-            len(conteudo),
-
+        "bytes": len(conteudo),
         "sha256":
-            sha256,
-
+            hashlib.sha256(
+                conteudo
+            ).hexdigest(),
         "imagem":
-            analise,
+            analisar_png(conteudo),
     }
 
 
 def buscar_radar():
-
     try:
-
-        r = requests.get(
-
+        r = requisicao_radar(
             URL_RADAR_LISTA,
-
             params={
-                "prod":
-                    4,
-
-                "radar":
-                    "COMP",
-
-                "data":
-                    "",
+                "prod": 4,
+                "radar": "COMP",
+                "data": "",
             },
-
-            timeout=30,
-
-            headers={
-                "User-Agent":
-                    "Monitor-Guaxanduva/1.0"
-            },
-
-            verify=False,
         )
-
-
-        r.raise_for_status()
-
 
         imagens = r.json()
 
-
-        if not isinstance(
-            imagens,
-            list,
-        ):
-
+        if not isinstance(imagens, list):
             raise ValueError(
                 "Resposta do radar "
                 "não é uma lista."
             )
 
-
         if not imagens:
-
             raise ValueError(
                 "Radar não retornou imagens."
             )
 
-
         imagens = imagens[-7:]
-
 
         quadros = []
 
-
         for nome in imagens:
-
             try:
-
-                data_utc = (
-                    datetime.strptime(
-                        nome[:14],
-                        "%Y%m%d%H%M%S",
-                    )
-                    .replace(
-                        tzinfo=ZoneInfo(
-                            "UTC"
-                        )
-                    )
+                data_utc = datetime.strptime(
+                    nome[:14],
+                    "%Y%m%d%H%M%S",
+                ).replace(
+                    tzinfo=ZoneInfo("UTC")
                 )
-
 
                 data_local = (
                     data_utc.astimezone(
@@ -1026,168 +635,88 @@ def buscar_radar():
                     )
                 )
 
-
                 resultado = (
                     baixar_e_analisar_quadro(
                         nome
                     )
                 )
 
-
                 quadros.append({
-
-                    "arquivo":
-                        nome,
-
+                    "arquivo": nome,
                     "horario_utc":
                         data_utc.isoformat(),
-
                     "horario_local":
                         data_local.isoformat(),
-
-                    "download":
-                        "ok",
-
+                    "download": "ok",
                     "bytes":
-                        resultado[
-                            "bytes"
-                        ],
-
+                        resultado["bytes"],
                     "sha256":
-                        resultado[
-                            "sha256"
-                        ],
-
+                        resultado["sha256"],
                     "imagem":
-                        resultado[
-                            "imagem"
-                        ],
+                        resultado["imagem"],
                 })
 
-
-            except Exception as erro_quadro:
-
+            except Exception as erro:
                 quadros.append({
-
-                    "arquivo":
-                        nome,
-
-                    "download":
-                        "erro",
-
-                    "erro":
-                        str(
-                            erro_quadro
-                        ),
+                    "arquivo": nome,
+                    "download": "erro",
+                    "erro": str(erro),
                 })
 
-
-        quadros_validos = [
-
-            quadro
-
-            for quadro in quadros
-
-            if quadro.get(
-                "download"
-            ) == "ok"
+        validos = [
+            q
+            for q in quadros
+            if q.get("download") == "ok"
         ]
 
-
-        if not quadros_validos:
-
+        if not validos:
             raise ValueError(
-                "Nenhum PNG do radar "
-                "foi analisado com sucesso."
+                "Nenhum PNG válido."
             )
 
+        ultimo = validos[-1]
 
-        ultimo = (
-            quadros_validos[-1]
+        ultimo_utc = datetime.fromisoformat(
+            ultimo["horario_utc"]
         )
-
-
-        ultimo_utc = (
-            datetime.fromisoformat(
-                ultimo[
-                    "horario_utc"
-                ]
-            )
-        )
-
 
         agora_utc = datetime.now(
             ZoneInfo("UTC")
         )
 
-
-        idade_minutos = (
-            agora_utc
-            - ultimo_utc
-        ).total_seconds() / 60
-
-
-        idade_minutos = max(
+        idade = max(
             0,
             round(
-                idade_minutos,
+                (
+                    agora_utc
+                    - ultimo_utc
+                ).total_seconds()
+                / 60,
                 1,
             ),
         )
 
+        fresco = idade <= 30
 
-        atualizado = (
-            idade_minutos <= 30
-        )
-
-
-        todos_analisados = (
-            len(
-                quadros_validos
+        dimensoes = {
+            (
+                q["imagem"]["largura_px"],
+                q["imagem"]["altura_px"],
             )
-            == len(
-                imagens
-            )
-        )
+            for q in validos
+        }
 
-
-        dimensoes = set()
-
-        for quadro in quadros_validos:
-
-            imagem = quadro.get(
-                "imagem",
-                {},
-            )
-
-            dimensoes.add(
-                (
-                    imagem.get(
-                        "largura_px"
-                    ),
-                    imagem.get(
-                        "altura_px"
-                    ),
-                )
-            )
-
-
-        dimensoes_consistentes = (
-            len(dimensoes) == 1
-        )
-
+        legenda = analisar_legenda()
 
         return {
-
             "status":
-                (
-                    "online"
-                    if (
-                        atualizado
-                        and todos_analisados
-                    )
-                    else "parcial"
-                ),
+                "online"
+                if (
+                    fresco
+                    and len(validos)
+                    == len(imagens)
+                )
+                else "parcial",
 
             "fonte":
                 (
@@ -1195,162 +724,108 @@ def buscar_radar():
                     "Santa Catarina - RadarSC"
                 ),
 
-            "radar":
-                "COMP",
-
-            "produto":
-                "C-MAX",
-
-            "produto_codigo":
-                4,
-
-            "extent":
-                RADAR_EXTENT,
+            "radar": "COMP",
+            "produto": "C-MAX",
+            "produto_codigo": 4,
+            "extent": RADAR_EXTENT,
 
             "quantidade_quadros":
                 len(imagens),
 
             "quadros_png_validos":
-                len(
-                    quadros_validos
-                ),
+                len(validos),
 
             "todos_png_validos":
-                todos_analisados,
+                len(validos)
+                == len(imagens),
 
             "dimensoes_consistentes":
-                dimensoes_consistentes,
+                len(dimensoes) == 1,
 
-            "quadros":
-                quadros,
+            "quadros": quadros,
 
-            "ultimo_quadro":
-                ultimo,
+            "ultimo_quadro": ultimo,
 
             "idade_ultimo_quadro_min":
-                idade_minutos,
+                idade,
 
             "dados_frescos":
-                atualizado,
+                fresco,
+
+            "legenda_oficial":
+                legenda,
 
             "analise_pixels":
                 "diagnostico_rgba_concluido",
 
             "interpretacao_dbz":
-                "aguardando_validacao_paleta",
+                (
+                    "legenda_em_analise"
+                    if legenda.get("status")
+                    == "online"
+                    else
+                    "aguardando_legenda"
+                ),
 
             "analise_movimento":
                 "aguardando_validacao_paleta",
         }
 
-
     except Exception as erro:
-
         return {
-
-            "status":
-                "indisponivel",
-
+            "status": "indisponivel",
             "fonte":
                 (
                     "Defesa Civil de "
                     "Santa Catarina - RadarSC"
                 ),
-
-            "radar":
-                "COMP",
-
-            "produto":
-                "C-MAX",
-
-            "produto_codigo":
-                4,
-
-            "dados_frescos":
-                False,
-
-            "erro":
-                str(erro),
+            "radar": "COMP",
+            "produto": "C-MAX",
+            "produto_codigo": 4,
+            "dados_frescos": False,
+            "erro": str(erro),
         }
 
 
 def main():
-
     agora = datetime.now(
-        ZoneInfo(
-            "America/Sao_Paulo"
-        )
+        ZoneInfo("America/Sao_Paulo")
     )
 
-
     previsao = buscar_previsao()
-
     mare = buscar_mare()
-
     radar = buscar_radar()
 
-
     dados = {
-
-        "monitor":
-            "Monitor Guaxanduva",
-
-        "local":
-            "Comasa - Joinville/SC",
-
-        "gerado_em":
-            agora.isoformat(),
-
+        "monitor": "Monitor Guaxanduva",
+        "local": "Comasa - Joinville/SC",
+        "gerado_em": agora.isoformat(),
 
         "chuva": {
-
             "status":
                 "aguardando_integracao",
-
-            "fonte":
-                "CEMADEN",
-
-            "leitura_mm":
-                None,
-
-            "acumulado_1h_mm":
-                None,
-
-            "acumulado_24h_mm":
-                None,
+            "fonte": "CEMADEN",
+            "leitura_mm": None,
+            "acumulado_1h_mm": None,
+            "acumulado_24h_mm": None,
         },
 
-
-        "mare":
-            mare,
-
+        "mare": mare,
 
         "rio": {
-
-            "nome":
-                "Rio Guaxanduva",
-
+            "nome": "Rio Guaxanduva",
             "status":
                 "sem_sensor_publico_confirmado",
-
-            "nivel_m":
-                None,
+            "nivel_m": None,
         },
 
+        "previsao": previsao,
 
-        "previsao":
-            previsao,
-
-
-        "radar":
-            radar,
-
+        "radar": radar,
 
         "granizo": {
-
             "status":
                 "sem_alerta_integrado",
-
             "fonte":
                 (
                     "Defesa Civil - "
@@ -1358,24 +833,17 @@ def main():
                 ),
         },
 
-
         "emergencia": {
-
-            "defesa_civil":
-                "199",
-
-            "bombeiros":
-                "193",
+            "defesa_civil": "199",
+            "bombeiros": "193",
         },
     }
-
 
     with open(
         ARQUIVO,
         "w",
         encoding="utf-8",
     ) as arquivo:
-
         json.dump(
             dados,
             arquivo,
@@ -1383,14 +851,11 @@ def main():
             indent=2,
         )
 
-
     print(
         "dados.json criado com sucesso"
     )
 
-
     print("MARÉ:")
-
     print(
         json.dumps(
             mare,
@@ -1399,9 +864,7 @@ def main():
         )
     )
 
-
     print("PREVISÃO:")
-
     print(
         json.dumps(
             previsao,
@@ -1410,9 +873,7 @@ def main():
         )
     )
 
-
     print("RADAR:")
-
     print(
         json.dumps(
             radar,

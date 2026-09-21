@@ -268,7 +268,7 @@ def registrar_historico_validacao(dados):
     avaliacao = radar.get("avaliacao_trajetorias") or {}
     registro = {
         "gerado_em": dados.get("gerado_em"),
-        "versao": "#128",
+        "versao": "#129",
         "horario_ultimo_quadro": radar.get("horario_ultimo_quadro"),
         "radar_status": radar.get("status"),
         "dados_frescos": radar.get("dados_frescos"),
@@ -293,7 +293,7 @@ def registrar_historico_validacao(dados):
     historico = {
         "monitor": "Monitor Guaxanduva",
         "tipo": "historico_autovalidacao_preditiva_radar",
-        "versao": "#128",
+        "versao": "#129",
         "metodo": "projecao_retrospectiva_1_quadro_com_velocidade_media",
         "atualizado_em": dados.get("gerado_em"),
         "maximo_registros": HISTORICO_MAX_REGISTROS,
@@ -4054,10 +4054,92 @@ def avaliar_todas_trilhas(
  
  
 # =========================================================
+# #129 - ECO OFICIAL RADARSC AO REDOR DO COMASA
+# =========================================================
+
+def diagnostico_eco_oficial_local(imagem, legenda_oficial):
+    """Cruza o PNG com as cores RGB da legenda oficial em 2, 5, 10 e 25 km."""
+    classes = (legenda_oficial or {}).get("classes", [])
+    cores = {}
+    for item in classes:
+        rgb = item.get("rgb") if isinstance(item, dict) else None
+        if isinstance(rgb, list) and len(rgb) == 3:
+            cores[tuple(rgb)] = item.get("classe")
+    base = {
+        "status": "sem_classes_oficiais",
+        "metodo": "pixels_rgb_exatos_legenda_oficial_#129",
+        "referencia": "Comasa - coordenada pública aproximada",
+        "raios_km": [2, 5, 10, 25],
+        "classes_legenda_total": len(cores),
+        "dbz_numerico_validado": False,
+        "equivale_chuva_medida": False,
+        "eta_liberado": False,
+    }
+    if not cores:
+        return base
+    rgba = imagem.convert("RGBA")
+    px = rgba.load()
+    contagens = {2: Counter(), 5: Counter(), 10: Counter(), 25: Counter()}
+    total = {2: 0, 5: 0, 10: 0, 25: 0}
+    mais_proximo = None
+    lat_delta = 25 / 111.32
+    lon_delta = 25 / (111.32 * max(0.2, math.cos(math.radians(LAT))))
+    x1, y2 = geo2px(LON - lon_delta, LAT - lat_delta, rgba.width, rgba.height)
+    x2, y1 = geo2px(LON + lon_delta, LAT + lat_delta, rgba.width, rgba.height)
+    xa, xb = sorted((x1, x2))
+    ya, yb = sorted((y1, y2))
+    for y in range(ya, yb + 1):
+        for x in range(xa, xb + 1):
+            r, g, b, a = px[x, y]
+            if a <= 0:
+                continue
+            cor = (r, g, b)
+            classe = cores.get(cor)
+            if classe is None:
+                continue
+            lat, lon = px2geo(x, y, rgba.width, rgba.height)
+            d = hav(LAT, LON, lat, lon)
+            if d <= 25:
+                if mais_proximo is None or d < mais_proximo[0]:
+                    mais_proximo = (d, classe, cor, lat, lon)
+                for raio in (2, 5, 10, 25):
+                    if d <= raio:
+                        total[raio] += 1
+                        contagens[raio][classe] += 1
+    por_raio = {}
+    for raio in (2, 5, 10, 25):
+        por_raio[str(raio)] = {
+            "pixels_classes_oficiais": total[raio],
+            "eco_oficial_detectado": total[raio] > 0,
+            "classes_presentes": [
+                {"classe": int(classe), "pixels": qtd}
+                for classe, qtd in sorted(contagens[raio].items())
+            ],
+        }
+    resultado = {**base, "status": "diagnostico_ativo", "por_raio": por_raio}
+    if mais_proximo:
+        d, classe, cor, lat, lon = mais_proximo
+        resultado["eco_oficial_mais_proximo"] = {
+            "distancia_comasa_km": round(d, 2),
+            "classe": int(classe),
+            "rgb": list(cor),
+            "latitude": round(lat, 5),
+            "longitude": round(lon, 5),
+        }
+    else:
+        resultado["eco_oficial_mais_proximo"] = None
+    resultado["regra_seguranca"] = (
+        "Detecção significa pixel com RGB idêntico a uma classe da legenda oficial RadarSC. "
+        "Não significa chuva medida no solo e não atribui dBZ enquanto a escala numérica não for validada."
+    )
+    return resultado
+
+
+# =========================================================
 # DOWNLOAD DO RADAR
 # =========================================================
  
-def baixar(nome):
+def baixar(nome, legenda_oficial=None):
     bruto = get(
         IMAGEM,
         {
@@ -4105,6 +4187,12 @@ def baixar(nome):
         "analise_espacial":
             analisar(
                 imagem
+            ),
+
+        "eco_oficial_local_129":
+            diagnostico_eco_oficial_local(
+                imagem,
+                legenda_oficial,
             ),
     }
  
@@ -4174,7 +4262,7 @@ def buscar_radar():
                     "download":
                         "ok",
  
-                    **baixar(nome),
+                    **baixar(nome, leg),
                 })
  
             except Exception as e:
@@ -4547,6 +4635,9 @@ def buscar_radar():
  
             "validacao_paleta_radar":
                 validacao_paleta,
+
+            "eco_oficial_local_129":
+                ultimo.get("eco_oficial_local_129"),
  
             "metodo_eco": {
                 "status":

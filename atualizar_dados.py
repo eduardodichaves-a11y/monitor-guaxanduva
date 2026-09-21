@@ -104,8 +104,8 @@ def buscar_previsao():
             },
         )
         r.raise_for_status()
-        resposta = r.json()
 
+        resposta = r.json()
         atual = resposta.get("current", {})
         horario = resposta.get("hourly", {})
         diario = resposta.get("daily", {})
@@ -138,6 +138,7 @@ def buscar_previsao():
         def valor(lista):
             if indice is None:
                 return None
+
             try:
                 return lista[indice]
             except Exception:
@@ -145,9 +146,9 @@ def buscar_previsao():
 
         dias = []
 
-        datas = diario.get("time", [])
-
-        for i, data in enumerate(datas):
+        for i, data in enumerate(
+            diario.get("time", [])
+        ):
             def dv(nome):
                 try:
                     return diario.get(
@@ -278,9 +279,12 @@ def buscar_mare():
                 altura_m = float(
                     altura.strip().replace(",", ".")
                 )
+
                 datetime.strptime(
-                    hora.strip(), "%H:%M"
+                    hora.strip(),
+                    "%H:%M",
                 )
+
             except ValueError:
                 continue
 
@@ -298,12 +302,14 @@ def buscar_mare():
         eventos.sort(
             key=lambda e:
                 datetime.strptime(
-                    e["hora"], "%H:%M"
+                    e["hora"],
+                    "%H:%M",
                 )
         )
 
         agora_minutos = (
-            agora.hour * 60 + agora.minute
+            agora.hour * 60
+            + agora.minute
         )
 
         anterior = None
@@ -311,13 +317,18 @@ def buscar_mare():
 
         for evento in eventos:
             h = datetime.strptime(
-                evento["hora"], "%H:%M"
+                evento["hora"],
+                "%H:%M",
             )
 
-            minutos = h.hour * 60 + h.minute
+            minutos = (
+                h.hour * 60
+                + h.minute
+            )
 
             if minutos <= agora_minutos:
                 anterior = evento
+
             elif proximo is None:
                 proximo = evento
 
@@ -361,8 +372,15 @@ def coordenada_para_pixel(
         * (altura - 1)
     )
 
-    x = max(0, min(largura - 1, x))
-    y = max(0, min(altura - 1, y))
+    x = max(
+        0,
+        min(largura - 1, x),
+    )
+
+    y = max(
+        0,
+        min(altura - 1, y),
+    )
 
     return x, y
 
@@ -380,7 +398,9 @@ def analisar_png(conteudo):
     pixels = list(rgba.getdata())
 
     transparentes = sum(
-        1 for p in pixels if p[3] == 0
+        1
+        for p in pixels
+        if p[3] == 0
     )
 
     semitransparentes = sum(
@@ -390,20 +410,21 @@ def analisar_png(conteudo):
     )
 
     visiveis = [
-        p for p in pixels if p[3] > 0
+        p
+        for p in pixels
+        if p[3] > 0
     ]
 
     contador = Counter(visiveis)
 
-    cores = []
-
-    for cor, quantidade in contador.most_common(
-        30
-    ):
-        cores.append({
+    cores = [
+        {
             "rgba": list(cor),
             "pixels": quantidade,
-        })
+        }
+        for cor, quantidade
+        in contador.most_common(30)
+    ]
 
     x, y = coordenada_para_pixel(
         LON,
@@ -412,7 +433,9 @@ def analisar_png(conteudo):
         altura,
     )
 
-    pixel_central = rgba.getpixel((x, y))
+    pixel_central = rgba.getpixel(
+        (x, y)
+    )
 
     raio = 5
     janela = []
@@ -426,11 +449,15 @@ def analisar_png(conteudo):
             min(largura, x + raio + 1),
         ):
             janela.append(
-                rgba.getpixel((px, py))
+                rgba.getpixel(
+                    (px, py)
+                )
             )
 
     janela_visivel = [
-        p for p in janela if p[3] > 0
+        p
+        for p in janela
+        if p[3] > 0
     ]
 
     contador_janela = Counter(
@@ -454,12 +481,16 @@ def analisar_png(conteudo):
         "largura_px": largura,
         "altura_px": altura,
         "total_pixels": total,
+
         "pixels_transparentes":
             transparentes,
+
         "pixels_semitransparentes":
             semitransparentes,
+
         "pixels_visiveis":
             len(visiveis),
+
         "percentual_visivel":
             round(
                 len(visiveis)
@@ -467,38 +498,187 @@ def analisar_png(conteudo):
                 * 100,
                 4,
             ),
+
         "cores_visiveis_distintas":
             len(contador),
+
         "cores_mais_frequentes":
             cores,
 
         "comasa": {
-            "longitude_aproximada": LON,
-            "latitude_aproximada": LAT,
-            "pixel_x": x,
-            "pixel_y": y,
+            "longitude_aproximada":
+                LON,
+
+            "latitude_aproximada":
+                LAT,
+
+            "pixel_x":
+                x,
+
+            "pixel_y":
+                y,
+
             "pixel_rgba":
                 list(pixel_central),
-            "janela_px": "11x11",
+
+            "janela_px":
+                "11x11",
+
             "pixels_visiveis_janela":
                 len(janela_visivel),
+
             "cores_visiveis_janela":
                 len(contador_janela),
+
             "cores_mais_frequentes_janela":
                 cores_janela,
         },
     }
 
 
-def analisar_legenda():
+def segmentos_de_linha(
+    imagem_rgba,
+    y,
+):
     """
-    Baixa a legenda oficial usada pela
-    própria interface RadarSC e extrai
-    informações objetivas da imagem.
+    Divide uma linha horizontal da legenda
+    em segmentos consecutivos da mesma cor.
+    """
+    largura, altura = imagem_rgba.size
 
-    Nesta etapa NÃO atribuímos valores dBZ
-    automaticamente às cores.
+    if y < 0 or y >= altura:
+        return []
+
+    segmentos = []
+
+    cor_atual = imagem_rgba.getpixel(
+        (0, y)
+    )
+
+    inicio = 0
+
+    for x in range(1, largura):
+        cor = imagem_rgba.getpixel(
+            (x, y)
+        )
+
+        if cor != cor_atual:
+            segmentos.append({
+                "x_inicio": inicio,
+                "x_fim": x - 1,
+                "largura":
+                    x - inicio,
+                "rgba":
+                    list(cor_atual),
+            })
+
+            inicio = x
+            cor_atual = cor
+
+    segmentos.append({
+        "x_inicio": inicio,
+        "x_fim": largura - 1,
+        "largura":
+            largura - inicio,
+        "rgba":
+            list(cor_atual),
+    })
+
+    return segmentos
+
+
+def analisar_geometria_legenda(
+    imagem_rgba
+):
     """
+    Procura linhas horizontais com vários
+    blocos sólidos de cor. Isso ajuda a
+    localizar geometricamente a escala
+    oficial sem OCR.
+    """
+    largura, altura = imagem_rgba.size
+
+    linhas = []
+
+    for y in range(altura):
+        segmentos = segmentos_de_linha(
+            imagem_rgba,
+            y,
+        )
+
+        # Eliminamos trechos muito pequenos,
+        # típicos de letras/antialiasing.
+        relevantes = [
+            s
+            for s in segmentos
+            if (
+                s["largura"] >= 5
+                and s["rgba"][3] > 0
+                and s["rgba"][:3]
+                not in (
+                    [255, 255, 255],
+                    [0, 0, 0],
+                )
+            )
+        ]
+
+        cores = {
+            tuple(s["rgba"])
+            for s in relevantes
+        }
+
+        largura_colorida = sum(
+            s["largura"]
+            for s in relevantes
+        )
+
+        linhas.append({
+            "y": y,
+            "quantidade_segmentos":
+                len(relevantes),
+            "cores_distintas":
+                len(cores),
+            "largura_colorida_px":
+                largura_colorida,
+            "segmentos":
+                relevantes,
+        })
+
+    # Priorizamos linhas que contenham
+    # muitos segmentos coloridos sólidos.
+    linhas.sort(
+        key=lambda item: (
+            item["quantidade_segmentos"],
+            item["cores_distintas"],
+            item["largura_colorida_px"],
+        ),
+        reverse=True,
+    )
+
+    melhores = linhas[:10]
+
+    melhor = (
+        melhores[0]
+        if melhores
+        else None
+    )
+
+    return {
+        "largura_legenda_px":
+            largura,
+
+        "altura_legenda_px":
+            altura,
+
+        "melhor_linha":
+            melhor,
+
+        "top_10_linhas_candidatas":
+            melhores,
+    }
+
+
+def analisar_legenda():
     try:
         r = requisicao_radar(
             URL_RADAR_LEGENDA
@@ -516,7 +696,9 @@ def analisar_legenda():
 
         rgba = imagem.convert("RGBA")
 
-        pixels = list(rgba.getdata())
+        pixels = list(
+            rgba.getdata()
+        )
 
         contador = Counter(
             p
@@ -526,44 +708,76 @@ def analisar_legenda():
 
         cores_frequentes = [
             {
-                "rgba": list(cor),
-                "pixels": qtd,
+                "rgba":
+                    list(cor),
+
+                "pixels":
+                    qtd,
             }
             for cor, qtd
             in contador.most_common(50)
         ]
 
+        geometria = (
+            analisar_geometria_legenda(
+                rgba
+            )
+        )
+
         return {
-            "status": "online",
+            "status":
+                "online",
+
             "url_relativa":
                 "img/legenda.png",
-            "formato": formato,
-            "modo_original": modo,
-            "largura_px": largura,
-            "altura_px": altura,
-            "bytes": len(conteudo),
+
+            "formato":
+                formato,
+
+            "modo_original":
+                modo,
+
+            "largura_px":
+                largura,
+
+            "altura_px":
+                altura,
+
+            "bytes":
+                len(conteudo),
+
             "sha256":
                 hashlib.sha256(
                     conteudo
                 ).hexdigest(),
+
             "cores_distintas_visiveis":
                 len(contador),
+
             "cores_mais_frequentes":
                 cores_frequentes,
+
+            "geometria":
+                geometria,
+
             "observacao":
                 (
-                    "Legenda oficial baixada; "
-                    "valores dBZ ainda não "
-                    "atribuídos automaticamente."
+                    "Legenda oficial analisada "
+                    "geometricamente; dBZ ainda "
+                    "não atribuído às cores."
                 ),
         }
 
     except Exception as erro:
         return {
-            "status": "indisponivel",
+            "status":
+                "indisponivel",
+
             "url_relativa":
                 "img/legenda.png",
-            "erro": str(erro),
+
+            "erro":
+                str(erro),
         }
 
 
@@ -580,11 +794,14 @@ def baixar_e_analisar_quadro(nome):
     conteudo = resposta.content
 
     return {
-        "bytes": len(conteudo),
+        "bytes":
+            len(conteudo),
+
         "sha256":
             hashlib.sha256(
                 conteudo
             ).hexdigest(),
+
         "imagem":
             analisar_png(conteudo),
     }
@@ -603,7 +820,10 @@ def buscar_radar():
 
         imagens = r.json()
 
-        if not isinstance(imagens, list):
+        if not isinstance(
+            imagens,
+            list,
+        ):
             raise ValueError(
                 "Resposta do radar "
                 "não é uma lista."
@@ -620,11 +840,14 @@ def buscar_radar():
 
         for nome in imagens:
             try:
-                data_utc = datetime.strptime(
-                    nome[:14],
-                    "%Y%m%d%H%M%S",
-                ).replace(
-                    tzinfo=ZoneInfo("UTC")
+                data_utc = (
+                    datetime.strptime(
+                        nome[:14],
+                        "%Y%m%d%H%M%S",
+                    )
+                    .replace(
+                        tzinfo=ZoneInfo("UTC")
+                    )
                 )
 
                 data_local = (
@@ -642,25 +865,38 @@ def buscar_radar():
                 )
 
                 quadros.append({
-                    "arquivo": nome,
+                    "arquivo":
+                        nome,
+
                     "horario_utc":
                         data_utc.isoformat(),
+
                     "horario_local":
                         data_local.isoformat(),
-                    "download": "ok",
+
+                    "download":
+                        "ok",
+
                     "bytes":
                         resultado["bytes"],
+
                     "sha256":
                         resultado["sha256"],
+
                     "imagem":
                         resultado["imagem"],
                 })
 
             except Exception as erro:
                 quadros.append({
-                    "arquivo": nome,
-                    "download": "erro",
-                    "erro": str(erro),
+                    "arquivo":
+                        nome,
+
+                    "download":
+                        "erro",
+
+                    "erro":
+                        str(erro),
                 })
 
         validos = [
@@ -676,8 +912,10 @@ def buscar_radar():
 
         ultimo = validos[-1]
 
-        ultimo_utc = datetime.fromisoformat(
-            ultimo["horario_utc"]
+        ultimo_utc = (
+            datetime.fromisoformat(
+                ultimo["horario_utc"]
+            )
         )
 
         agora_utc = datetime.now(
@@ -710,13 +948,15 @@ def buscar_radar():
 
         return {
             "status":
-                "online"
-                if (
-                    fresco
-                    and len(validos)
-                    == len(imagens)
-                )
-                else "parcial",
+                (
+                    "online"
+                    if (
+                        fresco
+                        and len(validos)
+                        == len(imagens)
+                    )
+                    else "parcial"
+                ),
 
             "fonte":
                 (
@@ -724,10 +964,17 @@ def buscar_radar():
                     "Santa Catarina - RadarSC"
                 ),
 
-            "radar": "COMP",
-            "produto": "C-MAX",
-            "produto_codigo": 4,
-            "extent": RADAR_EXTENT,
+            "radar":
+                "COMP",
+
+            "produto":
+                "C-MAX",
+
+            "produto_codigo":
+                4,
+
+            "extent":
+                RADAR_EXTENT,
 
             "quantidade_quadros":
                 len(imagens),
@@ -736,15 +983,19 @@ def buscar_radar():
                 len(validos),
 
             "todos_png_validos":
-                len(validos)
-                == len(imagens),
+                (
+                    len(validos)
+                    == len(imagens)
+                ),
 
             "dimensoes_consistentes":
                 len(dimensoes) == 1,
 
-            "quadros": quadros,
+            "quadros":
+                quadros,
 
-            "ultimo_quadro": ultimo,
+            "ultimo_quadro":
+                ultimo,
 
             "idade_ultimo_quadro_min":
                 idade,
@@ -760,7 +1011,7 @@ def buscar_radar():
 
             "interpretacao_dbz":
                 (
-                    "legenda_em_analise"
+                    "geometria_legenda_em_analise"
                     if legenda.get("status")
                     == "online"
                     else
@@ -773,17 +1024,29 @@ def buscar_radar():
 
     except Exception as erro:
         return {
-            "status": "indisponivel",
+            "status":
+                "indisponivel",
+
             "fonte":
                 (
                     "Defesa Civil de "
                     "Santa Catarina - RadarSC"
                 ),
-            "radar": "COMP",
-            "produto": "C-MAX",
-            "produto_codigo": 4,
-            "dados_frescos": False,
-            "erro": str(erro),
+
+            "radar":
+                "COMP",
+
+            "produto":
+                "C-MAX",
+
+            "produto_codigo":
+                4,
+
+            "dados_frescos":
+                False,
+
+            "erro":
+                str(erro),
         }
 
 
@@ -797,35 +1060,56 @@ def main():
     radar = buscar_radar()
 
     dados = {
-        "monitor": "Monitor Guaxanduva",
-        "local": "Comasa - Joinville/SC",
-        "gerado_em": agora.isoformat(),
+        "monitor":
+            "Monitor Guaxanduva",
+
+        "local":
+            "Comasa - Joinville/SC",
+
+        "gerado_em":
+            agora.isoformat(),
 
         "chuva": {
             "status":
                 "aguardando_integracao",
-            "fonte": "CEMADEN",
-            "leitura_mm": None,
-            "acumulado_1h_mm": None,
-            "acumulado_24h_mm": None,
+
+            "fonte":
+                "CEMADEN",
+
+            "leitura_mm":
+                None,
+
+            "acumulado_1h_mm":
+                None,
+
+            "acumulado_24h_mm":
+                None,
         },
 
-        "mare": mare,
+        "mare":
+            mare,
 
         "rio": {
-            "nome": "Rio Guaxanduva",
+            "nome":
+                "Rio Guaxanduva",
+
             "status":
                 "sem_sensor_publico_confirmado",
-            "nivel_m": None,
+
+            "nivel_m":
+                None,
         },
 
-        "previsao": previsao,
+        "previsao":
+            previsao,
 
-        "radar": radar,
+        "radar":
+            radar,
 
         "granizo": {
             "status":
                 "sem_alerta_integrado",
+
             "fonte":
                 (
                     "Defesa Civil - "
@@ -834,8 +1118,11 @@ def main():
         },
 
         "emergencia": {
-            "defesa_civil": "199",
-            "bombeiros": "193",
+            "defesa_civil":
+                "199",
+
+            "bombeiros":
+                "193",
         },
     }
 

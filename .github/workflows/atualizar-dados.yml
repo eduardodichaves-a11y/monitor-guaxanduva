@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 # Impede duas execuções deste workflow de tentarem gravar
-# dados.json ao mesmo tempo.
+# dados.json e historico_validacao.json ao mesmo tempo.
 concurrency:
   group: monitor-guaxanduva-atualizacao
   cancel-in-progress: false
@@ -35,25 +35,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 pillow
 
-      - name: Atualizar dados
+      - name: Atualizar dados e histórico
         run: python atualizar_dados.py
 
-      - name: Salvar dados atualizados
+      - name: Salvar dados e histórico atualizados
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add dados.json
+          git add dados.json historico_validacao.json
 
           if git diff --cached --quiet; then
-            echo "Nenhuma alteração em dados.json."
+            echo "Nenhuma alteração em dados.json ou historico_validacao.json."
             exit 0
           fi
 
-          # Guarda somente o dados.json produzido nesta execução.
+          # Guarda os dois arquivos produzidos nesta execução.
           cp dados.json /tmp/dados-monitor-guaxanduva.json
+          cp historico_validacao.json /tmp/historico-validacao-monitor-guaxanduva.json
 
-          # Descarta a alteração local temporariamente para permitir
+          # Descarta as alterações locais temporariamente para permitir
           # a sincronização segura com a versão mais recente da main.
           git reset --hard HEAD
 
@@ -61,42 +62,45 @@ jobs:
           git fetch origin main
           git reset --hard origin/main
 
-          # Recoloca exclusivamente o dados.json recém-gerado.
+          # Recoloca exclusivamente os arquivos recém-gerados.
           cp /tmp/dados-monitor-guaxanduva.json dados.json
-          git add dados.json
+          cp /tmp/historico-validacao-monitor-guaxanduva.json historico_validacao.json
+          git add dados.json historico_validacao.json
 
           # Se outra execução já publicou exatamente estes dados,
           # não há nada para enviar.
           if git diff --cached --quiet; then
-            echo "Os dados mais recentes já estão publicados."
+            echo "Os dados e o histórico mais recentes já estão publicados."
             exit 0
           fi
 
-          git commit -m "Atualiza dados do Monitor Guaxanduva"
+          git commit -m "Atualiza dados e histórico do Monitor Guaxanduva"
 
           # Última proteção contra uma atualização que tenha ocorrido
           # nos poucos instantes entre o fetch e o push.
           for tentativa in 1 2 3; do
             if git push origin HEAD:main; then
-              echo "dados.json publicado com sucesso."
+              echo "dados.json e historico_validacao.json publicados com sucesso."
               exit 0
             fi
 
             echo "Conflito de atualização na tentativa ${tentativa}. Sincronizando novamente..."
 
             cp dados.json /tmp/dados-monitor-guaxanduva.json
+            cp historico_validacao.json /tmp/historico-validacao-monitor-guaxanduva.json
             git fetch origin main
             git reset --hard origin/main
             cp /tmp/dados-monitor-guaxanduva.json dados.json
-            git add dados.json
+            cp /tmp/historico-validacao-monitor-guaxanduva.json historico_validacao.json
+            git add dados.json historico_validacao.json
 
             if git diff --cached --quiet; then
-              echo "Os dados já foram publicados por outra execução."
+              echo "Os dados e o histórico já foram publicados por outra execução."
               exit 0
             fi
 
-            git commit -m "Atualiza dados do Monitor Guaxanduva"
+            git commit -m "Atualiza dados e histórico do Monitor Guaxanduva"
           done
 
-          echo "Não foi possível publicar dados.json após 3 tentativas."
+          echo "Não foi possível publicar dados.json e historico_validacao.json após 3 tentativas."
           exit 1

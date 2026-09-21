@@ -11,10 +11,14 @@ import urllib3
 from PIL import Image
 
 
+# =========================================================
+# CONFIGURAÇÃO
+# =========================================================
+
 ARQUIVO = "dados.json"
 
 # Coordenada pública aproximada do Comasa.
-# Não representa endereço residencial.
+# NÃO representa endereço residencial.
 LAT = -26.27
 LON = -48.81
 
@@ -32,7 +36,7 @@ LISTA = RADAR + "rest/radar/getUltimasImagens"
 IMAGEM = RADAR + "rest/radar/getImagem"
 LEGENDA = RADAR + "img/legenda.png"
 
-# Extensão geográfica oficial usada pelo produto COMP.
+# Extensão geográfica oficial do produto COMP.
 EXT = [
     -58.0651279,
     -33.8163446,
@@ -57,7 +61,7 @@ def agora():
 
 
 def get(url, params=None, radar=False):
-    r = requests.get(
+    resposta = requests.get(
         url,
         params=params,
         timeout=30,
@@ -66,14 +70,11 @@ def get(url, params=None, radar=False):
         },
         verify=False if radar else True,
     )
-    r.raise_for_status()
-    return r
+    resposta.raise_for_status()
+    return resposta
 
 
 def hav(lat1, lon1, lat2, lon2):
-    """
-    Distância de Haversine em quilômetros.
-    """
     raio = 6371.0088
 
     p1 = math.radians(lat1)
@@ -100,10 +101,6 @@ def hav(lat1, lon1, lat2, lon2):
 
 
 def rumo(lat1, lon1, lat2, lon2):
-    """
-    Rumo geográfico em graus:
-    0=N, 90=L, 180=S, 270=O.
-    """
     p1 = math.radians(lat1)
     p2 = math.radians(lat2)
     dl = math.radians(lon2 - lon1)
@@ -144,9 +141,6 @@ def cardinal(graus):
 
 
 def difang(a, b):
-    """
-    Menor diferença angular entre dois rumos.
-    """
     return abs(
         (a - b + 180) % 360 - 180
     )
@@ -199,10 +193,6 @@ def geo2px(lon, lat, largura, altura):
 
 
 def local_xy(lat0, lon0, lat, lon):
-    """
-    Converte latitude/longitude para um plano local
-    aproximado em quilômetros.
-    """
     y = (lat - lat0) * 111.32
 
     x = (
@@ -219,9 +209,6 @@ def local_xy(lat0, lon0, lat, lon):
 
 
 def media_angular_ponderada(valores):
-    """
-    valores = [(angulo_graus, peso), ...]
-    """
     if not valores:
         return None
 
@@ -249,7 +236,7 @@ def media_angular_ponderada(valores):
 
 
 # =========================================================
-# PREVISÃO
+# OPEN-METEO
 # =========================================================
 
 def buscar_previsao():
@@ -257,12 +244,14 @@ def buscar_previsao():
         params = {
             "latitude": LAT,
             "longitude": LON,
+
             "current": (
                 "precipitation,"
                 "wind_speed_10m,"
                 "wind_direction_10m,"
                 "wind_gusts_10m"
             ),
+
             "hourly": (
                 "precipitation_probability,"
                 "precipitation,"
@@ -270,12 +259,14 @@ def buscar_previsao():
                 "wind_direction_10m,"
                 "wind_gusts_10m"
             ),
+
             "daily": (
                 "precipitation_sum,"
                 "precipitation_probability_max,"
                 "wind_speed_10m_max,"
                 "wind_gusts_10m_max"
             ),
+
             "forecast_days": 7,
             "timezone": "America/Sao_Paulo",
         }
@@ -338,6 +329,7 @@ def buscar_previsao():
         for i, data in enumerate(
             diario.get("time", [])
         ):
+
             def dv(chave):
                 valores = diario.get(
                     chave,
@@ -350,19 +342,24 @@ def buscar_previsao():
                 return None
 
             dias.append({
-                "data": data,
+                "data":
+                    data,
+
                 "probabilidade_chuva_pct":
                     dv(
                         "precipitation_probability_max"
                     ),
+
                 "precipitacao_total_mm":
                     dv(
                         "precipitation_sum"
                     ),
+
                 "vento_max_kmh":
                     dv(
                         "wind_speed_10m_max"
                     ),
+
                 "rajada_max_kmh":
                     dv(
                         "wind_gusts_10m_max"
@@ -429,7 +426,8 @@ def buscar_previsao():
                     ),
             },
 
-            "proximos_7_dias": dias,
+            "proximos_7_dias":
+                dias,
         }
 
     except Exception as e:
@@ -450,6 +448,7 @@ def buscar_mare():
         resposta.encoding = "ISO-8859-1"
 
         atual = agora()
+
         data_hoje = atual.strftime(
             "%d/%m/%Y"
         )
@@ -529,27 +528,49 @@ def buscar_mare():
                 proximo = evento
 
         return {
-            "status": "online",
-            "fonte": "EPAGRI/CIRAM",
-            "tipo": "tabua_de_mare_prevista",
-            "local": "Joinville",
-            "data": data_hoje,
-            "eventos": eventos,
-            "anterior": anterior,
-            "proximo": proximo,
+            "status":
+                "online",
+
+            "fonte":
+                "EPAGRI/CIRAM",
+
+            "tipo":
+                "tabua_de_mare_prevista",
+
+            "local":
+                "Joinville",
+
+            "data":
+                data_hoje,
+
+            "eventos":
+                eventos,
+
+            "anterior":
+                anterior,
+
+            "proximo":
+                proximo,
         }
 
     except Exception as e:
         return {
-            "status": "indisponivel",
-            "fonte": "EPAGRI/CIRAM",
-            "tipo": "tabua_de_mare_prevista",
-            "erro": str(e),
+            "status":
+                "indisponivel",
+
+            "fonte":
+                "EPAGRI/CIRAM",
+
+            "tipo":
+                "tabua_de_mare_prevista",
+
+            "erro":
+                str(e),
         }
 
 
 # =========================================================
-# LEGENDA OFICIAL DO RADAR
+# LEGENDA OFICIAL RADARSC
 # =========================================================
 
 def legenda():
@@ -639,16 +660,22 @@ def legenda():
             melhor[:16]
         ):
             classes.append({
-                "classe": i + 1,
+                "classe":
+                    i + 1,
+
                 "rgb":
                     list(
                         segmento[2][:3]
                     ),
-                "dbz": None,
+
+                "dbz":
+                    None,
             })
 
         return {
-            "status": "online",
+            "status":
+                "online",
+
             "fonte":
                 "legenda oficial RadarSC",
 
@@ -669,8 +696,11 @@ def legenda():
 
     except Exception as e:
         return {
-            "status": "indisponivel",
-            "erro": str(e),
+            "status":
+                "indisponivel",
+
+            "erro":
+                str(e),
         }
 
 
@@ -727,7 +757,9 @@ def rgb_idx(paleta, indice):
 def diagnostico(imagem):
     if imagem.mode != "P":
         return {
-            "status": "modo_inesperado",
+            "status":
+                "modo_inesperado",
+
             "modo_original":
                 imagem.mode,
         }
@@ -809,7 +841,9 @@ def diagnostico(imagem):
         })
 
     return {
-        "status": "online",
+        "status":
+            "online",
+
         "modo_original":
             imagem.mode,
 
@@ -1146,7 +1180,8 @@ def resumo_comp(
             in cores.most_common()
         ],
 
-        "dbz": None,
+        "dbz":
+            None,
 
         "classificacao":
             "candidato_a_area_de_eco",
@@ -1363,8 +1398,68 @@ def analisar(imagem):
 
 
 # =========================================================
-# CASAMENTO ENTRE COMPONENTES
+# #118
+# ASSINATURA DA CÉLULA
 # =========================================================
+
+def histograma_cores(componente):
+    total = max(
+        1,
+        componente.get(
+            "pixels",
+            1,
+        ),
+    )
+
+    hist = {}
+
+    for item in componente.get(
+        "cores",
+        []
+    ):
+        rgb = tuple(
+            item.get(
+                "rgb",
+                []
+            )
+        )
+
+        if len(rgb) != 3:
+            continue
+
+        hist[rgb] = (
+            item.get(
+                "pixels",
+                0,
+            )
+            / total
+        )
+
+    return hist
+
+
+def similaridade_cores(a, b):
+    """
+    Interseção entre histogramas normalizados.
+    1 = composição de cores muito semelhante.
+    0 = sem cores compartilhadas.
+    """
+    ha = histograma_cores(a)
+    hb = histograma_cores(b)
+
+    if not ha or not hb:
+        return 0.0
+
+    cores = set(ha) | set(hb)
+
+    return sum(
+        min(
+            ha.get(cor, 0),
+            hb.get(cor, 0),
+        )
+        for cor in cores
+    )
+
 
 def distc(a, b):
     ca = a["centroide"]
@@ -1406,7 +1501,7 @@ def overlap(a, b):
         x2 < x1
         or y2 < y1
     ):
-        return 0
+        return 0.0
 
     inter = (
         (x2 - x1 + 1)
@@ -1445,12 +1540,12 @@ def overlap(a, b):
     )
 
     if menor <= 0:
-        return 0
+        return 0.0
 
     return inter / menor
 
 
-def pontuar(a, b, minutos):
+def assinatura_movimento(a, b, minutos):
     if minutos <= 0:
         return None
 
@@ -1464,9 +1559,75 @@ def pontuar(a, b, minutos):
         / (minutos / 60)
     )
 
+    ca = a["centroide"]
+    cb = b["centroide"]
+
+    direcao = rumo(
+        ca["latitude"],
+        ca["longitude"],
+        cb["latitude"],
+        cb["longitude"],
+    )
+
+    return {
+        "distancia_km":
+            distancia,
+
+        "velocidade_kmh":
+            velocidade,
+
+        "direcao_graus":
+            direcao,
+    }
+
+
+def pontuar_identidade(
+    a,
+    b,
+    minutos,
+    direcao_anterior=None,
+    velocidade_anterior=None,
+):
+    """
+    #118
+
+    O componente seguinte precisa ser compatível com:
+
+    - posição;
+    - tamanho;
+    - caixa espacial;
+    - assinatura de cores;
+    - direção histórica;
+    - velocidade histórica.
+
+    Isso reduz trocas de identidade entre células próximas.
+    """
+
+    movimento = assinatura_movimento(
+        a,
+        b,
+        minutos,
+    )
+
+    if movimento is None:
+        return None
+
+    distancia = movimento[
+        "distancia_km"
+    ]
+
+    velocidade = movimento[
+        "velocidade_kmh"
+    ]
+
+    direcao = movimento[
+        "direcao_graus"
+    ]
+
+    # Limites físicos/conservadores.
     if (
-        velocidade > 150
-        or distancia > 25
+        distancia > 25
+        or velocidade > 150
     ):
         return None
 
@@ -1496,26 +1657,102 @@ def pontuar(a, b, minutos):
         b,
     )
 
+    cores = similaridade_cores(
+        a,
+        b,
+    )
+
+    # Se mudou radicalmente de tamanho,
+    # não sobrepõe e ainda perdeu assinatura
+    # de cor, provavelmente não é a mesma célula.
     if (
         razao_tamanho < 0.15
         and sobreposicao == 0
+        and cores < 0.20
     ):
         return None
 
-    score = (
-        max(
-            0,
-            1 - distancia / 25,
-        ) * 0.55
-
-        + razao_tamanho
-        * 0.25
-
-        + min(
-            1,
-            sobreposicao,
-        ) * 0.20
+    score_posicao = max(
+        0.0,
+        1 - distancia / 25,
     )
+
+    score_tamanho = razao_tamanho
+
+    score_sobreposicao = min(
+        1.0,
+        sobreposicao,
+    )
+
+    score_cores = min(
+        1.0,
+        cores,
+    )
+
+    # Base sem memória histórica.
+    score = (
+        score_posicao * 0.40
+        + score_tamanho * 0.20
+        + score_sobreposicao * 0.15
+        + score_cores * 0.25
+    )
+
+    diferenca_direcao = None
+    coerencia_direcao = None
+
+    if direcao_anterior is not None:
+        diferenca_direcao = difang(
+            direcao,
+            direcao_anterior,
+        )
+
+        # Guinada extrema: troca de identidade
+        # muito provável.
+        if diferenca_direcao > 100:
+            return None
+
+        coerencia_direcao = max(
+            0.0,
+            1 - diferenca_direcao / 100,
+        )
+
+        # A memória cinemática passa a ter peso
+        # real no casamento.
+        score = (
+            score * 0.72
+            + coerencia_direcao * 0.28
+        )
+
+        # Guinadas entre 60° e 100° não são
+        # impossíveis, mas precisam pagar
+        # penalidade forte.
+        if diferenca_direcao > 60:
+            score *= 0.70
+
+        elif diferenca_direcao > 40:
+            score *= 0.85
+
+    diferenca_velocidade_pct = None
+
+    if (
+        velocidade_anterior is not None
+        and velocidade_anterior >= 5
+    ):
+        diferenca_velocidade_pct = (
+            abs(
+                velocidade
+                - velocidade_anterior
+            )
+            / velocidade_anterior
+        )
+
+        # Mudança brutal simultânea de velocidade
+        # é outro indício de troca de célula.
+        if diferenca_velocidade_pct > 2.0:
+            score *= 0.65
+
+        elif diferenca_velocidade_pct > 1.0:
+            score *= 0.82
 
     return {
         "score":
@@ -1527,17 +1764,37 @@ def pontuar(a, b, minutos):
         "velocidade_kmh":
             velocidade,
 
+        "direcao_graus":
+            direcao,
+
         "razao_tamanho":
             razao_tamanho,
 
         "sobreposicao_caixas":
             sobreposicao,
+
+        "similaridade_cores":
+            cores,
+
+        "diferenca_direcao_historica_graus":
+            diferenca_direcao,
+
+        "coerencia_direcao":
+            coerencia_direcao,
+
+        "diferenca_velocidade_historica_pct":
+            diferenca_velocidade_pct,
     }
 
 
-def casar(quadro_a, quadro_b):
-    componentes_a = (
-        quadro_a
+# =========================================================
+# #118
+# RASTREAMENTO COM MEMÓRIA TEMPORAL
+# =========================================================
+
+def componentes_quadro(quadro):
+    return (
+        quadro
         .get(
             "analise_espacial",
             {},
@@ -1548,317 +1805,724 @@ def casar(quadro_a, quadro_b):
         )
     )
 
-    componentes_b = (
-        quadro_b
-        .get(
-            "analise_espacial",
-            {},
+
+def movimento_medio_trilha(passos):
+    """
+    Memória recente da trilha.
+
+    Usa até os três últimos passos para evitar
+    que um único deslocamento ruidoso domine
+    a identidade da célula.
+    """
+
+    if not passos:
+        return None, None
+
+    recentes = passos[-3:]
+
+    direcoes = []
+    velocidades = []
+
+    for passo in recentes:
+        score = max(
+            0.01,
+            passo.get(
+                "score",
+                0.01,
+            ),
         )
-        .get(
-            "maiores_componentes",
-            [],
+
+        direcoes.append(
+            (
+                passo[
+                    "direcao_movimento_graus"
+                ],
+                score,
+            )
         )
+
+        velocidade = passo.get(
+            "velocidade_estimada_kmh"
+        )
+
+        if velocidade is not None:
+            velocidades.append(
+                (
+                    velocidade,
+                    score,
+                )
+            )
+
+    direcao = (
+        media_angular_ponderada(
+            direcoes
+        )
+        if direcoes
+        else None
     )
 
-    if (
-        not componentes_a
-        or not componentes_b
-    ):
-        return []
+    if velocidades:
+        pesos = sum(
+            peso
+            for _, peso
+            in velocidades
+        )
 
-    tempo_a = datetime.fromisoformat(
-        quadro_a["horario_utc"]
+        velocidade = (
+            sum(
+                valor * peso
+                for valor, peso
+                in velocidades
+            )
+            / pesos
+        )
+
+    else:
+        velocidade = None
+
+    return direcao, velocidade
+
+
+def criar_passo(
+    anterior,
+    atual,
+    avaliacao,
+    horario_de,
+    horario_para,
+):
+    ca = anterior[
+        "centroide"
+    ]
+
+    cb = atual[
+        "centroide"
+    ]
+
+    distancia_a = ca[
+        "distancia_comasa_km"
+    ]
+
+    distancia_b = cb[
+        "distancia_comasa_km"
+    ]
+
+    variacao = (
+        distancia_b
+        - distancia_a
     )
 
-    tempo_b = datetime.fromisoformat(
-        quadro_b["horario_utc"]
+    if variacao < -1:
+        tendencia = "aproximando"
+
+    elif variacao > 1:
+        tendencia = "afastando"
+
+    else:
+        tendencia = "estavel"
+
+    return {
+        "de":
+            horario_de,
+
+        "para":
+            horario_para,
+
+        "componente_anterior":
+            anterior[
+                "id_quadro"
+            ],
+
+        "componente_atual":
+            atual[
+                "id_quadro"
+            ],
+
+        "score":
+            round(
+                avaliacao["score"],
+                3,
+            ),
+
+        "deslocamento_centroide_km":
+            round(
+                avaliacao[
+                    "distancia_km"
+                ],
+                2,
+            ),
+
+        "velocidade_estimada_kmh":
+            round(
+                avaliacao[
+                    "velocidade_kmh"
+                ],
+                1,
+            ),
+
+        "direcao_movimento_graus":
+            round(
+                avaliacao[
+                    "direcao_graus"
+                ],
+                1,
+            ),
+
+        "direcao_movimento_cardinal":
+            cardinal(
+                avaliacao[
+                    "direcao_graus"
+                ]
+            ),
+
+        "razao_tamanho":
+            round(
+                avaliacao[
+                    "razao_tamanho"
+                ],
+                3,
+            ),
+
+        "sobreposicao_caixas":
+            round(
+                avaliacao[
+                    "sobreposicao_caixas"
+                ],
+                3,
+            ),
+
+        "similaridade_cores":
+            round(
+                avaliacao[
+                    "similaridade_cores"
+                ],
+                3,
+            ),
+
+        "diferenca_direcao_historica_graus":
+            (
+                round(
+                    avaliacao[
+                        "diferenca_direcao_historica_graus"
+                    ],
+                    1,
+                )
+                if avaliacao[
+                    "diferenca_direcao_historica_graus"
+                ]
+                is not None
+                else None
+            ),
+
+        "coerencia_direcao":
+            (
+                round(
+                    avaliacao[
+                        "coerencia_direcao"
+                    ],
+                    3,
+                )
+                if avaliacao[
+                    "coerencia_direcao"
+                ]
+                is not None
+                else None
+            ),
+
+        "distancia_comasa_anterior_km":
+            distancia_a,
+
+        "distancia_comasa_atual_km":
+            distancia_b,
+
+        "variacao_distancia_comasa_km":
+            round(
+                variacao,
+                2,
+            ),
+
+        "tendencia_relativa_comasa":
+            tendencia,
+
+        "centroide_anterior":
+            ca,
+
+        "centroide_atual":
+            cb,
+    }
+
+
+def rastrear(quadros):
+    """
+    #118
+
+    Diferentemente do #117, o casamento não é
+    mais decidido isoladamente entre cada par
+    de quadros.
+
+    Cada trilha carrega sua própria memória.
+    """
+
+    if len(quadros) < 2:
+        return {
+            "status":
+                "dados_insuficientes",
+
+            "versao":
+                "#118_identidade_temporal",
+
+            "trilhas":
+                [],
+        }
+
+    trilhas = []
+    ativas = {}
+    proximo_id = 1
+
+    diagnostico_quadros = []
+
+    # =====================================================
+    # PRIMEIRO PAR
+    # =====================================================
+
+    primeiro = quadros[0]
+    segundo = quadros[1]
+
+    comps_a = componentes_quadro(
+        primeiro
+    )
+
+    comps_b = componentes_quadro(
+        segundo
+    )
+
+    ta = datetime.fromisoformat(
+        primeiro["horario_utc"]
+    )
+
+    tb = datetime.fromisoformat(
+        segundo["horario_utc"]
     )
 
     minutos = (
-        tempo_b - tempo_a
+        tb - ta
     ).total_seconds() / 60
 
     candidatos = []
 
-    for a in componentes_a:
-        for b in componentes_b:
-            resultado = pontuar(
+    for a in comps_a:
+        for b in comps_b:
+            avaliacao = pontuar_identidade(
                 a,
                 b,
                 minutos,
             )
 
-            if resultado:
-                candidatos.append({
-                    "a": a,
-                    "b": b,
-                    **resultado,
-                })
+            if (
+                avaliacao
+                and avaliacao["score"]
+                >= 0.40
+            ):
+                candidatos.append(
+                    (
+                        avaliacao["score"],
+                        a,
+                        b,
+                        avaliacao,
+                    )
+                )
 
     candidatos.sort(
-        key=lambda x:
-            x["score"],
+        key=lambda x: x[0],
         reverse=True,
     )
 
     usados_a = set()
     usados_b = set()
 
-    saida = []
+    aceitos = 0
 
-    for candidato in candidatos:
-        a = candidato["a"]
-        b = candidato["b"]
-
+    for _, a, b, avaliacao in candidatos:
         ia = a["id_quadro"]
         ib = b["id_quadro"]
 
         if (
             ia in usados_a
             or ib in usados_b
-            or candidato["score"]
-            < 0.38
         ):
             continue
 
         usados_a.add(ia)
         usados_b.add(ib)
 
-        ca = a["centroide"]
-        cb = b["centroide"]
-
-        direcao = rumo(
-            ca["latitude"],
-            ca["longitude"],
-            cb["latitude"],
-            cb["longitude"],
+        passo = criar_passo(
+            a,
+            b,
+            avaliacao,
+            primeiro["horario_local"],
+            segundo["horario_local"],
         )
 
-        distancia_a = (
-            ca[
-                "distancia_comasa_km"
-            ]
-        )
+        trilha = {
+            "id_trilha":
+                proximo_id,
 
-        distancia_b = (
-            cb[
-                "distancia_comasa_km"
-            ]
-        )
+            "passos":
+                [passo],
 
-        variacao = (
-            distancia_b
-            - distancia_a
-        )
+            "ultimo_componente":
+                b,
 
-        if variacao < -1:
-            tendencia = "aproximando"
-
-        elif variacao > 1:
-            tendencia = "afastando"
-
-        else:
-            tendencia = "estavel"
-
-        saida.append({
-            "componente_anterior":
-                ia,
-
-            "componente_atual":
-                ib,
-
-            "score":
-                round(
-                    candidato["score"],
-                    3,
-                ),
-
-            "intervalo_min":
-                round(
-                    minutos,
-                    1,
-                ),
-
-            "deslocamento_centroide_km":
-                round(
-                    candidato[
-                        "distancia_km"
-                    ],
-                    2,
-                ),
-
-            "velocidade_estimada_kmh":
-                round(
-                    candidato[
-                        "velocidade_kmh"
-                    ],
-                    1,
-                ),
-
-            "direcao_movimento_graus":
-                round(
-                    direcao,
-                    1,
-                ),
-
-            "direcao_movimento_cardinal":
-                cardinal(
-                    direcao
-                ),
-
-            "razao_tamanho":
-                round(
-                    candidato[
-                        "razao_tamanho"
-                    ],
-                    3,
-                ),
-
-            "sobreposicao_caixas":
-                round(
-                    candidato[
-                        "sobreposicao_caixas"
-                    ],
-                    3,
-                ),
-
-            "distancia_comasa_anterior_km":
-                distancia_a,
-
-            "distancia_comasa_atual_km":
-                distancia_b,
-
-            "variacao_distancia_comasa_km":
-                round(
-                    variacao,
-                    2,
-                ),
-
-            "tendencia_relativa_comasa":
-                tendencia,
-
-            "centroide_anterior":
-                ca,
-
-            "centroide_atual":
-                cb,
-        })
-
-    return saida
-
-
-# =========================================================
-# RASTREAMENTO TEMPORAL
-# =========================================================
-
-def rastrear(quadros):
-    if len(quadros) < 2:
-        return {
-            "status":
-                "dados_insuficientes",
-
-            "pares_quadros":
-                [],
-
-            "trilhas":
-                [],
+            "ultimo_indice_quadro":
+                1,
         }
 
-    blocos = []
+        proximo_id += 1
 
-    for i in range(
-        1,
-        len(quadros),
-    ):
-        pares = casar(
-            quadros[i - 1],
-            quadros[i],
+        trilhas.append(
+            trilha
         )
 
-        blocos.append({
+        ativas[
+            b["id_quadro"]
+        ] = trilha
+
+        aceitos += 1
+
+    diagnostico_quadros.append({
+        "de":
+            primeiro[
+                "horario_local"
+            ],
+
+        "para":
+            segundo[
+                "horario_local"
+            ],
+
+        "candidatos":
+            len(candidatos),
+
+        "casamentos_aceitos":
+            aceitos,
+
+        "metodo":
+            "assinatura_sem_historico_inicial",
+    })
+
+    # =====================================================
+    # DEMAIS QUADROS
+    # AGORA COM MEMÓRIA
+    # =====================================================
+
+    for indice in range(
+        2,
+        len(quadros),
+    ):
+        anterior_quadro = quadros[
+            indice - 1
+        ]
+
+        atual_quadro = quadros[
+            indice
+        ]
+
+        componentes_atuais = (
+            componentes_quadro(
+                atual_quadro
+            )
+        )
+
+        ta = datetime.fromisoformat(
+            anterior_quadro[
+                "horario_utc"
+            ]
+        )
+
+        tb = datetime.fromisoformat(
+            atual_quadro[
+                "horario_utc"
+            ]
+        )
+
+        minutos = (
+            tb - ta
+        ).total_seconds() / 60
+
+        candidatos = []
+
+        # Somente trilhas que realmente chegaram
+        # ao quadro anterior podem continuar.
+        trilhas_continuaveis = [
+            trilha
+            for trilha in trilhas
+            if trilha[
+                "ultimo_indice_quadro"
+            ] == indice - 1
+        ]
+
+        for trilha in trilhas_continuaveis:
+            anterior = trilha[
+                "ultimo_componente"
+            ]
+
+            direcao_memoria, velocidade_memoria = (
+                movimento_medio_trilha(
+                    trilha["passos"]
+                )
+            )
+
+            for atual in componentes_atuais:
+                avaliacao = pontuar_identidade(
+                    anterior,
+                    atual,
+                    minutos,
+                    direcao_anterior=
+                        direcao_memoria,
+                    velocidade_anterior=
+                        velocidade_memoria,
+                )
+
+                if (
+                    avaliacao
+                    and avaliacao["score"]
+                    >= 0.42
+                ):
+                    candidatos.append({
+                        "score":
+                            avaliacao[
+                                "score"
+                            ],
+
+                        "trilha":
+                            trilha,
+
+                        "anterior":
+                            anterior,
+
+                        "atual":
+                            atual,
+
+                        "avaliacao":
+                            avaliacao,
+                    })
+
+        candidatos.sort(
+            key=lambda x:
+                x["score"],
+            reverse=True,
+        )
+
+        trilhas_usadas = set()
+        componentes_usados = set()
+
+        aceitos = 0
+        rejeitados_conflito = 0
+
+        for candidato in candidatos:
+            trilha = candidato[
+                "trilha"
+            ]
+
+            atual = candidato[
+                "atual"
+            ]
+
+            tid = trilha[
+                "id_trilha"
+            ]
+
+            cid = atual[
+                "id_quadro"
+            ]
+
+            if (
+                tid in trilhas_usadas
+                or cid in componentes_usados
+            ):
+                rejeitados_conflito += 1
+                continue
+
+            passo = criar_passo(
+                candidato[
+                    "anterior"
+                ],
+
+                atual,
+
+                candidato[
+                    "avaliacao"
+                ],
+
+                anterior_quadro[
+                    "horario_local"
+                ],
+
+                atual_quadro[
+                    "horario_local"
+                ],
+            )
+
+            trilha[
+                "passos"
+            ].append(
+                passo
+            )
+
+            trilha[
+                "ultimo_componente"
+            ] = atual
+
+            trilha[
+                "ultimo_indice_quadro"
+            ] = indice
+
+            trilhas_usadas.add(
+                tid
+            )
+
+            componentes_usados.add(
+                cid
+            )
+
+            aceitos += 1
+
+        # Componentes que não foram ligados a
+        # trilhas antigas podem iniciar novas
+        # trilhas usando o quadro imediatamente
+        # anterior.
+        comps_prev = componentes_quadro(
+            anterior_quadro
+        )
+
+        candidatos_novos = []
+
+        for a in comps_prev:
+            for b in componentes_atuais:
+                if (
+                    b["id_quadro"]
+                    in componentes_usados
+                ):
+                    continue
+
+                avaliacao = pontuar_identidade(
+                    a,
+                    b,
+                    minutos,
+                )
+
+                if (
+                    avaliacao
+                    and avaliacao["score"]
+                    >= 0.45
+                ):
+                    candidatos_novos.append(
+                        (
+                            avaliacao["score"],
+                            a,
+                            b,
+                            avaliacao,
+                        )
+                    )
+
+        candidatos_novos.sort(
+            key=lambda x: x[0],
+            reverse=True,
+        )
+
+        anteriores_novos = set()
+
+        for _, a, b, avaliacao in candidatos_novos:
+            ia = a[
+                "id_quadro"
+            ]
+
+            ib = b[
+                "id_quadro"
+            ]
+
+            if (
+                ia in anteriores_novos
+                or ib in componentes_usados
+            ):
+                continue
+
+            passo = criar_passo(
+                a,
+                b,
+                avaliacao,
+                anterior_quadro[
+                    "horario_local"
+                ],
+                atual_quadro[
+                    "horario_local"
+                ],
+            )
+
+            trilha = {
+                "id_trilha":
+                    proximo_id,
+
+                "passos":
+                    [passo],
+
+                "ultimo_componente":
+                    b,
+
+                "ultimo_indice_quadro":
+                    indice,
+            }
+
+            proximo_id += 1
+
+            trilhas.append(
+                trilha
+            )
+
+            anteriores_novos.add(
+                ia
+            )
+
+            componentes_usados.add(
+                ib
+            )
+
+        diagnostico_quadros.append({
             "de":
-                quadros[
-                    i - 1
-                ][
+                anterior_quadro[
                     "horario_local"
                 ],
 
             "para":
-                quadros[
-                    i
-                ][
+                atual_quadro[
                     "horario_local"
                 ],
 
-            "correspondencias":
-                pares,
+            "trilhas_com_memoria":
+                len(
+                    trilhas_continuaveis
+                ),
 
-            "quantidade":
-                len(pares),
+            "candidatos_com_memoria":
+                len(candidatos),
+
+            "casamentos_aceitos":
+                aceitos,
+
+            "conflitos_rejeitados":
+                rejeitados_conflito,
+
+            "novas_trilhas_iniciadas":
+                len(
+                    anteriores_novos
+                ),
+
+            "metodo":
+                "identidade_temporal_com_memoria",
         })
 
-    trilhas = []
-    mapa = {}
-    proximo_id = 1
-
-    for indice_bloco, bloco in enumerate(
-        blocos,
-        1,
-    ):
-        for passo in bloco[
-            "correspondencias"
-        ]:
-            chave_anterior = (
-                indice_bloco - 1,
-                passo[
-                    "componente_anterior"
-                ],
-            )
-
-            chave_atual = (
-                indice_bloco,
-                passo[
-                    "componente_atual"
-                ],
-            )
-
-            trilha = mapa.get(
-                chave_anterior
-            )
-
-            if trilha is None:
-                trilha = {
-                    "id_trilha":
-                        proximo_id,
-
-                    "passos":
-                        [],
-                }
-
-                proximo_id += 1
-                trilhas.append(
-                    trilha
-                )
-
-            trilha[
-                "passos"
-            ].append({
-                "de":
-                    bloco["de"],
-
-                "para":
-                    bloco["para"],
-
-                **passo,
-            })
-
-            mapa[
-                chave_anterior
-            ] = trilha
-
-            mapa[
-                chave_atual
-            ] = trilha
+    # =====================================================
+    # RESUMO DAS TRILHAS
+    # =====================================================
 
     resumos = []
 
@@ -1871,19 +2535,19 @@ def rastrear(quadros):
             continue
 
         aproximando = sum(
-            passo[
+            p[
                 "tendencia_relativa_comasa"
             ] == "aproximando"
 
-            for passo in passos
+            for p in passos
         )
 
         afastando = sum(
-            passo[
+            p[
                 "tendencia_relativa_comasa"
             ] == "afastando"
 
-            for passo in passos
+            for p in passos
         )
 
         if aproximando > afastando:
@@ -1895,38 +2559,135 @@ def rastrear(quadros):
         else:
             tendencia = "indeterminada"
 
+        direcoes = [
+            p[
+                "direcao_movimento_graus"
+            ]
+            for p in passos
+        ]
+
+        if len(direcoes) >= 2:
+            media_dir = (
+                media_angular_ponderada(
+                    [
+                        (
+                            p[
+                                "direcao_movimento_graus"
+                            ],
+                            max(
+                                0.01,
+                                p["score"],
+                            ),
+                        )
+                        for p in passos
+                    ]
+                )
+            )
+
+            dispersoes = [
+                difang(
+                    d,
+                    media_dir,
+                )
+                for d in direcoes
+            ]
+
+            dispersao_media = (
+                sum(dispersoes)
+                / len(dispersoes)
+            )
+
+            dispersao_max = max(
+                dispersoes
+            )
+
+        else:
+            media_dir = (
+                direcoes[0]
+                if direcoes
+                else None
+            )
+
+            dispersao_media = 0
+            dispersao_max = 0
+
+        scores = [
+            p["score"]
+            for p in passos
+        ]
+
+        velocidades = [
+            p[
+                "velocidade_estimada_kmh"
+            ]
+            for p in passos
+        ]
+
+        similaridades = [
+            p[
+                "similaridade_cores"
+            ]
+            for p in passos
+        ]
+
         resumos.append({
             "id_trilha":
-                trilha["id_trilha"],
+                trilha[
+                    "id_trilha"
+                ],
 
             "transicoes":
                 len(passos),
 
-            # #117:
-            # análise de trajetória exige
-            # pelo menos 3 transições.
             "elegivel_para_analise":
                 len(passos) >= 3,
 
             "score_medio":
                 round(
-                    sum(
-                        p["score"]
-                        for p in passos
-                    )
-                    / len(passos),
+                    sum(scores)
+                    / len(scores),
                     3,
                 ),
 
             "velocidade_media_kmh":
                 round(
-                    sum(
-                        p[
-                            "velocidade_estimada_kmh"
-                        ]
-                        for p in passos
+                    sum(velocidades)
+                    / len(velocidades),
+                    1,
+                ),
+
+            "similaridade_cores_media":
+                round(
+                    sum(similaridades)
+                    / len(similaridades),
+                    3,
+                ),
+
+            "direcao_media_graus":
+                (
+                    round(
+                        media_dir,
+                        1,
                     )
-                    / len(passos),
+                    if media_dir
+                    is not None
+                    else None
+                ),
+
+            "direcao_media_cardinal":
+                cardinal(
+                    media_dir
+                ),
+
+            "dispersao_direcao_media_graus":
+                round(
+                    dispersao_media,
+                    1,
+                ),
+
+            "dispersao_direcao_max_graus":
+                round(
+                    dispersao_max,
                     1,
                 ),
 
@@ -1990,6 +2751,9 @@ def rastrear(quadros):
     aproximando.sort(
         key=lambda t: (
             t[
+                "dispersao_direcao_max_graus"
+            ],
+            t[
                 "ultima_distancia_comasa_km"
             ],
             -t["score_medio"],
@@ -2008,7 +2772,10 @@ def rastrear(quadros):
 
     return {
         "status":
-            "rastreamento_geometrico_experimental",
+            "rastreamento_identidade_temporal_experimental",
+
+        "versao":
+            "#118",
 
         "criterios": {
             "distancia_max_centroide_km":
@@ -2017,15 +2784,33 @@ def rastrear(quadros):
             "velocidade_max_kmh":
                 150,
 
-            "score_minimo":
-                0.38,
+            "score_inicial_minimo":
+                0.40,
+
+            "score_memoria_minimo":
+                0.42,
+
+            "guinada_rejeicao_graus":
+                100,
+
+            "guinada_penalidade_forte_graus":
+                60,
 
             "minimo_transicoes_trilha":
                 3,
+
+            "assinatura_cores":
+                True,
+
+            "memoria_direcional":
+                True,
+
+            "memoria_velocidade":
+                True,
         },
 
-        "pares_quadros":
-            blocos,
+        "diagnostico_por_par":
+            diagnostico_quadros,
 
         "quantidade_trilhas":
             len(resumos),
@@ -2034,25 +2819,24 @@ def rastrear(quadros):
             len(elegiveis),
 
         "trilhas":
-            resumos[:20],
+            resumos[:30],
 
         "trilha_principal_diagnostica":
             principal,
 
         "observacao":
             (
-                "Rastreamento geométrico "
-                "experimental. O #117 avalia "
-                "todas as trilhas elegíveis "
-                "antes de produzir candidato "
-                "experimental de ETA."
+                "O #118 mantém identidade temporal "
+                "da célula usando posição, tamanho, "
+                "sobreposição, assinatura de cores "
+                "e memória cinemática. ETA continua "
+                "experimental e não validado."
             ),
     }
 
 
 # =========================================================
-# #117
-# TRAJETÓRIA MULTIVETORIAL + CORREDOR + ETA EXPERIMENTAL
+# TRAJETÓRIA MULTIVETORIAL
 # =========================================================
 
 def analisar_interceptacao(
@@ -2061,15 +2845,6 @@ def analisar_interceptacao(
     idade_radar,
     horario_ultimo_quadro,
 ):
-    """
-    Avaliação conservadora.
-
-    IMPORTANTE:
-    Mesmo quando existir um candidato de ETA,
-    ele NÃO é considerado validado para uso
-    operacional/público.
-    """
-
     if (
         not trilha
         or trilha.get(
@@ -2092,9 +2867,9 @@ def analisar_interceptacao(
 
             "motivo":
                 (
-                    "São necessárias pelo "
-                    "menos 3 transições para "
-                    "analisar trajetória."
+                    "São necessárias pelo menos "
+                    "3 transições para analisar "
+                    "trajetória."
                 ),
 
             "eta":
@@ -2242,11 +3017,7 @@ def analisar_interceptacao(
                 False,
 
             "motivo":
-                (
-                    "Vetor médio recente "
-                    "pequeno demais para "
-                    "projeção."
-                ),
+                "Vetor médio recente pequeno demais.",
 
             "eta":
                 None,
@@ -2273,10 +3044,7 @@ def analisar_interceptacao(
                 False,
 
             "motivo":
-                (
-                    "Não foi possível obter "
-                    "um rumo médio confiável."
-                ),
+                "Rumo médio não disponível.",
 
             "eta":
                 None,
@@ -2287,7 +3055,6 @@ def analisar_interceptacao(
             direcao,
             rumo_medio,
         )
-
         for direcao, _
         in rumos
     ]
@@ -2305,7 +3072,6 @@ def analisar_interceptacao(
         "centroide_atual"
     ]
 
-    # Plano local centrado no Comasa.
     px, py = local_xy(
         LAT,
         LON,
@@ -2318,11 +3084,9 @@ def analisar_interceptacao(
         py,
     )
 
-    # Vetor médio unitário.
     ux = vx / norma
     uy = vy / norma
 
-    # Vetor do eco atual até o Comasa.
     alvo_x = -px
     alvo_y = -py
 
@@ -2338,21 +3102,16 @@ def analisar_interceptacao(
         rumo_para_comasa,
     )
 
-    # Quanto o alvo está à frente
-    # do vetor de movimento.
     projecao_adiante = (
         alvo_x * ux
         + alvo_y * uy
     )
 
-    # Distância perpendicular entre
-    # Comasa e a linha projetada.
     distancia_lateral = abs(
         alvo_x * uy
         - alvo_y * ux
     )
 
-    # Corredor conservador.
     corredor = 15.0
 
     aponta_para_frente = (
@@ -2394,22 +3153,12 @@ def analisar_interceptacao(
     else:
         velocidade_media = 0
 
-    # Tempo para o ponto de maior aproximação.
-    if velocidade_media > 0:
-        minutos_ponto_proximo = (
-            projecao_adiante
-            / velocidade_media
-            * 60
-        )
-    else:
-        minutos_ponto_proximo = None
-
     base = {
         "status":
             "diagnostico",
 
         "versao_metodo":
-            "#117_multivetorial",
+            "#118_identidade_temporal_multivetorial",
 
         "trilha_id":
             trilha.get(
@@ -2426,15 +3175,17 @@ def analisar_interceptacao(
                 "score_medio"
             ),
 
+        "similaridade_cores_media":
+            trilha.get(
+                "similaridade_cores_media"
+            ),
+
         "intercepta_corredor":
             intercepta,
 
         "candidato_eta":
             False,
 
-        # IMPORTANTE:
-        # permanece falso enquanto
-        # o método estiver experimental.
         "validado_para_eta":
             False,
 
@@ -2512,7 +3263,8 @@ def analisar_interceptacao(
             idade_radar,
 
         "horario_ultimo_quadro":
-            horario_ultimo_quadro.isoformat(),
+            horario_ultimo_quadro
+            .isoformat(),
 
         "criterios": {
             "minimo_transicoes":
@@ -2574,10 +3326,7 @@ def analisar_interceptacao(
                 "bloqueado",
 
             "motivo":
-                (
-                    "Confiança geométrica "
-                    "insuficiente."
-                ),
+                "Confiança geométrica insuficiente.",
 
             "eta":
                 None,
@@ -2614,8 +3363,8 @@ def analisar_interceptacao(
 
             "motivo":
                 (
-                    "Trajetória recente "
-                    "instável ou em zigue-zague."
+                    "Trajetória recente instável "
+                    "ou em zigue-zague."
                 ),
 
             "eta":
@@ -2631,8 +3380,8 @@ def analisar_interceptacao(
 
             "motivo":
                 (
-                    "Comasa está atrás do "
-                    "vetor de deslocamento."
+                    "Comasa está atrás do vetor "
+                    "de deslocamento."
                 ),
 
             "eta":
@@ -2649,8 +3398,7 @@ def analisar_interceptacao(
             "motivo":
                 (
                     "Vetor médio não aponta "
-                    "suficientemente para "
-                    "o Comasa."
+                    "suficientemente para o Comasa."
                 ),
 
             "eta":
@@ -2669,9 +3417,9 @@ def analisar_interceptacao(
 
             "motivo":
                 (
-                    "Trajetória projetada "
-                    "passa fora do corredor "
-                    "de 15 km do Comasa."
+                    "Trajetória projetada passa "
+                    "fora do corredor de 15 km "
+                    "do Comasa."
                 ),
 
             "eta":
@@ -2694,17 +3442,6 @@ def analisar_interceptacao(
             "eta":
                 None,
         }
-
-    # =====================================================
-    # ENTRADA NO CORREDOR DE 15 KM
-    # =====================================================
-
-    # Posição inicial r=(px,py)
-    # trajetória r + u*s
-    #
-    # |r + u*s|² = corredor²
-    #
-    # s² + 2(r.u)s + |r|²-R² = 0
 
     produto = (
         px * ux
@@ -2734,9 +3471,8 @@ def analisar_interceptacao(
 
             "motivo":
                 (
-                    "Linha projetada não "
-                    "intercepta matematicamente "
-                    "o corredor do Comasa."
+                    "Linha projetada não intercepta "
+                    "matematicamente o corredor."
                 ),
 
             "eta":
@@ -2773,9 +3509,8 @@ def analisar_interceptacao(
 
                 "motivo":
                     (
-                        "Interseção calculada "
-                        "está atrás da direção "
-                        "de deslocamento."
+                        "Interseção está atrás da "
+                        "direção de deslocamento."
                     ),
 
                 "eta":
@@ -2804,9 +3539,8 @@ def analisar_interceptacao(
 
             "motivo":
                 (
-                    "Interseção fora da "
-                    "janela experimental "
-                    "de 0 a 180 minutos."
+                    "Interseção fora da janela "
+                    "experimental de 180 minutos."
                 ),
 
             "eta":
@@ -2824,9 +3558,6 @@ def analisar_interceptacao(
         UTC
     )
 
-    # Se o quadro é antigo e a projeção
-    # aponta para um evento que já teria
-    # ocorrido, a ETA não pode ser usada.
     if horario_entrada < agora_utc:
         return {
             **base,
@@ -2836,10 +3567,8 @@ def analisar_interceptacao(
 
             "motivo":
                 (
-                    "A projeção calculada "
-                    "já estaria no passado "
-                    "em relação ao horário "
-                    "atual."
+                    "A projeção calculada já "
+                    "estaria no passado."
                 ),
 
             "eta":
@@ -2873,8 +3602,7 @@ def analisar_interceptacao(
 
     if (
         trilha["transicoes"] >= 5
-        and trilha["score_medio"]
-        >= 0.70
+        and trilha["score_medio"] >= 0.70
         and diferenca_angular <= 20
         and dispersao_max <= 25
         and distancia_lateral <= 7.5
@@ -2883,8 +3611,7 @@ def analisar_interceptacao(
 
     elif (
         trilha["transicoes"] >= 4
-        and trilha["score_medio"]
-        >= 0.60
+        and trilha["score_medio"] >= 0.60
         and dispersao_max <= 35
     ):
         confianca = "moderada_experimental"
@@ -2907,10 +3634,9 @@ def analisar_interceptacao(
 
         "motivo":
             (
-                "Trilha persistente, radar "
-                "fresco e trajetória "
-                "multivetorial compatível "
-                "com o corredor do Comasa."
+                "Trilha persistente, radar fresco "
+                "e trajetória multivetorial "
+                "compatível com o corredor."
             ),
 
         "eta": {
@@ -2947,8 +3673,8 @@ def analisar_interceptacao(
                 (
                     "Estimativa exclusivamente "
                     "experimental. Células podem "
-                    "intensificar, dissipar, "
-                    "acelerar ou mudar de direção."
+                    "intensificar, dissipar, acelerar "
+                    "ou mudar de direção."
                 ),
         },
     }
@@ -2970,7 +3696,6 @@ def avaliar_todas_trilhas(
     elegiveis = [
         trilha
         for trilha in trilhas
-
         if trilha.get(
             "elegivel_para_analise"
         )
@@ -3002,6 +3727,16 @@ def avaliar_todas_trilhas(
                     "score_medio"
                 ],
 
+            "similaridade_cores_media":
+                trilha.get(
+                    "similaridade_cores_media"
+                ),
+
+            "dispersao_direcao_max_graus":
+                trilha.get(
+                    "dispersao_direcao_max_graus"
+                ),
+
             "ultima_distancia_comasa_km":
                 trilha[
                     "ultima_distancia_comasa_km"
@@ -3014,7 +3749,6 @@ def avaliar_todas_trilhas(
     candidatos = [
         item
         for item in avaliacoes
-
         if item[
             "resultado"
         ].get(
@@ -3054,6 +3788,9 @@ def avaliar_todas_trilhas(
         "status":
             "avaliacao_multiplas_trilhas",
 
+        "versao":
+            "#118",
+
         "quantidade_trilhas_avaliadas":
             len(avaliacoes),
 
@@ -3072,9 +3809,8 @@ def avaliar_todas_trilhas(
         "observacao":
             (
                 "Mesmo quando existe candidato, "
-                "o ETA permanece experimental "
-                "e não validado para publicação "
-                "operacional."
+                "o ETA permanece experimental e "
+                "não validado para publicação."
             ),
     }
 
@@ -3161,8 +3897,7 @@ def buscar_radar():
             or not nomes
         ):
             raise ValueError(
-                "Radar não retornou "
-                "lista de imagens."
+                "Radar não retornou lista de imagens."
             )
 
         nomes = nomes[-7:]
@@ -3303,8 +4038,6 @@ def buscar_radar():
             "candidato_selecionado"
         )
 
-        # Mantemos uma trilha principal apenas
-        # para diagnóstico e compatibilidade.
         principal = (
             rastreamento.get(
                 "trilha_principal_diagnostica"
@@ -3314,6 +4047,9 @@ def buscar_radar():
         movimento = {
             "status":
                 "sem_trilha_elegivel",
+
+            "metodo":
+                "identidade_temporal_#118",
 
             "validado_para_eta":
                 False,
@@ -3328,10 +4064,7 @@ def buscar_radar():
                     "diagnostico_disponivel",
 
                 "metodo":
-                    (
-                        "rastreamento_de_componentes"
-                        "_multivetorial"
-                    ),
+                    "identidade_temporal_multivetorial_#118",
 
                 "trilha_id":
                     principal[
@@ -3347,6 +4080,16 @@ def buscar_radar():
                     principal[
                         "score_medio"
                     ],
+
+                "similaridade_cores_media":
+                    principal.get(
+                        "similaridade_cores_media"
+                    ),
+
+                "dispersao_direcao_max_graus":
+                    principal.get(
+                        "dispersao_direcao_max_graus"
+                    ),
 
                 "tendencia":
                     principal[
@@ -3368,7 +4111,6 @@ def buscar_radar():
                         "ultima_direcao_movimento"
                     ],
 
-                # Nunca verdadeiro no #117.
                 "validado_para_eta":
                     False,
 
@@ -3383,41 +4125,34 @@ def buscar_radar():
                 "resultado"
             ]
 
+        elif principal:
+            inter = analisar_interceptacao(
+                principal,
+                fresco,
+                idade,
+                horario_ultimo,
+            )
+
         else:
-            # Quando nenhuma trilha passa pelos
-            # critérios, guardamos um diagnóstico
-            # representativo da principal.
-            if principal:
-                inter = analisar_interceptacao(
-                    principal,
-                    fresco,
-                    idade,
-                    horario_ultimo,
-                )
+            inter = {
+                "status":
+                    "bloqueado",
 
-            else:
-                inter = {
-                    "status":
-                        "bloqueado",
+                "intercepta_corredor":
+                    False,
 
-                    "intercepta_corredor":
-                        False,
+                "candidato_eta":
+                    False,
 
-                    "candidato_eta":
-                        False,
+                "validado_para_eta":
+                    False,
 
-                    "validado_para_eta":
-                        False,
+                "motivo":
+                    "Nenhuma trilha elegível disponível.",
 
-                    "motivo":
-                        (
-                            "Nenhuma trilha "
-                            "elegível disponível."
-                        ),
-
-                    "eta":
-                        None,
-                }
+                "eta":
+                    None,
+            }
 
         eta = {
             "status":
@@ -3442,7 +4177,9 @@ def buscar_radar():
             selecionado
             and inter.get("eta")
         ):
-            e = inter["eta"]
+            e = inter[
+                "eta"
+            ]
 
             eta = {
                 "status":
@@ -3545,9 +4282,7 @@ def buscar_radar():
                         q["largura_px"],
                         q["altura_px"],
                     )
-
-                    for q
-                    in validos
+                    for q in validos
                 }) == 1,
 
             "horario_ultimo_quadro":
@@ -3575,14 +4310,10 @@ def buscar_radar():
                     "alpha_zero_excluido",
 
                 "cinza_200_200_200":
-                    (
-                        "excluido_ate_validacao"
-                    ),
+                    "excluido_ate_validacao",
 
                 "demais_pixels_visiveis":
-                    (
-                        "candidatos_meteorologicos"
-                    ),
+                    "candidatos_meteorologicos",
 
                 "dbz":
                     "nao_atribuido",
@@ -3626,9 +4357,7 @@ def buscar_radar():
                 movimento,
 
             "interpretacao_dbz":
-                (
-                    "aguardando_validacao_numerica"
-                ),
+                "aguardando_validacao_numerica",
 
             "eta":
                 eta,
@@ -3636,6 +4365,9 @@ def buscar_radar():
             "seguranca_eta": {
                 "status":
                     "experimental",
+
+                "versao":
+                    "#118",
 
                 "publicacao_automatica":
                     False,
@@ -3645,11 +4377,10 @@ def buscar_radar():
 
                 "regra":
                     (
-                        "Nenhum ETA do #117 "
-                        "deve ser tratado como "
-                        "previsão operacional "
-                        "antes de validação "
-                        "observacional."
+                        "Nenhum ETA do #118 deve "
+                        "ser tratado como previsão "
+                        "operacional antes de "
+                        "validação observacional."
                     ),
             },
         }

@@ -9,6 +9,12 @@ on:
 permissions:
   contents: write
 
+# Impede duas execuções deste workflow de tentarem gravar
+# dados.json ao mesmo tempo.
+concurrency:
+  group: monitor-guaxanduva-atualizacao
+  cancel-in-progress: false
+
 jobs:
   atualizar:
     runs-on: ubuntu-latest
@@ -16,6 +22,8 @@ jobs:
     steps:
       - name: Baixar repositório
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Configurar Python
         uses: actions/setup-python@v5
@@ -39,7 +47,56 @@ jobs:
 
           if git diff --cached --quiet; then
             echo "Nenhuma alteração em dados.json."
-          else
-            git commit -m "Atualiza dados do Monitor Guaxanduva"
-            git push
+            exit 0
           fi
+
+          # Guarda somente o dados.json produzido nesta execução.
+          cp dados.json /tmp/dados-monitor-guaxanduva.json
+
+          # Descarta a alteração local temporariamente para permitir
+          # a sincronização segura com a versão mais recente da main.
+          git reset --hard HEAD
+
+          # Busca tudo que entrou na main enquanto o radar era processado.
+          git fetch origin main
+          git reset --hard origin/main
+
+          # Recoloca exclusivamente o dados.json recém-gerado.
+          cp /tmp/dados-monitor-guaxanduva.json dados.json
+          git add dados.json
+
+          # Se outra execução já publicou exatamente estes dados,
+          # não há nada para enviar.
+          if git diff --cached --quiet; then
+            echo "Os dados mais recentes já estão publicados."
+            exit 0
+          fi
+
+          git commit -m "Atualiza dados do Monitor Guaxanduva"
+
+          # Última proteção contra uma atualização que tenha ocorrido
+          # nos poucos instantes entre o fetch e o push.
+          for tentativa in 1 2 3; do
+            if git push origin HEAD:main; then
+              echo "dados.json publicado com sucesso."
+              exit 0
+            fi
+
+            echo "Conflito de atualização na tentativa ${tentativa}. Sincronizando novamente..."
+
+            cp dados.json /tmp/dados-monitor-guaxanduva.json
+            git fetch origin main
+            git reset --hard origin/main
+            cp /tmp/dados-monitor-guaxanduva.json dados.json
+            git add dados.json
+
+            if git diff --cached --quiet; then
+              echo "Os dados já foram publicados por outra execução."
+              exit 0
+            fi
+
+            git commit -m "Atualiza dados do Monitor Guaxanduva"
+          done
+
+          echo "Não foi possível publicar dados.json após 3 tentativas."
+          exit 1

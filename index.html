@@ -36,8 +36,8 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 </header>
 
 <section class="card">
-<div class="local">📡 RADAR METEOROLÓGICO</div>
-<h2>🌧️ Chuva se aproximando</h2>
+<div class="local">📡 RADAR METEOROLÓGICO • EXPERIMENTAL</div>
+<h2>Monitoramento de precipitação por radar</h2>
 <div class="sub">RadarSC • Defesa Civil de Santa Catarina • produto C-MAX</div>
 <div id="radarEstado" class="box aviso">Carregando radar...</div>
 <div class="radar-grid">
@@ -47,11 +47,11 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="radar-item">🎯 Trilhas elegíveis<b id="radarElegiveis">--</b></div>
 </div>
 <div id="etaEstado" class="box aviso">🧪 ETA em validação experimental</div>
-<small>O sistema acompanha ecos de radar e testa retrospectivamente suas previsões. Enquanto a validação não for concluída, não publica horário automático de chegada da chuva.</small>
+<small>DETECTADO POR RADAR ≠ chuva medida. O sistema acompanha ecos e testa retrospectivamente trajetórias. Enquanto a validação não for concluída, não publica horário automático de chegada da chuva.</small>
 </section>
 
 <section class="card">
-<div class="local">🧪 AUTOVALIDAÇÃO DO RADAR</div>
+<div class="local">🧪 AUTOVALIDAÇÃO DO RADAR • EXPERIMENTAL</div>
 <h2>O sistema mede o próprio erro</h2>
 <div class="sub">Histórico persistente #120 • diagnóstico experimental</div>
 <div class="radar-grid">
@@ -61,14 +61,15 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="radar-item">🛡️ ETA liberado?<b id="histEta">NÃO</b></div>
 </div>
 <div id="histEstado" class="box aviso">Carregando histórico de validação...</div>
-<small>Erro em quilômetros é uma medida diagnóstica do algoritmo, não uma previsão de distância da chuva. Não há limiar de aprovação definido.</small>
+<small>Erro em quilômetros é diagnóstico do algoritmo, não previsão de distância da chuva. Não há limiar de aprovação definido.</small>
 </section>
 
 <section class="grid">
 <div class="card">
-<div class="local">🌧️ CHUVA OBSERVADA</div><h2>CEMADEN</h2>
-<div class="valor" id="chuva">--</div><div class="sub">mm na última leitura</div>
+<div class="local">🌧️ CHUVA OBSERVADA • PLUVIÔMETRO</div><h2>CEMADEN</h2>
+<div class="valor" id="chuva">--</div><div class="sub">mm medidos na última leitura</div>
 <div class="box">1 hora: <b id="h1">--</b> mm<br>24 horas: <b id="h24">--</b> mm<br><span id="cs" class="aviso">Carregando...</span></div>
+<small>OBSERVADO = medido por instrumento. Sem leitura integrada, o Monitor não deve interpretar “--” como ausência de chuva.</small>
 <a href="https://mapainterativo.cemaden.gov.br/" target="_blank">ABRIR CEMADEN</a>
 </div>
 <div class="card">
@@ -77,30 +78,46 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="mare-item">⬅️ Último extremo<div class="mare-valor" id="mareAnterior">--</div><div class="mare-hora" id="mareAnteriorHora">--</div></div>
 <div class="mare-item">➡️ Próximo extremo<div class="mare-valor" id="mareProxima">--</div><div class="mare-hora" id="mareProximaHora">--</div></div>
 </div>
-<div class="box"><b>Fonte:</b> EPAGRI/CIRAM<br><span id="ms" class="aviso">Carregando...</span><br><small>Tábua de maré prevista. Não representa medição instantânea do nível da água.</small></div>
+<div class="box"><b>Fonte:</b> EPAGRI/CIRAM<br><span id="ms" class="aviso">Carregando...</span><br><small>PREVISTO. Tábua de maré, não medição instantânea do nível da água.</small></div>
 <a href="https://ciram.epagri.sc.gov.br/index.php/maregrafos/" target="_blank">ABRIR EPAGRI/CIRAM</a>
 </div>
 </section>
 
 <section class="card">
-<div class="local">📡 PREVISÃO METEOROLÓGICA</div><h2>Comasa • Joinville</h2><div class="sub">Modelo meteorológico • Open-Meteo Best Match</div>
+<div class="local">🌦️ PREVISÃO METEOROLÓGICA • PRÓXIMA HORA</div>
+<h2>Comasa • Joinville</h2>
+<div class="sub">PREVISTO por modelo meteorológico • Open-Meteo Best Match • não é medição local</div>
 <div class="meteo">
-<div>☔ Prob. de chuva<b id="prob">--</b></div><div>🌧️ Precipitação<b id="prevchuva">--</b></div>
-<div>🌬️ Vento<b id="vento">--</b></div><div>💨 Rajadas<b id="rajada">--</b></div>
-<div>🧭 Direção<b id="direcao">--</b></div><div>🕐 Próxima hora<b id="prevhora">--</b></div>
-</div><div id="ps" class="box aviso">Carregando previsão...</div>
+<div>☔ Probabilidade prevista nesta hora<b id="prob">--</b></div>
+<div>🌧️ Chuva prevista nesta hora<b id="prevchuva">--</b></div>
+<div>🌬️ Vento atual do modelo<b id="vento">--</b></div>
+<div>💨 Rajadas atuais do modelo<b id="rajada">--</b></div>
+<div>🧭 Direção atual do modelo<b id="direcao">--</b></div>
+<div>🕐 Hora da previsão<b id="prevhora">--</b></div>
+</div>
+<div id="ps" class="box aviso">Carregando previsão...</div>
+<div class="box"><small>⚠️ Estes valores vêm de um modelo meteorológico. “0,0 mm previstos” não significa que não esteja chovendo no local neste momento.</small></div>
 </section>
 
 <section class="card">
-<div class="local">🌧️ PREVISÃO DE CHUVA — PRÓXIMOS 7 DIAS</div><h2>Tendência para Comasa • Joinville</h2>
-<div class="sub">Probabilidade e quantidade prevista de chuva • Open-Meteo</div>
+<div class="local">🌧️ PREVISÃO DE CHUVA • PRÓXIMOS 7 DIAS</div><h2>Tendência para Comasa • Joinville</h2>
+<div class="sub">PREVISTO por modelo meteorológico • Open-Meteo • não é observação</div>
 <div id="previsao7dias" class="box">Carregando previsão dos próximos dias...</div>
-<div class="box"><small>☔ <b>Probabilidade</b> = maior probabilidade de chuva prevista para o dia.<br><br>🌧️ <b>Chuva prevista</b> = quantidade total estimada para o dia em milímetros (mm).<br><br>As previsões podem mudar conforme novas informações meteorológicas são recebidas.</small></div>
+<div class="box"><small>☔ <b>Maior probabilidade horária do dia</b> = maior porcentagem prevista entre as horas daquele dia.<br><br>🌧️ <b>Total previsto no dia</b> = soma estimada de precipitação do dia em milímetros (mm).<br><br>Por isso a porcentagem diária pode ser diferente da previsão para a próxima hora. As previsões podem mudar conforme o modelo recebe novas informações.</small></div>
 </section>
 
-<section class="card"><div class="local">🧊 GRANIZO</div><h2>Alertas</h2><div id="granizo" class="box aviso">⚪ Alerta oficial ainda não integrado</div><small>Granizo não é inferido apenas pela previsão de chuva. O painel aguardará integração com fonte oficial de alertas.</small></section>
-<section class="card"><div class="local">🏞️ RIO GUAXANDUVA</div><h2>Nível do rio</h2><div class="valor" id="rio">--</div><div id="rs" class="box aviso">Verificando sensor...</div></section>
-<section class="card"><div class="local">📐 ALTITUDE DO TERRENO</div><h2>Rua Itapoá • Comasa</h2><div class="valor">≈ 5 m</div><div class="sub">acima do nível do mar</div><div class="box"><b>Fonte:</b> Prefeitura de Joinville / SIMGeo<br><small>Cota aproximada do terreno. Não representa nível de inundação.</small></div></section>
+<section class="card"><div class="local">🧊 GRANIZO • INDISPONÍVEL</div><h2>Alertas</h2><div id="granizo" class="box aviso">⚪ Alerta oficial ainda não integrado</div><small>Granizo não é inferido apenas pela previsão de chuva. Sem fonte oficial integrada, o Monitor não classifica presença ou ausência de granizo.</small></section>
+<section class="card"><div class="local">🏞️ RIO GUAXANDUVA • INDISPONÍVEL</div><h2>Nível do rio</h2><div class="valor" id="rio">--</div><div id="rs" class="box aviso">Verificando sensor...</div><small>Sem sensor público confirmado, o Monitor não estima o nível do rio.</small></section>
+<section class="card"><div class="local">📐 ALTITUDE DO TERRENO • ESTIMATIVA CARTOGRÁFICA</div><h2>Rua Itapoá • Comasa</h2><div class="valor">≈ 5 m</div><div class="sub">acima do nível do mar</div><div class="box"><b>Fonte:</b> Prefeitura de Joinville / SIMGeo<br><small>ESTIMATIVA. Cota aproximada do terreno. Não representa nível de inundação nem nível atual do rio.</small></div></section>
+
+<section class="card">
+<div class="local">📖 COMO LER O MONITOR</div><h2>Tipo de informação</h2>
+<div class="medida"><div class="medida-sigla">🟢 OBSERVADO</div><b>Medido por instrumento</b><div class="medida-exemplo">Ex.: pluviômetro. Deve ter fonte e horário de leitura.</div></div>
+<div class="medida"><div class="medida-sigla">📡 DETECTADO POR RADAR</div><b>Identificado em imagem de radar</b><div class="medida-exemplo">Não equivale a milímetros medidos por pluviômetro.</div></div>
+<div class="medida"><div class="medida-sigla">🌦️ PREVISTO</div><b>Calculado por modelo</b><div class="medida-exemplo">É uma estimativa futura e pode divergir do que está ocorrendo no local.</div></div>
+<div class="medida"><div class="medida-sigla">⚪ INDISPONÍVEL</div><b>Sem dado confiável</b><div class="medida-exemplo">Não significa condição normal ou valor zero.</div></div>
+<div class="medida"><div class="medida-sigla">🧪 EXPERIMENTAL</div><b>Ainda em validação</b><div class="medida-exemplo">Não deve ser usado sozinho para decisão operacional.</div></div>
+</section>
 
 <section class="card">
 <div class="local">📖 ENTENDA AS MEDIDAS</div><h2>O que significam os números?</h2><div class="sub">Guia rápido para interpretar o Monitor Guaxanduva</div>
@@ -110,8 +127,8 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="medida"><div class="medida-sigla">🌬️ km/h</div><b>Quilômetros por hora</b><div class="medida-exemplo">Velocidade do vento e das rajadas.</div></div>
 <div class="medida"><div class="medida-sigla">☔ %</div><b>Porcentagem</b><div class="medida-exemplo">Na previsão de chuva representa probabilidade, não quantidade.</div></div>
 <div class="medida"><div class="medida-sigla">🧭 N • NE • L • SE • S • SO • O • NO</div><b>Direções</b><div class="medida-exemplo">Pontos cardeais e colaterais usados para o vento.</div></div>
-<div class="medida"><div class="medida-sigla">📡 dBZ</div><b>Refletividade do radar</b><div class="medida-exemplo">Representa a intensidade dos ecos de precipitação. Não prova sozinho quantidade exata de chuva ou granizo.</div></div>
-<div class="box"><small>ℹ️ Previsões e análises experimentais são estimativas e não substituem avisos oficiais da Defesa Civil.</small></div>
+<div class="medida"><div class="medida-sigla">📡 dBZ</div><b>Refletividade do radar</b><div class="medida-exemplo">Representa intensidade dos ecos. Não prova sozinho quantidade exata de chuva ou granizo.</div></div>
+<div class="box"><small>ℹ️ Previsões, estimativas e análises experimentais não substituem avisos oficiais da Defesa Civil.</small></div>
 </section>
 
 <section class="card"><div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2><div id="sistema" class="box aviso">Carregando dados.json...</div><p><small id="coleta">Última coleta: --</small></p></section>
@@ -157,24 +174,25 @@ async function carregar(){
   $("etaEstado").innerHTML='<span class="aviso">🧪 ETA experimental bloqueado • candidatos atuais: '+cand+'</span>';
 
   $("chuva").textContent=f(c.leitura_mm);$("h1").textContent=f(c.acumulado_1h_mm);$("h24").textContent=f(c.acumulado_24h_mm);
-  $("cs").textContent=c.leitura_mm==null?"⚪ CEMADEN ainda sem leitura integrada":"🟢 Leitura automática recebida";
+  $("cs").textContent=c.leitura_mm==null?"⚪ SEM LEITURA INTEGRADA • isso não significa ausência de chuva":"🟢 OBSERVADO • leitura automática recebida";
   const ma=m.anterior||null,mp=m.proximo||null;
   $("mareAnterior").textContent=ma?f(ma.altura_m,1)+" m":"--";$("mareAnteriorHora").textContent=ma?"às "+ma.hora:"--";
   $("mareProxima").textContent=mp?f(mp.altura_m,1)+" m":"--";$("mareProximaHora").textContent=mp?"às "+mp.hora:"--";
-  $("ms").innerHTML=m.status==="online"?'<span class="ok">🟢 Tábua de maré recebida automaticamente</span>':'<span class="erro">🔴 Tábua de maré indisponível</span>';
-  $("rio").textContent=q.nivel_m==null?"SEM SENSOR":f(q.nivel_m,2)+" m";$("rs").textContent=q.nivel_m==null?"⚪ Sem sensor público confirmado para o Rio Guaxanduva":"🟢 Nível automático recebido";
+  $("ms").innerHTML=m.status==="online"?'<span class="ok">🟢 PREVISTO • tábua de maré recebida</span>':'<span class="erro">🔴 INDISPONÍVEL • tábua de maré não recebida</span>';
+  $("rio").textContent=q.nivel_m==null?"SEM SENSOR":f(q.nivel_m,2)+" m";$("rs").textContent=q.nivel_m==null?"⚪ INDISPONÍVEL • sem sensor público confirmado para o Rio Guaxanduva":"🟢 OBSERVADO • nível automático recebido";
   if(p.status==="online"){
-   $("prob").textContent=ph.probabilidade_chuva_pct==null?"--":Math.round(ph.probabilidade_chuva_pct)+"%";$("prevchuva").textContent=f(ph.precipitacao_mm)+" mm";
+   $("prob").textContent=ph.probabilidade_chuva_pct==null?"--":Math.round(ph.probabilidade_chuva_pct)+"%";
+   $("prevchuva").textContent=f(ph.precipitacao_mm)+" mm";
    $("vento").textContent=f(a.vento_kmh)+" km/h";$("rajada").textContent=f(a.rajada_kmh)+" km/h";$("direcao").textContent=pontoCardinal(a.direcao_graus);$("prevhora").textContent=horaCurta(ph.horario);
-   $("ps").innerHTML='<span class="ok">🟢 Previsão automática recebida</span>';
-  }else{$("ps").innerHTML='<span class="erro">🔴 Previsão indisponível</span>'}
+   $("ps").innerHTML='<span class="ok">🟢 PREVISTO • modelo atualizado</span> • janela: próxima hora';
+  }else{$("ps").innerHTML='<span class="erro">🔴 INDISPONÍVEL • previsão não recebida</span>'}
   const dias=Array.isArray(p.proximos_7_dias)?p.proximos_7_dias:[];
   if(dias.length){
    const nomes=["domingo","segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado"];let html="";
-   dias.forEach((dia,i)=>{const dt=new Date(dia.data+"T12:00:00"),nome=i===0?"HOJE":nomes[dt.getDay()].toUpperCase(),dataBR=dt.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}),prob=dia.probabilidade_chuva_pct==null?"--":Math.round(dia.probabilidade_chuva_pct)+"%",mm=dia.precipitacao_total_mm==null?"--":f(dia.precipitacao_total_mm,1)+" mm";html+='<div class="dia-previsao"><div class="dia-titulo">'+nome+" • "+dataBR+"</div>☔ Probabilidade: <b>"+prob+"</b><br>🌧️ Chuva prevista: <b>"+mm+"</b></div>"});
-   $("previsao7dias").innerHTML=html+'<div class="ok" style="margin-top:12px">🟢 Previsão de 7 dias recebida automaticamente</div>';
-  }else{$("previsao7dias").innerHTML='<span class="erro">🔴 Previsão de 7 dias indisponível</span>'}
-  $("granizo").textContent=g.status==="sem_alerta_integrado"?"⚪ Alerta oficial ainda não integrado":"🟡 "+g.status;
+   dias.forEach((dia,i)=>{const dt=new Date(dia.data+"T12:00:00"),nome=i===0?"HOJE":nomes[dt.getDay()].toUpperCase(),dataBR=dt.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}),prob=dia.probabilidade_chuva_pct==null?"--":Math.round(dia.probabilidade_chuva_pct)+"%",mm=dia.precipitacao_total_mm==null?"--":f(dia.precipitacao_total_mm,1)+" mm";html+='<div class="dia-previsao"><div class="dia-titulo">'+nome+" • "+dataBR+"</div>☔ Maior probabilidade horária do dia: <b>"+prob+"</b><br>🌧️ Total previsto no dia: <b>"+mm+"</b></div>"});
+   $("previsao7dias").innerHTML=html+'<div class="ok" style="margin-top:12px">🟢 PREVISTO • previsão de 7 dias recebida</div>';
+  }else{$("previsao7dias").innerHTML='<span class="erro">🔴 INDISPONÍVEL • previsão de 7 dias não recebida</span>'}
+  $("granizo").textContent=g.status==="sem_alerta_integrado"?"⚪ INDISPONÍVEL • alerta oficial ainda não integrado":"🟡 "+g.status;
  }catch(e){$("sistema").innerHTML='<span class="erro">🔴 Falha ao carregar dados.json</span>';$("coleta").textContent=e.message;$("radarEstado").innerHTML='<span class="erro">🔴 Falha ao carregar radar</span>'}
 }
 carregar();carregarHistorico();setInterval(carregar,60000);setInterval(carregarHistorico,60000);

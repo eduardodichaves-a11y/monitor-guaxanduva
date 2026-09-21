@@ -2,6 +2,9 @@ import io
 import json
 import math
 import hashlib
+import statistics
+import re
+from urllib.parse import urljoin
 from collections import Counter, deque
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -16,11 +19,15 @@ from PIL import Image
 # =========================================================
  
 ARQUIVO = "dados.json"
+HISTORICO_ARQUIVO = "historico_validacao.json"
+HISTORICO_MAX_REGISTROS = 2880
  
 # Coordenada pública aproximada do Comasa.
 # NÃO representa endereço residencial.
 LAT = -26.27
 LON = -48.81
+IBGE_JOINVILLE = "4209102"
+INMET_ATUAL = "https://apiprevmet3.inmet.gov.br/estacao/proxima/"
  
 FUSO = ZoneInfo("America/Sao_Paulo")
 UTC = ZoneInfo("UTC")
@@ -235,6 +242,81 @@ def media_angular_ponderada(valores):
     ) % 360
  
  
+# =========================================================
+# HISTÓRICO DE AUTOVALIDAÇÃO #120 - RECUPERADO NA #128
+# =========================================================
+
+def carregar_historico_validacao():
+    try:
+        with open(HISTORICO_ARQUIVO, "r", encoding="utf-8") as arquivo:
+            dados = json.load(arquivo)
+        if not isinstance(dados, dict):
+            raise ValueError("Formato de histórico inválido.")
+        registros = dados.get("registros", [])
+        return registros if isinstance(registros, list) else []
+    except FileNotFoundError:
+        return []
+    except Exception as e:
+        print("Aviso: histórico anterior não pôde ser lido: " + str(e))
+        return []
+
+
+def registrar_historico_validacao(dados):
+    radar = dados.get("radar", {})
+    validacao = radar.get("autovalidacao_preditiva") or {}
+    rastreamento = radar.get("rastreamento_temporal") or {}
+    avaliacao = radar.get("avaliacao_trajetorias") or {}
+    registro = {
+        "gerado_em": dados.get("gerado_em"),
+        "versao": "#128",
+        "horario_ultimo_quadro": radar.get("horario_ultimo_quadro"),
+        "radar_status": radar.get("status"),
+        "dados_frescos": radar.get("dados_frescos"),
+        "idade_ultimo_quadro_min": radar.get("idade_ultimo_quadro_min"),
+        "total_previsoes_testadas": validacao.get("total_previsoes_testadas"),
+        "erro_medio_km": validacao.get("erro_medio_km"),
+        "erro_mediano_km": validacao.get("erro_mediano_km"),
+        "erro_maximo_km": validacao.get("erro_maximo_km"),
+        "quantidade_trilhas": rastreamento.get("quantidade_trilhas"),
+        "quantidade_trilhas_elegiveis": rastreamento.get("quantidade_trilhas_elegiveis"),
+        "quantidade_candidatos_eta": avaliacao.get("quantidade_candidatos_eta"),
+        "eta_validado": False,
+        "publicacao_automatica_eta": False,
+    }
+    registros = carregar_historico_validacao()
+    chave = registro.get("horario_ultimo_quadro")
+    if chave:
+        registros = [x for x in registros if x.get("horario_ultimo_quadro") != chave]
+    registros.append(registro)
+    registros = registros[-HISTORICO_MAX_REGISTROS:]
+    erros = [x.get("erro_medio_km") for x in registros if isinstance(x.get("erro_medio_km"),(int,float))]
+    historico = {
+        "monitor": "Monitor Guaxanduva",
+        "tipo": "historico_autovalidacao_preditiva_radar",
+        "versao": "#128",
+        "metodo": "projecao_retrospectiva_1_quadro_com_velocidade_media",
+        "atualizado_em": dados.get("gerado_em"),
+        "maximo_registros": HISTORICO_MAX_REGISTROS,
+        "politica_retencao": "Mantém no máximo 2880 quadros únicos de radar; aproximadamente 30 dias se houver atualização a cada 15 minutos.",
+        "limite_aprovacao_definido": False,
+        "usado_para_liberar_eta": False,
+        "validado_para_eta": False,
+        "resumo": {
+            "execucoes_registradas": len(registros),
+            "execucoes_com_erro_medio": len(erros),
+            "total_previsoes_testadas_somadas": sum(x.get("total_previsoes_testadas") or 0 for x in registros),
+            "media_dos_erros_medios_km": round(sum(erros)/len(erros),2) if erros else None,
+            "limite_aprovacao_definido": False,
+            "usado_para_liberar_eta": False,
+            "validado_para_eta": False,
+        },
+        "registros": registros,
+    }
+    with open(HISTORICO_ARQUIVO,"w",encoding="utf-8") as arquivo:
+        json.dump(historico,arquivo,ensure_ascii=False,indent=2)
+    return historico
+
+
 # =========================================================
 # OPEN-METEO
 # =========================================================
@@ -570,6 +652,59 @@ def buscar_mare():
  
  
 # =========================================================
+# #128 - INVESTIGAÇÃO DOCUMENTAL DO RADARSC
+# =========================================================
+
+def investigar_fonte_radarsc():
+    """Procura evidência textual de dBZ/escala no HTML e JS oficiais.
+    É diagnóstico documental: não atribui dBZ e não libera ETA.
+    """
+    resultado = {
+        "status": "sem_evidencia_textual",
+        "fonte": RADAR,
+        "termos": ["dbz", "reflectivity", "refletividade", "c-max", "cmax"],
+        "recursos_avaliados": [],
+        "evidencias": [],
+        "dbz_numerico_validado": False,
+        "eta_liberado": False,
+    }
+    try:
+        html = get(RADAR, radar=True).text
+        recursos = [(RADAR, html)]
+        scripts = re.findall(r'<script[^>]+src=["\\\']([^"\\\']+)["\\\']', html, flags=re.I)
+        for src in scripts[:30]:
+            url = urljoin(RADAR, src)
+            try:
+                texto = get(url, radar=True).text
+                recursos.append((url, texto))
+            except Exception as e:
+                resultado["recursos_avaliados"].append({"url": url, "status": "erro", "erro": str(e)[:180]})
+        for url, texto in recursos:
+            baixo = texto.lower()
+            achados = []
+            for termo in resultado["termos"]:
+                inicio = 0
+                while len(achados) < 12:
+                    pos = baixo.find(termo, inicio)
+                    if pos < 0: break
+                    a=max(0,pos-140); b=min(len(texto),pos+220)
+                    trecho=re.sub(r'\\s+',' ',texto[a:b]).strip()
+                    achados.append({"termo": termo, "trecho": trecho[:500]})
+                    inicio=pos+len(termo)
+            resultado["recursos_avaliados"].append({"url":url,"status":"ok","bytes_texto":len(texto),"ocorrencias_relevantes":len(achados)})
+            for item in achados:
+                resultado["evidencias"].append({"url":url,**item})
+        if resultado["evidencias"]:
+            resultado["status"]="evidencia_textual_encontrada_para_revisao"
+        resultado["observacao"]="Trechos são evidência bruta para revisão; nenhuma associação RGB→dBZ é aceita automaticamente."
+        return resultado
+    except Exception as e:
+        resultado["status"]="indisponivel"
+        resultado["erro"]=str(e)
+        return resultado
+
+
+# =========================================================
 # LEGENDA OFICIAL RADARSC
 # =========================================================
  
@@ -660,16 +795,12 @@ def legenda():
             melhor[:16]
         ):
             classes.append({
-                "classe":
-                    i + 1,
- 
-                "rgb":
-                    list(
-                        segmento[2][:3]
-                    ),
- 
-                "dbz":
-                    None,
+                "classe": i + 1,
+                "rgb": list(segmento[2][:3]),
+                "x_inicio": segmento[0],
+                "x_fim": segmento[1],
+                "largura_px": segmento[1] - segmento[0] + 1,
+                "dbz": None,
             })
  
         return {
@@ -678,6 +809,10 @@ def legenda():
  
             "fonte":
                 "legenda oficial RadarSC",
+
+            "dimensoes_px": {"largura": imagem.width, "altura": imagem.height},
+
+            "diagnostico_128": "RGB e geometria extraídos diretamente da legenda oficial; dBZ continua sem atribuição até evidência textual oficial.",
  
             "sha256":
                 hashlib
@@ -4531,6 +4666,45 @@ def buscar_radar():
 # ARQUIVO FINAL
 # =========================================================
  
+# =========================================================
+# #123 - CHUVA OBSERVADA / ESTAÇÃO INMET - RECUPERADA NA #128
+# =========================================================
+
+def numero_inmet(valor):
+    if valor is None: return None
+    texto=str(valor).strip().replace(",", ".")
+    if not texto or texto.lower() in ("null","none","nan"): return None
+    try: numero=float(texto)
+    except (TypeError,ValueError): return None
+    return None if abs(numero)>=9999 else numero
+
+
+def horario_inmet_utc(data,hora):
+    if not data or hora is None: return None
+    h=str(hora).strip().zfill(4)[:4]
+    try: return datetime.strptime(f"{data} {h}","%Y-%m-%d %H%M").replace(tzinfo=UTC)
+    except Exception: return None
+
+
+def buscar_chuva_observada_inmet():
+    try:
+        resposta=get(INMET_ATUAL+IBGE_JOINVILLE).json()
+        if not isinstance(resposta,dict): raise ValueError("Resposta INMET em formato inesperado.")
+        estacao=resposta.get("estacao") or {}; dados=resposta.get("dados") or {}
+        if not isinstance(estacao,dict) or not isinstance(dados,dict): raise ValueError("INMET sem blocos estacao/dados válidos.")
+        chuva=numero_inmet(dados.get("CHUVA")); distancia=numero_inmet(estacao.get("DISTANCIA_EM_KM"))
+        instante=horario_inmet_utc(dados.get("DT_MEDICAO"),dados.get("HR_MEDICAO"))
+        idade=None; horario_local=None; fresco=False
+        if instante is not None:
+            idade=max(0.0,round((datetime.now(UTC)-instante).total_seconds()/60,1))
+            horario_local=instante.astimezone(FUSO).isoformat(); fresco=idade<=120
+        status="online_fresco" if fresco else "online_desatualizado"
+        if chuva is None: status="online_sem_chuva_valida"
+        return {"status":status,"tipo":"observacao_estacao_automatica","fonte":"INMET","fonte_primaria":"Instituto Nacional de Meteorologia","geocodigo_ibge_consultado":IBGE_JOINVILLE,"estacao":{"codigo":estacao.get("CODIGO") or dados.get("CD_ESTACAO"),"nome":estacao.get("NOME") or dados.get("DC_NOME"),"uf":estacao.get("UF") or dados.get("UF"),"distancia_referencia_joinville_km":distancia},"leitura_horaria_mm":chuva,"horario_medicao_utc":instante.isoformat() if instante else None,"horario_medicao_local":horario_local,"idade_leitura_min":idade,"dados_frescos":fresco,"representatividade":"Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.","regra_seguranca":"Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."}
+    except Exception as e:
+        return {"status":"indisponivel","tipo":"observacao_estacao_automatica","fonte":"INMET","geocodigo_ibge_consultado":IBGE_JOINVILLE,"leitura_horaria_mm":None,"horario_medicao_utc":None,"horario_medicao_local":None,"idade_leitura_min":None,"dados_frescos":False,"erro":str(e),"regra_seguranca":"Falha de coleta não é interpretada como ausência de chuva."}
+
+
 def main():
     dados = {
         "monitor":
@@ -4559,6 +4733,12 @@ def main():
                 None,
         },
  
+        "chuva_observada_inmet":
+            buscar_chuva_observada_inmet(),
+
+        "investigacao_radarsc_128":
+            investigar_fonte_radarsc(),
+
         "mare":
             buscar_mare(),
  
@@ -4599,6 +4779,8 @@ def main():
         },
     }
  
+    historico = registrar_historico_validacao(dados)
+
     with open(
         ARQUIVO,
         "w",

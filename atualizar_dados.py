@@ -2,7 +2,7 @@ import json
 import hashlib
 import io
 import math
-from collections import Counter
+from collections import Counter, deque
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -13,8 +13,8 @@ from PIL import Image
 
 ARQUIVO = "dados.json"
 
-# Coordenada PÚBLICA APROXIMADA do Comasa.
-# Não representa endereço residencial.
+# Coordenada pública aproximada do Comasa.
+# NÃO representa endereço residencial.
 LAT = -26.27
 LON = -48.81
 
@@ -46,7 +46,7 @@ URL_RADAR_LEGENDA = (
     + "img/legenda.png"
 )
 
-# Extensão oficial do mosaico COMP.
+# Extensão oficial COMP:
 # [oeste, sul, leste, norte]
 RADAR_EXTENT = [
     -58.0651279,
@@ -54,6 +54,11 @@ RADAR_EXTENT = [
     -46.4999942,
     -24.7653703,
 ]
+
+# Cor que apareceu maciçamente nos PNGs,
+# mas cujo significado meteorológico ainda
+# NÃO foi comprovado.
+RGB_CINZA_NAO_VALIDADO = (200, 200, 200)
 
 urllib3.disable_warnings(
     urllib3.exceptions.InsecureRequestWarning
@@ -69,39 +74,49 @@ def agora_local():
 
 
 def requisicao_normal(url, params=None):
-    resposta = requests.get(
+    r = requests.get(
         url,
         params=params,
         timeout=30,
         headers={
-            "User-Agent": "Monitor-Guaxanduva/1.0"
+            "User-Agent":
+                "Monitor-Guaxanduva/1.0"
         },
     )
-    resposta.raise_for_status()
-    return resposta
+
+    r.raise_for_status()
+    return r
 
 
 def requisicao_radar(url, params=None):
     """
-    O servidor oficial SIFAP apresentou problema
-    de cadeia de certificado no GitHub Actions.
-
-    verify=False fica restrito ao SIFAP.
+    verify=False SOMENTE para o SIFAP,
+    devido ao problema já verificado na
+    cadeia/certificado apresentado pelo
+    serviço oficial.
     """
-    resposta = requests.get(
+
+    r = requests.get(
         url,
         params=params,
         timeout=30,
         headers={
-            "User-Agent": "Monitor-Guaxanduva/1.0"
+            "User-Agent":
+                "Monitor-Guaxanduva/1.0"
         },
         verify=False,
     )
-    resposta.raise_for_status()
-    return resposta
+
+    r.raise_for_status()
+    return r
 
 
-def haversine_km(lat1, lon1, lat2, lon2):
+def haversine_km(
+    lat1,
+    lon1,
+    lat2,
+    lon2,
+):
     raio = 6371.0088
 
     p1 = math.radians(lat1)
@@ -125,22 +140,33 @@ def haversine_km(lat1, lon1, lat2, lon2):
     return raio * c
 
 
-def rumo_graus(lat1, lon1, lat2, lon2):
+def rumo_graus(
+    lat1,
+    lon1,
+    lat2,
+    lon2,
+):
     p1 = math.radians(lat1)
     p2 = math.radians(lat2)
     dl = math.radians(lon2 - lon1)
 
-    y = math.sin(dl) * math.cos(p2)
+    y = (
+        math.sin(dl)
+        * math.cos(p2)
+    )
 
     x = (
-        math.cos(p1) * math.sin(p2)
+        math.cos(p1)
+        * math.sin(p2)
         - math.sin(p1)
         * math.cos(p2)
         * math.cos(dl)
     )
 
     return (
-        math.degrees(math.atan2(y, x))
+        math.degrees(
+            math.atan2(y, x)
+        )
         + 360
     ) % 360
 
@@ -150,12 +176,19 @@ def ponto_cardinal(graus):
         return None
 
     nomes = [
-        "N", "NE", "L", "SE",
-        "S", "SO", "O", "NO",
+        "N",
+        "NE",
+        "L",
+        "SE",
+        "S",
+        "SO",
+        "O",
+        "NO",
     ]
 
     indice = int(
-        (graus + 22.5) // 45
+        (graus + 22.5)
+        // 45
     ) % 8
 
     return nomes[indice]
@@ -171,7 +204,9 @@ def coordenada_para_pixel(
     largura,
     altura,
 ):
-    oeste, sul, leste, norte = RADAR_EXTENT
+    oeste, sul, leste, norte = (
+        RADAR_EXTENT
+    )
 
     x = round(
         (longitude - oeste)
@@ -185,8 +220,15 @@ def coordenada_para_pixel(
         * (altura - 1)
     )
 
-    x = max(0, min(largura - 1, x))
-    y = max(0, min(altura - 1, y))
+    x = max(
+        0,
+        min(largura - 1, x),
+    )
+
+    y = max(
+        0,
+        min(altura - 1, y),
+    )
 
     return x, y
 
@@ -197,7 +239,9 @@ def pixel_para_coordenada(
     largura,
     altura,
 ):
-    oeste, sul, leste, norte = RADAR_EXTENT
+    oeste, sul, leste, norte = (
+        RADAR_EXTENT
+    )
 
     longitude = (
         oeste
@@ -219,11 +263,16 @@ def pixel_para_coordenada(
 # =========================================================
 
 def buscar_previsao():
-    url = "https://api.open-meteo.com/v1/forecast"
+    url = (
+        "https://api.open-meteo.com/v1/forecast"
+    )
 
     parametros = {
-        "latitude": LAT,
-        "longitude": LON,
+        "latitude":
+            LAT,
+
+        "longitude":
+            LON,
 
         "current": (
             "precipitation,"
@@ -247,8 +296,11 @@ def buscar_previsao():
             "wind_gusts_10m_max"
         ),
 
-        "forecast_days": 7,
-        "timezone": "America/Sao_Paulo",
+        "forecast_days":
+            7,
+
+        "timezone":
+            "America/Sao_Paulo",
     }
 
     try:
@@ -259,21 +311,37 @@ def buscar_previsao():
 
         resposta = r.json()
 
-        atual = resposta.get("current", {})
-        horario = resposta.get("hourly", {})
-        diario = resposta.get("daily", {})
+        atual = resposta.get(
+            "current",
+            {},
+        )
+
+        horario = resposta.get(
+            "hourly",
+            {},
+        )
+
+        diario = resposta.get(
+            "daily",
+            {},
+        )
 
         agora = agora_local()
         indice = None
 
         for i, tempo in enumerate(
-            horario.get("time", [])
+            horario.get(
+                "time",
+                [],
+            )
         ):
             try:
                 momento = (
                     datetime
                     .fromisoformat(tempo)
-                    .replace(tzinfo=FUSO_LOCAL)
+                    .replace(
+                        tzinfo=FUSO_LOCAL
+                    )
                 )
 
                 if momento > agora:
@@ -296,7 +364,10 @@ def buscar_previsao():
         dias = []
 
         for i, data in enumerate(
-            diario.get("time", [])
+            diario.get(
+                "time",
+                [],
+            )
         ):
             def dv(nome):
                 try:
@@ -318,29 +389,44 @@ def buscar_previsao():
                     ),
 
                 "precipitacao_total_mm":
-                    dv("precipitation_sum"),
+                    dv(
+                        "precipitation_sum"
+                    ),
 
                 "vento_max_kmh":
-                    dv("wind_speed_10m_max"),
+                    dv(
+                        "wind_speed_10m_max"
+                    ),
 
                 "rajada_max_kmh":
-                    dv("wind_gusts_10m_max"),
+                    dv(
+                        "wind_gusts_10m_max"
+                    ),
             })
 
         return {
-            "status": "online",
-            "fonte": "Open-Meteo",
-            "modelo": "Best Match",
+            "status":
+                "online",
+
+            "fonte":
+                "Open-Meteo",
+
+            "modelo":
+                "Best Match",
 
             "atual": {
                 "horario":
                     atual.get("time"),
 
                 "precipitacao_mm":
-                    atual.get("precipitation"),
+                    atual.get(
+                        "precipitation"
+                    ),
 
                 "vento_kmh":
-                    atual.get("wind_speed_10m"),
+                    atual.get(
+                        "wind_speed_10m"
+                    ),
 
                 "direcao_graus":
                     atual.get(
@@ -348,7 +434,9 @@ def buscar_previsao():
                     ),
 
                 "rajada_kmh":
-                    atual.get("wind_gusts_10m"),
+                    atual.get(
+                        "wind_gusts_10m"
+                    ),
             },
 
             "proxima_hora": {
@@ -401,19 +489,25 @@ def buscar_previsao():
                     ),
             },
 
-            "proximos_7_dias": dias,
+            "proximos_7_dias":
+                dias,
         }
 
     except Exception as erro:
         return {
-            "status": "indisponivel",
-            "fonte": "Open-Meteo",
-            "erro": str(erro),
+            "status":
+                "indisponivel",
+
+            "fonte":
+                "Open-Meteo",
+
+            "erro":
+                str(erro),
         }
 
 
 # =========================================================
-# MARÉ EPAGRI/CIRAM
+# MARÉ
 # =========================================================
 
 def buscar_mare():
@@ -433,7 +527,11 @@ def buscar_mare():
         eventos = []
 
         for linha in r.text.splitlines():
-            partes = linha.strip().split(";")
+            partes = (
+                linha
+                .strip()
+                .split(";")
+            )
 
             if len(partes) != 3:
                 continue
@@ -459,8 +557,11 @@ def buscar_mare():
                 continue
 
             eventos.append({
-                "hora": hora.strip(),
-                "altura_m": altura_m,
+                "hora":
+                    hora.strip(),
+
+                "altura_m":
+                    altura_m,
             })
 
         if not eventos:
@@ -503,22 +604,44 @@ def buscar_mare():
                 proximo = evento
 
         return {
-            "status": "online",
-            "fonte": "EPAGRI/CIRAM",
-            "tipo": "tabua_de_mare_prevista",
-            "local": "Joinville",
-            "data": data_hoje,
-            "eventos": eventos,
-            "anterior": anterior,
-            "proximo": proximo,
+            "status":
+                "online",
+
+            "fonte":
+                "EPAGRI/CIRAM",
+
+            "tipo":
+                "tabua_de_mare_prevista",
+
+            "local":
+                "Joinville",
+
+            "data":
+                data_hoje,
+
+            "eventos":
+                eventos,
+
+            "anterior":
+                anterior,
+
+            "proximo":
+                proximo,
         }
 
     except Exception as erro:
         return {
-            "status": "indisponivel",
-            "fonte": "EPAGRI/CIRAM",
-            "tipo": "tabua_de_mare_prevista",
-            "erro": str(erro),
+            "status":
+                "indisponivel",
+
+            "fonte":
+                "EPAGRI/CIRAM",
+
+            "tipo":
+                "tabua_de_mare_prevista",
+
+            "erro":
+                str(erro),
         }
 
 
@@ -527,57 +650,66 @@ def buscar_mare():
 # =========================================================
 
 def segmentos_de_linha(
-    imagem_rgba,
+    imagem,
     y,
 ):
-    largura, altura = imagem_rgba.size
+    largura, altura = imagem.size
 
     if y < 0 or y >= altura:
         return []
 
     segmentos = []
 
-    cor_atual = imagem_rgba.getpixel(
+    cor_atual = imagem.getpixel(
         (0, y)
     )
 
     inicio = 0
 
-    for x in range(1, largura):
-        cor = imagem_rgba.getpixel(
+    for x in range(
+        1,
+        largura,
+    ):
+        cor = imagem.getpixel(
             (x, y)
         )
 
         if cor != cor_atual:
             segmentos.append({
-                "x_inicio": inicio,
-                "x_fim": x - 1,
-                "largura": x - inicio,
-                "rgba": list(cor_atual),
+                "x_inicio":
+                    inicio,
+
+                "x_fim":
+                    x - 1,
+
+                "largura":
+                    x - inicio,
+
+                "rgba":
+                    list(cor_atual),
             })
 
             inicio = x
             cor_atual = cor
 
     segmentos.append({
-        "x_inicio": inicio,
-        "x_fim": largura - 1,
-        "largura": largura - inicio,
-        "rgba": list(cor_atual),
+        "x_inicio":
+            inicio,
+
+        "x_fim":
+            largura - 1,
+
+        "largura":
+            largura - inicio,
+
+        "rgba":
+            list(cor_atual),
     })
 
     return segmentos
 
 
 def extrair_paleta_oficial():
-    """
-    Extrai os 16 blocos cromáticos da
-    legenda oficial.
-
-    Nenhum valor numérico de dBZ é
-    inventado nesta etapa.
-    """
-
     try:
         r = requisicao_radar(
             URL_RADAR_LEGENDA
@@ -594,9 +726,11 @@ def extrair_paleta_oficial():
         candidatos = []
 
         for y in range(altura):
-            segmentos = segmentos_de_linha(
-                imagem,
-                y,
+            segmentos = (
+                segmentos_de_linha(
+                    imagem,
+                    y,
+                )
             )
 
             relevantes = [
@@ -615,21 +749,27 @@ def extrair_paleta_oficial():
 
             if len(relevantes) >= 10:
                 candidatos.append({
-                    "y": y,
-                    "segmentos": relevantes,
+                    "y":
+                        y,
+
+                    "segmentos":
+                        relevantes,
+
                     "quantidade":
                         len(relevantes),
+
                     "largura_total":
                         sum(
                             s["largura"]
-                            for s in relevantes
+                            for s
+                            in relevantes
                         ),
                 })
 
         if not candidatos:
             raise ValueError(
-                "Faixa colorida da legenda "
-                "não encontrada."
+                "Faixa colorida da "
+                "legenda não encontrada."
             )
 
         candidatos.sort(
@@ -642,7 +782,9 @@ def extrair_paleta_oficial():
 
         melhor = candidatos[0]
 
-        segmentos = melhor["segmentos"]
+        segmentos = melhor[
+            "segmentos"
+        ]
 
         if len(segmentos) != 16:
             segmentos = sorted(
@@ -671,317 +813,678 @@ def extrair_paleta_oficial():
             start=1,
         ):
             classes.append({
-                "classe": indice,
+                "classe":
+                    indice,
+
                 "rgb":
-                    segmento["rgba"][:3],
-                "x_inicio":
-                    segmento["x_inicio"],
-                "x_fim":
-                    segmento["x_fim"],
-                "largura_px":
-                    segmento["largura"],
-                "dbz": None,
+                    segmento[
+                        "rgba"
+                    ][:3],
+
+                "dbz":
+                    None,
             })
 
         return {
-            "status": "online",
+            "status":
+                "online",
+
             "fonte":
                 "legenda oficial RadarSC",
-            "url_relativa":
-                "img/legenda.png",
+
             "sha256":
                 hashlib.sha256(
                     conteudo
                 ).hexdigest(),
-            "largura_px": largura,
-            "altura_px": altura,
-            "linha_paleta_y":
-                melhor["y"],
+
             "quantidade_classes":
                 len(classes),
-            "classes": classes,
+
+            "classes":
+                classes,
+
             "dbz_numerico":
                 "aguardando_validacao",
-            "observacao": (
-                "16 blocos cromáticos "
-                "extraídos diretamente da "
-                "legenda oficial. Valores "
-                "numéricos de dBZ ainda não "
-                "foram inferidos."
-            ),
         }
 
     except Exception as erro:
         return {
-            "status": "indisponivel",
-            "erro": str(erro),
+            "status":
+                "indisponivel",
+
+            "erro":
+                str(erro),
         }
 
 
 # =========================================================
-# DIAGNÓSTICO DA PALETA INTERNA DO PNG
+# PALETA PNG
 # =========================================================
 
 def transparencia_por_indice(
     transparencia,
     indice,
 ):
-    """
-    Interpreta o chunk tRNS exposto pelo
-    Pillow.
-
-    Pode ser:
-    - inteiro: um único índice transparente;
-    - bytes: alpha individual por índice;
-    - ausente: alpha 255.
-    """
-
     if transparencia is None:
         return 255
 
-    if isinstance(transparencia, int):
-        if indice == transparencia:
-            return 0
-
-        return 255
+    if isinstance(
+        transparencia,
+        int,
+    ):
+        return (
+            0
+            if indice == transparencia
+            else 255
+        )
 
     if isinstance(
         transparencia,
         (bytes, bytearray),
     ):
-        if indice < len(transparencia):
+        if indice < len(
+            transparencia
+        ):
             return int(
                 transparencia[indice]
             )
 
-        return 255
-
     return 255
 
 
-def diagnosticar_paleta_png(conteudo):
-    """
-    Investiga o PNG ORIGINAL em modo P.
+def rgb_do_indice(
+    paleta,
+    indice,
+):
+    pos = indice * 3
 
-    Não converte primeiro para RGBA.
+    if (
+        paleta is None
+        or pos + 2 >= len(paleta)
+    ):
+        return None
 
-    Assim preservamos:
-    - índice de paleta;
-    - PLTE;
-    - tRNS;
-    - frequência real de cada índice.
-    """
-
-    imagem = Image.open(
-        io.BytesIO(conteudo)
+    return (
+        paleta[pos],
+        paleta[pos + 1],
+        paleta[pos + 2],
     )
 
-    largura, altura = imagem.size
-    modo_original = imagem.mode
 
-    diagnostico = {
-        "status": "online",
-        "metodo":
-            "P_PLTE_tRNS_indices_originais",
+def diagnosticar_paleta_png(
+    imagem,
+):
+    largura, altura = imagem.size
+
+    resultado = {
         "modo_original":
-            modo_original,
+            imagem.mode,
+
         "largura_px":
             largura,
+
         "altura_px":
             altura,
-        "total_pixels":
-            largura * altura,
     }
 
-    if modo_original != "P":
-        diagnostico.update({
-            "status":
-                "modo_inesperado",
-            "observacao": (
-                "O PNG não chegou em modo P. "
-                "Nenhuma interpretação de "
-                "índices foi realizada."
-            ),
-        })
+    if imagem.mode != "P":
+        resultado["status"] = (
+            "modo_inesperado"
+        )
 
-        return diagnostico
+        return resultado
 
-    paleta_bruta = imagem.getpalette()
+    paleta = imagem.getpalette()
 
-    if paleta_bruta is None:
-        diagnostico.update({
-            "status":
-                "sem_paleta",
-            "observacao":
-                "PLTE não disponível.",
-        })
-
-        return diagnostico
-
-    transparencia = imagem.info.get(
-        "transparency"
+    transparencia = (
+        imagem.info.get(
+            "transparency"
+        )
     )
 
     contagem = Counter(
         imagem.getdata()
     )
 
-    indices_usados = []
+    itens = []
 
-    pixels_transparentes = 0
-    pixels_visiveis = 0
+    total_visivel = 0
+    total_transparente = 0
+    total_cinza = 0
+    total_candidato = 0
 
-    for indice, quantidade in sorted(
+    for indice, pixels in sorted(
         contagem.items()
     ):
-        pos = indice * 3
-
-        if pos + 2 >= len(paleta_bruta):
-            rgb = None
-
-        else:
-            rgb = [
-                paleta_bruta[pos],
-                paleta_bruta[pos + 1],
-                paleta_bruta[pos + 2],
-            ]
-
-        alpha = transparencia_por_indice(
-            transparencia,
+        rgb = rgb_do_indice(
+            paleta,
             indice,
         )
 
-        visivel = (
-            alpha > 0
+        alpha = (
+            transparencia_por_indice(
+                transparencia,
+                indice,
+            )
+        )
+
+        visivel = alpha > 0
+
+        cinza = (
+            rgb
+            == RGB_CINZA_NAO_VALIDADO
+        )
+
+        candidato = (
+            visivel
+            and not cinza
         )
 
         if visivel:
-            pixels_visiveis += quantidade
-
+            total_visivel += pixels
         else:
-            pixels_transparentes += quantidade
+            total_transparente += pixels
 
-        indices_usados.append({
+        if cinza:
+            total_cinza += pixels
+
+        if candidato:
+            total_candidato += pixels
+
+        itens.append({
             "indice_p":
                 int(indice),
 
             "rgb":
-                rgb,
+                (
+                    list(rgb)
+                    if rgb
+                    else None
+                ),
 
             "alpha":
                 alpha,
 
+            "pixels":
+                pixels,
+
             "visivel":
                 visivel,
 
-            "pixels":
-                quantidade,
+            "cinza_nao_validado":
+                cinza,
 
-            "percentual_total":
-                round(
-                    quantidade
-                    / (largura * altura)
-                    * 100,
-                    6,
-                ),
+            "candidato_meteorologico":
+                candidato,
         })
 
-    indices_visiveis = [
-        item
-        for item in indices_usados
-        if item["visivel"]
-    ]
+    resultado.update({
+        "status":
+            "online",
 
-    indices_transparentes = [
-        item
-        for item in indices_usados
-        if not item["visivel"]
-    ]
-
-    indices_visiveis_ordenados = sorted(
-        indices_visiveis,
-        key=lambda item:
-            item["pixels"],
-        reverse=True,
-    )
-
-    diagnostico.update({
-        "quantidade_indices_usados":
-            len(indices_usados),
-
-        "quantidade_indices_visiveis":
-            len(indices_visiveis),
-
-        "quantidade_indices_transparentes":
-            len(indices_transparentes),
-
-        "pixels_visiveis":
-            pixels_visiveis,
+        "total_pixels":
+            largura * altura,
 
         "pixels_transparentes":
-            pixels_transparentes,
+            total_transparente,
 
-        "percentual_visivel":
-            round(
-                pixels_visiveis
-                / (largura * altura)
-                * 100,
-                6,
-            ),
+        "pixels_visiveis":
+            total_visivel,
+
+        "pixels_cinza_nao_validado":
+            total_cinza,
+
+        "pixels_candidatos_meteorologicos":
+            total_candidato,
 
         "indices_usados":
-            indices_usados,
-
-        "indices_visiveis_por_frequencia":
-            indices_visiveis_ordenados,
-
-        "transparencia_tipo":
-            (
-                type(transparencia).__name__
-                if transparencia is not None
-                else None
-            ),
-
-        "transparencia_tamanho":
-            (
-                len(transparencia)
-                if isinstance(
-                    transparencia,
-                    (bytes, bytearray),
-                )
-                else None
-            ),
+            itens,
 
         "observacao": (
-            "Diagnóstico direto do PNG "
-            "indexado. Nenhum índice foi "
-            "convertido em dBZ nesta etapa."
+            "Cinza 200,200,200 foi "
+            "deliberadamente excluído da "
+            "interpretação meteorológica "
+            "até validação."
         ),
     })
 
-    return diagnostico
+    return resultado
 
 
 # =========================================================
-# ANÁLISE ESPACIAL DIAGNÓSTICA
+# MÁSCARA DE ECOS CANDIDATOS
 # =========================================================
 
-def diagnosticar_indices_perto_comasa(
-    conteudo,
+def construir_mascara_candidata(
+    imagem,
 ):
     """
-    Examina quais índices P aparecem nas
-    proximidades da coordenada pública
-    aproximada do Comasa.
+    Retorna conjunto de coordenadas (x,y)
+    consideradas candidatas a eco.
 
-    Ainda NÃO chama esses pixels de chuva.
+    Critérios:
+    - PNG modo P;
+    - alpha > 0;
+    - RGB diferente de 200,200,200.
+
+    Não atribui dBZ.
     """
 
-    imagem = Image.open(
-        io.BytesIO(conteudo)
-    )
+    if imagem.mode != "P":
+        return set(), {}
 
     largura, altura = imagem.size
+
+    paleta = imagem.getpalette()
+
+    transparencia = (
+        imagem.info.get(
+            "transparency"
+        )
+    )
+
+    indices_candidatos = {}
+
+    for indice in set(
+        imagem.getdata()
+    ):
+        rgb = rgb_do_indice(
+            paleta,
+            indice,
+        )
+
+        alpha = (
+            transparencia_por_indice(
+                transparencia,
+                indice,
+            )
+        )
+
+        if (
+            alpha > 0
+            and rgb is not None
+            and rgb
+            != RGB_CINZA_NAO_VALIDADO
+        ):
+            indices_candidatos[
+                indice
+            ] = rgb
+
+    mascara = set()
+
+    pixels = imagem.load()
+
+    for y in range(altura):
+        for x in range(largura):
+            indice = pixels[x, y]
+
+            if indice in indices_candidatos:
+                mascara.add(
+                    (x, y)
+                )
+
+    return (
+        mascara,
+        indices_candidatos,
+    )
+
+
+# =========================================================
+# COMPONENTES CONECTADOS
+# =========================================================
+
+def encontrar_componentes(
+    mascara,
+    largura,
+    altura,
+):
+    """
+    Agrupa pixels vizinhos usando
+    conectividade de 8 direções.
+
+    Componentes com menos de 3 pixels
+    permanecem fora da lista principal
+    para reduzir ruído pontual.
+
+    Isso ainda NÃO significa que cada
+    componente seja uma tempestade.
+    """
+
+    nao_visitados = set(
+        mascara
+    )
+
+    componentes = []
+
+    vizinhos = [
+        (-1, -1),
+        (0, -1),
+        (1, -1),
+        (-1, 0),
+        (1, 0),
+        (-1, 1),
+        (0, 1),
+        (1, 1),
+    ]
+
+    while nao_visitados:
+        inicio = nao_visitados.pop()
+
+        fila = deque(
+            [inicio]
+        )
+
+        pontos = [
+            inicio
+        ]
+
+        while fila:
+            x, y = fila.popleft()
+
+            for dx, dy in vizinhos:
+                nx = x + dx
+                ny = y + dy
+
+                ponto = (
+                    nx,
+                    ny,
+                )
+
+                if ponto in nao_visitados:
+                    nao_visitados.remove(
+                        ponto
+                    )
+
+                    fila.append(
+                        ponto
+                    )
+
+                    pontos.append(
+                        ponto
+                    )
+
+        if len(pontos) >= 3:
+            componentes.append(
+                pontos
+            )
+
+    componentes.sort(
+        key=len,
+        reverse=True,
+    )
+
+    return componentes
+
+
+# =========================================================
+# GEOGRAFIA DE UM COMPONENTE
+# =========================================================
+
+def resumir_componente(
+    pontos,
+    imagem,
+):
+    largura, altura = imagem.size
+
+    paleta = imagem.getpalette()
+
+    xs = [
+        p[0]
+        for p in pontos
+    ]
+
+    ys = [
+        p[1]
+        for p in pontos
+    ]
+
+    centro_x = (
+        sum(xs)
+        / len(xs)
+    )
+
+    centro_y = (
+        sum(ys)
+        / len(ys)
+    )
+
+    lat_centro, lon_centro = (
+        pixel_para_coordenada(
+            centro_x,
+            centro_y,
+            largura,
+            altura,
+        )
+    )
+
+    distancia_centro = (
+        haversine_km(
+            LAT,
+            LON,
+            lat_centro,
+            lon_centro,
+        )
+    )
+
+    rumo_centro = (
+        rumo_graus(
+            LAT,
+            LON,
+            lat_centro,
+            lon_centro,
+        )
+    )
+
+    distancia_minima = None
+    ponto_minimo = None
+
+    cores = Counter()
+
+    pixels = imagem.load()
+
+    for x, y in pontos:
+        lat, lon = (
+            pixel_para_coordenada(
+                x,
+                y,
+                largura,
+                altura,
+            )
+        )
+
+        distancia = (
+            haversine_km(
+                LAT,
+                LON,
+                lat,
+                lon,
+            )
+        )
+
+        if (
+            distancia_minima is None
+            or distancia
+            < distancia_minima
+        ):
+            distancia_minima = (
+                distancia
+            )
+
+            ponto_minimo = (
+                x,
+                y,
+                lat,
+                lon,
+            )
+
+        indice = pixels[x, y]
+
+        rgb = rgb_do_indice(
+            paleta,
+            indice,
+        )
+
+        if rgb:
+            cores[rgb] += 1
+
+    cores_lista = [
+        {
+            "rgb":
+                list(rgb),
+
+            "pixels":
+                quantidade,
+        }
+        for rgb, quantidade
+        in cores.most_common()
+    ]
+
+    if ponto_minimo:
+        (
+            px,
+            py,
+            lat_min,
+            lon_min,
+        ) = ponto_minimo
+
+        rumo_minimo = (
+            rumo_graus(
+                LAT,
+                LON,
+                lat_min,
+                lon_min,
+            )
+        )
+
+        ponto_proximo = {
+            "pixel_x":
+                px,
+
+            "pixel_y":
+                py,
+
+            "latitude":
+                round(
+                    lat_min,
+                    5,
+                ),
+
+            "longitude":
+                round(
+                    lon_min,
+                    5,
+                ),
+
+            "distancia_comasa_km":
+                round(
+                    distancia_minima,
+                    2,
+                ),
+
+            "direcao_graus":
+                round(
+                    rumo_minimo,
+                    1,
+                ),
+
+            "direcao_cardinal":
+                ponto_cardinal(
+                    rumo_minimo
+                ),
+        }
+
+    else:
+        ponto_proximo = None
+
+    return {
+        "pixels":
+            len(pontos),
+
+        "centroide": {
+            "pixel_x":
+                round(
+                    centro_x,
+                    1,
+                ),
+
+            "pixel_y":
+                round(
+                    centro_y,
+                    1,
+                ),
+
+            "latitude":
+                round(
+                    lat_centro,
+                    5,
+                ),
+
+            "longitude":
+                round(
+                    lon_centro,
+                    5,
+                ),
+
+            "distancia_comasa_km":
+                round(
+                    distancia_centro,
+                    2,
+                ),
+
+            "direcao_graus":
+                round(
+                    rumo_centro,
+                    1,
+                ),
+
+            "direcao_cardinal":
+                ponto_cardinal(
+                    rumo_centro
+                ),
+        },
+
+        "ponto_mais_proximo_comasa":
+            ponto_proximo,
+
+        "caixa_pixels": {
+            "x_min":
+                min(xs),
+
+            "x_max":
+                max(xs),
+
+            "y_min":
+                min(ys),
+
+            "y_max":
+                max(ys),
+        },
+
+        "cores":
+            cores_lista,
+
+        "dbz":
+            None,
+
+        "classificacao":
+            "candidato_a_area_de_eco",
+    }
+
+
+# =========================================================
+# ANÁLISE ESPACIAL COMPLETA
+# =========================================================
+
+def analisar_espacialmente(
+    imagem,
+):
+    largura, altura = imagem.size
+
+    mascara, indices = (
+        construir_mascara_candidata(
+            imagem
+        )
+    )
 
     x_comasa, y_comasa = (
         coordenada_para_pixel(
@@ -992,134 +1495,252 @@ def diagnosticar_indices_perto_comasa(
         )
     )
 
-    resultado = {
-        "pixel_comasa": {
-            "x": x_comasa,
-            "y": y_comasa,
-            "latitude_aproximada": LAT,
-            "longitude_aproximada": LON,
-        },
+    if not mascara:
+        return {
+            "status":
+                "sem_pixels_candidatos",
 
-        "modo_original":
-            imagem.mode,
+            "pixel_comasa": {
+                "x":
+                    x_comasa,
+
+                "y":
+                    y_comasa,
+            },
+
+            "pixels_candidatos":
+                0,
+
+            "componentes":
+                [],
+        }
+
+    # Contagem de pixels por distância.
+    raios = {
+        10: 0,
+        25: 0,
+        50: 0,
+        100: 0,
     }
 
-    if imagem.mode != "P":
-        resultado["status"] = (
-            "modo_incompativel"
+    eco_mais_proximo = None
+
+    for x, y in mascara:
+        lat, lon = (
+            pixel_para_coordenada(
+                x,
+                y,
+                largura,
+                altura,
+            )
         )
 
-        return resultado
+        distancia = (
+            haversine_km(
+                LAT,
+                LON,
+                lat,
+                lon,
+            )
+        )
 
-    paleta_bruta = imagem.getpalette()
-    transparencia = imagem.info.get(
-        "transparency"
-    )
+        for raio in raios:
+            if distancia <= raio:
+                raios[raio] += 1
 
-    # Janela de 11 x 11 pixels.
-    raio = 5
-
-    contagem_local = Counter()
-
-    for y in range(
-        max(0, y_comasa - raio),
-        min(altura, y_comasa + raio + 1),
-    ):
-        for x in range(
-            max(0, x_comasa - raio),
-            min(largura, x_comasa + raio + 1),
+        if (
+            eco_mais_proximo is None
+            or distancia
+            < eco_mais_proximo[
+                "_distancia"
+            ]
         ):
-            indice = imagem.getpixel(
-                (x, y)
+            direcao = (
+                rumo_graus(
+                    LAT,
+                    LON,
+                    lat,
+                    lon,
+                )
             )
 
-            contagem_local[indice] += 1
+            eco_mais_proximo = {
+                "_distancia":
+                    distancia,
 
-    indices = []
+                "pixel_x":
+                    x,
 
-    for indice, quantidade in sorted(
-        contagem_local.items()
+                "pixel_y":
+                    y,
+
+                "latitude":
+                    round(
+                        lat,
+                        5,
+                    ),
+
+                "longitude":
+                    round(
+                        lon,
+                        5,
+                    ),
+
+                "distancia_comasa_km":
+                    round(
+                        distancia,
+                        2,
+                    ),
+
+                "direcao_graus":
+                    round(
+                        direcao,
+                        1,
+                    ),
+
+                "direcao_cardinal":
+                    ponto_cardinal(
+                        direcao
+                    ),
+            }
+
+    if eco_mais_proximo:
+        eco_mais_proximo.pop(
+            "_distancia",
+            None,
+        )
+
+    componentes_brutos = (
+        encontrar_componentes(
+            mascara,
+            largura,
+            altura,
+        )
+    )
+
+    componentes = []
+
+    # Guardamos até os 30 maiores
+    # componentes no JSON.
+    for numero, pontos in enumerate(
+        componentes_brutos[:30],
+        start=1,
     ):
-        pos = indice * 3
-
-        rgb = [
-            paleta_bruta[pos],
-            paleta_bruta[pos + 1],
-            paleta_bruta[pos + 2],
-        ]
-
-        alpha = transparencia_por_indice(
-            transparencia,
-            indice,
+        resumo = resumir_componente(
+            pontos,
+            imagem,
         )
 
-        indices.append({
-            "indice_p": int(indice),
-            "rgb": rgb,
-            "alpha": alpha,
-            "visivel": alpha > 0,
-            "pixels_janela_11x11":
-                quantidade,
-        })
+        resumo["id_quadro"] = (
+            numero
+        )
 
-    indice_central = imagem.getpixel(
-        (x_comasa, y_comasa)
-    )
+        componentes.append(
+            resumo
+        )
 
-    pos = indice_central * 3
-
-    rgb_central = [
-        paleta_bruta[pos],
-        paleta_bruta[pos + 1],
-        paleta_bruta[pos + 2],
-    ]
-
-    alpha_central = (
-        transparencia_por_indice(
-            transparencia,
-            indice_central,
+    componentes_por_distancia = (
+        sorted(
+            componentes,
+            key=lambda c:
+                c[
+                    "ponto_mais_proximo_comasa"
+                ][
+                    "distancia_comasa_km"
+                ],
         )
     )
 
-    resultado.update({
+    return {
         "status":
-            "diagnostico_concluido",
+            "diagnostico_espacial_ativo",
 
-        "janela":
-            "11x11",
+        "metodo":
+            "componentes_conectados_8_vizinhos",
 
-        "pixel_central": {
-            "indice_p":
-                int(indice_central),
-            "rgb":
-                rgb_central,
-            "alpha":
-                alpha_central,
-            "visivel":
-                alpha_central > 0,
+        "pixel_comasa": {
+            "x":
+                x_comasa,
+
+            "y":
+                y_comasa,
+
+            "latitude_aproximada":
+                LAT,
+
+            "longitude_aproximada":
+                LON,
         },
 
-        "indices_na_janela":
-            indices,
+        "pixels_candidatos":
+            len(mascara),
 
-        "interpretacao_meteorologica":
-            "ainda_nao_atribuida",
-    })
+        "indices_candidatos": [
+            {
+                "indice_p":
+                    indice,
 
-    return resultado
+                "rgb":
+                    list(rgb),
+            }
+            for indice, rgb
+            in sorted(
+                indices.items()
+            )
+        ],
+
+        "eco_mais_proximo":
+            eco_mais_proximo,
+
+        "pixels_por_raio": {
+            "ate_10_km":
+                raios[10],
+
+            "ate_25_km":
+                raios[25],
+
+            "ate_50_km":
+                raios[50],
+
+            "ate_100_km":
+                raios[100],
+        },
+
+        "quantidade_componentes_3px_ou_mais":
+            len(componentes_brutos),
+
+        "maiores_componentes":
+            componentes,
+
+        "componentes_mais_proximos_comasa":
+            componentes_por_distancia[:10],
+
+        "observacao": (
+            "Componentes são candidatos "
+            "geométricos a áreas de eco. "
+            "Ainda não representam células "
+            "meteorológicas individualmente "
+            "confirmadas."
+        ),
+    }
 
 
 # =========================================================
-# DOWNLOAD DE UM QUADRO
+# DOWNLOAD DO QUADRO
 # =========================================================
 
 def baixar_quadro(nome):
     resposta = requisicao_radar(
         URL_RADAR_IMAGEM,
         params={
-            "prod": 4,
-            "radar": "COMP",
-            "file": nome,
+            "prod":
+                4,
+
+            "radar":
+                "COMP",
+
+            "file":
+                nome,
         },
     )
 
@@ -1140,13 +1761,13 @@ def baixar_quadro(nome):
 
     diagnostico_paleta = (
         diagnosticar_paleta_png(
-            conteudo
+            imagem
         )
     )
 
-    diagnostico_comasa = (
-        diagnosticar_indices_perto_comasa(
-            conteudo
+    analise_espacial = (
+        analisar_espacialmente(
+            imagem
         )
     )
 
@@ -1171,13 +1792,13 @@ def baixar_quadro(nome):
         "diagnostico_paleta_png":
             diagnostico_paleta,
 
-        "diagnostico_comasa":
-            diagnostico_comasa,
+        "analise_espacial":
+            analise_espacial,
     }
 
 
 # =========================================================
-# RADAR COMPLETO
+# RADAR
 # =========================================================
 
 def buscar_radar():
@@ -1189,23 +1810,32 @@ def buscar_radar():
         r = requisicao_radar(
             URL_RADAR_LISTA,
             params={
-                "prod": 4,
-                "radar": "COMP",
-                "data": "",
+                "prod":
+                    4,
+
+                "radar":
+                    "COMP",
+
+                "data":
+                    "",
             },
         )
 
         imagens = r.json()
 
-        if not isinstance(imagens, list):
+        if not isinstance(
+            imagens,
+            list,
+        ):
             raise ValueError(
                 "Resposta do radar "
-                "não é uma lista."
+                "não é lista."
             )
 
         if not imagens:
             raise ValueError(
-                "Radar não retornou imagens."
+                "Radar não retornou "
+                "imagens."
             )
 
         imagens = imagens[-7:]
@@ -1219,7 +1849,9 @@ def buscar_radar():
                         nome[:14],
                         "%Y%m%d%H%M%S",
                     )
-                    .replace(tzinfo=UTC)
+                    .replace(
+                        tzinfo=UTC
+                    )
                 )
 
                 data_local = (
@@ -1229,7 +1861,9 @@ def buscar_radar():
                 )
 
                 resultado = (
-                    baixar_quadro(nome)
+                    baixar_quadro(
+                        nome
+                    )
                 )
 
                 quadros.append({
@@ -1250,15 +1884,21 @@ def buscar_radar():
 
             except Exception as erro:
                 quadros.append({
-                    "arquivo": nome,
-                    "download": "erro",
-                    "erro": str(erro),
+                    "arquivo":
+                        nome,
+
+                    "download":
+                        "erro",
+
+                    "erro":
+                        str(erro),
                 })
 
         validos = [
             q
             for q in quadros
-            if q.get("download") == "ok"
+            if q.get("download")
+            == "ok"
         ]
 
         if not validos:
@@ -1270,19 +1910,20 @@ def buscar_radar():
 
         ultimo_utc = (
             datetime.fromisoformat(
-                ultimo["horario_utc"]
+                ultimo[
+                    "horario_utc"
+                ]
             )
         )
-
-        agora_utc = datetime.now(UTC)
 
         idade = max(
             0,
             round(
                 (
-                    agora_utc
+                    datetime.now(UTC)
                     - ultimo_utc
-                ).total_seconds()
+                )
+                .total_seconds()
                 / 60,
                 1,
             ),
@@ -1298,53 +1939,43 @@ def buscar_radar():
             for q in validos
         }
 
-        # Resumo das paletas observadas
-        # nos sete quadros.
-        resumo_indices = {}
+        # Série espacial dos sete quadros.
+        serie_espacial = []
 
         for quadro in validos:
-            diagnostico = quadro.get(
-                "diagnostico_paleta_png",
+            analise = quadro.get(
+                "analise_espacial",
                 {},
             )
 
-            for item in diagnostico.get(
-                "indices_usados",
-                [],
-            ):
-                indice = str(
-                    item["indice_p"]
-                )
+            eco = analise.get(
+                "eco_mais_proximo"
+            )
 
-                if indice not in resumo_indices:
-                    resumo_indices[indice] = {
-                        "indice_p":
-                            item["indice_p"],
-                        "rgb":
-                            item["rgb"],
-                        "alpha":
-                            item["alpha"],
-                        "visivel":
-                            item["visivel"],
-                        "quadros_em_que_aparece":
-                            0,
-                        "pixels_somados":
-                            0,
-                    }
+            serie_espacial.append({
+                "horario_local":
+                    quadro.get(
+                        "horario_local"
+                    ),
 
-                resumo_indices[indice][
-                    "quadros_em_que_aparece"
-                ] += 1
+                "pixels_candidatos":
+                    analise.get(
+                        "pixels_candidatos"
+                    ),
 
-                resumo_indices[indice][
-                    "pixels_somados"
-                ] += item["pixels"]
+                "componentes":
+                    analise.get(
+                        "quantidade_componentes_3px_ou_mais"
+                    ),
 
-        resumo_lista = sorted(
-            resumo_indices.values(),
-            key=lambda item:
-                item["indice_p"],
-        )
+                "eco_mais_proximo":
+                    eco,
+
+                "pixels_por_raio":
+                    analise.get(
+                        "pixels_por_raio"
+                    ),
+            })
 
         return {
             "status":
@@ -1363,9 +1994,14 @@ def buscar_radar():
                 "Santa Catarina - RadarSC"
             ),
 
-            "radar": "COMP",
-            "produto": "C-MAX",
-            "produto_codigo": 4,
+            "radar":
+                "COMP",
+
+            "produto":
+                "C-MAX",
+
+            "produto_codigo":
+                4,
 
             "extent":
                 RADAR_EXTENT,
@@ -1377,7 +2013,10 @@ def buscar_radar():
                 len(validos),
 
             "todos_png_validos":
-                len(validos) == len(imagens),
+                (
+                    len(validos)
+                    == len(imagens)
+                ),
 
             "dimensoes_consistentes":
                 len(dimensoes) == 1,
@@ -1391,34 +2030,25 @@ def buscar_radar():
             "legenda_oficial":
                 legenda,
 
-            "investigacao_paleta_png": {
+            "metodo_eco": {
                 "status":
-                    "ativa",
+                    "experimental_validacao",
 
-                "objetivo": (
-                    "Identificar a paleta "
-                    "PLTE/tRNS realmente usada "
-                    "nos PNGs C-MAX antes de "
-                    "atribuir classes de "
-                    "refletividade."
-                ),
+                "fundo":
+                    "alpha_zero_excluido",
 
-                "metodo": (
-                    "indices_P_PLTE_tRNS"
-                ),
+                "cinza_200_200_200":
+                    "excluido_ate_validacao",
 
-                "indices_observados_7_quadros":
-                    resumo_lista,
+                "demais_pixels_visiveis":
+                    "candidatos_meteorologicos",
 
                 "dbz":
                     "nao_atribuido",
-
-                "movimento":
-                    "bloqueado_ate_validacao",
-
-                "eta":
-                    "bloqueado_ate_validacao",
             },
+
+            "serie_espacial":
+                serie_espacial,
 
             "quadros":
                 quadros,
@@ -1428,78 +2058,83 @@ def buscar_radar():
 
             "analise_geografica": {
                 "status":
-                    "georreferencia_validada_"
-                    "mas_ecos_nao_classificados",
+                    "ativa",
 
                 "referencia": (
                     "Comasa - coordenada "
                     "pública aproximada"
                 ),
 
-                "pixel_comasa":
-                    ultimo
-                    .get(
-                        "diagnostico_comasa",
-                        {},
-                    )
-                    .get(
-                        "pixel_comasa"
-                    ),
-
-                "diagnostico_local":
+                "ultimo":
                     ultimo.get(
-                        "diagnostico_comasa"
+                        "analise_espacial"
                     ),
             },
 
+            # NÃO liberamos movimento ainda.
+            # Primeiro veremos se os
+            # componentes formados são
+            # espacialmente coerentes.
             "analise_movimento": {
                 "status":
-                    "bloqueada",
+                    "aguardando_validacao_"
+                    "dos_componentes",
 
                 "tendencia":
-                    "nao_calculada",
+                    None,
 
-                "motivo": (
-                    "A paleta interna real do "
-                    "PNG ainda está sendo "
-                    "validada. O resultado "
-                    "aproximando/afastando do "
-                    "teste anterior foi "
-                    "descartado."
-                ),
+                "velocidade_kmh":
+                    None,
+
+                "direcao":
+                    None,
             },
 
             "interpretacao_dbz":
-                "aguardando_correspondencia_"
-                "PLTE_legenda",
+                "aguardando_validacao_"
+                "numerica",
 
             "eta": {
                 "status":
                     "bloqueado",
 
+                "janela_chegada":
+                    None,
+
                 "motivo": (
-                    "Não calcular ETA antes "
-                    "de validar quais índices "
-                    "P representam ecos "
-                    "meteorológicos."
+                    "ETA somente após "
+                    "rastreamento confiável "
+                    "da mesma área de eco "
+                    "entre quadros e somente "
+                    "com radar fresco."
                 ),
             },
         }
 
     except Exception as erro:
         return {
-            "status": "indisponivel",
+            "status":
+                "indisponivel",
 
             "fonte": (
                 "Defesa Civil de "
                 "Santa Catarina - RadarSC"
             ),
 
-            "radar": "COMP",
-            "produto": "C-MAX",
-            "produto_codigo": 4,
-            "dados_frescos": False,
-            "erro": str(erro),
+            "radar":
+                "COMP",
+
+            "produto":
+                "C-MAX",
+
+            "produto_codigo":
+                4,
+
+            "dados_frescos":
+                False,
+
+            "erro":
+                str(erro),
         }
 
 
@@ -1510,9 +2145,17 @@ def buscar_radar():
 def main():
     agora = agora_local()
 
-    previsao = buscar_previsao()
-    mare = buscar_mare()
-    radar = buscar_radar()
+    previsao = (
+        buscar_previsao()
+    )
+
+    mare = (
+        buscar_mare()
+    )
+
+    radar = (
+        buscar_radar()
+    )
 
     dados = {
         "monitor":
@@ -1572,8 +2215,11 @@ def main():
         },
 
         "emergencia": {
-            "defesa_civil": "199",
-            "bombeiros": "193",
+            "defesa_civil":
+                "199",
+
+            "bombeiros":
+                "193",
         },
     }
 
@@ -1594,6 +2240,7 @@ def main():
     )
 
     print("MARÉ:")
+
     print(
         json.dumps(
             mare,
@@ -1603,6 +2250,7 @@ def main():
     )
 
     print("PREVISÃO:")
+
     print(
         json.dumps(
             previsao,
@@ -1612,6 +2260,7 @@ def main():
     )
 
     print("RADAR:")
+
     print(
         json.dumps(
             radar,

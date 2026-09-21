@@ -24,6 +24,8 @@ HISTORICO_MAX_REGISTROS = 2880
 # NÃO representa endereço residencial.
 LAT = -26.27
 LON = -48.81
+IBGE_JOINVILLE = "4209102"
+INMET_ATUAL = "https://apiprevmet3.inmet.gov.br/estacao/proxima/"
 
 FUSO = ZoneInfo("America/Sao_Paulo")
 UTC = ZoneInfo("UTC")
@@ -4731,6 +4733,135 @@ def buscar_radar():
 # ARQUIVO FINAL
 # =========================================================
 
+
+# =========================================================
+# #123 - CHUVA OBSERVADA / ESTAÇÃO INMET MAIS PRÓXIMA
+# =========================================================
+
+def numero_inmet(valor):
+    """Converte valor do INMET; rejeita ausente e sentinela 9999."""
+    if valor is None:
+        return None
+    texto = str(valor).strip().replace(",", ".")
+    if not texto or texto.lower() in ("null", "none", "nan"):
+        return None
+    try:
+        numero = float(texto)
+    except (TypeError, ValueError):
+        return None
+    if abs(numero) >= 9999:
+        return None
+    return numero
+
+
+def horario_inmet_utc(data, hora):
+    """INMET publica data/hora das observações em UTC."""
+    if not data or hora is None:
+        return None
+    h = str(hora).strip().zfill(4)[:4]
+    try:
+        return datetime.strptime(
+            f"{data} {h}",
+            "%Y-%m-%d %H%M",
+        ).replace(tzinfo=UTC)
+    except Exception:
+        return None
+
+
+def buscar_chuva_observada_inmet():
+    """
+    #123
+
+    Consulta a estação automática INMET mais próxima do município de
+    Joinville usando o geocódigo oficial do IBGE.
+
+    CHUVA é precipitação horária OBSERVADA na estação, não no Comasa.
+    A distância informada pela própria API é preservada para impedir
+    falsa interpretação de representatividade local.
+    """
+    try:
+        resposta = get(INMET_ATUAL + IBGE_JOINVILLE).json()
+        if not isinstance(resposta, dict):
+            raise ValueError("Resposta INMET em formato inesperado.")
+
+        estacao = resposta.get("estacao") or {}
+        dados = resposta.get("dados") or {}
+        if not isinstance(estacao, dict) or not isinstance(dados, dict):
+            raise ValueError("INMET sem blocos estacao/dados válidos.")
+
+        chuva = numero_inmet(dados.get("CHUVA"))
+        distancia = numero_inmet(estacao.get("DISTANCIA_EM_KM"))
+        instante_utc = horario_inmet_utc(
+            dados.get("DT_MEDICAO"),
+            dados.get("HR_MEDICAO"),
+        )
+
+        idade_min = None
+        horario_local = None
+        fresco = False
+        if instante_utc is not None:
+            idade_min = max(
+                0.0,
+                round(
+                    (datetime.now(UTC) - instante_utc).total_seconds() / 60,
+                    1,
+                ),
+            )
+            horario_local = instante_utc.astimezone(FUSO).isoformat()
+            # Estações automáticas INMET são horárias. A margem de 120 min
+            # tolera atraso de publicação sem esconder a idade real do dado.
+            fresco = idade_min <= 120
+
+        status = "online_fresco" if fresco else "online_desatualizado"
+        if chuva is None:
+            status = "online_sem_chuva_valida"
+
+        return {
+            "status": status,
+            "tipo": "observacao_estacao_automatica",
+            "fonte": "INMET",
+            "fonte_primaria": "Instituto Nacional de Meteorologia",
+            "geocodigo_ibge_consultado": IBGE_JOINVILLE,
+            "estacao": {
+                "codigo": estacao.get("CODIGO") or dados.get("CD_ESTACAO"),
+                "nome": estacao.get("NOME") or dados.get("DC_NOME"),
+                "uf": estacao.get("UF") or dados.get("UF"),
+                "distancia_referencia_joinville_km": distancia,
+            },
+            "leitura_horaria_mm": chuva,
+            "horario_medicao_utc": (
+                instante_utc.isoformat() if instante_utc else None
+            ),
+            "horario_medicao_local": horario_local,
+            "idade_leitura_min": idade_min,
+            "dados_frescos": fresco,
+            "representatividade": (
+                "Medição observada na estação INMET mais próxima retornada "
+                "para Joinville. Não equivale a medição no Comasa."
+            ),
+            "regra_seguranca": (
+                "Valor zero só significa zero na estação e no intervalo "
+                "horário informado; nunca significa ausência de chuva no Comasa."
+            ),
+        }
+
+    except Exception as e:
+        return {
+            "status": "indisponivel",
+            "tipo": "observacao_estacao_automatica",
+            "fonte": "INMET",
+            "geocodigo_ibge_consultado": IBGE_JOINVILLE,
+            "leitura_horaria_mm": None,
+            "horario_medicao_utc": None,
+            "horario_medicao_local": None,
+            "idade_leitura_min": None,
+            "dados_frescos": False,
+            "erro": str(e),
+            "regra_seguranca": (
+                "Falha de coleta não é interpretada como ausência de chuva."
+            ),
+        }
+
 def main():
     dados = {
         "monitor":
@@ -4744,10 +4875,10 @@ def main():
 
         "chuva": {
             "status":
-                "aguardando_integracao",
+                "sem_pluviometro_local_integrado",
 
             "fonte":
-                "CEMADEN",
+                "CEMADEN - integração local ainda pendente",
 
             "leitura_mm":
                 None,
@@ -4757,7 +4888,13 @@ def main():
 
             "acumulado_24h_mm":
                 None,
+
+            "regra_seguranca":
+                "Sem leitura local não significa zero milímetros.",
         },
+
+        "chuva_observada_inmet":
+            buscar_chuva_observada_inmet(),
 
         "mare":
             buscar_mare(),

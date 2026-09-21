@@ -705,14 +705,14 @@ def legenda():
  
  
 # =========================================================
-# #125 - VALIDACAO CRUZADA LEGENDA x PALETA DO RADAR
+# #127 - VALIDACAO CRUZADA LEGENDA x PALETA DO RADAR
 # =========================================================
  
 def validar_paleta_radar(legenda_oficial, quadros_validos):
     """
-    #125
+    #127
  
-    Cruza as cores extraidas da legenda oficial com as paletas dos PNGs
+    Corrige a leitura do diagnostico de paleta dos PNGs e cruza as cores extraidas da legenda oficial com as paletas dos PNGs
     efetivamente recebidos do RadarSC. E uma validacao estrutural de cor:
     NAO atribui dBZ, NAO transforma pixel em chuva medida e NAO libera ETA.
     """
@@ -744,7 +744,11 @@ def validar_paleta_radar(legenda_oficial, quadros_validos):
     uniao_radar = set()
  
     for quadro in quadros_validos:
-        diagnostico_png = quadro.get("diagnostico_png") or {}
+        diagnostico_png = (
+            quadro.get("diagnostico_paleta_png")
+            or quadro.get("diagnostico_png")
+            or {}
+        )
         indices = diagnostico_png.get("indices_usados") or []
  
         cores_quadro = {
@@ -780,7 +784,7 @@ def validar_paleta_radar(legenda_oficial, quadros_validos):
             else "sem_correspondencia_rgb_observada"
         ),
         "validacao_estrutural": estrutural,
-        "metodo": "intersecao_rgb_legenda_oficial_x_paletas_png",
+        "metodo": "intersecao_rgb_legenda_oficial_x_paletas_png_#127",
         "classes_legenda_total": len(cores_legenda),
         "classes_legenda_observadas": len(correspondentes_uniao),
         "rgb_observados": [

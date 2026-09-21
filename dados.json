@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-09-20T22:08:23.458067-03:00",
+  "gerado_em": "2026-09-20T22:09:35.156239-03:00",
   "chuva": {
     "status": "aguardando_integracao",
     "fonte": "CEMADEN",
@@ -142,9 +142,9 @@
     "quadros_png_validos": 7,
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
-    "idade_ultimo_quadro_min": 78.7,
+    "idade_ultimo_quadro_min": 79.8,
     "dados_frescos": false,
-    "paleta_oficial": {
+    "legenda_oficial": {
       "status": "online",
       "fonte": "legenda oficial RadarSC",
       "url_relativa": "img/legenda.png",
@@ -348,7 +348,197 @@
         }
       ],
       "dbz_numerico": "aguardando_validacao",
-      "observacao": "Paleta extraída diretamente da legenda oficial. Nenhum valor dBZ foi inferido ou inventado."
+      "observacao": "16 blocos cromáticos extraídos diretamente da legenda oficial. Valores numéricos de dBZ ainda não foram inferidos."
+    },
+    "investigacao_paleta_png": {
+      "status": "ativa",
+      "objetivo": "Identificar a paleta PLTE/tRNS realmente usada nos PNGs C-MAX antes de atribuir classes de refletividade.",
+      "metodo": "indices_P_PLTE_tRNS",
+      "indices_observados_7_quadros": [
+        {
+          "indice_p": 0,
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "alpha": 0,
+          "visivel": false,
+          "quadros_em_que_aparece": 7,
+          "pixels_somados": 4507365
+        },
+        {
+          "indice_p": 1,
+          "rgb": [
+            165,
+            255,
+            255
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 7,
+          "pixels_somados": 2763
+        },
+        {
+          "indice_p": 2,
+          "rgb": [
+            110,
+            200,
+            255
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 7,
+          "pixels_somados": 42711
+        },
+        {
+          "indice_p": 3,
+          "rgb": [
+            55,
+            145,
+            255
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 7,
+          "pixels_somados": 32769
+        },
+        {
+          "indice_p": 4,
+          "rgb": [
+            200,
+            200,
+            200
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 7,
+          "pixels_somados": 24337
+        },
+        {
+          "indice_p": 5,
+          "rgb": [
+            0,
+            90,
+            255
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 7,
+          "pixels_somados": 19253
+        },
+        {
+          "indice_p": 6,
+          "rgb": [
+            170,
+            255,
+            0
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 7,
+          "pixels_somados": 508
+        },
+        {
+          "indice_p": 7,
+          "rgb": [
+            128,
+            206,
+            0
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 7,
+          "pixels_somados": 179
+        },
+        {
+          "indice_p": 8,
+          "rgb": [
+            85,
+            156,
+            0
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 7,
+          "pixels_somados": 214
+        },
+        {
+          "indice_p": 9,
+          "rgb": [
+            0,
+            57,
+            0
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 7,
+          "pixels_somados": 130
+        },
+        {
+          "indice_p": 10,
+          "rgb": [
+            43,
+            107,
+            0
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 7,
+          "pixels_somados": 66
+        },
+        {
+          "indice_p": 11,
+          "rgb": [
+            255,
+            255,
+            0
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 7,
+          "pixels_somados": 21
+        },
+        {
+          "indice_p": 12,
+          "rgb": [
+            255,
+            192,
+            0
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 6,
+          "pixels_somados": 21
+        },
+        {
+          "indice_p": 13,
+          "rgb": [
+            190,
+            0,
+            0
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 6,
+          "pixels_somados": 15
+        },
+        {
+          "indice_p": 14,
+          "rgb": [
+            255,
+            128,
+            0
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "quadros_em_que_aparece": 5,
+          "pixels_somados": 8
+        }
+      ],
+      "dbz": "nao_atribuido",
+      "movimento": "bloqueado_ate_validacao",
+      "eta": "bloqueado_ate_validacao"
     },
     "quadros": [
       {
@@ -360,60 +550,421 @@
         "sha256": "d5af976014cb2ba59fd41feef9109b13925e7ab3961a0967a0df70b8e31303e4",
         "largura_px": 920,
         "altura_px": 719,
-        "ecos": {
+        "modo_png_original": "P",
+        "diagnostico_paleta_png": {
+          "status": "online",
+          "metodo": "P_PLTE_tRNS_indices_originais",
+          "modo_original": "P",
           "largura_px": 920,
           "altura_px": 719,
+          "total_pixels": 661480,
+          "quantidade_indices_usados": 15,
+          "quantidade_indices_visiveis": 14,
+          "quantidade_indices_transparentes": 1,
+          "pixels_visiveis": 2764,
+          "pixels_transparentes": 658716,
+          "percentual_visivel": 0.417851,
+          "indices_usados": [
+            {
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels": 658716,
+              "percentual_total": 99.582149
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 307,
+              "percentual_total": 0.046411
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 137,
+              "percentual_total": 0.020711
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 96,
+              "percentual_total": 0.014513
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2060,
+              "percentual_total": 0.311423
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 47,
+              "percentual_total": 0.007105
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 37,
+              "percentual_total": 0.005594
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 40,
+              "percentual_total": 0.006047
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 26,
+              "percentual_total": 0.003931
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 5,
+              "percentual_total": 0.000756
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                190,
+                0,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 3,
+              "percentual_total": 0.000454
+            }
+          ],
+          "indices_visiveis_por_frequencia": [
+            {
+              "indice_p": 4,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2060,
+              "percentual_total": 0.311423
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 307,
+              "percentual_total": 0.046411
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 137,
+              "percentual_total": 0.020711
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 96,
+              "percentual_total": 0.014513
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 47,
+              "percentual_total": 0.007105
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 40,
+              "percentual_total": 0.006047
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 37,
+              "percentual_total": 0.005594
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 26,
+              "percentual_total": 0.003931
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 5,
+              "percentual_total": 0.000756
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 3,
+              "percentual_total": 0.000454
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                190,
+                0,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            }
+          ],
+          "transparencia_tipo": "int",
+          "transparencia_tamanho": null,
+          "observacao": "Diagnóstico direto do PNG indexado. Nenhum índice foi convertido em dBZ nesta etapa."
+        },
+        "diagnostico_comasa": {
           "pixel_comasa": {
             "x": 735,
             "y": 119,
             "latitude_aproximada": -26.27,
             "longitude_aproximada": -48.81
           },
-          "pixels_eco_identificados": 2,
-          "classes_presentes": [
+          "modo_original": "P",
+          "status": "diagnostico_concluido",
+          "janela": "11x11",
+          "pixel_central": {
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false
+          },
+          "indices_na_janela": [
             {
-              "classe": 10,
-              "pixels": 2
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels_janela_11x11": 120
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels_janela_11x11": 1
             }
           ],
-          "eco_mais_proximo": {
-            "pixel_x": 751,
-            "pixel_y": 358,
-            "latitude": -29.27825,
-            "longitude": -48.61419,
-            "distancia_comasa_km": 335.06,
-            "direcao_graus": 176.7,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "eco_mais_forte": {
-            "pixel_x": 751,
-            "pixel_y": 358,
-            "latitude": -29.27825,
-            "longitude": -48.61419,
-            "distancia_comasa_km": 335.06,
-            "direcao_graus": 176.7,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "area_10km": {
-            "pixels_eco": 0,
-            "classe_mais_forte": null,
-            "observacao": "Raio diagnóstico de 10 km; não representa limiar oficial de risco ou inundação."
-          },
-          "dbz": "aguardando_validacao_da_escala"
+          "interpretacao_meteorologica": "ainda_nao_atribuida"
         }
       },
       {
@@ -425,60 +976,421 @@
         "sha256": "5666bfcf8cd4a34b53d2ef3eb03a1a11e37c5c0c34f87a570c66196d4fd99c2a",
         "largura_px": 920,
         "altura_px": 719,
-        "ecos": {
+        "modo_png_original": "P",
+        "diagnostico_paleta_png": {
+          "status": "online",
+          "metodo": "P_PLTE_tRNS_indices_originais",
+          "modo_original": "P",
           "largura_px": 920,
           "altura_px": 719,
+          "total_pixels": 661480,
+          "quantidade_indices_usados": 15,
+          "quantidade_indices_visiveis": 14,
+          "quantidade_indices_transparentes": 1,
+          "pixels_visiveis": 16101,
+          "pixels_transparentes": 645379,
+          "percentual_visivel": 2.434087,
+          "indices_usados": [
+            {
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels": 645379,
+              "percentual_total": 97.565913
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 39,
+              "percentual_total": 0.005896
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1597,
+              "percentual_total": 0.241428
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 13841,
+              "percentual_total": 2.092429
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 314,
+              "percentual_total": 0.047469
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 69,
+              "percentual_total": 0.010431
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 63,
+              "percentual_total": 0.009524
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 73,
+              "percentual_total": 0.011036
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 60,
+              "percentual_total": 0.009071
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 22,
+              "percentual_total": 0.003326
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 13,
+              "percentual_total": 0.001965
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 3,
+              "percentual_total": 0.000454
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 4,
+              "percentual_total": 0.000605
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                190,
+                0,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            }
+          ],
+          "indices_visiveis_por_frequencia": [
+            {
+              "indice_p": 3,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 13841,
+              "percentual_total": 2.092429
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1597,
+              "percentual_total": 0.241428
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 314,
+              "percentual_total": 0.047469
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 73,
+              "percentual_total": 0.011036
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 69,
+              "percentual_total": 0.010431
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 63,
+              "percentual_total": 0.009524
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 60,
+              "percentual_total": 0.009071
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 39,
+              "percentual_total": 0.005896
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 22,
+              "percentual_total": 0.003326
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 13,
+              "percentual_total": 0.001965
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 4,
+              "percentual_total": 0.000605
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 3,
+              "percentual_total": 0.000454
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                190,
+                0,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            }
+          ],
+          "transparencia_tipo": "int",
+          "transparencia_tamanho": null,
+          "observacao": "Diagnóstico direto do PNG indexado. Nenhum índice foi convertido em dBZ nesta etapa."
+        },
+        "diagnostico_comasa": {
           "pixel_comasa": {
             "x": 735,
             "y": 119,
             "latitude_aproximada": -26.27,
             "longitude_aproximada": -48.81
           },
-          "pixels_eco_identificados": 2,
-          "classes_presentes": [
+          "modo_original": "P",
+          "status": "diagnostico_concluido",
+          "janela": "11x11",
+          "pixel_central": {
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false
+          },
+          "indices_na_janela": [
             {
-              "classe": 10,
-              "pixels": 2
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels_janela_11x11": 120
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels_janela_11x11": 1
             }
           ],
-          "eco_mais_proximo": {
-            "pixel_x": 730,
-            "pixel_y": 377,
-            "latitude": -29.51776,
-            "longitude": -48.87846,
-            "distancia_comasa_km": 361.2,
-            "direcao_graus": 181.1,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "eco_mais_forte": {
-            "pixel_x": 657,
-            "pixel_y": 374,
-            "latitude": -29.47994,
-            "longitude": -49.79713,
-            "distancia_comasa_km": 369.88,
-            "direcao_graus": 195.0,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "area_10km": {
-            "pixels_eco": 0,
-            "classe_mais_forte": null,
-            "observacao": "Raio diagnóstico de 10 km; não representa limiar oficial de risco ou inundação."
-          },
-          "dbz": "aguardando_validacao_da_escala"
+          "interpretacao_meteorologica": "ainda_nao_atribuida"
         }
       },
       {
@@ -490,60 +1402,421 @@
         "sha256": "3a7831a2c3f241ce5cbe4f6a3b3e71113402e42af9b0af79c0cb5cb06d1656e3",
         "largura_px": 920,
         "altura_px": 719,
-        "ecos": {
+        "modo_png_original": "P",
+        "diagnostico_paleta_png": {
+          "status": "online",
+          "metodo": "P_PLTE_tRNS_indices_originais",
+          "modo_original": "P",
           "largura_px": 920,
           "altura_px": 719,
+          "total_pixels": 661480,
+          "quantidade_indices_usados": 15,
+          "quantidade_indices_visiveis": 14,
+          "quantidade_indices_transparentes": 1,
+          "pixels_visiveis": 19421,
+          "pixels_transparentes": 642059,
+          "percentual_visivel": 2.935992,
+          "indices_usados": [
+            {
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels": 642059,
+              "percentual_total": 97.064008
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2265,
+              "percentual_total": 0.342414
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 341,
+              "percentual_total": 0.051551
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 16678,
+              "percentual_total": 2.521316
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 29,
+              "percentual_total": 0.004384
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 28,
+              "percentual_total": 0.004233
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 7,
+              "percentual_total": 0.001058
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 13,
+              "percentual_total": 0.001965
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 32,
+              "percentual_total": 0.004838
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 6,
+              "percentual_total": 0.000907
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 9,
+              "percentual_total": 0.001361
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 4,
+              "percentual_total": 0.000605
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 6,
+              "percentual_total": 0.000907
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                255,
+                64,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            }
+          ],
+          "indices_visiveis_por_frequencia": [
+            {
+              "indice_p": 3,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 16678,
+              "percentual_total": 2.521316
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2265,
+              "percentual_total": 0.342414
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 341,
+              "percentual_total": 0.051551
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 32,
+              "percentual_total": 0.004838
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 29,
+              "percentual_total": 0.004384
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 28,
+              "percentual_total": 0.004233
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 13,
+              "percentual_total": 0.001965
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 9,
+              "percentual_total": 0.001361
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 7,
+              "percentual_total": 0.001058
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 6,
+              "percentual_total": 0.000907
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 6,
+              "percentual_total": 0.000907
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 4,
+              "percentual_total": 0.000605
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                255,
+                64,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            }
+          ],
+          "transparencia_tipo": "int",
+          "transparencia_tamanho": null,
+          "observacao": "Diagnóstico direto do PNG indexado. Nenhum índice foi convertido em dBZ nesta etapa."
+        },
+        "diagnostico_comasa": {
           "pixel_comasa": {
             "x": 735,
             "y": 119,
             "latitude_aproximada": -26.27,
             "longitude_aproximada": -48.81
           },
-          "pixels_eco_identificados": 4,
-          "classes_presentes": [
+          "modo_original": "P",
+          "status": "diagnostico_concluido",
+          "janela": "11x11",
+          "pixel_central": {
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false
+          },
+          "indices_na_janela": [
             {
-              "classe": 10,
-              "pixels": 4
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels_janela_11x11": 118
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels_janela_11x11": 3
             }
           ],
-          "eco_mais_proximo": {
-            "pixel_x": 698,
-            "pixel_y": 303,
-            "latitude": -28.58493,
-            "longitude": -49.28116,
-            "distancia_comasa_km": 261.57,
-            "direcao_graus": 190.1,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "eco_mais_forte": {
-            "pixel_x": 698,
-            "pixel_y": 303,
-            "latitude": -28.58493,
-            "longitude": -49.28116,
-            "distancia_comasa_km": 261.57,
-            "direcao_graus": 190.1,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "area_10km": {
-            "pixels_eco": 0,
-            "classe_mais_forte": null,
-            "observacao": "Raio diagnóstico de 10 km; não representa limiar oficial de risco ou inundação."
-          },
-          "dbz": "aguardando_validacao_da_escala"
+          "interpretacao_meteorologica": "ainda_nao_atribuida"
         }
       },
       {
@@ -555,60 +1828,410 @@
         "sha256": "90facfc1066844aff96b22d92dfaadfcdc1a2f3fd35a89cf5efb3b51d0a86033",
         "largura_px": 920,
         "altura_px": 719,
-        "ecos": {
+        "modo_png_original": "P",
+        "diagnostico_paleta_png": {
+          "status": "online",
+          "metodo": "P_PLTE_tRNS_indices_originais",
+          "modo_original": "P",
           "largura_px": 920,
           "altura_px": 719,
+          "total_pixels": 661480,
+          "quantidade_indices_usados": 15,
+          "quantidade_indices_visiveis": 14,
+          "quantidade_indices_transparentes": 1,
+          "pixels_visiveis": 19241,
+          "pixels_transparentes": 642239,
+          "percentual_visivel": 2.90878,
+          "indices_usados": [
+            {
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels": 642239,
+              "percentual_total": 97.09122
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 53,
+              "percentual_total": 0.008012
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 16601,
+              "percentual_total": 2.509675
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2078,
+              "percentual_total": 0.314144
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 296,
+              "percentual_total": 0.044748
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 56,
+              "percentual_total": 0.008466
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 46,
+              "percentual_total": 0.006954
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 38,
+              "percentual_total": 0.005745
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 47,
+              "percentual_total": 0.007105
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 13,
+              "percentual_total": 0.001965
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 3,
+              "percentual_total": 0.000454
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 5,
+              "percentual_total": 0.000756
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                255,
+                64,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            }
+          ],
+          "indices_visiveis_por_frequencia": [
+            {
+              "indice_p": 2,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 16601,
+              "percentual_total": 2.509675
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2078,
+              "percentual_total": 0.314144
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 296,
+              "percentual_total": 0.044748
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 56,
+              "percentual_total": 0.008466
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 53,
+              "percentual_total": 0.008012
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 47,
+              "percentual_total": 0.007105
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 46,
+              "percentual_total": 0.006954
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 38,
+              "percentual_total": 0.005745
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 13,
+              "percentual_total": 0.001965
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 5,
+              "percentual_total": 0.000756
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 3,
+              "percentual_total": 0.000454
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                255,
+                64,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            }
+          ],
+          "transparencia_tipo": "int",
+          "transparencia_tamanho": null,
+          "observacao": "Diagnóstico direto do PNG indexado. Nenhum índice foi convertido em dBZ nesta etapa."
+        },
+        "diagnostico_comasa": {
           "pixel_comasa": {
             "x": 735,
             "y": 119,
             "latitude_aproximada": -26.27,
             "longitude_aproximada": -48.81
           },
-          "pixels_eco_identificados": 2,
-          "classes_presentes": [
+          "modo_original": "P",
+          "status": "diagnostico_concluido",
+          "janela": "11x11",
+          "pixel_central": {
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false
+          },
+          "indices_na_janela": [
             {
-              "classe": 10,
-              "pixels": 2
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels_janela_11x11": 121
             }
           ],
-          "eco_mais_proximo": {
-            "pixel_x": 739,
-            "pixel_y": 284,
-            "latitude": -28.34542,
-            "longitude": -48.7652,
-            "distancia_comasa_km": 230.82,
-            "direcao_graus": 178.9,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "eco_mais_forte": {
-            "pixel_x": 739,
-            "pixel_y": 284,
-            "latitude": -28.34542,
-            "longitude": -48.7652,
-            "distancia_comasa_km": 230.82,
-            "direcao_graus": 178.9,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "area_10km": {
-            "pixels_eco": 0,
-            "classe_mais_forte": null,
-            "observacao": "Raio diagnóstico de 10 km; não representa limiar oficial de risco ou inundação."
-          },
-          "dbz": "aguardando_validacao_da_escala"
+          "interpretacao_meteorologica": "ainda_nao_atribuida"
         }
       },
       {
@@ -620,60 +2243,360 @@
         "sha256": "0fefd9a80a09f8098605c61cfa488bc0b0d347095335ce2a56865fb333284ae0",
         "largura_px": 920,
         "altura_px": 719,
-        "ecos": {
+        "modo_png_original": "P",
+        "diagnostico_paleta_png": {
+          "status": "online",
+          "metodo": "P_PLTE_tRNS_indices_originais",
+          "modo_original": "P",
           "largura_px": 920,
           "altura_px": 719,
+          "total_pixels": 661480,
+          "quantidade_indices_usados": 12,
+          "quantidade_indices_visiveis": 11,
+          "quantidade_indices_transparentes": 1,
+          "pixels_visiveis": 21483,
+          "pixels_transparentes": 639997,
+          "percentual_visivel": 3.247717,
+          "indices_usados": [
+            {
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels": 639997,
+              "percentual_total": 96.752283
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 24,
+              "percentual_total": 0.003628
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2626,
+              "percentual_total": 0.396989
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 26,
+              "percentual_total": 0.003931
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 24,
+              "percentual_total": 0.003628
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 18420,
+              "percentual_total": 2.784665
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 295,
+              "percentual_total": 0.044597
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 18,
+              "percentual_total": 0.002721
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 26,
+              "percentual_total": 0.003931
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 15,
+              "percentual_total": 0.002268
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 8,
+              "percentual_total": 0.001209
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            }
+          ],
+          "indices_visiveis_por_frequencia": [
+            {
+              "indice_p": 5,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 18420,
+              "percentual_total": 2.784665
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2626,
+              "percentual_total": 0.396989
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 295,
+              "percentual_total": 0.044597
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 26,
+              "percentual_total": 0.003931
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 26,
+              "percentual_total": 0.003931
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 24,
+              "percentual_total": 0.003628
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 24,
+              "percentual_total": 0.003628
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 18,
+              "percentual_total": 0.002721
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 15,
+              "percentual_total": 0.002268
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 8,
+              "percentual_total": 0.001209
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            }
+          ],
+          "transparencia_tipo": "int",
+          "transparencia_tamanho": null,
+          "observacao": "Diagnóstico direto do PNG indexado. Nenhum índice foi convertido em dBZ nesta etapa."
+        },
+        "diagnostico_comasa": {
           "pixel_comasa": {
             "x": 735,
             "y": 119,
             "latitude_aproximada": -26.27,
             "longitude_aproximada": -48.81
           },
-          "pixels_eco_identificados": 1,
-          "classes_presentes": [
+          "modo_original": "P",
+          "status": "diagnostico_concluido",
+          "janela": "11x11",
+          "pixel_central": {
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false
+          },
+          "indices_na_janela": [
             {
-              "classe": 10,
-              "pixels": 1
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels_janela_11x11": 119
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels_janela_11x11": 1
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels_janela_11x11": 1
             }
           ],
-          "eco_mais_proximo": {
-            "pixel_x": 708,
-            "pixel_y": 375,
-            "latitude": -29.49255,
-            "longitude": -49.15532,
-            "distancia_comasa_km": 359.93,
-            "direcao_graus": 185.3,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "eco_mais_forte": {
-            "pixel_x": 708,
-            "pixel_y": 375,
-            "latitude": -29.49255,
-            "longitude": -49.15532,
-            "distancia_comasa_km": 359.93,
-            "direcao_graus": 185.3,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "area_10km": {
-            "pixels_eco": 0,
-            "classe_mais_forte": null,
-            "observacao": "Raio diagnóstico de 10 km; não representa limiar oficial de risco ou inundação."
-          },
-          "dbz": "aguardando_validacao_da_escala"
+          "interpretacao_meteorologica": "ainda_nao_atribuida"
         }
       },
       {
@@ -685,60 +2608,432 @@
         "sha256": "e401f6853b641dd50fdff58291fa8aa40cc59352d9364ba3762c5a553d2c43ef",
         "largura_px": 920,
         "altura_px": 719,
-        "ecos": {
+        "modo_png_original": "P",
+        "diagnostico_paleta_png": {
+          "status": "online",
+          "metodo": "P_PLTE_tRNS_indices_originais",
+          "modo_original": "P",
           "largura_px": 920,
           "altura_px": 719,
+          "total_pixels": 661480,
+          "quantidade_indices_usados": 15,
+          "quantidade_indices_visiveis": 14,
+          "quantidade_indices_transparentes": 1,
+          "pixels_visiveis": 21839,
+          "pixels_transparentes": 639641,
+          "percentual_visivel": 3.301536,
+          "indices_usados": [
+            {
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels": 639641,
+              "percentual_total": 96.698464
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 32,
+              "percentual_total": 0.004838
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2930,
+              "percentual_total": 0.442946
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 25,
+              "percentual_total": 0.003779
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 18418,
+              "percentual_total": 2.784362
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 304,
+              "percentual_total": 0.045958
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 38,
+              "percentual_total": 0.005745
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 15,
+              "percentual_total": 0.002268
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 24,
+              "percentual_total": 0.003628
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 18,
+              "percentual_total": 0.002721
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 21,
+              "percentual_total": 0.003175
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 6,
+              "percentual_total": 0.000907
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 4,
+              "percentual_total": 0.000605
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                255,
+                64,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            }
+          ],
+          "indices_visiveis_por_frequencia": [
+            {
+              "indice_p": 4,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 18418,
+              "percentual_total": 2.784362
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2930,
+              "percentual_total": 0.442946
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 304,
+              "percentual_total": 0.045958
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 38,
+              "percentual_total": 0.005745
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 32,
+              "percentual_total": 0.004838
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 25,
+              "percentual_total": 0.003779
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 24,
+              "percentual_total": 0.003628
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 21,
+              "percentual_total": 0.003175
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 18,
+              "percentual_total": 0.002721
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 15,
+              "percentual_total": 0.002268
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 6,
+              "percentual_total": 0.000907
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 4,
+              "percentual_total": 0.000605
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                255,
+                64,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            }
+          ],
+          "transparencia_tipo": "int",
+          "transparencia_tamanho": null,
+          "observacao": "Diagnóstico direto do PNG indexado. Nenhum índice foi convertido em dBZ nesta etapa."
+        },
+        "diagnostico_comasa": {
           "pixel_comasa": {
             "x": 735,
             "y": 119,
             "latitude_aproximada": -26.27,
             "longitude_aproximada": -48.81
           },
-          "pixels_eco_identificados": 2,
-          "classes_presentes": [
+          "modo_original": "P",
+          "status": "diagnostico_concluido",
+          "janela": "11x11",
+          "pixel_central": {
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false
+          },
+          "indices_na_janela": [
             {
-              "classe": 10,
-              "pixels": 2
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels_janela_11x11": 119
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels_janela_11x11": 1
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels_janela_11x11": 1
             }
           ],
-          "eco_mais_proximo": {
-            "pixel_x": 668,
-            "pixel_y": 374,
-            "latitude": -29.47994,
-            "longitude": -49.6587,
-            "distancia_comasa_km": 366.54,
-            "direcao_graus": 193.0,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "eco_mais_forte": {
-            "pixel_x": 668,
-            "pixel_y": 374,
-            "latitude": -29.47994,
-            "longitude": -49.6587,
-            "distancia_comasa_km": 366.54,
-            "direcao_graus": 193.0,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "area_10km": {
-            "pixels_eco": 0,
-            "classe_mais_forte": null,
-            "observacao": "Raio diagnóstico de 10 km; não representa limiar oficial de risco ou inundação."
-          },
-          "dbz": "aguardando_validacao_da_escala"
+          "interpretacao_meteorologica": "ainda_nao_atribuida"
         }
       },
       {
@@ -750,60 +3045,386 @@
         "sha256": "bdf98d90c79a66eea50ba5e5ae497e31bbbdc94b6bdcd0f590c068f2f15c55f8",
         "largura_px": 920,
         "altura_px": 719,
-        "ecos": {
+        "modo_png_original": "P",
+        "diagnostico_paleta_png": {
+          "status": "online",
+          "metodo": "P_PLTE_tRNS_indices_originais",
+          "modo_original": "P",
           "largura_px": 920,
           "altura_px": 719,
+          "total_pixels": 661480,
+          "quantidade_indices_usados": 14,
+          "quantidade_indices_visiveis": 13,
+          "quantidade_indices_transparentes": 1,
+          "pixels_visiveis": 22146,
+          "pixels_transparentes": 639334,
+          "percentual_visivel": 3.347947,
+          "indices_usados": [
+            {
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels": 639334,
+              "percentual_total": 96.652053
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 43,
+              "percentual_total": 0.006501
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 18479,
+              "percentual_total": 2.793584
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 25,
+              "percentual_total": 0.003779
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 3196,
+              "percentual_total": 0.483159
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 329,
+              "percentual_total": 0.049737
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 22,
+              "percentual_total": 0.003326
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 18,
+              "percentual_total": 0.002721
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 8,
+              "percentual_total": 0.001209
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 17,
+              "percentual_total": 0.00257
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 5,
+              "percentual_total": 0.000756
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                255,
+                64,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            }
+          ],
+          "indices_visiveis_por_frequencia": [
+            {
+              "indice_p": 2,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 18479,
+              "percentual_total": 2.793584
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 3196,
+              "percentual_total": 0.483159
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 329,
+              "percentual_total": 0.049737
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 43,
+              "percentual_total": 0.006501
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 25,
+              "percentual_total": 0.003779
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 22,
+              "percentual_total": 0.003326
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 18,
+              "percentual_total": 0.002721
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 17,
+              "percentual_total": 0.00257
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 8,
+              "percentual_total": 0.001209
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 5,
+              "percentual_total": 0.000756
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 2,
+              "percentual_total": 0.000302
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                255,
+                64,
+                0
+              ],
+              "alpha": 255,
+              "visivel": true,
+              "pixels": 1,
+              "percentual_total": 0.000151
+            }
+          ],
+          "transparencia_tipo": "int",
+          "transparencia_tamanho": null,
+          "observacao": "Diagnóstico direto do PNG indexado. Nenhum índice foi convertido em dBZ nesta etapa."
+        },
+        "diagnostico_comasa": {
           "pixel_comasa": {
             "x": 735,
             "y": 119,
             "latitude_aproximada": -26.27,
             "longitude_aproximada": -48.81
           },
-          "pixels_eco_identificados": 1,
-          "classes_presentes": [
+          "modo_original": "P",
+          "status": "diagnostico_concluido",
+          "janela": "11x11",
+          "pixel_central": {
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false
+          },
+          "indices_na_janela": [
             {
-              "classe": 10,
-              "pixels": 1
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visivel": false,
+              "pixels_janela_11x11": 121
             }
           ],
-          "eco_mais_proximo": {
-            "pixel_x": 687,
-            "pixel_y": 302,
-            "latitude": -28.57233,
-            "longitude": -49.41959,
-            "distancia_comasa_km": 262.98,
-            "direcao_graus": 193.1,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "eco_mais_forte": {
-            "pixel_x": 687,
-            "pixel_y": 302,
-            "latitude": -28.57233,
-            "longitude": -49.41959,
-            "distancia_comasa_km": 262.98,
-            "direcao_graus": 193.1,
-            "direcao_cardinal": "S",
-            "classe_refletividade": 10,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "dbz": null
-          },
-          "area_10km": {
-            "pixels_eco": 0,
-            "classe_mais_forte": null,
-            "observacao": "Raio diagnóstico de 10 km; não representa limiar oficial de risco ou inundação."
-          },
-          "dbz": "aguardando_validacao_da_escala"
+          "interpretacao_meteorologica": "ainda_nao_atribuida"
         }
       }
     ],
@@ -816,161 +3437,442 @@
       "sha256": "bdf98d90c79a66eea50ba5e5ae497e31bbbdc94b6bdcd0f590c068f2f15c55f8",
       "largura_px": 920,
       "altura_px": 719,
-      "ecos": {
+      "modo_png_original": "P",
+      "diagnostico_paleta_png": {
+        "status": "online",
+        "metodo": "P_PLTE_tRNS_indices_originais",
+        "modo_original": "P",
         "largura_px": 920,
         "altura_px": 719,
+        "total_pixels": 661480,
+        "quantidade_indices_usados": 14,
+        "quantidade_indices_visiveis": 13,
+        "quantidade_indices_transparentes": 1,
+        "pixels_visiveis": 22146,
+        "pixels_transparentes": 639334,
+        "percentual_visivel": 3.347947,
+        "indices_usados": [
+          {
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false,
+            "pixels": 639334,
+            "percentual_total": 96.652053
+          },
+          {
+            "indice_p": 1,
+            "rgb": [
+              55,
+              145,
+              255
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 43,
+            "percentual_total": 0.006501
+          },
+          {
+            "indice_p": 2,
+            "rgb": [
+              200,
+              200,
+              200
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 18479,
+            "percentual_total": 2.793584
+          },
+          {
+            "indice_p": 3,
+            "rgb": [
+              170,
+              255,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 25,
+            "percentual_total": 0.003779
+          },
+          {
+            "indice_p": 4,
+            "rgb": [
+              165,
+              255,
+              255
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 3196,
+            "percentual_total": 0.483159
+          },
+          {
+            "indice_p": 5,
+            "rgb": [
+              110,
+              200,
+              255
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 329,
+            "percentual_total": 0.049737
+          },
+          {
+            "indice_p": 6,
+            "rgb": [
+              128,
+              206,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 22,
+            "percentual_total": 0.003326
+          },
+          {
+            "indice_p": 7,
+            "rgb": [
+              85,
+              156,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 18,
+            "percentual_total": 0.002721
+          },
+          {
+            "indice_p": 8,
+            "rgb": [
+              43,
+              107,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 8,
+            "percentual_total": 0.001209
+          },
+          {
+            "indice_p": 9,
+            "rgb": [
+              0,
+              90,
+              255
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 17,
+            "percentual_total": 0.00257
+          },
+          {
+            "indice_p": 10,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 1,
+            "percentual_total": 0.000151
+          },
+          {
+            "indice_p": 11,
+            "rgb": [
+              0,
+              57,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 2,
+            "percentual_total": 0.000302
+          },
+          {
+            "indice_p": 12,
+            "rgb": [
+              255,
+              192,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 5,
+            "percentual_total": 0.000756
+          },
+          {
+            "indice_p": 13,
+            "rgb": [
+              255,
+              64,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 1,
+            "percentual_total": 0.000151
+          }
+        ],
+        "indices_visiveis_por_frequencia": [
+          {
+            "indice_p": 2,
+            "rgb": [
+              200,
+              200,
+              200
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 18479,
+            "percentual_total": 2.793584
+          },
+          {
+            "indice_p": 4,
+            "rgb": [
+              165,
+              255,
+              255
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 3196,
+            "percentual_total": 0.483159
+          },
+          {
+            "indice_p": 5,
+            "rgb": [
+              110,
+              200,
+              255
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 329,
+            "percentual_total": 0.049737
+          },
+          {
+            "indice_p": 1,
+            "rgb": [
+              55,
+              145,
+              255
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 43,
+            "percentual_total": 0.006501
+          },
+          {
+            "indice_p": 3,
+            "rgb": [
+              170,
+              255,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 25,
+            "percentual_total": 0.003779
+          },
+          {
+            "indice_p": 6,
+            "rgb": [
+              128,
+              206,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 22,
+            "percentual_total": 0.003326
+          },
+          {
+            "indice_p": 7,
+            "rgb": [
+              85,
+              156,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 18,
+            "percentual_total": 0.002721
+          },
+          {
+            "indice_p": 9,
+            "rgb": [
+              0,
+              90,
+              255
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 17,
+            "percentual_total": 0.00257
+          },
+          {
+            "indice_p": 8,
+            "rgb": [
+              43,
+              107,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 8,
+            "percentual_total": 0.001209
+          },
+          {
+            "indice_p": 12,
+            "rgb": [
+              255,
+              192,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 5,
+            "percentual_total": 0.000756
+          },
+          {
+            "indice_p": 11,
+            "rgb": [
+              0,
+              57,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 2,
+            "percentual_total": 0.000302
+          },
+          {
+            "indice_p": 10,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 1,
+            "percentual_total": 0.000151
+          },
+          {
+            "indice_p": 13,
+            "rgb": [
+              255,
+              64,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "pixels": 1,
+            "percentual_total": 0.000151
+          }
+        ],
+        "transparencia_tipo": "int",
+        "transparencia_tamanho": null,
+        "observacao": "Diagnóstico direto do PNG indexado. Nenhum índice foi convertido em dBZ nesta etapa."
+      },
+      "diagnostico_comasa": {
         "pixel_comasa": {
           "x": 735,
           "y": 119,
           "latitude_aproximada": -26.27,
           "longitude_aproximada": -48.81
         },
-        "pixels_eco_identificados": 1,
-        "classes_presentes": [
+        "modo_original": "P",
+        "status": "diagnostico_concluido",
+        "janela": "11x11",
+        "pixel_central": {
+          "indice_p": 0,
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "alpha": 0,
+          "visivel": false
+        },
+        "indices_na_janela": [
           {
-            "classe": 10,
-            "pixels": 1
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false,
+            "pixels_janela_11x11": 121
           }
         ],
-        "eco_mais_proximo": {
-          "pixel_x": 687,
-          "pixel_y": 302,
-          "latitude": -28.57233,
-          "longitude": -49.41959,
-          "distancia_comasa_km": 262.98,
-          "direcao_graus": 193.1,
-          "direcao_cardinal": "S",
-          "classe_refletividade": 10,
-          "rgb": [
-            255,
-            255,
-            0
-          ],
-          "dbz": null
-        },
-        "eco_mais_forte": {
-          "pixel_x": 687,
-          "pixel_y": 302,
-          "latitude": -28.57233,
-          "longitude": -49.41959,
-          "distancia_comasa_km": 262.98,
-          "direcao_graus": 193.1,
-          "direcao_cardinal": "S",
-          "classe_refletividade": 10,
-          "rgb": [
-            255,
-            255,
-            0
-          ],
-          "dbz": null
-        },
-        "area_10km": {
-          "pixels_eco": 0,
-          "classe_mais_forte": null,
-          "observacao": "Raio diagnóstico de 10 km; não representa limiar oficial de risco ou inundação."
-        },
-        "dbz": "aguardando_validacao_da_escala"
+        "interpretacao_meteorologica": "ainda_nao_atribuida"
       }
     },
     "analise_geografica": {
-      "status": "ativa",
-      "metodo": "pixel_radar_para_coordenada_geografica",
+      "status": "georreferencia_validada_mas_ecos_nao_classificados",
       "referencia": "Comasa - coordenada pública aproximada",
-      "ultimo_eco_mais_proximo": {
-        "pixel_x": 687,
-        "pixel_y": 302,
-        "latitude": -28.57233,
-        "longitude": -49.41959,
-        "distancia_comasa_km": 262.98,
-        "direcao_graus": 193.1,
-        "direcao_cardinal": "S",
-        "classe_refletividade": 10,
-        "rgb": [
-          255,
-          255,
-          0
-        ],
-        "dbz": null
+      "pixel_comasa": {
+        "x": 735,
+        "y": 119,
+        "latitude_aproximada": -26.27,
+        "longitude_aproximada": -48.81
       },
-      "ultimo_eco_mais_forte": {
-        "pixel_x": 687,
-        "pixel_y": 302,
-        "latitude": -28.57233,
-        "longitude": -49.41959,
-        "distancia_comasa_km": 262.98,
-        "direcao_graus": 193.1,
-        "direcao_cardinal": "S",
-        "classe_refletividade": 10,
-        "rgb": [
-          255,
-          255,
-          0
+      "diagnostico_local": {
+        "pixel_comasa": {
+          "x": 735,
+          "y": 119,
+          "latitude_aproximada": -26.27,
+          "longitude_aproximada": -48.81
+        },
+        "modo_original": "P",
+        "status": "diagnostico_concluido",
+        "janela": "11x11",
+        "pixel_central": {
+          "indice_p": 0,
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "alpha": 0,
+          "visivel": false
+        },
+        "indices_na_janela": [
+          {
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false,
+            "pixels_janela_11x11": 121
+          }
         ],
-        "dbz": null
-      },
-      "area_10km": {
-        "pixels_eco": 0,
-        "classe_mais_forte": null,
-        "observacao": "Raio diagnóstico de 10 km; não representa limiar oficial de risco ou inundação."
+        "interpretacao_meteorologica": "ainda_nao_atribuida"
       }
     },
     "analise_movimento": {
-      "status": "diagnostico_inicial",
-      "serie": [
-        {
-          "horario_local": "2026-09-20T19:50:00-03:00",
-          "distancia_km": 335.06,
-          "direcao_cardinal": "S",
-          "classe": 10
-        },
-        {
-          "horario_local": "2026-09-20T20:00:00-03:00",
-          "distancia_km": 361.2,
-          "direcao_cardinal": "S",
-          "classe": 10
-        },
-        {
-          "horario_local": "2026-09-20T20:10:00-03:00",
-          "distancia_km": 261.57,
-          "direcao_cardinal": "S",
-          "classe": 10
-        },
-        {
-          "horario_local": "2026-09-20T20:20:00-03:00",
-          "distancia_km": 230.82,
-          "direcao_cardinal": "S",
-          "classe": 10
-        },
-        {
-          "horario_local": "2026-09-20T20:30:00-03:00",
-          "distancia_km": 359.93,
-          "direcao_cardinal": "S",
-          "classe": 10
-        },
-        {
-          "horario_local": "2026-09-20T20:40:00-03:00",
-          "distancia_km": 366.54,
-          "direcao_cardinal": "S",
-          "classe": 10
-        },
-        {
-          "horario_local": "2026-09-20T20:50:00-03:00",
-          "distancia_km": 262.98,
-          "direcao_cardinal": "S",
-          "classe": 10
-        }
-      ],
-      "distancia_inicial_km": 335.06,
-      "distancia_final_km": 262.98,
-      "variacao_distancia_km": -72.08,
-      "tendencia": "aproximando",
-      "eta": null,
-      "observacao": "Tendência baseada no eco mais próximo em cada quadro. Ainda não representa rastreamento confirmado da mesma célula."
+      "status": "bloqueada",
+      "tendencia": "nao_calculada",
+      "motivo": "A paleta interna real do PNG ainda está sendo validada. O resultado aproximando/afastando do teste anterior foi descartado."
     },
-    "interpretacao_dbz": "aguardando_validacao_numerica",
+    "interpretacao_dbz": "aguardando_correspondencia_PLTE_legenda",
     "eta": {
-      "status": "ainda_nao_calculado",
-      "motivo": "Primeiro validar localização e tendência dos ecos entre quadros."
+      "status": "bloqueado",
+      "motivo": "Não calcular ETA antes de validar quais índices P representam ecos meteorológicos."
     }
   },
   "granizo": {

@@ -34,7 +34,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="sub">Chuva • Radar • Maré • Rio • Vento • Tempestades • Riscos</div>
 <div id="hora" style="margin-top:15px">🕒 --</div>
 </header>
-
+ 
 <section class="card">
 <div class="local">📡 RADAR METEOROLÓGICO • EXPERIMENTAL</div>
 <h2>Monitoramento de precipitação por radar</h2>
@@ -49,7 +49,21 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="etaEstado" class="box aviso">🧪 ETA em validação experimental</div>
 <small>DETECTADO POR RADAR ≠ chuva medida. O sistema acompanha ecos e testa retrospectivamente trajetórias. Enquanto a validação não for concluída, não publica horário automático de chegada da chuva.</small>
 </section>
-
+ 
+<section class="card">
+<div class="local">🎨 VALIDAÇÃO RADARSC • EXPERIMENTAL</div>
+<h2>Legenda oficial × paleta dos quadros</h2>
+<div class="sub">Diagnóstico estrutural #125 • correspondência RGB observada nos PNGs do radar</div>
+<div class="radar-grid">
+<div class="radar-item">🎯 Compatibilidade RGB<b id="paletaStatus">--</b></div>
+<div class="radar-item">🧩 Classes observadas<b id="paletaClasses">--</b></div>
+<div class="radar-item">📡 dBZ numérico validado?<b id="paletaDbz">NÃO</b></div>
+<div class="radar-item">🛡️ ETA automático liberado?<b id="paletaEta">NÃO</b></div>
+</div>
+<div id="paletaEstado" class="box aviso">Carregando validação da paleta...</div>
+<small>Compatibilidade RGB confirma apenas que cores da legenda oficial aparecem na estrutura dos PNGs analisados. Isso não atribui valores numéricos de dBZ, não equivale a chuva medida e não libera ETA automaticamente.</small>
+</section>
+ 
 <section class="card">
 <div class="local">🧪 AUTOVALIDAÇÃO DO RADAR • EXPERIMENTAL</div>
 <h2>O sistema mede o próprio erro</h2>
@@ -63,7 +77,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="histEstado" class="box aviso">Carregando histórico de validação...</div>
 <small>Erro em quilômetros é diagnóstico do algoritmo, não previsão de distância da chuva. Não há limiar de aprovação definido.</small>
 </section>
-
+ 
 <section class="grid">
 <div class="card">
 <div class="local">🌧️ CHUVA OBSERVADA • PLUVIÔMETRO</div><h2>CEMADEN</h2>
@@ -82,7 +96,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <a href="https://ciram.epagri.sc.gov.br/index.php/maregrafos/" target="_blank">ABRIR EPAGRI/CIRAM</a>
 </div>
 </section>
-
+ 
 <section class="card">
 <div class="local">🌦️ PREVISÃO METEOROLÓGICA • PRÓXIMA HORA</div>
 <h2>Comasa • Joinville</h2>
@@ -98,18 +112,18 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="ps" class="box aviso">Carregando previsão...</div>
 <div class="box"><small>⚠️ Estes valores vêm de um modelo meteorológico. “0,0 mm previstos” não significa que não esteja chovendo no local neste momento.</small></div>
 </section>
-
+ 
 <section class="card">
 <div class="local">🌧️ PREVISÃO DE CHUVA • PRÓXIMOS 7 DIAS</div><h2>Tendência para Comasa • Joinville</h2>
 <div class="sub">PREVISTO por modelo meteorológico • Open-Meteo • não é observação</div>
 <div id="previsao7dias" class="box">Carregando previsão dos próximos dias...</div>
 <div class="box"><small>☔ <b>Maior probabilidade horária do dia</b> = maior porcentagem prevista entre as horas daquele dia.<br><br>🌧️ <b>Total previsto no dia</b> = soma estimada de precipitação do dia em milímetros (mm).<br><br>Por isso a porcentagem diária pode ser diferente da previsão para a próxima hora. As previsões podem mudar conforme o modelo recebe novas informações.</small></div>
 </section>
-
+ 
 <section class="card"><div class="local">🧊 GRANIZO • INDISPONÍVEL</div><h2>Alertas</h2><div id="granizo" class="box aviso">⚪ Alerta oficial ainda não integrado</div><small>Granizo não é inferido apenas pela previsão de chuva. Sem fonte oficial integrada, o Monitor não classifica presença ou ausência de granizo.</small></section>
 <section class="card"><div class="local">🏞️ RIO GUAXANDUVA • INDISPONÍVEL</div><h2>Nível do rio</h2><div class="valor" id="rio">--</div><div id="rs" class="box aviso">Verificando sensor...</div><small>Sem sensor público confirmado, o Monitor não estima o nível do rio.</small></section>
 <section class="card"><div class="local">📐 ALTITUDE DO TERRENO • ESTIMATIVA CARTOGRÁFICA</div><h2>Rua Itapoá • Comasa</h2><div class="valor">≈ 5 m</div><div class="sub">acima do nível do mar</div><div class="box"><b>Fonte:</b> Prefeitura de Joinville / SIMGeo<br><small>ESTIMATIVA. Cota aproximada do terreno. Não representa nível de inundação nem nível atual do rio.</small></div></section>
-
+ 
 <section class="card">
 <div class="local">📖 COMO LER O MONITOR</div><h2>Tipo de informação</h2>
 <div class="medida"><div class="medida-sigla">🟢 OBSERVADO</div><b>Medido por instrumento</b><div class="medida-exemplo">Ex.: pluviômetro. Deve ter fonte e horário de leitura.</div></div>
@@ -118,7 +132,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="medida"><div class="medida-sigla">⚪ INDISPONÍVEL</div><b>Sem dado confiável</b><div class="medida-exemplo">Não significa condição normal ou valor zero.</div></div>
 <div class="medida"><div class="medida-sigla">🧪 EXPERIMENTAL</div><b>Ainda em validação</b><div class="medida-exemplo">Não deve ser usado sozinho para decisão operacional.</div></div>
 </section>
-
+ 
 <section class="card">
 <div class="local">📖 ENTENDA AS MEDIDAS</div><h2>O que significam os números?</h2><div class="sub">Guia rápido para interpretar o Monitor Guaxanduva</div>
 <div class="medida"><div class="medida-sigla">🌧️ mm</div><b>Milímetros de chuva</b><div class="medida-exemplo">1 mm de chuva equivale aproximadamente a 1 litro de água sobre cada metro quadrado.</div></div>
@@ -130,11 +144,11 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="medida"><div class="medida-sigla">📡 dBZ</div><b>Refletividade do radar</b><div class="medida-exemplo">Representa intensidade dos ecos. Não prova sozinho quantidade exata de chuva ou granizo.</div></div>
 <div class="box"><small>ℹ️ Previsões, estimativas e análises experimentais não substituem avisos oficiais da Defesa Civil.</small></div>
 </section>
-
+ 
 <section class="card"><div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2><div id="sistema" class="box aviso">Carregando dados.json...</div><p><small id="coleta">Última coleta: --</small></p></section>
 <section class="card"><div class="local">PAINEL DE RISCOS</div><h2>Monitoramento combinado</h2><div class="risco"><div>🟢<br>Normal</div><div>🟡<br>Atenção</div><div>🟠<br>Alerta</div><div>🔴<br>Crítico</div></div><div class="box aviso">⚪ Sem classificação enquanto faltarem dados observacionais confiáveis.</div></section>
 <section class="card"><h2>🚨 Emergência</h2><div class="em"><div>Defesa Civil<div class="num">199</div></div><div>Bombeiros<div class="num">193</div></div></div></section>
-
+ 
 <script>
 const $=x=>document.getElementById(x);
 const f=(v,n=1)=>v==null?"--":Number(v).toFixed(n).replace(".",",");
@@ -142,7 +156,7 @@ function relogio(){$("hora").textContent="🕒 "+new Date().toLocaleString("pt-B
 function pontoCardinal(g){if(g==null)return "--";const p=["N","NE","L","SE","S","SO","O","NO"];return p[Math.round(Number(g)/45)%8]+" • "+Math.round(g)+"°"}
 function horaCurta(t){if(!t)return "--";const d=new Date(t);return isNaN(d)?String(t).slice(11,16):d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}
 relogio();setInterval(relogio,1000);
-
+ 
 async function carregarHistorico(){
  try{
   const r=await fetch("historico_validacao.json?"+Date.now(),{cache:"no-store"}); if(!r.ok)throw Error("HTTP "+r.status);
@@ -154,14 +168,14 @@ async function carregarHistorico(){
   $("histEstado").innerHTML=h.validado_para_eta?'<span class="ok">🟢 Validação concluída</span>':'<span class="aviso">🧪 Coletando evidências • ETA continua bloqueado</span>';
  }catch(e){$("histEstado").innerHTML='<span class="erro">🔴 Histórico de validação indisponível</span>'}
 }
-
+ 
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
   const d=await r.json(),c=d.chuva||{},m=d.mare||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
-
+ 
   const rt=rad.rastreamento_temporal||{}, av=rad.avaliacao_trajetorias||{};
   $("radarHora").textContent=horaCurta(rad.horario_ultimo_quadro);
   $("radarIdade").textContent=rad.idade_ultimo_quadro_min==null?"--":f(rad.idade_ultimo_quadro_min,1)+" min";
@@ -172,7 +186,21 @@ async function carregar(){
   else{$("radarEstado").innerHTML='<span class="erro">🔴 Radar indisponível</span>'}
   const cand=av.quantidade_candidatos_eta??0;
   $("etaEstado").innerHTML='<span class="aviso">🧪 ETA experimental bloqueado • candidatos atuais: '+cand+'</span>';
-
+ 
+  const vp=rad.validacao_paleta_radar||{};
+  const compat=vp.status==="compatibilidade_rgb_observada";
+  $("paletaStatus").textContent=vp.status?(compat?"OBSERVADA":"NÃO OBSERVADA"):"--";
+  $("paletaClasses").textContent=vp.classes_legenda_total==null?"--":(vp.classes_legenda_observadas??0)+" de "+vp.classes_legenda_total;
+  $("paletaDbz").textContent=vp.dbz_numerico_validado?"SIM":"NÃO";
+  $("paletaEta").textContent=vp.eta_liberado?"SIM":"NÃO";
+  if(!vp.status){
+   $("paletaEstado").innerHTML='<span class="aviso">🟡 Diagnóstico da paleta ainda não recebido</span>';
+  }else if(compat){
+   $("paletaEstado").innerHTML='<span class="ok">🟢 Compatibilidade estrutural RGB observada</span> • dBZ numérico e ETA continuam bloqueados';
+  }else{
+   $("paletaEstado").innerHTML='<span class="aviso">🟡 Sem correspondência RGB observada nesta amostra</span> • continuar coletando evidências';
+  }
+ 
   $("chuva").textContent=f(c.leitura_mm);$("h1").textContent=f(c.acumulado_1h_mm);$("h24").textContent=f(c.acumulado_24h_mm);
   $("cs").textContent=c.leitura_mm==null?"⚪ SEM LEITURA INTEGRADA • isso não significa ausência de chuva":"🟢 OBSERVADO • leitura automática recebida";
   const ma=m.anterior||null,mp=m.proximo||null;

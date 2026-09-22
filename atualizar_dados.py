@@ -8135,6 +8135,205 @@ def diagnosticar_data_id_cap_inmet_152():
         )
         return resultado
 
+
+def diagnosticar_cap_por_metadata_id_153():
+    """
+    #153 - Separa mensagens de METADATA das mensagens de DATA.
+
+    A #151 confirmou que metadata_id e filtravel. A #152 confirmou
+    documentalmente que o dataset de alertas possui o identificador
+    urn:wmo:md:br-inmet:alerts. Aqui usamos esse identificador no campo
+    metadata_id da colecao messages, em vez de confundi-lo com data_id.
+
+    O objetivo e localizar notificacoes de dados CAP/XML reais.
+    Este bloco ainda nao altera o card operacional de granizo.
+    """
+    endpoint = (
+        "https://wis2bra.inmet.gov.br/oapi/"
+        "collections/messages/items"
+    )
+    metadata_alvo = "urn:wmo:md:br-inmet:alerts"
+
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#153",
+        "fonte": "WIS2 Node oficial do INMET / messages",
+        "endpoint": endpoint,
+        "metadata_id_alvo": metadata_alvo,
+        "http_status": None,
+        "quantidade_features": 0,
+        "quantidade_metadata": 0,
+        "quantidade_data": 0,
+        "data_ids_reais": [],
+        "notificacoes_data_cap": [],
+        "links_xml_candidatos": [],
+        "xml_cap_confirmado": False,
+        "uso_operacional_granizo": False,
+        "regra_seguranca": (
+            "Diagnostico de mensagens DATA associadas ao metadata oficial. "
+            "Nenhum resultado deste bloco afirma alerta ativo, ausencia de "
+            "alerta ou risco de granizo."
+        ),
+    }
+
+    headers = {
+        "User-Agent": "Monitor-Guaxanduva/1.0",
+        "Accept": "application/geo+json,application/json",
+    }
+
+    def links_http(feature):
+        saida = []
+        vistos = set()
+        links = feature.get("links") if isinstance(feature, dict) else None
+        if not isinstance(links, list):
+            return saida
+
+        for link in links:
+            if not isinstance(link, dict):
+                continue
+            href = link.get("href")
+            if not isinstance(href, str):
+                continue
+            if not href.startswith(("https://", "http://")):
+                continue
+            chave = (link.get("rel"), href, link.get("type"))
+            if chave in vistos:
+                continue
+            vistos.add(chave)
+            saida.append({
+                "rel": link.get("rel"),
+                "href": href,
+                "type": link.get("type"),
+            })
+        return saida
+
+    try:
+        r = requests.get(
+            endpoint,
+            params={
+                "f": "json",
+                "metadata_id": metadata_alvo,
+                "limit": 100,
+            },
+            timeout=(10, 25),
+            headers=headers,
+        )
+        resultado["http_status"] = r.status_code
+        r.raise_for_status()
+
+        obj = r.json()
+        features = (
+            obj.get("features", [])
+            if isinstance(obj, dict)
+            else []
+        )
+        if not isinstance(features, list):
+            features = []
+
+        resultado["quantidade_features"] = len(features)
+
+        data_ids = []
+        notificacoes = []
+        links_xml = []
+
+        for feature in features:
+            if not isinstance(feature, dict):
+                continue
+
+            props = feature.get("properties")
+            if not isinstance(props, dict):
+                props = {}
+
+            data_id = props.get("data_id")
+            metadata_id = props.get("metadata_id")
+            links = links_http(feature)
+
+            # Mensagens de atualização de metadata são explicitamente
+            # separadas das mensagens de dados.
+            eh_metadata = (
+                isinstance(data_id, str)
+                and "/metadata/" in data_id.lower()
+            )
+
+            if eh_metadata:
+                resultado["quantidade_metadata"] += 1
+                continue
+
+            resultado["quantidade_data"] += 1
+
+            if isinstance(data_id, str) and data_id not in data_ids:
+                data_ids.append(data_id)
+
+            item = {
+                "id": feature.get("id"),
+                "data_id": data_id,
+                "metadata_id": metadata_id,
+                "datetime": props.get("datetime"),
+                "pubtime": props.get("pubtime"),
+                "content": props.get("content"),
+                "links": links,
+            }
+            notificacoes.append(item)
+
+            for link in links:
+                href = link.get("href")
+                tipo = str(link.get("type") or "").lower()
+                if (
+                    isinstance(href, str)
+                    and (
+                        href.lower().endswith(".xml")
+                        or "xml" in tipo
+                    )
+                ):
+                    if href not in [x["href"] for x in links_xml]:
+                        links_xml.append({
+                            "href": href,
+                            "rel": link.get("rel"),
+                            "type": link.get("type"),
+                            "data_id": data_id,
+                        })
+
+        resultado["data_ids_reais"] = data_ids[:30]
+        resultado["notificacoes_data_cap"] = notificacoes[:30]
+        resultado["links_xml_candidatos"] = links_xml[:30]
+
+        # Nesta etapa "XML confirmado" significa apenas que uma mensagem
+        # DATA associada ao dataset oficial publicou link explicitamente XML.
+        # O conteúdo CAP ainda será decodificado numa etapa posterior.
+        resultado["xml_cap_confirmado"] = bool(links_xml)
+
+        if links_xml:
+            resultado["status"] = "mensagem_data_cap_com_link_xml_localizada"
+            resultado["observacao"] = (
+                "Foram separadas mensagens DATA das mensagens METADATA e "
+                "foi localizado ao menos um link XML publicado pela mensagem. "
+                "O proximo passo e baixar e decodificar o XML CAP."
+            )
+        elif notificacoes:
+            resultado["status"] = "mensagem_data_cap_localizada_sem_link_xml_explicito"
+            resultado["observacao"] = (
+                "Foram localizadas mensagens DATA associadas ao metadata "
+                "oficial de alertas, mas nenhum link explicitamente XML foi "
+                "identificado. O conteudo/links foram preservados para estudo."
+            )
+        else:
+            resultado["status"] = "metadata_id_online_sem_mensagem_data"
+            resultado["observacao"] = (
+                "A consulta por metadata_id respondeu, mas nenhuma mensagem "
+                "DATA foi localizada nas features retornadas. Isso nao "
+                "significa ausencia de alertas."
+            )
+
+        return resultado
+
+    except Exception as e:
+        resultado["erro"] = str(e)
+        resultado["observacao"] = (
+            "Falha no diagnostico #153. Nenhuma conclusao sobre alerta de "
+            "granizo e produzida."
+        )
+        return resultado
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     dados = {
@@ -8205,6 +8404,8 @@ def main():
         "diagnostico_filtro_cap_inmet_151": diagnosticar_filtro_cap_inmet_151(),
 
         "diagnostico_data_id_cap_inmet_152": diagnosticar_data_id_cap_inmet_152(),
+
+        "diagnostico_cap_por_metadata_id_153": diagnosticar_cap_por_metadata_id_153(),
  
         "emergencia": {
             "defesa_civil":

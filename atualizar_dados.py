@@ -6406,6 +6406,260 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
         return resultado
 
 
+
+# =========================================================
+# #143 - AUDITORIA SEMANTICA DAS JANELAS HORARIAS CEMADEN
+# =========================================================
+
+def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#143",
+        "tipo": "auditoria_semantica_janelas_horarias_cemaden",
+        "fonte": "CEMADEN",
+        "estacao": None,
+        "base_endpoint": (
+            "https://mapservices.cemaden.gov.br/"
+            "MapaInterativoWS/resources/horario/"
+        ),
+        "regra_js_oficial": (
+            'cria_grafico_horario(horas): endpoint = '
+            'horario/idEstacao/(horas-1)'
+        ),
+        "janelas_testadas_h": [1, 2, 6, 24, 48],
+        "resultados_janelas": [],
+        "comparacoes_sobreposicao": [],
+        "semantica_confirmada": False,
+        "granularidade_10min_confirmada": False,
+        "publicacao_automatica": False,
+        "classificacao_risco_automatica": False,
+        "regra_seguranca": (
+            "A #143 compara varias janelas da mesma rota oficial para validar "
+            "a semantica temporal. Nao promove 1h/6h/24h ao painel e nao "
+            "inventa granularidade de 10 minutos."
+        ),
+    }
+
+    try:
+        selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
+        idestacao = selecionada.get("id")
+        if idestacao is None:
+            resultado["status"] = "sem_estacao_selecionada"
+            return resultado
+
+        resultado["estacao"] = {
+            "id": idestacao,
+            "codigo": selecionada.get("codigo"),
+            "nome": selecionada.get("nome"),
+            "uf": selecionada.get("uf"),
+        }
+
+        base = resultado["base_endpoint"]
+        mapas = {}
+
+        def extrair_celulas(dados):
+            datas = dados.get("datas")
+            horarios = dados.get("horarios")
+            acumulados = dados.get("acumulados")
+            if not (
+                isinstance(datas, list)
+                and isinstance(horarios, list)
+                and isinstance(acumulados, list)
+            ):
+                return []
+
+            celulas = []
+            for i, data_txt in enumerate(datas):
+                if i >= len(acumulados) or not isinstance(acumulados[i], list):
+                    continue
+                linha = acumulados[i]
+                for j, hora_txt in enumerate(horarios):
+                    if j >= len(linha):
+                        continue
+                    valor = linha[j]
+                    if valor is None:
+                        continue
+                    try:
+                        numero = float(str(valor).replace(",", "."))
+                    except Exception:
+                        continue
+                    try:
+                        data_base = datetime.strptime(
+                            str(data_txt).strip(),
+                            "%d/%m/%Y",
+                        )
+                    except Exception:
+                        continue
+                    achado = re.search(r"(\d{1,2})", str(hora_txt))
+                    if not achado:
+                        continue
+                    hora = int(achado.group(1))
+                    if hora < 0 or hora > 23:
+                        continue
+                    instante = data_base.replace(
+                        hour=hora,
+                        minute=0,
+                        second=0,
+                        microsecond=0,
+                        tzinfo=UTC,
+                    )
+                    celulas.append({
+                        "instante_utc": instante.isoformat(),
+                        "instante_local": instante.astimezone(FUSO).isoformat(),
+                        "valor_mm": numero,
+                    })
+            unicas = {x["instante_utc"]: x for x in celulas}
+            return [unicas[k] for k in sorted(unicas)]
+
+        for horas in resultado["janelas_testadas_h"]:
+            parametro = horas - 1
+            endpoint = base + str(idestacao) + "/" + str(parametro)
+            item = {
+                "janela_solicitada_h": horas,
+                "parametro_endpoint": parametro,
+                "endpoint": endpoint,
+                "http_status": None,
+                "quantidade_celulas_numericas": 0,
+                "primeira_celula": None,
+                "ultima_celula": None,
+                "soma_mm": None,
+            }
+            try:
+                resposta = get(endpoint)
+                item["http_status"] = resposta.status_code
+                dados = resposta.json()
+                celulas = extrair_celulas(dados) if isinstance(dados, dict) else []
+                item["quantidade_celulas_numericas"] = len(celulas)
+                if celulas:
+                    item["primeira_celula"] = celulas[0]
+                    item["ultima_celula"] = celulas[-1]
+                    item["soma_mm"] = round(
+                        sum(x["valor_mm"] for x in celulas),
+                        2,
+                    )
+                mapas[horas] = {
+                    x["instante_utc"]: x["valor_mm"]
+                    for x in celulas
+                }
+            except Exception as e:
+                item["erro"] = str(e)[:500]
+
+            resultado["resultados_janelas"].append(item)
+
+        # Janelas maiores devem preservar exatamente as celulas da janela menor
+        # quando os instantes se sobrepoem.
+        pares = [(1, 2), (2, 6), (6, 24), (24, 48)]
+        comparacoes = []
+        todas_coerentes = True
+
+        for menor, maior in pares:
+            a = mapas.get(menor, {})
+            b = mapas.get(maior, {})
+            comuns = sorted(set(a) & set(b))
+            divergencias = []
+            for instante in comuns:
+                if abs(float(a[instante]) - float(b[instante])) > 0.000001:
+                    divergencias.append({
+                        "instante_utc": instante,
+                        "menor_mm": a[instante],
+                        "maior_mm": b[instante],
+                    })
+
+            esperado_minimo = min(
+                len(a),
+                len(b),
+            )
+            coerente = (
+                bool(a)
+                and bool(b)
+                and len(comuns) == esperado_minimo
+                and not divergencias
+            )
+            if not coerente:
+                todas_coerentes = False
+
+            comparacoes.append({
+                "janela_menor_h": menor,
+                "janela_maior_h": maior,
+                "celulas_menor": len(a),
+                "celulas_maior": len(b),
+                "instantes_em_comum": len(comuns),
+                "divergencias_valor": divergencias[:20],
+                "sobreposicao_coerente": coerente,
+            })
+
+        resultado["comparacoes_sobreposicao"] = comparacoes
+
+        # Valida a regra horas -> quantidade de celulas quando o servico
+        # retorna a janela completa.
+        validacoes_quantidade = []
+        for item in resultado["resultados_janelas"]:
+            horas = item["janela_solicitada_h"]
+            qtd = item["quantidade_celulas_numericas"]
+            validacoes_quantidade.append({
+                "janela_h": horas,
+                "celulas": qtd,
+                "quantidade_compativel_com_janela": qtd == horas,
+            })
+        resultado["validacoes_quantidade"] = validacoes_quantidade
+
+        quantidades_ok = all(
+            x["quantidade_compativel_com_janela"]
+            for x in validacoes_quantidade
+        )
+
+        resultado["semantica_confirmada"] = (
+            todas_coerentes and quantidades_ok
+        )
+
+        produto_24 = (chuva_cemaden or {}).get("acumulado_24h_mm")
+        soma_24 = None
+        for item in resultado["resultados_janelas"]:
+            if item["janela_solicitada_h"] == 24:
+                soma_24 = item["soma_mm"]
+                break
+
+        if (
+            isinstance(produto_24, (int, float))
+            and isinstance(soma_24, (int, float))
+        ):
+            diferenca = round(float(soma_24) - float(produto_24), 2)
+            resultado["comparacao_311_24"] = {
+                "produto_311_24_mm": produto_24,
+                "soma_janela_24h_mm": soma_24,
+                "diferenca_mm": diferenca,
+                "coincide_0_01_mm": abs(diferenca) <= 0.01,
+            }
+        else:
+            resultado["comparacao_311_24"] = {
+                "produto_311_24_mm": produto_24,
+                "soma_janela_24h_mm": soma_24,
+                "diferenca_mm": None,
+                "coincide_0_01_mm": None,
+            }
+
+        if resultado["semantica_confirmada"]:
+            resultado["status"] = "janelas_horarias_coerentes"
+        else:
+            resultado["status"] = "janelas_horarias_requerem_revisao"
+
+        resultado["observacao"] = (
+            "A #143 testa a propria regra do JavaScript oficial: pedir N horas "
+            "usa parametro N-1. Ela exige que janelas maiores preservem os "
+            "mesmos valores nos instantes sobrepostos e que a quantidade de "
+            "celulas numericas corresponda a janela pedida. O teste nao "
+            "estabelece granularidade sub-horaria."
+        )
+        return resultado
+
+    except Exception as e:
+        resultado["erro"] = str(e)
+        resultado["observacao"] = (
+            "Falha da #143 nao altera CEMADEN #136 nem diagnosticos #138-#142."
+        )
+        return resultado
+
+
 # =========================================================
 # #123 - CHUVA OBSERVADA / ESTAÇÃO INMET - RECUPERADA NA #128
 # =========================================================
@@ -6474,6 +6728,9 @@ def main():
 
         "investigacao_cemaden_142":
             decodificar_matriz_horaria_cemaden_142(chuva_cemaden),
+
+        "investigacao_cemaden_143":
+            auditar_janelas_horarias_cemaden_143(chuva_cemaden),
  
         "chuva_observada_inmet":
             buscar_chuva_observada_inmet(),

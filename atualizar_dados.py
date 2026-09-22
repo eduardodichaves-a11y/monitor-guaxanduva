@@ -9045,7 +9045,7 @@ def diagnosticar_conteudo_cap_inmet_156(diag155=None):
  
             total = " ".join(busca_alerta).lower()
             alerta["menciona_granizo_ou_hail"] = (
-                "granizo" in total or re.search(r"\\bhail\\b", total) is not None
+                "granizo" in total or re.search(r"\bhail\b", total) is not None
             )
             alerta["joinville_identificada"] = bool(metodos_joinville)
             alerta["metodo_identificacao_joinville"] = sorted(metodos_joinville)
@@ -9091,9 +9091,135 @@ def diagnosticar_conteudo_cap_inmet_156(diag155=None):
     return resultado
  
  
+
+
+def granizo_operacional_inmet_157(diag156=None):
+    """#157 - Publica somente alerta positivo de granizo validado pelo CAP INMET.
+
+    Regra conservadora: um candidato ativo precisa reunir, no mesmo CAP,
+    menção explícita a granizo/hail, cobertura da referência pública de
+    Joinville/Comasa, vigência temporal, status Actual, scope Public e
+    msgType diferente de Cancel/Error. Ausência entre os cinco CAPs
+    inspecionados pela #156 NÃO é convertida em "sem alerta".
+    """
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#157",
+        "fonte": "INMET / WIS2 / CAP",
+        "tipo": "aviso_meteorologico_oficial_granizo",
+        "ativo": None,
+        "alerta": None,
+        "cobertura_referencia_publica_comasa": None,
+        "uso_operacional_granizo": True,
+        "regra_seguranca": (
+            "Somente alerta positivo comprovado e publicado. Ausencia de candidato "
+            "na amostra da #156, falha de fonte ou XML indisponivel permanece "
+            "inconclusiva e nunca vira automaticamente 'sem alerta'."
+        ),
+        "observacao": (
+            "Aviso oficial indica possibilidade de granizo na area e no periodo; "
+            "nao significa granizo observado ou caindo no Comasa."
+        ),
+    }
+
+    if not isinstance(diag156, dict):
+        resultado["status"] = "indisponivel_sem_diagnostico_156"
+        return resultado
+
+    if diag156.get("status") != "cap_recente_decodificado":
+        resultado["status"] = "indisponivel_cap_recente_nao_decodificado"
+        return resultado
+
+    alertas = diag156.get("alertas")
+    if not isinstance(alertas, list):
+        resultado["status"] = "indisponivel_lista_alertas_invalida"
+        return resultado
+
+    candidatos = []
+    for alerta in alertas:
+        if not isinstance(alerta, dict):
+            continue
+        if not alerta.get("candidato_granizo_joinville_vigente"):
+            continue
+        if str(alerta.get("status_cap") or "").lower() != "actual":
+            continue
+        if str(alerta.get("scope") or "").lower() != "public":
+            continue
+        if str(alerta.get("msgType") or "").lower() in {"cancel", "error"}:
+            continue
+
+        infos_validas = []
+        for info in alerta.get("infos") or []:
+            if not isinstance(info, dict):
+                continue
+            if not info.get("vigente_agora") or not info.get("joinville_identificada"):
+                continue
+            texto = " ".join(
+                str(info.get(k) or "")
+                for k in ("event", "headline", "description", "instruction")
+            ).lower()
+            if "granizo" not in texto and re.search(r"\bhail\b", texto) is None:
+                continue
+            infos_validas.append(info)
+
+        if infos_validas:
+            candidatos.append((alerta, infos_validas))
+
+    if not candidatos:
+        resultado["status"] = "online_sem_conclusao_negativa"
+        resultado["ativo"] = None
+        resultado["cobertura_referencia_publica_comasa"] = None
+        resultado["observacao"] = (
+            "Os CAPs inspecionados foram decodificados, mas a #156 avalia apenas "
+            "uma amostra recente. Portanto, ausencia de candidato positivo nao "
+            "autoriza publicar 'sem alerta de granizo'."
+        )
+        return resultado
+
+    # Havendo mais de um candidato, prioriza o CAP enviado mais recentemente.
+    def momento_enviado(item):
+        alerta = item[0]
+        try:
+            dt = datetime.fromisoformat(str(alerta.get("sent") or "").replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=UTC)
+            return dt.astimezone(UTC)
+        except Exception:
+            return datetime(1970, 1, 1, tzinfo=UTC)
+
+    alerta, infos = sorted(candidatos, key=momento_enviado, reverse=True)[0]
+    info = infos[0]
+
+    resultado["status"] = "alerta_ativo_confirmado"
+    resultado["ativo"] = True
+    resultado["cobertura_referencia_publica_comasa"] = True
+    resultado["alerta"] = {
+        "data_id": alerta.get("data_id"),
+        "identifier": alerta.get("identifier"),
+        "sender": alerta.get("sender"),
+        "sent": alerta.get("sent"),
+        "status_cap": alerta.get("status_cap"),
+        "msgType": alerta.get("msgType"),
+        "scope": alerta.get("scope"),
+        "event": info.get("event"),
+        "urgency": info.get("urgency"),
+        "severity": info.get("severity"),
+        "certainty": info.get("certainty"),
+        "onset": info.get("onset"),
+        "expires": info.get("expires"),
+        "headline": info.get("headline"),
+        "description": info.get("description"),
+        "instruction": info.get("instruction"),
+        "metodos_identificacao_joinville": info.get("metodos_identificacao_joinville") or [],
+        "url_xml": alerta.get("url"),
+    }
+    return resultado
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     diag155 = diagnosticar_cap_recente_inmet_155()
+    diag156 = diagnosticar_conteudo_cap_inmet_156(diag155)
+    granizo157 = granizo_operacional_inmet_157(diag156)
     dados = {
         "monitor":
             "Monitor Guaxanduva",
@@ -9153,7 +9279,7 @@ def main():
  
         "radar":
             buscar_radar(),
-        "granizo": buscar_alerta_granizo_148(),
+        "granizo": granizo157,
  
         "diagnostico_wis2_inmet_149": diagnosticar_wis2_inmet_149(),
  
@@ -9169,7 +9295,9 @@ def main():
  
         "diagnostico_cap_recente_inmet_155": diag155,
  
-        "diagnostico_conteudo_cap_inmet_156": diagnosticar_conteudo_cap_inmet_156(diag155),
+        "diagnostico_conteudo_cap_inmet_156": diag156,
+
+        "granizo_operacional_inmet_157": granizo157,
  
         "emergencia": {
             "defesa_civil":

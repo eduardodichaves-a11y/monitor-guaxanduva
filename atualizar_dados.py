@@ -7640,6 +7640,245 @@ def diagnosticar_historico_cap_inmet_150():
         )
         return resultado
 
+
+def diagnosticar_filtro_cap_inmet_151():
+    """
+    #151 - Descobre e testa filtros seletivos da OGC API do WIS2/INMET.
+
+    Objetivo:
+    - consultar /queryables da coleção messages;
+    - verificar se data_id é filtrável;
+    - testar filtros seletivos para advisories-warnings;
+    - registrar data_ids reais retornados pela API.
+
+    Continua estritamente diagnóstico: não altera o card de granizo.
+    """
+    base = "https://wis2bra.inmet.gov.br/oapi/collections/messages"
+    alvo = "advisories-warnings"
+
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#151",
+        "fonte": "WIS2 Node oficial do INMET / OGC API",
+        "queryables_http": None,
+        "queryables": [],
+        "data_id_filtravel": False,
+        "tentativas": [],
+        "data_ids_amostra_consulta_geral": [],
+        "candidatos_cap": [],
+        "uso_operacional_granizo": False,
+        "regra_seguranca": (
+            "Diagnostico de descoberta/filtro. Nenhum resultado deste bloco "
+            "significa alerta ativo, ausencia de alerta ou risco de granizo."
+        ),
+    }
+
+    headers = {
+        "User-Agent": "Monitor-Guaxanduva/1.0",
+        "Accept": "application/geo+json,application/json",
+    }
+
+    def ler_features(resp):
+        try:
+            obj = resp.json()
+        except Exception:
+            return [], None
+        if not isinstance(obj, dict):
+            return [], obj
+        feats = obj.get("features")
+        return (feats if isinstance(feats, list) else []), obj
+
+    def resumir_features(features, limite=20):
+        saida = []
+        for f in features[:limite]:
+            if not isinstance(f, dict):
+                continue
+            p = f.get("properties")
+            if not isinstance(p, dict):
+                p = {}
+            saida.append({
+                "id": f.get("id"),
+                "data_id": p.get("data_id"),
+                "datetime": p.get("datetime"),
+                "pubtime": p.get("pubtime"),
+                "metadata_id": p.get("metadata_id"),
+            })
+        return saida
+
+    try:
+        # 1) Descobre formalmente quais propriedades a coleção declara
+        # como consultáveis.
+        qurl = base + "/queryables"
+        qr = requests.get(
+            qurl,
+            params={"f": "json"},
+            timeout=(10, 20),
+            headers=headers,
+        )
+        resultado["queryables_http"] = qr.status_code
+
+        if qr.ok:
+            qobj = qr.json()
+            props = qobj.get("properties") if isinstance(qobj, dict) else None
+            if isinstance(props, dict):
+                resultado["queryables"] = sorted(str(k) for k in props.keys())
+                resultado["data_id_filtravel"] = "data_id" in props
+
+        # 2) Coleta uma amostra real de data_id para não depender de
+        # suposição sobre a forma do identificador.
+        geral = requests.get(
+            base + "/items",
+            params={"f": "json", "limit": 100},
+            timeout=(10, 20),
+            headers=headers,
+        )
+        if geral.ok:
+            feats, _ = ler_features(geral)
+            ids = []
+            for f in feats:
+                if not isinstance(f, dict):
+                    continue
+                p = f.get("properties")
+                if not isinstance(p, dict):
+                    continue
+                did = p.get("data_id")
+                if did is not None and str(did) not in ids:
+                    ids.append(str(did))
+            resultado["data_ids_amostra_consulta_geral"] = ids[:30]
+
+        # 3) Testa variantes suportadas por implementações pygeoapi/OGC.
+        # Não assumimos que uma delas funciona: cada resposta é registrada.
+        testes = [
+            ("property_data_id_curto", {"data_id": alvo, "limit": 100}),
+            (
+                "property_data_id_topico",
+                {
+                    "data_id": (
+                        "br-inmet/data/core/weather/"
+                        "advisories-warnings"
+                    ),
+                    "limit": 100,
+                },
+            ),
+            ("texto_q", {"q": alvo, "limit": 100}),
+        ]
+
+        candidatos = []
+
+        for nome, params in testes:
+            params = {"f": "json", **params}
+            item = {
+                "teste": nome,
+                "params": params,
+                "http_status": None,
+                "quantidade_features": 0,
+                "features_amostra": [],
+                "erro": None,
+            }
+
+            try:
+                r = requests.get(
+                    base + "/items",
+                    params=params,
+                    timeout=(10, 20),
+                    headers=headers,
+                )
+                item["http_status"] = r.status_code
+
+                if r.ok:
+                    feats, _ = ler_features(r)
+                    item["quantidade_features"] = len(feats)
+                    item["features_amostra"] = resumir_features(feats, 10)
+
+                    for f in feats:
+                        if not isinstance(f, dict):
+                            continue
+                        p = f.get("properties")
+                        if not isinstance(p, dict):
+                            continue
+                        texto = " ".join(
+                            str(p.get(k) or "")
+                            for k in ("data_id", "metadata_id", "content")
+                        ).lower()
+                        if alvo in texto:
+                            cand = {
+                                "teste": nome,
+                                "id": f.get("id"),
+                                "data_id": p.get("data_id"),
+                                "datetime": p.get("datetime"),
+                                "pubtime": p.get("pubtime"),
+                                "metadata_id": p.get("metadata_id"),
+                                "links": [],
+                            }
+                            links = f.get("links")
+                            if isinstance(links, list):
+                                for link in links:
+                                    if not isinstance(link, dict):
+                                        continue
+                                    href = link.get("href")
+                                    if isinstance(href, str) and href.startswith(
+                                        ("https://", "http://")
+                                    ):
+                                        cand["links"].append({
+                                            "rel": link.get("rel"),
+                                            "href": href,
+                                            "type": link.get("type"),
+                                        })
+                            candidatos.append(cand)
+                else:
+                    item["erro"] = r.text[:500]
+
+            except Exception as e:
+                item["erro"] = str(e)[:500]
+
+            resultado["tentativas"].append(item)
+
+        # Remove duplicatas por id/data_id/pubtime.
+        unicos = []
+        vistos = set()
+        for c in candidatos:
+            chave = (
+                str(c.get("id")),
+                str(c.get("data_id")),
+                str(c.get("pubtime")),
+            )
+            if chave in vistos:
+                continue
+            vistos.add(chave)
+            unicos.append(c)
+
+        resultado["candidatos_cap"] = unicos[:20]
+
+        if unicos:
+            resultado["status"] = "cap_localizado_por_filtro"
+            resultado["observacao"] = (
+                "Ao menos uma notificacao relacionada a advisories-warnings "
+                "foi localizada seletivamente. O proximo passo e recuperar "
+                "o recurso CAP/XML real sem ainda alterar o estado operacional."
+            )
+        elif resultado["queryables_http"] == 200:
+            resultado["status"] = "api_e_queryables_online_sem_cap_filtrado"
+            resultado["observacao"] = (
+                "A API e /queryables responderam, mas os filtros testados "
+                "nao localizaram CAP. Isso nao significa ausencia de alertas."
+            )
+        else:
+            resultado["status"] = "api_online_queryables_nao_confirmado"
+            resultado["observacao"] = (
+                "A consulta diagnostica executou, mas /queryables nao foi "
+                "confirmado com HTTP 200. Nenhuma conclusao sobre alertas."
+            )
+
+        return resultado
+
+    except Exception as e:
+        resultado["erro"] = str(e)
+        resultado["observacao"] = (
+            "Falha no diagnostico seletivo #151. Nenhuma conclusao sobre "
+            "alerta de granizo e produzida."
+        )
+        return resultado
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     dados = {
@@ -7706,6 +7945,8 @@ def main():
         "diagnostico_wis2_inmet_149": diagnosticar_wis2_inmet_149(),
 
         "diagnostico_historico_cap_inmet_150": diagnosticar_historico_cap_inmet_150(),
+
+        "diagnostico_filtro_cap_inmet_151": diagnosticar_filtro_cap_inmet_151(),
  
         "emergencia": {
             "defesa_civil":

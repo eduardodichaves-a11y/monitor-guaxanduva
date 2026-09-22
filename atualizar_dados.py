@@ -7016,16 +7016,20 @@ def buscar_chuva_observada_inmet():
 
 
 
-def buscar_alerta_granizo_147():
+def buscar_alerta_granizo_148():
     """
-    Consulta publicações oficiais da Defesa Civil de Santa Catarina e procura
-    alertas de granizo que mencionem Joinville. Um alerta só é marcado como
-    ativo quando a própria publicação fornece uma janela temporal ainda válida.
-    Falha de consulta nunca é convertida em "sem alerta".
+    #148 - Consulta resiliente dos alertas oficiais da Defesa Civil SC.
+
+    Estratégia:
+    1) tenta mais de uma rota oficial do mesmo portal;
+    2) usa timeouts curtos e tentativas controladas;
+    3) procura somente publicações recentes com granizo;
+    4) confirma Joinville no conteúdo oficial antes de aceitar o alerta;
+    5) falha de todas as rotas = INDISPONÍVEL, nunca "sem alerta".
     """
     saida = {
         "status": "indisponivel",
-        "versao": "#147",
+        "versao": "#148",
         "fonte": "Secretaria de Estado da Protecao e Defesa Civil de Santa Catarina",
         "tipo": "alerta_oficial_municipal",
         "municipio": "Joinville",
@@ -7037,157 +7041,258 @@ def buscar_alerta_granizo_147():
         "titulo": None,
         "url": None,
         "ultima_publicacao_relevante": None,
+        "rotas_testadas": [],
         "regra_seguranca": (
-            "Somente publicacao oficial que mencione Joinville e granizo, com janela "
-            "temporal ainda valida, e tratada como alerta ativo. Falha de consulta "
-            "permanece indisponivel e nunca significa ausencia de risco."
+            "Somente publicacao oficial que mencione Joinville e granizo, "
+            "com janela temporal ainda valida, e tratada como alerta ativo. "
+            "Falha de consulta permanece indisponivel e nunca significa "
+            "ausencia de risco."
         ),
     }
 
-    try:
-        busca = get(
-            DEFESA_CIVIL_SC_BUSCA,
-            params={"s": "granizo Joinville"},
-        )
-        soup = BeautifulSoup(busca.text, "html.parser")
+    def requisicao_curta(url, params=None):
+        ultimo_erro = None
+        for tentativa in range(1, 3):
+            try:
+                r = requests.get(
+                    url,
+                    params=params,
+                    timeout=(8, 12),
+                    headers={
+                        "User-Agent": "Monitor-Guaxanduva/1.0",
+                        "Accept": "text/html,application/xhtml+xml,application/json",
+                    },
+                )
+                r.raise_for_status()
+                return r, tentativa, None
+            except Exception as e:
+                ultimo_erro = str(e)
+        return None, 2, ultimo_erro
 
-        links = []
+    def coletar_links_html(html, base):
+        soup = BeautifulSoup(html, "html.parser")
+        achados = []
         vistos = set()
         for a in soup.find_all("a", href=True):
-            href = str(a.get("href") or "").strip()
+            href = urljoin(base, str(a.get("href") or "").strip())
             texto = " ".join(a.stripped_strings)
+            combinado = (texto + " " + href).lower()
             if (
                 href.startswith("https://www.defesacivil.sc.gov.br/")
-                and "/2026/" in href
+                and re.search(r"/20\d{2}/\d{2}/\d{2}/", href)
+                and "granizo" in combinado
                 and href not in vistos
-                and ("granizo" in (texto + " " + href).lower())
             ):
                 vistos.add(href)
-                links.append(href)
+                achados.append(href)
+        return achados
 
-        # A busca oficial pode trazer poucos resultados. Limitar evita sobrecarga.
-        links = links[:20]
-        relevantes = []
+    rotas = [
+        (
+            "pagina_alertas",
+            "https://www.defesacivil.sc.gov.br/alerta/",
+            None,
+        ),
+        (
+            "busca_site",
+            "https://www.defesacivil.sc.gov.br/",
+            {"s": "granizo Joinville"},
+        ),
+        (
+            "busca_wordpress_json",
+            "https://www.defesacivil.sc.gov.br/wp-json/wp/v2/search",
+            {"search": "granizo Joinville", "per_page": 20},
+        ),
+    ]
 
-        for href in links:
-            try:
-                pagina = get(href)
-                psoup = BeautifulSoup(pagina.text, "html.parser")
-                h1 = psoup.find("h1")
-                titulo = " ".join(h1.stripped_strings) if h1 else ""
-                texto = " ".join(psoup.stripped_strings)
-                baixo = texto.lower()
+    links = []
+    vistos = set()
+    alguma_rota_online = False
 
-                if "joinville" not in baixo or "granizo" not in baixo:
-                    continue
+    for nome, url, params in rotas:
+        resposta, tentativas, erro = requisicao_curta(url, params=params)
+        registro = {
+            "rota": nome,
+            "url": url,
+            "tentativas": tentativas,
+            "status": "erro" if resposta is None else "online",
+        }
+        if erro:
+            registro["erro"] = erro[:500]
+        saida["rotas_testadas"].append(registro)
 
-                # Data/hora operacional vem do proprio titulo dos alertas.
-                m = re.search(
-                    r"(\d{1,2})/(\d{1,2})\s+(\d{1,2}):(\d{2})",
-                    titulo,
-                )
-                if not m:
-                    continue
+        if resposta is None:
+            continue
 
-                dia, mes, hora, minuto = map(int, m.groups())
-                my = re.search(r"/(20\d{2})/", href)
-                ano = int(my.group(1)) if my else agora().year
-                inicio = datetime(ano, mes, dia, hora, minuto, tzinfo=FUSO)
+        alguma_rota_online = True
 
-                mj = re.search(
-                    r"pr[oó]ximas?\s+(\d+)\s+horas?",
-                    titulo,
-                    flags=re.I,
-                )
-                if mj:
-                    janela = int(mj.group(1))
-                elif re.search(r"pr[oó]xima\s+hora", titulo, flags=re.I):
-                    janela = 1
-                else:
-                    janela = None
+        try:
+            if nome == "busca_wordpress_json":
+                dados = resposta.json()
+                if isinstance(dados, list):
+                    for item in dados:
+                        if not isinstance(item, dict):
+                            continue
+                        href = str(item.get("url") or "").strip()
+                        titulo = str(item.get("title") or "")
+                        if (
+                            href.startswith("https://www.defesacivil.sc.gov.br/")
+                            and "granizo" in (titulo + " " + href).lower()
+                            and href not in vistos
+                        ):
+                            vistos.add(href)
+                            links.append(href)
+            else:
+                for href in coletar_links_html(resposta.text, url):
+                    if href not in vistos:
+                        vistos.add(href)
+                        links.append(href)
+        except Exception as e:
+            registro["parse_erro"] = str(e)[:500]
 
-                validade = inicio + timedelta(hours=janela) if janela else None
-                nivel = (
-                    "ALERTA" if titulo.upper().startswith("ALERTA")
-                    else "ATENCAO" if titulo.upper().startswith("ATENÇÃO")
-                    else "OBSERVACAO" if titulo.upper().startswith("OBSERVAÇÃO")
-                    else "INFORMATIVO"
-                )
+    # Publicações de alerta são curtas; limitar evita transformar uma
+    # indisponibilidade parcial em execução excessivamente longa.
+    links = links[:12]
+    relevantes = []
 
-                relevantes.append({
-                    "titulo": titulo,
-                    "url": href,
-                    "nivel": nivel,
-                    "inicio": inicio,
-                    "validade": validade,
-                    "janela_horas": janela,
-                })
-            except Exception:
+    for href in links:
+        pagina, tentativas, erro = requisicao_curta(href)
+        if pagina is None:
+            continue
+
+        try:
+            psoup = BeautifulSoup(pagina.text, "html.parser")
+            h1 = psoup.find("h1")
+            titulo = " ".join(h1.stripped_strings) if h1 else ""
+            texto = " ".join(psoup.stripped_strings)
+            baixo = texto.lower()
+
+            if "joinville" not in baixo or "granizo" not in baixo:
                 continue
 
-        if not relevantes:
-            saida["status"] = "online_sem_publicacao_relevante_decodificada"
-            saida["granizo_em_alerta_ativo"] = False
-            saida["observacao"] = (
-                "A busca oficial respondeu, mas nenhuma publicacao de granizo para "
-                "Joinville com data/hora operacional foi decodificada nesta coleta."
+            m = re.search(
+                r"(\d{1,2})/(\d{1,2})\s+(\d{1,2}):(\d{2})",
+                titulo,
             )
-            return saida
+            if not m:
+                continue
 
-        relevantes.sort(key=lambda x: x["inicio"], reverse=True)
-        ultimo = relevantes[0]
-        ativos = [
-            x for x in relevantes
-            if x["validade"] is not None
-            and x["inicio"] <= agora() <= x["validade"]
-        ]
+            dia, mes, hora, minuto = map(int, m.groups())
+            my = re.search(r"/(20\d{2})/", href)
+            ano = int(my.group(1)) if my else agora().year
+            inicio = datetime(ano, mes, dia, hora, minuto, tzinfo=FUSO)
 
-        saida["ultima_publicacao_relevante"] = {
-            "titulo": ultimo["titulo"],
+            # Descartar publicações muito antigas da análise operacional.
+            if inicio < agora() - timedelta(days=7):
+                continue
+
+            mj = re.search(
+                r"pr[oó]ximas?\s+(\d+)\s+horas?",
+                titulo,
+                flags=re.I,
+            )
+            if mj:
+                janela = int(mj.group(1))
+            elif re.search(r"pr[oó]xima\s+hora", titulo, flags=re.I):
+                janela = 1
+            else:
+                janela = None
+
+            validade = inicio + timedelta(hours=janela) if janela else None
+            nivel = (
+                "ALERTA" if titulo.upper().startswith("ALERTA")
+                else "ATENCAO" if titulo.upper().startswith("ATENÇÃO")
+                else "OBSERVACAO" if titulo.upper().startswith("OBSERVAÇÃO")
+                else "INFORMATIVO"
+            )
+
+            relevantes.append({
+                "titulo": titulo,
+                "url": href,
+                "nivel": nivel,
+                "inicio": inicio,
+                "validade": validade,
+                "janela_horas": janela,
+            })
+        except Exception:
+            continue
+
+    saida["links_candidatos"] = len(links)
+    saida["publicacoes_relevantes_7d"] = len(relevantes)
+
+    if not alguma_rota_online:
+        saida["observacao"] = (
+            "Todas as rotas oficiais testadas falharam nesta coleta. "
+            "O estado permanece INDISPONIVEL; isso nao significa ausencia "
+            "de alerta de granizo."
+        )
+        return saida
+
+    if not relevantes:
+        # A fonte respondeu, mas não é seguro afirmar "sem alerta" se não
+        # conseguimos decodificar nenhuma publicação recente para Joinville.
+        saida["status"] = "online_sem_publicacao_relevante_decodificada"
+        saida["granizo_em_alerta_ativo"] = None
+        saida["observacao"] = (
+            "Ao menos uma rota oficial respondeu, mas nenhuma publicacao "
+            "recente de granizo para Joinville foi decodificada. Por seguranca, "
+            "o Monitor nao converte isso em 'sem alerta'."
+        )
+        return saida
+
+    relevantes.sort(key=lambda x: x["inicio"], reverse=True)
+    ultimo = relevantes[0]
+    ativos = [
+        x for x in relevantes
+        if x["validade"] is not None
+        and x["inicio"] <= agora() <= x["validade"]
+    ]
+
+    saida["ultima_publicacao_relevante"] = {
+        "titulo": ultimo["titulo"],
+        "inicio_local": ultimo["inicio"].isoformat(),
+        "validade_ate_local": (
+            ultimo["validade"].isoformat() if ultimo["validade"] else None
+        ),
+        "url": ultimo["url"],
+    }
+
+    if ativos:
+        ativos.sort(key=lambda x: x["inicio"], reverse=True)
+        atual = ativos[0]
+        saida.update({
+            "status": "alerta_oficial_ativo",
+            "granizo_em_alerta_ativo": True,
+            "nivel": atual["nivel"],
+            "inicio_local": atual["inicio"].isoformat(),
+            "validade_ate_local": atual["validade"].isoformat(),
+            "janela_horas": atual["janela_horas"],
+            "titulo": atual["titulo"],
+            "url": atual["url"],
+            "observacao": (
+                "Publicacao oficial recente, com Joinville e granizo, "
+                "encontrada dentro da propria janela de validade."
+            ),
+        })
+    else:
+        saida.update({
+            "status": "online_sem_alerta_granizo_ativo",
+            "granizo_em_alerta_ativo": False,
+            "nivel": ultimo["nivel"],
             "inicio_local": ultimo["inicio"].isoformat(),
             "validade_ate_local": (
                 ultimo["validade"].isoformat() if ultimo["validade"] else None
             ),
+            "janela_horas": ultimo["janela_horas"],
+            "titulo": ultimo["titulo"],
             "url": ultimo["url"],
-        }
+            "observacao": (
+                "A fonte oficial respondeu e as publicacoes recentes "
+                "decodificadas para Joinville estao fora da validade."
+            ),
+        })
 
-        if ativos:
-            ativos.sort(key=lambda x: x["inicio"], reverse=True)
-            atual = ativos[0]
-            saida.update({
-                "status": "alerta_oficial_ativo",
-                "granizo_em_alerta_ativo": True,
-                "nivel": atual["nivel"],
-                "inicio_local": atual["inicio"].isoformat(),
-                "validade_ate_local": atual["validade"].isoformat(),
-                "janela_horas": atual["janela_horas"],
-                "titulo": atual["titulo"],
-                "url": atual["url"],
-            })
-        else:
-            saida.update({
-                "status": "online_sem_alerta_granizo_ativo",
-                "granizo_em_alerta_ativo": False,
-                "nivel": ultimo["nivel"],
-                "inicio_local": ultimo["inicio"].isoformat(),
-                "validade_ate_local": (
-                    ultimo["validade"].isoformat() if ultimo["validade"] else None
-                ),
-                "janela_horas": ultimo["janela_horas"],
-                "titulo": ultimo["titulo"],
-                "url": ultimo["url"],
-            })
-
-        return saida
-
-    except Exception as e:
-        saida["erro"] = str(e)
-        saida["observacao"] = (
-            "Falha ao consultar a fonte oficial. O Monitor nao interpreta falha "
-            "como ausencia de alerta."
-        )
-        return saida
-
+    return saida
 
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
@@ -7250,7 +7355,7 @@ def main():
  
         "radar":
             buscar_radar(),
-        "granizo": buscar_alerta_granizo_147(),
+        "granizo": buscar_alerta_granizo_148(),
  
         "emergencia": {
             "defesa_civil":

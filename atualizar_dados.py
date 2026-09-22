@@ -5577,6 +5577,100 @@ def buscar_chuva_cemaden_136():
 
 
 # =========================================================
+# #138 - SONDA DIAGNOSTICA DA SERIE TEMPORAL CEMADEN
+# =========================================================
+
+def investigar_serie_cemaden_138(chuva_cemaden):
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#138",
+        "tipo": "sonda_diagnostica_serie_temporal_cemaden",
+        "fonte": "CEMADEN",
+        "estacao": None,
+        "pagina_grafico": None,
+        "recursos_encontrados": [],
+        "evidencias_endpoint": [],
+        "serie_temporal_integrada": False,
+        "publicacao_automatica": False,
+        "regra_seguranca": (
+            "A #138 apenas investiga a estrutura publica usada pelo grafico "
+            "CEMADEN. Nenhum valor encontrado e publicado como chuva recente "
+            "sem validacao explicita da estrutura, unidade e janela temporal."
+        ),
+    }
+    try:
+        selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
+        idestacao = selecionada.get("id")
+        uf = str(selecionada.get("uf") or "SC").strip().upper()
+        if idestacao is None:
+            resultado["status"] = "sem_estacao_selecionada"
+            resultado["observacao"] = "A coleta #136 nao selecionou estacao; a sonda #138 nao foi executada."
+            return resultado
+
+        resultado["estacao"] = {
+            "id": idestacao,
+            "codigo": selecionada.get("codigo"),
+            "nome": selecionada.get("nome"),
+            "uf": uf,
+        }
+        url = CEMADEN_RECURSOS + "/graficos/interativo/grafico_CEMADEN.php?idpcd=" + str(idestacao) + "&uf=" + uf
+        resultado["pagina_grafico"] = url
+        resposta = get(url)
+        html = resposta.text
+        resultado["http_status"] = resposta.status_code
+        resultado["bytes_html"] = len(resposta.content)
+
+        recursos = re.findall(r'''(?:src|href)\s*=\s*["']([^"']+)["']''', html, flags=re.I)
+        urls = []
+        for item in recursos:
+            absoluta = urljoin(url, item)
+            if absoluta not in urls:
+                urls.append(absoluta)
+        resultado["recursos_encontrados"] = urls[:80]
+
+        textos = [(url, html)]
+        for recurso in urls:
+            baixo = recurso.lower().split("?", 1)[0]
+            if not baixo.endswith(".js"):
+                continue
+            try:
+                rjs = get(recurso)
+                textos.append((recurso, rjs.text))
+            except Exception as e:
+                resultado.setdefault("erros_recursos", []).append({"url": recurso, "erro": str(e)[:220]})
+
+        padroes = [
+            r'''(?:url\s*:\s*|fetch\s*\(|getJSON\s*\()["']([^"']+)["']''',
+            r'''["']([^"']*(?:pluv|chuva|cemaden|graf|serie|dados)[^"']*(?:\.php|\.json|\.csv)[^"']*)["']''',
+        ]
+        evidencias = []
+        vistos = set()
+        for origem, texto in textos:
+            for padrao in padroes:
+                for achado in re.findall(padrao, texto, flags=re.I):
+                    achado = str(achado).strip()
+                    if not achado or achado.startswith("javascript:"):
+                        continue
+                    chave = (origem, achado)
+                    if chave in vistos:
+                        continue
+                    vistos.add(chave)
+                    evidencias.append({
+                        "origem": origem,
+                        "referencia_bruta": achado[:700],
+                        "url_resolvida": urljoin(origem, achado)[:1200],
+                    })
+        resultado["evidencias_endpoint"] = evidencias[:120]
+        resultado["status"] = "evidencias_encontradas_para_revisao" if evidencias else "pagina_acessivel_sem_endpoint_identificado"
+        resultado["observacao"] = "Resultado bruto para auditoria. A #138 nao interpreta nem publica serie temporal automaticamente."
+        return resultado
+    except Exception as e:
+        resultado["erro"] = str(e)
+        resultado["observacao"] = "Falha da sonda #138 nao altera nem invalida o acumulado 24 h da #136."
+        return resultado
+
+
+# =========================================================
 # #123 - CHUVA OBSERVADA / ESTAÇÃO INMET - RECUPERADA NA #128
 # =========================================================
 
@@ -5616,6 +5710,7 @@ def buscar_chuva_observada_inmet():
 
 
 def main():
+    chuva_cemaden = buscar_chuva_cemaden_136()
     dados = {
         "monitor":
             "Monitor Guaxanduva",
@@ -5627,7 +5722,10 @@ def main():
             agora().isoformat(),
  
         "chuva":
-            buscar_chuva_cemaden_136(),
+            chuva_cemaden,
+
+        "investigacao_cemaden_138":
+            investigar_serie_cemaden_138(chuva_cemaden),
  
         "chuva_observada_inmet":
             buscar_chuva_observada_inmet(),

@@ -245,7 +245,7 @@ def media_angular_ponderada(valores):
 # =========================================================
 # HISTÓRICO DE AUTOVALIDAÇÃO #120 - RECUPERADO NA #128
 # =========================================================
- 
+
 def carregar_historico_validacao():
     try:
         with open(HISTORICO_ARQUIVO, "r", encoding="utf-8") as arquivo:
@@ -259,8 +259,8 @@ def carregar_historico_validacao():
     except Exception as e:
         print("Aviso: histórico anterior não pôde ser lido: " + str(e))
         return []
- 
- 
+
+
 def registrar_historico_validacao(dados):
     radar = dados.get("radar", {})
     validacao = radar.get("autovalidacao_preditiva") or {}
@@ -268,7 +268,7 @@ def registrar_historico_validacao(dados):
     avaliacao = radar.get("avaliacao_trajetorias") or {}
     registro = {
         "gerado_em": dados.get("gerado_em"),
-        "versao": "#134",
+        "versao": "#135",
         "horario_ultimo_quadro": radar.get("horario_ultimo_quadro"),
         "radar_status": radar.get("status"),
         "dados_frescos": radar.get("dados_frescos"),
@@ -293,7 +293,7 @@ def registrar_historico_validacao(dados):
     historico = {
         "monitor": "Monitor Guaxanduva",
         "tipo": "historico_autovalidacao_preditiva_radar",
-        "versao": "#134",
+        "versao": "#135",
         "metodo": "projecao_retrospectiva_1_quadro_com_velocidade_media",
         "atualizado_em": dados.get("gerado_em"),
         "maximo_registros": HISTORICO_MAX_REGISTROS,
@@ -315,8 +315,8 @@ def registrar_historico_validacao(dados):
     with open(HISTORICO_ARQUIVO,"w",encoding="utf-8") as arquivo:
         json.dump(historico,arquivo,ensure_ascii=False,indent=2)
     return historico
- 
- 
+
+
 # =========================================================
 # OPEN-METEO
 # =========================================================
@@ -654,7 +654,7 @@ def buscar_mare():
 # =========================================================
 # #128 - INVESTIGAÇÃO DOCUMENTAL DO RADARSC
 # =========================================================
- 
+
 def investigar_fonte_radarsc():
     """Procura evidência textual de dBZ/escala no HTML e JS oficiais.
     É diagnóstico documental: não atribui dBZ e não libera ETA.
@@ -702,8 +702,8 @@ def investigar_fonte_radarsc():
         resultado["status"]="indisponivel"
         resultado["erro"]=str(e)
         return resultado
- 
- 
+
+
 # =========================================================
 # LEGENDA OFICIAL RADARSC
 # =========================================================
@@ -809,9 +809,9 @@ def legenda():
  
             "fonte":
                 "legenda oficial RadarSC",
- 
+
             "dimensoes_px": {"largura": imagem.width, "altura": imagem.height},
- 
+
             "diagnostico_128": "RGB e geometria extraídos diretamente da legenda oficial; dBZ continua sem atribuição até evidência textual oficial.",
  
             "sha256":
@@ -1162,22 +1162,22 @@ def mascara(imagem):
     }
  
     return pontos, indices
- 
- 
+
+
 # =========================================================
 # #133 - MÁSCARA OPERACIONAL SOMENTE COM CORES OFICIAIS
 # =========================================================
- 
+
 def mascara_oficial_133(imagem, legenda_oficial):
     """Seleciona exclusivamente pixels cujo RGB coincide exatamente com
     uma classe extraída da legenda oficial RadarSC.
- 
+
     Esta máscara passa a alimentar componentes, trilhas e autovalidação.
     Não converte cor em dBZ/mm/h e não libera ETA.
     """
     if imagem.mode != "P":
         return set(), {}, {}
- 
+
     classes = (legenda_oficial or {}).get("classes") or []
     mapa_rgb_classe = {}
     for item in classes:
@@ -1187,15 +1187,15 @@ def mascara_oficial_133(imagem, legenda_oficial):
         classe = item.get("classe")
         if isinstance(rgb, list) and len(rgb) == 3 and classe is not None:
             mapa_rgb_classe[tuple(int(v) for v in rgb)] = int(classe)
- 
+
     if not mapa_rgb_classe:
         return set(), {}, {}
- 
+
     paleta = imagem.getpalette()
     transparencia = imagem.info.get("transparency")
     indices = {}
     classes_por_indice = {}
- 
+
     for indice in set(imagem.getdata()):
         rgb = rgb_idx(paleta, indice)
         if (
@@ -1205,7 +1205,7 @@ def mascara_oficial_133(imagem, legenda_oficial):
         ):
             indices[indice] = rgb
             classes_por_indice[indice] = mapa_rgb_classe[tuple(rgb)]
- 
+
     pixels = imagem.load()
     pontos = {
         (x, y)
@@ -1213,7 +1213,7 @@ def mascara_oficial_133(imagem, legenda_oficial):
         for x in range(imagem.width)
         if pixels[x, y] in indices
     }
- 
+
     return pontos, indices, classes_por_indice
  
  
@@ -1628,13 +1628,13 @@ def analisar(imagem, legenda_oficial=None):
  
         "metodo":
             "componentes_conectados_8_vizinhos_rgb_oficial_#133",
- 
+
         "fonte_mascara":
             "somente_rgb_exato_da_legenda_oficial_radarsc",
- 
+
         "dbz_numerico_validado":
             False,
- 
+
         "eta_liberado":
             False,
  
@@ -1662,7 +1662,7 @@ def analisar(imagem, legenda_oficial=None):
  
                 "rgb":
                     list(rgb),
- 
+
                 "classe_oficial":
                     classes_por_indice.get(indice),
             }
@@ -4120,18 +4120,18 @@ def avaliar_todas_trilhas(
  
  
 # =========================================================
- 
- 
+
+
 # =========================================================
 # #134 - AUDITORIA FÍSICA PRELIMINAR DAS TRILHAS OFICIAIS
 # =========================================================
- 
+
 def auditoria_fisica_trilhas_134(rastreamento):
     """Audita coerência cinemática das trilhas #133 sem liberar ETA."""
     trilhas = (rastreamento or {}).get("trilhas", [])
     elegiveis = [t for t in trilhas if t.get("elegivel_para_analise")]
     itens = []
- 
+
     for trilha in elegiveis:
         passos = trilha.get("passos") or []
         velocidades = [
@@ -4141,12 +4141,12 @@ def auditoria_fisica_trilhas_134(rastreamento):
         ]
         velocidades_faixa_eta = [v for v in velocidades if 5 <= v <= 120]
         velocidades_faixa_rastreio = [v for v in velocidades if 0 <= v <= 150]
- 
+
         transicoes = trilha.get("transicoes") or 0
         score = trilha.get("score_medio")
         dispersao = trilha.get("dispersao_direcao_max_graus")
         similaridade = trilha.get("similaridade_cores_media")
- 
+
         criterios = {
             "transicoes_minimas_3": transicoes >= 3,
             "score_geometrico_minimo_0_55": isinstance(score, (int, float)) and score >= 0.55,
@@ -4155,7 +4155,7 @@ def auditoria_fisica_trilhas_134(rastreamento):
             "nenhum_passo_acima_limite_rastreio_150": len(velocidades_faixa_rastreio) == len(velocidades),
         }
         falhas = [nome for nome, ok in criterios.items() if not ok]
- 
+
         if velocidades:
             vel_min = round(min(velocidades), 1)
             vel_max = round(max(velocidades), 1)
@@ -4163,7 +4163,7 @@ def auditoria_fisica_trilhas_134(rastreamento):
             amplitude = round(vel_max - vel_min, 1)
         else:
             vel_min = vel_max = vel_media = amplitude = None
- 
+
         itens.append({
             "id_trilha": trilha.get("id_trilha"),
             "status": "coerente_para_estudo" if not falhas else "requer_revisao",
@@ -4187,17 +4187,17 @@ def auditoria_fisica_trilhas_134(rastreamento):
             "falhas": falhas,
             "eta_liberado": False,
         })
- 
+
     coerentes = [x for x in itens if x["status"] == "coerente_para_estudo"]
     revisar = [x for x in itens if x["status"] == "requer_revisao"]
- 
+
     contagem_falhas = {}
     for item in revisar:
         for falha in item["falhas"]:
             contagem_falhas[falha] = contagem_falhas.get(falha, 0) + 1
- 
+
     return {
-        "versao": "#134",
+        "versao": "#135",
         "status": "auditoria_fisica_preliminar_ativa",
         "origem_trilhas": "somente_componentes_formados_por_rgb_oficial_#133",
         "quantidade_trilhas_elegiveis_recebidas": len(elegiveis),
@@ -4221,9 +4221,65 @@ def auditoria_fisica_trilhas_134(rastreamento):
             "Ela não prova precipitação no solo, não valida dBZ e não autoriza ETA automático."
         ),
     }
+
+# =========================================================
+# #135 - FUNIL OPERACIONAL EXPERIMENTAL DAS TRILHAS
+# =========================================================
+
+def funil_operacional_135(rastreamento, auditoria_134):
+    """Filtra para estudo operacional apenas trilhas aprovadas na #134."""
+    trilhas = (rastreamento or {}).get("trilhas", [])
+    aprovadas = {
+        item.get("id_trilha")
+        for item in (auditoria_134 or {}).get("trilhas", [])
+        if item.get("status") == "coerente_para_estudo"
+    }
+    operacionais = [t for t in trilhas if t.get("id_trilha") in aprovadas]
+    rejeitadas = [
+        t for t in trilhas
+        if t.get("elegivel_para_analise") and t.get("id_trilha") not in aprovadas
+    ]
+    return {
+        "versao": "#135",
+        "status": "funil_operacional_experimental_ativo",
+        "origem": "rgb_oficial_#133_mais_coerencia_fisica_#134",
+        "quantidade_trilhas_operacionais_experimentais": len(operacionais),
+        "quantidade_trilhas_rejeitadas_pelo_funil": len(rejeitadas),
+        "ids_operacionais": [t.get("id_trilha") for t in operacionais],
+        "ids_rejeitadas": [t.get("id_trilha") for t in rejeitadas],
+        "trilhas_operacionais": operacionais,
+        "trilhas_rejeitadas_diagnostico": rejeitadas,
+        "dbz_numerico_validado": False,
+        "equivale_chuva_medida": False,
+        "eta_liberado": False,
+        "regra_seguranca": (
+            "A #135 aplica a auditoria física #134 como filtro experimental. "
+            "Trilhas rejeitadas permanecem apenas para diagnóstico. "
+            "Nenhuma trilha autoriza ETA, dBZ numérico ou chuva medida."
+        ),
+    }
+
+
+def rastreamento_operacional_135(rastreamento, funil):
+    """Visão filtrada; preserva separadamente o rastreamento diagnóstico completo."""
+    base = dict(rastreamento or {})
+    trilhas = list((funil or {}).get("trilhas_operacionais") or [])
+    base["versao_funil"] = "#135"
+    base["status_funil"] = "somente_trilhas_coerentes_134"
+    base["trilhas"] = trilhas
+    base["quantidade_trilhas"] = len(trilhas)
+    base["quantidade_trilhas_elegiveis"] = len(trilhas)
+    base["trilha_principal_diagnostica"] = (
+        max(trilhas, key=lambda t: (t.get("transicoes") or 0, t.get("score_medio") or 0))
+        if trilhas else None
+    )
+    base["eta_liberado"] = False
+    return base
+
+
 # #129 - ECO OFICIAL RADARSC AO REDOR DO COMASA
 # =========================================================
- 
+
 def diagnostico_eco_oficial_local(imagem, legenda_oficial):
     """Cruza o PNG com as cores RGB da legenda oficial em 2, 5, 10 e 25 km."""
     classes = (legenda_oficial or {}).get("classes", [])
@@ -4300,16 +4356,16 @@ def diagnostico_eco_oficial_local(imagem, legenda_oficial):
         "Não significa chuva medida no solo e não atribui dBZ enquanto a escala numérica não for validada."
     )
     return resultado
- 
- 
- 
+
+
+
 # =========================================================
 # #130 - DICIONÁRIO QUALITATIVO DE CORES DO RADAR
 # =========================================================
- 
+
 def familia_cor_radar(rgb):
     """Classifica apenas a família visual da cor oficial.
- 
+
     A interpretação meteorológica é deliberadamente qualitativa:
     SIMEPAR documenta verde/amarelo como chuva de menor intensidade e
     vermelho/rosa como chuva mais intensa/tempestades. A Defesa Civil SC
@@ -4341,8 +4397,8 @@ def familia_cor_radar(rgb):
     if b >= 120 and (b >= r * 1.20 or g >= r * 1.25):
         return "azul_ciano"
     return "outra"
- 
- 
+
+
 def significado_qualitativo_familia(familia):
     if familia in ("verde", "amarelo"):
         return {
@@ -4363,8 +4419,8 @@ def significado_qualitativo_familia(familia):
         "categoria": "sem_interpretacao_meteorologica_validada",
         "nivel_evidencia": "nao_classificado",
     }
- 
- 
+
+
 def construir_dicionario_cores_130(legenda_oficial):
     classes = (legenda_oficial or {}).get("classes") or []
     saida = []
@@ -4403,8 +4459,8 @@ def construir_dicionario_cores_130(legenda_oficial):
         "dbz_numerico_validado": False,
         "eta_liberado": False,
     }
- 
- 
+
+
 def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
     dicionario = construir_dicionario_cores_130(legenda_oficial)
     mapa = {tuple(x["rgb"]): x for x in dicionario.get("classes", []) if x.get("rgb")}
@@ -4465,14 +4521,14 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
             "As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
         ),
     }
- 
+
 # =========================================================
 # #132 - AUDITORIA ESPACIAL: LEGADO x RGB OFICIAL
 # =========================================================
- 
+
 def auditoria_espacial_132(imagem, legenda_oficial):
     """Explica a divergência entre a máscara legada e as cores oficiais.
- 
+
     A máscara histórica considera candidato todo pixel visível diferente de
     CINZA (200,200,200). A auditoria #132 não usa isso como chuva: ela mostra
     qual RGB/índice gerou o candidato mais próximo e se esse RGB pertence ou
@@ -4486,7 +4542,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
         rgb = item.get("rgb")
         if isinstance(rgb, list) and len(rgb) == 3:
             mapa_oficial[tuple(int(v) for v in rgb)] = item.get("classe")
- 
+
     base = {
         "versao": "#133",
         "status": "auditoria_espacial_ativa",
@@ -4498,15 +4554,15 @@ def auditoria_espacial_132(imagem, legenda_oficial):
         "equivale_chuva_medida": False,
         "eta_liberado": False,
     }
- 
+
     if imagem.mode != "P":
         return {**base, "status": "modo_png_inesperado", "modo": imagem.mode}
- 
+
     largura, altura = imagem.size
     x0, y0 = geo2px(LON, LAT, largura, altura)
     lat_rt, lon_rt = px2geo(x0, y0, largura, altura)
     erro_rt = hav(LAT, LON, lat_rt, lon_rt)
- 
+
     paleta = imagem.getpalette()
     transparencia = imagem.info.get("transparency")
     pixels = imagem.load()
@@ -4514,7 +4570,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
     rgb_ponto = rgb_idx(paleta, indice_ponto)
     alpha_ponto = alpha_idx(transparencia, indice_ponto)
     classe_ponto = mapa_oficial.get(tuple(rgb_ponto)) if rgb_ponto else None
- 
+
     pontos_legado, indices_legado = mascara(imagem)
     legado_mais_proximo = None
     for x, y in pontos_legado:
@@ -4526,7 +4582,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
             alpha = alpha_idx(transparencia, indice)
             classe = mapa_oficial.get(tuple(rgb)) if rgb else None
             legado_mais_proximo = (d, x, y, indice, rgb, alpha, classe, lat, lon)
- 
+
     oficial_mais_proximo = None
     # Varre o quadro inteiro apenas por RGBs oficiais. Isso é diagnóstico,
     # não medição de chuva e não atribui intensidade numérica.
@@ -4546,7 +4602,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
                 d = hav(LAT, LON, lat, lon)
                 if oficial_mais_proximo is None or d < oficial_mais_proximo[0]:
                     oficial_mais_proximo = (d, x, y, indice, rgb, classe, lat, lon)
- 
+
     def pacote_legado(item):
         if not item:
             return None
@@ -4568,7 +4624,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
                 else "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
             ),
         }
- 
+
     def pacote_oficial(item):
         if not item:
             return None
@@ -4583,7 +4639,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
             "latitude": round(lat, 6),
             "longitude": round(lon, 6),
         }
- 
+
     legado = pacote_legado(legado_mais_proximo)
     oficial = pacote_oficial(oficial_mais_proximo)
     divergencia = None
@@ -4591,7 +4647,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
         divergencia = round(
             oficial["distancia_comasa_km"] - legado["distancia_comasa_km"], 3
         )
- 
+
     # Conta, em raios locais, quantos candidatos legados são de fato cores
     # oficiais. Assim a #132 mede a contaminação do critério antigo.
     raios = (2, 5, 10, 25)
@@ -4611,7 +4667,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
                     cont[r]["oficial"] += 1
                 else:
                     cont[r]["legado_nao_oficial"] += 1
- 
+
     return {
         **base,
         "transformacao_geografica": {
@@ -4645,8 +4701,8 @@ def auditoria_espacial_132(imagem, legenda_oficial):
             "dBZ numerico e ETA permanecem bloqueados."
         ),
     }
- 
- 
+
+
 # =========================================================
 # DOWNLOAD DO RADAR
 # =========================================================
@@ -4701,19 +4757,19 @@ def baixar(nome, legenda_oficial=None):
                 imagem,
                 legenda_oficial,
             ),
- 
+
         "eco_oficial_local_129":
             diagnostico_eco_oficial_local(
                 imagem,
                 legenda_oficial,
             ),
- 
+
         "classificacao_qualitativa_local_130":
             diagnostico_qualitativo_local_130(
                 imagem,
                 legenda_oficial,
             ),
- 
+
         "auditoria_espacial_132":
             auditoria_espacial_132(
                 imagem,
@@ -4882,13 +4938,23 @@ def buscar_radar():
         rastreamento = rastrear(
             validos
         )
- 
+
         auditoria_fisica_134 = auditoria_fisica_trilhas_134(
             rastreamento
         )
+
+        funil_135 = funil_operacional_135(
+            rastreamento,
+            auditoria_fisica_134,
+        )
+
+        rastreamento_operacional = rastreamento_operacional_135(
+            rastreamento,
+            funil_135,
+        )
  
         avaliacao = avaliar_todas_trilhas(
-            rastreamento,
+            rastreamento_operacional,
             fresco,
             idade,
             horario_ultimo,
@@ -4899,7 +4965,7 @@ def buscar_radar():
         )
  
         principal = (
-            rastreamento.get(
+            rastreamento_operacional.get(
                 "trilha_principal_diagnostica"
             )
         )
@@ -5164,19 +5230,19 @@ def buscar_radar():
  
             "validacao_paleta_radar":
                 validacao_paleta,
- 
+
             "eco_oficial_local_129":
                 ultimo.get("eco_oficial_local_129"),
- 
+
             "dicionario_cores_130":
                 construir_dicionario_cores_130(leg),
- 
+
             "classificacao_qualitativa_local_130":
                 ultimo.get("classificacao_qualitativa_local_130"),
- 
+
             "auditoria_espacial_132":
                 ultimo.get("auditoria_espacial_132"),
- 
+
             "correcao_rastreamento_133": {
                 "versao": "#133",
                 "status": "ativa",
@@ -5190,7 +5256,7 @@ def buscar_radar():
  
             "metodo_eco": {
                 "status":
-                    "experimental_rastreamento_rgb_oficial_133",
+                    "experimental_funil_fisico_135",
  
                 "fundo":
                     "alpha_zero_excluido",
@@ -5203,15 +5269,15 @@ def buscar_radar():
  
                 "dbz":
                     "nao_atribuido",
- 
+
                 "classificacao_qualitativa":
                     "somente_rgb_exato_da_legenda_oficial",
- 
+
                 "rastreamento_temporal":
                     "somente_componentes_formados_por_rgb_oficial_#133",
- 
+
                 "autovalidacao":
-                    "somente_trilhas_derivadas_de_rgb_oficial_#133",
+                    "somente_trilhas_rgb_oficial_que_passaram_auditoria_fisica_#135",
  
                 "validacao_rgb":
                     validacao_paleta.get("status"),
@@ -5222,9 +5288,15 @@ def buscar_radar():
  
             "rastreamento_temporal":
                 rastreamento,
- 
+
             "auditoria_fisica_trilhas_134":
                 auditoria_fisica_134,
+
+            "funil_operacional_135":
+                funil_135,
+
+            "rastreamento_operacional_135":
+                rastreamento_operacional,
  
             "avaliacao_trajetorias":
                 avaliacao,
@@ -5321,7 +5393,7 @@ def buscar_radar():
 # =========================================================
 # #123 - CHUVA OBSERVADA / ESTAÇÃO INMET - RECUPERADA NA #128
 # =========================================================
- 
+
 def numero_inmet(valor):
     if valor is None: return None
     texto=str(valor).strip().replace(",", ".")
@@ -5329,15 +5401,15 @@ def numero_inmet(valor):
     try: numero=float(texto)
     except (TypeError,ValueError): return None
     return None if abs(numero)>=9999 else numero
- 
- 
+
+
 def horario_inmet_utc(data,hora):
     if not data or hora is None: return None
     h=str(hora).strip().zfill(4)[:4]
     try: return datetime.strptime(f"{data} {h}","%Y-%m-%d %H%M").replace(tzinfo=UTC)
     except Exception: return None
- 
- 
+
+
 def buscar_chuva_observada_inmet():
     try:
         resposta=get(INMET_ATUAL+IBGE_JOINVILLE).json()
@@ -5355,8 +5427,8 @@ def buscar_chuva_observada_inmet():
         return {"status":status,"tipo":"observacao_estacao_automatica","fonte":"INMET","fonte_primaria":"Instituto Nacional de Meteorologia","geocodigo_ibge_consultado":IBGE_JOINVILLE,"estacao":{"codigo":estacao.get("CODIGO") or dados.get("CD_ESTACAO"),"nome":estacao.get("NOME") or dados.get("DC_NOME"),"uf":estacao.get("UF") or dados.get("UF"),"distancia_referencia_joinville_km":distancia},"leitura_horaria_mm":chuva,"horario_medicao_utc":instante.isoformat() if instante else None,"horario_medicao_local":horario_local,"idade_leitura_min":idade,"dados_frescos":fresco,"representatividade":"Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.","regra_seguranca":"Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."}
     except Exception as e:
         return {"status":"indisponivel","tipo":"observacao_estacao_automatica","fonte":"INMET","geocodigo_ibge_consultado":IBGE_JOINVILLE,"leitura_horaria_mm":None,"horario_medicao_utc":None,"horario_medicao_local":None,"idade_leitura_min":None,"dados_frescos":False,"erro":str(e),"regra_seguranca":"Falha de coleta não é interpretada como ausência de chuva."}
- 
- 
+
+
 def main():
     dados = {
         "monitor":
@@ -5387,10 +5459,10 @@ def main():
  
         "chuva_observada_inmet":
             buscar_chuva_observada_inmet(),
- 
+
         "investigacao_radarsc_128":
             investigar_fonte_radarsc(),
- 
+
         "mare":
             buscar_mare(),
  
@@ -5432,7 +5504,7 @@ def main():
     }
  
     historico = registrar_historico_validacao(dados)
- 
+
     with open(
         ARQUIVO,
         "w",

@@ -12,6 +12,7 @@ from zoneinfo import ZoneInfo
 import requests
 import urllib3
 from PIL import Image
+from bs4 import BeautifulSoup
  
  
 # =========================================================
@@ -30,6 +31,7 @@ IBGE_JOINVILLE = "4209102"
 INMET_ATUAL = "https://apiprevmet3.inmet.gov.br/estacao/proxima/"
 CEMADEN_RECURSOS = "https://resources.cemaden.gov.br"
 CEMADEN_PLUV_24H = CEMADEN_RECURSOS + "/dados/311_24.json"
+DEFESA_CIVIL_SC_BUSCA = "https://www.defesacivil.sc.gov.br/"
  
 FUSO = ZoneInfo("America/Sao_Paulo")
 UTC = ZoneInfo("UTC")
@@ -7013,6 +7015,180 @@ def buscar_chuva_observada_inmet():
         return {"status":"indisponivel","tipo":"observacao_estacao_automatica","fonte":"INMET","geocodigo_ibge_consultado":IBGE_JOINVILLE,"leitura_horaria_mm":None,"horario_medicao_utc":None,"horario_medicao_local":None,"idade_leitura_min":None,"dados_frescos":False,"erro":str(e),"regra_seguranca":"Falha de coleta não é interpretada como ausência de chuva."}
 
 
+
+def buscar_alerta_granizo_147():
+    """
+    Consulta publicações oficiais da Defesa Civil de Santa Catarina e procura
+    alertas de granizo que mencionem Joinville. Um alerta só é marcado como
+    ativo quando a própria publicação fornece uma janela temporal ainda válida.
+    Falha de consulta nunca é convertida em "sem alerta".
+    """
+    saida = {
+        "status": "indisponivel",
+        "versao": "#147",
+        "fonte": "Secretaria de Estado da Protecao e Defesa Civil de Santa Catarina",
+        "tipo": "alerta_oficial_municipal",
+        "municipio": "Joinville",
+        "granizo_em_alerta_ativo": None,
+        "nivel": None,
+        "inicio_local": None,
+        "validade_ate_local": None,
+        "janela_horas": None,
+        "titulo": None,
+        "url": None,
+        "ultima_publicacao_relevante": None,
+        "regra_seguranca": (
+            "Somente publicacao oficial que mencione Joinville e granizo, com janela "
+            "temporal ainda valida, e tratada como alerta ativo. Falha de consulta "
+            "permanece indisponivel e nunca significa ausencia de risco."
+        ),
+    }
+
+    try:
+        busca = get(
+            DEFESA_CIVIL_SC_BUSCA,
+            params={"s": "granizo Joinville"},
+        )
+        soup = BeautifulSoup(busca.text, "html.parser")
+
+        links = []
+        vistos = set()
+        for a in soup.find_all("a", href=True):
+            href = str(a.get("href") or "").strip()
+            texto = " ".join(a.stripped_strings)
+            if (
+                href.startswith("https://www.defesacivil.sc.gov.br/")
+                and "/2026/" in href
+                and href not in vistos
+                and ("granizo" in (texto + " " + href).lower())
+            ):
+                vistos.add(href)
+                links.append(href)
+
+        # A busca oficial pode trazer poucos resultados. Limitar evita sobrecarga.
+        links = links[:20]
+        relevantes = []
+
+        for href in links:
+            try:
+                pagina = get(href)
+                psoup = BeautifulSoup(pagina.text, "html.parser")
+                h1 = psoup.find("h1")
+                titulo = " ".join(h1.stripped_strings) if h1 else ""
+                texto = " ".join(psoup.stripped_strings)
+                baixo = texto.lower()
+
+                if "joinville" not in baixo or "granizo" not in baixo:
+                    continue
+
+                # Data/hora operacional vem do proprio titulo dos alertas.
+                m = re.search(
+                    r"(\d{1,2})/(\d{1,2})\s+(\d{1,2}):(\d{2})",
+                    titulo,
+                )
+                if not m:
+                    continue
+
+                dia, mes, hora, minuto = map(int, m.groups())
+                my = re.search(r"/(20\d{2})/", href)
+                ano = int(my.group(1)) if my else agora().year
+                inicio = datetime(ano, mes, dia, hora, minuto, tzinfo=FUSO)
+
+                mj = re.search(
+                    r"pr[oó]ximas?\s+(\d+)\s+horas?",
+                    titulo,
+                    flags=re.I,
+                )
+                if mj:
+                    janela = int(mj.group(1))
+                elif re.search(r"pr[oó]xima\s+hora", titulo, flags=re.I):
+                    janela = 1
+                else:
+                    janela = None
+
+                validade = inicio + timedelta(hours=janela) if janela else None
+                nivel = (
+                    "ALERTA" if titulo.upper().startswith("ALERTA")
+                    else "ATENCAO" if titulo.upper().startswith("ATENÇÃO")
+                    else "OBSERVACAO" if titulo.upper().startswith("OBSERVAÇÃO")
+                    else "INFORMATIVO"
+                )
+
+                relevantes.append({
+                    "titulo": titulo,
+                    "url": href,
+                    "nivel": nivel,
+                    "inicio": inicio,
+                    "validade": validade,
+                    "janela_horas": janela,
+                })
+            except Exception:
+                continue
+
+        if not relevantes:
+            saida["status"] = "online_sem_publicacao_relevante_decodificada"
+            saida["granizo_em_alerta_ativo"] = False
+            saida["observacao"] = (
+                "A busca oficial respondeu, mas nenhuma publicacao de granizo para "
+                "Joinville com data/hora operacional foi decodificada nesta coleta."
+            )
+            return saida
+
+        relevantes.sort(key=lambda x: x["inicio"], reverse=True)
+        ultimo = relevantes[0]
+        ativos = [
+            x for x in relevantes
+            if x["validade"] is not None
+            and x["inicio"] <= agora() <= x["validade"]
+        ]
+
+        saida["ultima_publicacao_relevante"] = {
+            "titulo": ultimo["titulo"],
+            "inicio_local": ultimo["inicio"].isoformat(),
+            "validade_ate_local": (
+                ultimo["validade"].isoformat() if ultimo["validade"] else None
+            ),
+            "url": ultimo["url"],
+        }
+
+        if ativos:
+            ativos.sort(key=lambda x: x["inicio"], reverse=True)
+            atual = ativos[0]
+            saida.update({
+                "status": "alerta_oficial_ativo",
+                "granizo_em_alerta_ativo": True,
+                "nivel": atual["nivel"],
+                "inicio_local": atual["inicio"].isoformat(),
+                "validade_ate_local": atual["validade"].isoformat(),
+                "janela_horas": atual["janela_horas"],
+                "titulo": atual["titulo"],
+                "url": atual["url"],
+            })
+        else:
+            saida.update({
+                "status": "online_sem_alerta_granizo_ativo",
+                "granizo_em_alerta_ativo": False,
+                "nivel": ultimo["nivel"],
+                "inicio_local": ultimo["inicio"].isoformat(),
+                "validade_ate_local": (
+                    ultimo["validade"].isoformat() if ultimo["validade"] else None
+                ),
+                "janela_horas": ultimo["janela_horas"],
+                "titulo": ultimo["titulo"],
+                "url": ultimo["url"],
+            })
+
+        return saida
+
+    except Exception as e:
+        saida["erro"] = str(e)
+        saida["observacao"] = (
+            "Falha ao consultar a fonte oficial. O Monitor nao interpreta falha "
+            "como ausencia de alerta."
+        )
+        return saida
+
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     dados = {
@@ -7074,17 +7250,7 @@ def main():
  
         "radar":
             buscar_radar(),
- 
-        "granizo": {
-            "status":
-                "sem_alerta_integrado",
- 
-            "fonte":
-                (
-                    "Defesa Civil - "
-                    "integração futura"
-                ),
-        },
+        "granizo": buscar_alerta_granizo_147(),
  
         "emergencia": {
             "defesa_civil":

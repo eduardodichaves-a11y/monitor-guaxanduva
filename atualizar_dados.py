@@ -330,6 +330,7 @@ def buscar_previsao():
             "longitude": LON,
  
             "current": (
+                "temperature_2m,"
                 "precipitation,"
                 "wind_speed_10m,"
                 "wind_direction_10m,"
@@ -337,6 +338,7 @@ def buscar_previsao():
             ),
  
             "hourly": (
+                "temperature_2m,"
                 "precipitation_probability,"
                 "precipitation,"
                 "wind_speed_10m,"
@@ -345,6 +347,8 @@ def buscar_previsao():
             ),
  
             "daily": (
+                "temperature_2m_max,"
+                "temperature_2m_min,"
                 "precipitation_sum,"
                 "precipitation_probability_max,"
                 "wind_speed_10m_max,"
@@ -425,14 +429,55 @@ def buscar_previsao():
  
                 return None
  
+            prob_max = dv(
+                "precipitation_probability_max"
+            )
+
+            horarios_prob_max = []
+            probs_horarias = horario.get(
+                "precipitation_probability",
+                [],
+            )
+
+            for j, texto_hora in enumerate(
+                horario.get("time", [])
+            ):
+                try:
+                    if not str(texto_hora).startswith(str(data)):
+                        continue
+                    if j >= len(probs_horarias):
+                        continue
+                    valor_prob = probs_horarias[j]
+                    if (
+                        valor_prob is not None
+                        and prob_max is not None
+                        and float(valor_prob) == float(prob_max)
+                    ):
+                        horarios_prob_max.append(
+                            str(texto_hora)[11:16]
+                        )
+                except Exception:
+                    pass
+
             dias.append({
                 "data":
                     data,
+
+                "temperatura_min_c":
+                    dv(
+                        "temperature_2m_min"
+                    ),
+
+                "temperatura_max_c":
+                    dv(
+                        "temperature_2m_max"
+                    ),
  
                 "probabilidade_chuva_pct":
-                    dv(
-                        "precipitation_probability_max"
-                    ),
+                    prob_max,
+
+                "horarios_probabilidade_max":
+                    horarios_prob_max,
  
                 "precipitacao_total_mm":
                     dv(
@@ -458,6 +503,11 @@ def buscar_previsao():
             "atual": {
                 "horario":
                     atual.get("time"),
+
+                "temperatura_c":
+                    atual.get(
+                        "temperature_2m"
+                    ),
  
                 "precipitacao_mm":
                     atual.get(
@@ -483,6 +533,11 @@ def buscar_previsao():
             "proxima_hora": {
                 "horario":
                     hv("time"),
+
+                "temperatura_c":
+                    hv(
+                        "temperature_2m"
+                    ),
  
                 "probabilidade_chuva_pct":
                     hv(

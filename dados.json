@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-09-21T22:38:16.229149-03:00",
+  "gerado_em": "2026-09-21T22:43:30.983040-03:00",
   "chuva": {
     "status": "aguardando_integracao",
     "fonte": "CEMADEN",
@@ -24,7 +24,7 @@
     "leitura_horaria_mm": 4.6,
     "horario_medicao_utc": "2026-09-22T01:00:00+00:00",
     "horario_medicao_local": "2026-09-21T22:00:00-03:00",
-    "idade_leitura_min": 38.3,
+    "idade_leitura_min": 43.5,
     "dados_frescos": true,
     "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
     "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
@@ -264,7 +264,7 @@
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
     "horario_ultimo_quadro": "2026-09-21T20:50:00-03:00",
-    "idade_ultimo_quadro_min": 108.8,
+    "idade_ultimo_quadro_min": 114.0,
     "dados_frescos": false,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -1010,8 +1010,102 @@
       },
       "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
     },
+    "auditoria_espacial_132": {
+      "versao": "#132",
+      "status": "auditoria_espacial_ativa",
+      "referencia": "Comasa - coordenada pública aproximada",
+      "coordenada_referencia": {
+        "latitude": -26.27,
+        "longitude": -48.81
+      },
+      "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
+      "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+      "dbz_numerico_validado": false,
+      "equivale_chuva_medida": false,
+      "eta_liberado": false,
+      "transformacao_geografica": {
+        "pixel_comasa": {
+          "x": 735,
+          "y": 119
+        },
+        "coordenada_recalculada_do_pixel": {
+          "latitude": -26.265462,
+          "longitude": -48.815538
+        },
+        "erro_roundtrip_km": 0.748,
+        "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
+      },
+      "pixel_exato_comasa": {
+        "indice_p": 1,
+        "rgb": [
+          110,
+          200,
+          255
+        ],
+        "alpha": 255,
+        "visivel": true,
+        "rgb_pertence_legenda_oficial": false,
+        "classe_oficial": null
+      },
+      "candidato_legado_mais_proximo": {
+        "distancia_comasa_km": 0.748,
+        "pixel_x": 735,
+        "pixel_y": 119,
+        "indice_p": 1,
+        "rgb": [
+          110,
+          200,
+          255
+        ],
+        "alpha": 255,
+        "rgb_pertence_legenda_oficial": false,
+        "classe_oficial": null,
+        "latitude": -26.265462,
+        "longitude": -48.815538,
+        "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
+      },
+      "eco_oficial_mais_proximo_no_quadro": {
+        "distancia_comasa_km": 19.751,
+        "pixel_x": 723,
+        "pixel_y": 128,
+        "indice_p": 10,
+        "rgb": [
+          255,
+          255,
+          0
+        ],
+        "classe_oficial": 10,
+        "latitude": -26.378914,
+        "longitude": -48.966552
+      },
+      "diferenca_distancias_oficial_menos_legado_km": 19.003,
+      "contagem_local_por_raio": {
+        "2": {
+          "legado": 6,
+          "oficial": 0,
+          "legado_nao_oficial": 6
+        },
+        "5": {
+          "legado": 41,
+          "oficial": 0,
+          "legado_nao_oficial": 41
+        },
+        "10": {
+          "legado": 146,
+          "oficial": 0,
+          "legado_nao_oficial": 146
+        },
+        "25": {
+          "legado": 926,
+          "oficial": 9,
+          "legado_nao_oficial": 917
+        }
+      },
+      "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
+      "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
+    },
     "metodo_eco": {
-      "status": "experimental_validacao_qualitativa_130",
+      "status": "experimental_auditoria_espacial_132",
       "fundo": "alpha_zero_excluido",
       "cinza_200_200_200": "excluido_ate_validacao",
       "demais_pixels_visiveis": "nao_usados_como_chuva_na_classificacao_130",
@@ -4899,7 +4993,7 @@
             "projecao_adiante_km": 138.67,
             "velocidade_recente_media_kmh": 34.9,
             "radar_fresco": false,
-            "idade_radar_min": 108.8,
+            "idade_radar_min": 114.0,
             "horario_ultimo_quadro": "2026-09-21T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -4912,7 +5006,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 108.8 min.",
+            "motivo": "Radar desatualizado: 114.0 min.",
             "eta": null
           }
         },
@@ -4946,7 +5040,7 @@
             "projecao_adiante_km": 307.24,
             "velocidade_recente_media_kmh": 75.0,
             "radar_fresco": false,
-            "idade_radar_min": 108.8,
+            "idade_radar_min": 114.0,
             "horario_ultimo_quadro": "2026-09-21T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -4959,7 +5053,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 108.8 min.",
+            "motivo": "Radar desatualizado: 114.0 min.",
             "eta": null
           }
         },
@@ -4993,7 +5087,7 @@
             "projecao_adiante_km": 421.24,
             "velocidade_recente_media_kmh": 77.4,
             "radar_fresco": false,
-            "idade_radar_min": 108.8,
+            "idade_radar_min": 114.0,
             "horario_ultimo_quadro": "2026-09-21T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -5006,7 +5100,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 108.8 min.",
+            "motivo": "Radar desatualizado: 114.0 min.",
             "eta": null
           }
         },
@@ -5040,7 +5134,7 @@
             "projecao_adiante_km": 335.73,
             "velocidade_recente_media_kmh": 79.2,
             "radar_fresco": false,
-            "idade_radar_min": 108.8,
+            "idade_radar_min": 114.0,
             "horario_ultimo_quadro": "2026-09-21T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -5053,7 +5147,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 108.8 min.",
+            "motivo": "Radar desatualizado: 114.0 min.",
             "eta": null
           }
         },
@@ -5087,7 +5181,7 @@
             "projecao_adiante_km": 261.62,
             "velocidade_recente_media_kmh": 80.2,
             "radar_fresco": false,
-            "idade_radar_min": 108.8,
+            "idade_radar_min": 114.0,
             "horario_ultimo_quadro": "2026-09-21T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -5100,7 +5194,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 108.8 min.",
+            "motivo": "Radar desatualizado: 114.0 min.",
             "eta": null
           }
         },
@@ -5134,7 +5228,7 @@
             "projecao_adiante_km": 444.37,
             "velocidade_recente_media_kmh": 59.9,
             "radar_fresco": false,
-            "idade_radar_min": 108.8,
+            "idade_radar_min": 114.0,
             "horario_ultimo_quadro": "2026-09-21T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -5147,7 +5241,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 108.8 min.",
+            "motivo": "Radar desatualizado: 114.0 min.",
             "eta": null
           }
         },
@@ -5181,7 +5275,7 @@
             "projecao_adiante_km": 291.65,
             "velocidade_recente_media_kmh": 0,
             "radar_fresco": false,
-            "idade_radar_min": 108.8,
+            "idade_radar_min": 114.0,
             "horario_ultimo_quadro": "2026-09-21T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -5194,7 +5288,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 108.8 min.",
+            "motivo": "Radar desatualizado: 114.0 min.",
             "eta": null
           }
         },
@@ -5228,7 +5322,7 @@
             "projecao_adiante_km": 493.05,
             "velocidade_recente_media_kmh": 65.8,
             "radar_fresco": false,
-            "idade_radar_min": 108.8,
+            "idade_radar_min": 114.0,
             "horario_ultimo_quadro": "2026-09-21T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -5241,7 +5335,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 108.8 min.",
+            "motivo": "Radar desatualizado: 114.0 min.",
             "eta": null
           }
         },
@@ -5275,7 +5369,7 @@
             "projecao_adiante_km": 317.24,
             "velocidade_recente_media_kmh": 69.9,
             "radar_fresco": false,
-            "idade_radar_min": 108.8,
+            "idade_radar_min": 114.0,
             "horario_ultimo_quadro": "2026-09-21T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -5288,7 +5382,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 108.8 min.",
+            "motivo": "Radar desatualizado: 114.0 min.",
             "eta": null
           }
         },
@@ -5322,7 +5416,7 @@
             "projecao_adiante_km": 429.24,
             "velocidade_recente_media_kmh": 60.2,
             "radar_fresco": false,
-            "idade_radar_min": 108.8,
+            "idade_radar_min": 114.0,
             "horario_ultimo_quadro": "2026-09-21T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -5335,7 +5429,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 108.8 min.",
+            "motivo": "Radar desatualizado: 114.0 min.",
             "eta": null
           }
         },
@@ -5369,7 +5463,7 @@
             "projecao_adiante_km": 292.71,
             "velocidade_recente_media_kmh": 83.3,
             "radar_fresco": false,
-            "idade_radar_min": 108.8,
+            "idade_radar_min": 114.0,
             "horario_ultimo_quadro": "2026-09-21T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -5382,7 +5476,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 108.8 min.",
+            "motivo": "Radar desatualizado: 114.0 min.",
             "eta": null
           }
         }
@@ -5414,7 +5508,7 @@
       "projecao_adiante_km": 335.73,
       "velocidade_recente_media_kmh": 79.2,
       "radar_fresco": false,
-      "idade_radar_min": 108.8,
+      "idade_radar_min": 114.0,
       "horario_ultimo_quadro": "2026-09-21T23:50:00+00:00",
       "criterios": {
         "minimo_transicoes": 3,
@@ -5427,7 +5521,7 @@
         "horizonte_max_min": 180,
         "idade_max_radar_min": 30
       },
-      "motivo": "Radar desatualizado: 108.8 min.",
+      "motivo": "Radar desatualizado: 114.0 min.",
       "eta": null
     },
     "quadros": [
@@ -10654,6 +10748,100 @@
             }
           },
           "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+        },
+        "auditoria_espacial_132": {
+          "versao": "#132",
+          "status": "auditoria_espacial_ativa",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "coordenada_referencia": {
+            "latitude": -26.27,
+            "longitude": -48.81
+          },
+          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
+          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "transformacao_geografica": {
+            "pixel_comasa": {
+              "x": 735,
+              "y": 119
+            },
+            "coordenada_recalculada_do_pixel": {
+              "latitude": -26.265462,
+              "longitude": -48.815538
+            },
+            "erro_roundtrip_km": 0.748,
+            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
+          },
+          "pixel_exato_comasa": {
+            "indice_p": 4,
+            "rgb": [
+              0,
+              90,
+              255
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null
+          },
+          "candidato_legado_mais_proximo": {
+            "distancia_comasa_km": 0.748,
+            "pixel_x": 735,
+            "pixel_y": 119,
+            "indice_p": 4,
+            "rgb": [
+              0,
+              90,
+              255
+            ],
+            "alpha": 255,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null,
+            "latitude": -26.265462,
+            "longitude": -48.815538,
+            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
+          },
+          "eco_oficial_mais_proximo_no_quadro": {
+            "distancia_comasa_km": 10.34,
+            "pixel_x": 736,
+            "pixel_y": 112,
+            "indice_p": 12,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "classe_oficial": 10,
+            "latitude": -26.177221,
+            "longitude": -48.802953
+          },
+          "diferenca_distancias_oficial_menos_legado_km": 9.592,
+          "contagem_local_por_raio": {
+            "2": {
+              "legado": 6,
+              "oficial": 0,
+              "legado_nao_oficial": 6
+            },
+            "5": {
+              "legado": 39,
+              "oficial": 0,
+              "legado_nao_oficial": 39
+            },
+            "10": {
+              "legado": 161,
+              "oficial": 0,
+              "legado_nao_oficial": 161
+            },
+            "25": {
+              "legado": 1076,
+              "oficial": 66,
+              "legado_nao_oficial": 1010
+            }
+          },
+          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
+          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
         }
       },
       {
@@ -15681,6 +15869,100 @@
             }
           },
           "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+        },
+        "auditoria_espacial_132": {
+          "versao": "#132",
+          "status": "auditoria_espacial_ativa",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "coordenada_referencia": {
+            "latitude": -26.27,
+            "longitude": -48.81
+          },
+          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
+          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "transformacao_geografica": {
+            "pixel_comasa": {
+              "x": 735,
+              "y": 119
+            },
+            "coordenada_recalculada_do_pixel": {
+              "latitude": -26.265462,
+              "longitude": -48.815538
+            },
+            "erro_roundtrip_km": 0.748,
+            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
+          },
+          "pixel_exato_comasa": {
+            "indice_p": 7,
+            "rgb": [
+              43,
+              107,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null
+          },
+          "candidato_legado_mais_proximo": {
+            "distancia_comasa_km": 0.748,
+            "pixel_x": 735,
+            "pixel_y": 119,
+            "indice_p": 7,
+            "rgb": [
+              43,
+              107,
+              0
+            ],
+            "alpha": 255,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null,
+            "latitude": -26.265462,
+            "longitude": -48.815538,
+            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
+          },
+          "eco_oficial_mais_proximo_no_quadro": {
+            "distancia_comasa_km": 4.346,
+            "pixel_x": 732,
+            "pixel_y": 119,
+            "indice_p": 13,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "classe_oficial": 10,
+            "latitude": -26.265462,
+            "longitude": -48.853291
+          },
+          "diferenca_distancias_oficial_menos_legado_km": 3.598,
+          "contagem_local_por_raio": {
+            "2": {
+              "legado": 6,
+              "oficial": 0,
+              "legado_nao_oficial": 6
+            },
+            "5": {
+              "legado": 45,
+              "oficial": 2,
+              "legado_nao_oficial": 43
+            },
+            "10": {
+              "legado": 177,
+              "oficial": 3,
+              "legado_nao_oficial": 174
+            },
+            "25": {
+              "legado": 932,
+              "oficial": 17,
+              "legado_nao_oficial": 915
+            }
+          },
+          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
+          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
         }
       },
       {
@@ -20525,6 +20807,100 @@
             }
           },
           "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+        },
+        "auditoria_espacial_132": {
+          "versao": "#132",
+          "status": "auditoria_espacial_ativa",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "coordenada_referencia": {
+            "latitude": -26.27,
+            "longitude": -48.81
+          },
+          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
+          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "transformacao_geografica": {
+            "pixel_comasa": {
+              "x": 735,
+              "y": 119
+            },
+            "coordenada_recalculada_do_pixel": {
+              "latitude": -26.265462,
+              "longitude": -48.815538
+            },
+            "erro_roundtrip_km": 0.748,
+            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
+          },
+          "pixel_exato_comasa": {
+            "indice_p": 5,
+            "rgb": [
+              0,
+              90,
+              255
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null
+          },
+          "candidato_legado_mais_proximo": {
+            "distancia_comasa_km": 0.748,
+            "pixel_x": 735,
+            "pixel_y": 119,
+            "indice_p": 5,
+            "rgb": [
+              0,
+              90,
+              255
+            ],
+            "alpha": 255,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null,
+            "latitude": -26.265462,
+            "longitude": -48.815538,
+            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
+          },
+          "eco_oficial_mais_proximo_no_quadro": {
+            "distancia_comasa_km": 22.102,
+            "pixel_x": 752,
+            "pixel_y": 114,
+            "indice_p": 10,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "classe_oficial": 10,
+            "latitude": -26.202433,
+            "longitude": -48.601602
+          },
+          "diferenca_distancias_oficial_menos_legado_km": 21.354,
+          "contagem_local_por_raio": {
+            "2": {
+              "legado": 5,
+              "oficial": 0,
+              "legado_nao_oficial": 5
+            },
+            "5": {
+              "legado": 43,
+              "oficial": 0,
+              "legado_nao_oficial": 43
+            },
+            "10": {
+              "legado": 156,
+              "oficial": 0,
+              "legado_nao_oficial": 156
+            },
+            "25": {
+              "legado": 868,
+              "oficial": 9,
+              "legado_nao_oficial": 859
+            }
+          },
+          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
+          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
         }
       },
       {
@@ -25321,6 +25697,100 @@
             }
           },
           "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+        },
+        "auditoria_espacial_132": {
+          "versao": "#132",
+          "status": "auditoria_espacial_ativa",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "coordenada_referencia": {
+            "latitude": -26.27,
+            "longitude": -48.81
+          },
+          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
+          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "transformacao_geografica": {
+            "pixel_comasa": {
+              "x": 735,
+              "y": 119
+            },
+            "coordenada_recalculada_do_pixel": {
+              "latitude": -26.265462,
+              "longitude": -48.815538
+            },
+            "erro_roundtrip_km": 0.748,
+            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
+          },
+          "pixel_exato_comasa": {
+            "indice_p": 13,
+            "rgb": [
+              200,
+              200,
+              200
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null
+          },
+          "candidato_legado_mais_proximo": {
+            "distancia_comasa_km": 4.611,
+            "pixel_x": 738,
+            "pixel_y": 117,
+            "indice_p": 10,
+            "rgb": [
+              165,
+              255,
+              255
+            ],
+            "alpha": 255,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null,
+            "latitude": -26.240251,
+            "longitude": -48.777784,
+            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
+          },
+          "eco_oficial_mais_proximo_no_quadro": {
+            "distancia_comasa_km": 20.031,
+            "pixel_x": 720,
+            "pixel_y": 123,
+            "indice_p": 2,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "classe_oficial": 10,
+            "latitude": -26.315885,
+            "longitude": -49.004305
+          },
+          "diferenca_distancias_oficial_menos_legado_km": 15.42,
+          "contagem_local_por_raio": {
+            "2": {
+              "legado": 0,
+              "oficial": 0,
+              "legado_nao_oficial": 0
+            },
+            "5": {
+              "legado": 2,
+              "oficial": 0,
+              "legado_nao_oficial": 2
+            },
+            "10": {
+              "legado": 68,
+              "oficial": 0,
+              "legado_nao_oficial": 68
+            },
+            "25": {
+              "legado": 887,
+              "oficial": 6,
+              "legado_nao_oficial": 881
+            }
+          },
+          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
+          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
         }
       },
       {
@@ -30066,6 +30536,100 @@
             }
           },
           "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+        },
+        "auditoria_espacial_132": {
+          "versao": "#132",
+          "status": "auditoria_espacial_ativa",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "coordenada_referencia": {
+            "latitude": -26.27,
+            "longitude": -48.81
+          },
+          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
+          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "transformacao_geografica": {
+            "pixel_comasa": {
+              "x": 735,
+              "y": 119
+            },
+            "coordenada_recalculada_do_pixel": {
+              "latitude": -26.265462,
+              "longitude": -48.815538
+            },
+            "erro_roundtrip_km": 0.748,
+            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
+          },
+          "pixel_exato_comasa": {
+            "indice_p": 7,
+            "rgb": [
+              55,
+              145,
+              255
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null
+          },
+          "candidato_legado_mais_proximo": {
+            "distancia_comasa_km": 0.748,
+            "pixel_x": 735,
+            "pixel_y": 119,
+            "indice_p": 7,
+            "rgb": [
+              55,
+              145,
+              255
+            ],
+            "alpha": 255,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null,
+            "latitude": -26.265462,
+            "longitude": -48.815538,
+            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
+          },
+          "eco_oficial_mais_proximo_no_quadro": {
+            "distancia_comasa_km": 14.822,
+            "pixel_x": 724,
+            "pixel_y": 122,
+            "indice_p": 10,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "classe_oficial": 10,
+            "latitude": -26.30328,
+            "longitude": -48.953967
+          },
+          "diferenca_distancias_oficial_menos_legado_km": 14.074,
+          "contagem_local_por_raio": {
+            "2": {
+              "legado": 6,
+              "oficial": 0,
+              "legado_nao_oficial": 6
+            },
+            "5": {
+              "legado": 44,
+              "oficial": 0,
+              "legado_nao_oficial": 44
+            },
+            "10": {
+              "legado": 165,
+              "oficial": 0,
+              "legado_nao_oficial": 165
+            },
+            "25": {
+              "legado": 963,
+              "oficial": 27,
+              "legado_nao_oficial": 936
+            }
+          },
+          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
+          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
         }
       },
       {
@@ -34487,6 +35051,100 @@
             }
           },
           "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+        },
+        "auditoria_espacial_132": {
+          "versao": "#132",
+          "status": "auditoria_espacial_ativa",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "coordenada_referencia": {
+            "latitude": -26.27,
+            "longitude": -48.81
+          },
+          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
+          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "transformacao_geografica": {
+            "pixel_comasa": {
+              "x": 735,
+              "y": 119
+            },
+            "coordenada_recalculada_do_pixel": {
+              "latitude": -26.265462,
+              "longitude": -48.815538
+            },
+            "erro_roundtrip_km": 0.748,
+            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
+          },
+          "pixel_exato_comasa": {
+            "indice_p": 3,
+            "rgb": [
+              128,
+              206,
+              0
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null
+          },
+          "candidato_legado_mais_proximo": {
+            "distancia_comasa_km": 0.748,
+            "pixel_x": 735,
+            "pixel_y": 119,
+            "indice_p": 3,
+            "rgb": [
+              128,
+              206,
+              0
+            ],
+            "alpha": 255,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null,
+            "latitude": -26.265462,
+            "longitude": -48.815538,
+            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
+          },
+          "eco_oficial_mais_proximo_no_quadro": {
+            "distancia_comasa_km": 8.477,
+            "pixel_x": 733,
+            "pixel_y": 125,
+            "indice_p": 10,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "classe_oficial": 10,
+            "latitude": -26.341097,
+            "longitude": -48.840707
+          },
+          "diferenca_distancias_oficial_menos_legado_km": 7.729,
+          "contagem_local_por_raio": {
+            "2": {
+              "legado": 6,
+              "oficial": 0,
+              "legado_nao_oficial": 6
+            },
+            "5": {
+              "legado": 45,
+              "oficial": 0,
+              "legado_nao_oficial": 45
+            },
+            "10": {
+              "legado": 179,
+              "oficial": 1,
+              "legado_nao_oficial": 178
+            },
+            "25": {
+              "legado": 964,
+              "oficial": 36,
+              "legado_nao_oficial": 928
+            }
+          },
+          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
+          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
         }
       },
       {
@@ -39120,6 +39778,100 @@
             }
           },
           "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+        },
+        "auditoria_espacial_132": {
+          "versao": "#132",
+          "status": "auditoria_espacial_ativa",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "coordenada_referencia": {
+            "latitude": -26.27,
+            "longitude": -48.81
+          },
+          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
+          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "transformacao_geografica": {
+            "pixel_comasa": {
+              "x": 735,
+              "y": 119
+            },
+            "coordenada_recalculada_do_pixel": {
+              "latitude": -26.265462,
+              "longitude": -48.815538
+            },
+            "erro_roundtrip_km": 0.748,
+            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
+          },
+          "pixel_exato_comasa": {
+            "indice_p": 1,
+            "rgb": [
+              110,
+              200,
+              255
+            ],
+            "alpha": 255,
+            "visivel": true,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null
+          },
+          "candidato_legado_mais_proximo": {
+            "distancia_comasa_km": 0.748,
+            "pixel_x": 735,
+            "pixel_y": 119,
+            "indice_p": 1,
+            "rgb": [
+              110,
+              200,
+              255
+            ],
+            "alpha": 255,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null,
+            "latitude": -26.265462,
+            "longitude": -48.815538,
+            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
+          },
+          "eco_oficial_mais_proximo_no_quadro": {
+            "distancia_comasa_km": 19.751,
+            "pixel_x": 723,
+            "pixel_y": 128,
+            "indice_p": 10,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "classe_oficial": 10,
+            "latitude": -26.378914,
+            "longitude": -48.966552
+          },
+          "diferenca_distancias_oficial_menos_legado_km": 19.003,
+          "contagem_local_por_raio": {
+            "2": {
+              "legado": 6,
+              "oficial": 0,
+              "legado_nao_oficial": 6
+            },
+            "5": {
+              "legado": 41,
+              "oficial": 0,
+              "legado_nao_oficial": 41
+            },
+            "10": {
+              "legado": 146,
+              "oficial": 0,
+              "legado_nao_oficial": 146
+            },
+            "25": {
+              "legado": 926,
+              "oficial": 9,
+              "legado_nao_oficial": 917
+            }
+          },
+          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
+          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
         }
       }
     ],
@@ -43754,6 +44506,100 @@
           }
         },
         "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+      },
+      "auditoria_espacial_132": {
+        "versao": "#132",
+        "status": "auditoria_espacial_ativa",
+        "referencia": "Comasa - coordenada pública aproximada",
+        "coordenada_referencia": {
+          "latitude": -26.27,
+          "longitude": -48.81
+        },
+        "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
+        "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+        "dbz_numerico_validado": false,
+        "equivale_chuva_medida": false,
+        "eta_liberado": false,
+        "transformacao_geografica": {
+          "pixel_comasa": {
+            "x": 735,
+            "y": 119
+          },
+          "coordenada_recalculada_do_pixel": {
+            "latitude": -26.265462,
+            "longitude": -48.815538
+          },
+          "erro_roundtrip_km": 0.748,
+          "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
+        },
+        "pixel_exato_comasa": {
+          "indice_p": 1,
+          "rgb": [
+            110,
+            200,
+            255
+          ],
+          "alpha": 255,
+          "visivel": true,
+          "rgb_pertence_legenda_oficial": false,
+          "classe_oficial": null
+        },
+        "candidato_legado_mais_proximo": {
+          "distancia_comasa_km": 0.748,
+          "pixel_x": 735,
+          "pixel_y": 119,
+          "indice_p": 1,
+          "rgb": [
+            110,
+            200,
+            255
+          ],
+          "alpha": 255,
+          "rgb_pertence_legenda_oficial": false,
+          "classe_oficial": null,
+          "latitude": -26.265462,
+          "longitude": -48.815538,
+          "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
+        },
+        "eco_oficial_mais_proximo_no_quadro": {
+          "distancia_comasa_km": 19.751,
+          "pixel_x": 723,
+          "pixel_y": 128,
+          "indice_p": 10,
+          "rgb": [
+            255,
+            255,
+            0
+          ],
+          "classe_oficial": 10,
+          "latitude": -26.378914,
+          "longitude": -48.966552
+        },
+        "diferenca_distancias_oficial_menos_legado_km": 19.003,
+        "contagem_local_por_raio": {
+          "2": {
+            "legado": 6,
+            "oficial": 0,
+            "legado_nao_oficial": 6
+          },
+          "5": {
+            "legado": 41,
+            "oficial": 0,
+            "legado_nao_oficial": 41
+          },
+          "10": {
+            "legado": 146,
+            "oficial": 0,
+            "legado_nao_oficial": 146
+          },
+          "25": {
+            "legado": 926,
+            "oficial": 9,
+            "legado_nao_oficial": 917
+          }
+        },
+        "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
+        "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
       }
     },
     "analise_geografica": {
@@ -48062,7 +48908,7 @@
       "candidato": false,
       "validado": false,
       "janela_chegada": null,
-      "motivo": "Radar desatualizado: 108.8 min."
+      "motivo": "Radar desatualizado: 114.0 min."
     },
     "seguranca_eta": {
       "status": "experimental",

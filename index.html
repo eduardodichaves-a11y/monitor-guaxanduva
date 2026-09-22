@@ -37,7 +37,6 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 .card-recolhivel.fechado{padding-bottom:14px}
 .card-recolhivel.fechado .card-cabecalho h2{margin-bottom:0}
 .card-recolhivel.fechado .card-seta{transform:translateY(-50%) rotate(-90deg)}
-
 @media(max-width:520px){.grid,.meteo,.radar-grid{grid-template-columns:1fr}.mare-grid{grid-template-columns:1fr 1fr}h1{font-size:24px}}
 </style>
 </head>
@@ -161,7 +160,16 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="box"><small>☔ <b>Maior probabilidade de chuva</b> = maior porcentagem prevista no dia, acompanhada do horário ou faixa de horários em que esse pico ocorre.<br><br>🌧️ <b>Total previsto no dia</b> = soma estimada de precipitação do dia em milímetros (mm).<br><br>Por isso a porcentagem diária pode ser diferente da previsão para a próxima hora. As previsões podem mudar conforme o modelo recebe novas informações.</small></div>
 </section>
 
-<section class="card"><div class="local">🧊 GRANIZO • DEFESA CIVIL SC</div><h2>Alertas oficiais</h2><div id="granizo" class="box aviso">Carregando alertas oficiais...</div><div id="granizoDetalhe" class="box"><small>Aguardando consulta à Defesa Civil de Santa Catarina.</small></div><a id="granizoLink" href="https://www.defesacivil.sc.gov.br/" target="_blank">ABRIR DEFESA CIVIL SC</a><small>ALERTA OFICIAL. O Monitor não deduz granizo a partir da previsão de chuva. Falha de consulta permanece indisponível e nunca é tratada como ausência de risco.</small></section>
+<section class="card">
+<div class="local">🧊 GRANIZO • INMET / WIS2 / CAP • #157</div>
+<h2>Aviso oficial de possibilidade de granizo</h2>
+<div class="sub">CAP oficial do INMET • cobertura geográfica e vigência verificadas automaticamente</div>
+<div id="granizo" class="box aviso">Carregando aviso oficial...</div>
+<div id="granizoDetalhe" class="box"><small>Aguardando consulta operacional ao CAP do INMET.</small></div>
+<a id="granizoLink" href="https://alertas2.inmet.gov.br/" target="_blank">ABRIR ALERTAS DO INMET</a>
+<small>ALERTA OFICIAL ≠ granizo observado. O Monitor só publica alerta positivo quando o mesmo CAP é Actual, Public, não cancelado, vigente, menciona explicitamente granizo e cobre a referência pública aproximada do Comasa/Joinville. Falha de fonte ou ausência de prova suficiente permanece inconclusiva e nunca é convertida automaticamente em “sem alerta”.</small>
+</section>
+
 <section class="card"><div class="local">🏞️ RIO GUAXANDUVA • INDISPONÍVEL</div><h2>Nível do rio</h2><div class="valor" id="rio">--</div><div id="rs" class="box aviso">Verificando sensor...</div><small>Sem sensor público confirmado, o Monitor não estima o nível do rio.</small></section>
 <section class="card"><div class="local">📐 ALTITUDE DO TERRENO • ESTIMATIVA CARTOGRÁFICA</div><h2>Rua Itapoá • Comasa</h2><div class="valor">≈ 5 m</div><div class="sub">acima do nível do mar</div><div class="box"><b>Fonte:</b> Prefeitura de Joinville / SIMGeo<br><small>ESTIMATIVA. Cota aproximada do terreno. Não representa nível de inundação nem nível atual do rio.</small></div></section>
 
@@ -196,6 +204,7 @@ const f=(v,n=1)=>v==null?"--":Number(v).toFixed(n).replace(".",",");
 function relogio(){$("hora").textContent="🕒 "+new Date().toLocaleString("pt-BR")}
 function pontoCardinal(g){if(g==null)return "--";const p=["N","NE","L","SE","S","SO","O","NO"];return p[Math.round(Number(g)/45)%8]+" • "+Math.round(g)+"°"}
 function horaCurta(t){if(!t)return "--";const d=new Date(t);return isNaN(d)?String(t).slice(11,16):d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}
+function dataHoraBR(t){if(!t)return "--";const d=new Date(t);return isNaN(d)?String(t):d.toLocaleString("pt-BR")}
 function nomeFamilia(v){return v?String(v).replaceAll("_"," ").toUpperCase():"--"}
 function faixaHorarios(arr){
  if(!Array.isArray(arr)||!arr.length)return "--";
@@ -309,11 +318,15 @@ async function carregar(){
    $("cs").innerHTML='<span class="erro">🔴 CEMADEN indisponível nesta coleta</span>';
    $("cemadenNota").innerHTML='<small>'+(c.observacao||"Falha ou resposta não validada. Isso não significa ausência de chuva.")+'</small>';
   }
+
   const ma=m.anterior||null,mp=m.proximo||null;
   $("mareAnterior").textContent=ma?f(ma.altura_m,1)+" m":"--";$("mareAnteriorHora").textContent=ma?"às "+ma.hora:"--";
   $("mareProxima").textContent=mp?f(mp.altura_m,1)+" m":"--";$("mareProximaHora").textContent=mp?"às "+mp.hora:"--";
   $("ms").innerHTML=m.status==="online"?'<span class="ok">🟢 PREVISTO • tábua de maré recebida</span>':'<span class="erro">🔴 INDISPONÍVEL • tábua de maré não recebida</span>';
-  $("rio").textContent=q.nivel_m==null?"SEM SENSOR":f(q.nivel_m,2)+" m";$("rs").textContent=q.nivel_m==null?"⚪ INDISPONÍVEL • sem sensor público confirmado para o Rio Guaxanduva":"🟢 OBSERVADO • nível automático recebido";
+
+  $("rio").textContent=q.nivel_m==null?"SEM SENSOR":f(q.nivel_m,2)+" m";
+  $("rs").textContent=q.nivel_m==null?"⚪ INDISPONÍVEL • sem sensor público confirmado para o Rio Guaxanduva":"🟢 OBSERVADO • nível automático recebido";
+
   if(p.status==="online"){
    $("temperatura").textContent=a.temperatura_c==null?"--":f(a.temperatura_c,1)+" °C";
    $("prob").textContent=ph.probabilidade_chuva_pct==null?"--":Math.round(ph.probabilidade_chuva_pct)+"%";
@@ -321,24 +334,34 @@ async function carregar(){
    $("vento").textContent=f(a.vento_kmh)+" km/h";$("rajada").textContent=f(a.rajada_kmh)+" km/h";$("direcao").textContent=pontoCardinal(a.direcao_graus);$("prevhora").textContent=horaCurta(ph.horario);
    $("ps").innerHTML='<span class="ok">🟢 PREVISTO • modelo atualizado</span> • janela: próxima hora';
   }else{$("ps").innerHTML='<span class="erro">🔴 INDISPONÍVEL • previsão não recebida</span>'}
+
   const dias=Array.isArray(p.proximos_7_dias)?p.proximos_7_dias:[];
   if(dias.length){
    const nomes=["domingo","segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado"];let html="";
    dias.forEach((dia,i)=>{const dt=new Date(dia.data+"T12:00:00"),nome=i===0?"HOJE":nomes[dt.getDay()].toUpperCase(),dataBR=dt.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}),prob=dia.probabilidade_chuva_pct==null?"--":Math.round(dia.probabilidade_chuva_pct)+"%",quando=faixaHorarios(dia.horarios_probabilidade_max),mm=dia.precipitacao_total_mm==null?"--":f(dia.precipitacao_total_mm,1)+" mm",tmin=dia.temperatura_min_c==null?"--":f(dia.temperatura_min_c,1)+" °C",tmax=dia.temperatura_max_c==null?"--":f(dia.temperatura_max_c,1)+" °C";html+='<div class="dia-previsao"><div class="dia-titulo">'+nome+" • "+dataBR+"</div>🌡️ Temperatura: <b>mín. "+tmin+" • máx. "+tmax+"</b><br>☔ Maior probabilidade de chuva: <b>"+prob+" "+quando+"</b><br>🌧️ Total previsto no dia: <b>"+mm+"</b></div>"});
    $("previsao7dias").innerHTML=html+'<div class="ok" style="margin-top:12px">🟢 PREVISTO • previsão de 7 dias recebida</div>';
   }else{$("previsao7dias").innerHTML='<span class="erro">🔴 INDISPONÍVEL • previsão de 7 dias não recebida</span>'}
-  if(g.status==="alerta_oficial_ativo"){
-   $("granizo").innerHTML='<span class="erro">🔴 '+(g.nivel||"ALERTA")+' OFICIAL ATIVO • GRANIZO • JOINVILLE</span>';
-   $("granizoDetalhe").innerHTML='<b>'+String(g.titulo||"Alerta oficial")+'</b><br><small>Início: '+(g.inicio_local?new Date(g.inicio_local).toLocaleString("pt-BR"):"--")+' • validade até: '+(g.validade_ate_local?new Date(g.validade_ate_local).toLocaleString("pt-BR"):"--")+'</small>';
-   if(g.url)$("granizoLink").href=g.url;
-  }else if(g.status==="online_sem_alerta_granizo_ativo"){
-   $("granizo").innerHTML='<span class="ok">🟢 Fonte oficial consultada • sem alerta de granizo ativo para Joinville</span>';
-   const u=g.ultima_publicacao_relevante||{};
-   $("granizoDetalhe").innerHTML='<small>Última publicação relevante encontrada: '+(u.inicio_local?new Date(u.inicio_local).toLocaleString("pt-BR"):"--")+'. Isso não é uma previsão de ausência de granizo; significa apenas que nenhuma publicação oficial ainda válida foi localizada nesta coleta.</small>';
-   if(u.url)$("granizoLink").href=u.url;
+
+  if(g.status==="alerta_ativo_confirmado"&&g.ativo===true){
+   const al=g.alerta||{};
+   $("granizo").innerHTML='<span class="erro">🔴 ALERTA OFICIAL ATIVO • POSSIBILIDADE DE GRANIZO</span><br><small>INMET / WIS2 / CAP • cobertura da referência pública do Comasa confirmada</small>';
+   $("granizoDetalhe").innerHTML=
+    '<b>'+(al.headline||al.event||"Aviso oficial do INMET")+'</b><br>'+
+    '<small>Severidade: '+(al.severity||"--")+
+    ' • certeza: '+(al.certainty||"--")+
+    '<br>Início: '+dataHoraBR(al.onset)+
+    '<br>Validade até: '+dataHoraBR(al.expires)+
+    '<br><br>'+(al.description||"O CAP oficial menciona possibilidade de granizo.")+
+    '<br><br><b>Importante:</b> aviso para a área ≠ granizo observado ou caindo no Comasa.</small>';
+   if(al.url_xml){
+    $("granizoLink").href=al.url_xml;
+    $("granizoLink").textContent="ABRIR CAP OFICIAL DO INMET";
+   }
   }else{
-   $("granizo").innerHTML='<span class="aviso">⚪ INDISPONÍVEL • não foi possível confirmar o estado dos alertas oficiais</span>';
-   $("granizoDetalhe").innerHTML='<small>'+(g.observacao||"Falha ou resposta não validada. Isso não significa ausência de risco de granizo.")+'</small>';
+   $("granizo").innerHTML='<span class="aviso">⚪ ESTADO INCONCLUSIVO • nenhum alerta positivo pôde ser comprovado nesta coleta</span>';
+   $("granizoDetalhe").innerHTML='<small>'+(g.observacao||g.regra_seguranca||"Ausência de alerta positivo comprovado não significa ausência de risco. Falha de fonte ou evidência insuficiente permanece inconclusiva.")+'</small>';
+   $("granizoLink").href="https://alertas2.inmet.gov.br/";
+   $("granizoLink").textContent="ABRIR ALERTAS DO INMET";
   }
  }catch(e){
   $("sistema").innerHTML='<span class="erro">🔴 Falha ao carregar dados.json</span>';$("coleta").textContent=e.message;$("radarEstado").innerHTML='<span class="erro">🔴 Falha ao carregar radar</span>';

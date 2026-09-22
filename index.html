@@ -28,6 +28,16 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 .painel-estacoes{display:none;margin-top:12px}.painel-estacoes.aberto{display:block}
 .estacao-linha{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #294956}.estacao-linha:last-child{border-bottom:0}
 .estacao-mm{font-weight:bold;white-space:nowrap}.estacao-meta{color:#a8c0ca;font-size:12px}
+.card-recolhivel{padding-top:14px}
+.card-cabecalho{cursor:pointer;position:relative;padding-right:38px;user-select:none}
+.card-cabecalho:focus{outline:2px solid #4f7b8d;outline-offset:5px;border-radius:8px}
+.card-seta{position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:24px;color:#8fc8df;line-height:1}
+.card-conteudo{display:block}
+.card-recolhivel.fechado .card-conteudo{display:none}
+.card-recolhivel.fechado{padding-bottom:14px}
+.card-recolhivel.fechado .card-cabecalho h2{margin-bottom:0}
+.card-recolhivel.fechado .card-seta{transform:translateY(-50%) rotate(-90deg)}
+
 @media(max-width:520px){.grid,.meteo,.radar-grid{grid-template-columns:1fr}.mare-grid{grid-template-columns:1fr 1fr}h1{font-size:24px}}
 </style>
 </head>
@@ -324,6 +334,52 @@ async function carregar(){
  }
 }
 carregar();carregarHistorico();setInterval(carregar,60000);setInterval(carregarHistorico,60000);
+
+function iniciarCardsRecolhiveis(){
+ const manterAbertos=["📡 SISTEMA AUTOMÁTICO","PAINEL DE RISCOS"];
+ document.querySelectorAll(".card").forEach((card)=>{
+  const local=card.querySelector(":scope > .local");
+  const h2=card.querySelector(":scope > h2");
+  if(!h2)return;
+  const tituloLocal=local?local.textContent.trim():"";
+  const tituloH2=h2.textContent.trim();
+  if(manterAbertos.some(x=>tituloLocal.includes(x))||tituloH2.includes("🚨 Emergência"))return;
+
+  const cab=document.createElement("div");
+  cab.className="card-cabecalho";
+  cab.setAttribute("role","button");
+  cab.setAttribute("tabindex","0");
+  cab.setAttribute("aria-expanded","false");
+
+  if(local)cab.appendChild(local);
+  cab.appendChild(h2);
+
+  const seta=document.createElement("span");
+  seta.className="card-seta";
+  seta.setAttribute("aria-hidden","true");
+  seta.textContent="⌄";
+  cab.appendChild(seta);
+
+  const conteudo=document.createElement("div");
+  conteudo.className="card-conteudo";
+  while(card.firstChild)conteudo.appendChild(card.firstChild);
+
+  card.appendChild(cab);
+  card.appendChild(conteudo);
+  card.classList.add("card-recolhivel","fechado");
+
+  const alternar=()=>{
+   const fechado=card.classList.toggle("fechado");
+   cab.setAttribute("aria-expanded",fechado?"false":"true");
+  };
+  cab.addEventListener("click",alternar);
+  cab.addEventListener("keydown",(e)=>{
+   if(e.key==="Enter"||e.key===" "){e.preventDefault();alternar()}
+  });
+ });
+}
+iniciarCardsRecolhiveis();
+
 const cemToggle=$("cemadenToggle");
 if(cemToggle){
  const alternar=()=>{const painel=$("cemadenPanorama");const aberto=painel.classList.toggle("aberto");cemToggle.setAttribute("aria-expanded",aberto?"true":"false")};

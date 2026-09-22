@@ -8518,6 +8518,281 @@ def diagnosticar_xml_cap_inmet_154():
 
     return resultado
 
+
+def diagnosticar_cap_recente_inmet_155():
+    """#155 - Localiza CAPs recentes por janela temporal e testa XMLs ainda disponíveis."""
+    endpoint = (
+        "https://wis2bra.inmet.gov.br/oapi/"
+        "collections/messages/items"
+    )
+    metadata_alvo = "urn:wmo:md:br-inmet:alerts"
+    agora_utc = datetime.now(UTC)
+
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#155",
+        "fonte": "WIS2 Node oficial do INMET / OGC API messages",
+        "endpoint": endpoint,
+        "metadata_id_alvo": metadata_alvo,
+        "consultas_temporais": [],
+        "consultas_ordenacao": [],
+        "mensagens_data_recentes": [],
+        "links_xml_recentes": [],
+        "xmls_testados": [],
+        "xml_recente_disponivel": False,
+        "uso_operacional_granizo": False,
+        "regra_seguranca": (
+            "Diagnostico de localizacao e disponibilidade de CAP recente. "
+            "Ausencia de mensagem, erro HTTP ou XML indisponivel nao significa "
+            "ausencia de alerta. Nenhum resultado deste bloco altera o card "
+            "operacional de granizo."
+        ),
+    }
+
+    headers = {
+        "User-Agent": "Monitor-Guaxanduva/1.0",
+        "Accept": "application/geo+json,application/json",
+    }
+
+    def iso_z(dt):
+        return dt.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    def extrair_features(obj):
+        feats = obj.get("features", []) if isinstance(obj, dict) else []
+        return feats if isinstance(feats, list) else []
+
+    def eh_data_alerta(feature):
+        if not isinstance(feature, dict):
+            return False
+        props = feature.get("properties")
+        if not isinstance(props, dict):
+            return False
+        data_id = props.get("data_id")
+        return (
+            isinstance(data_id, str)
+            and "/metadata/" not in data_id.lower()
+            and "alerts/" in data_id.lower()
+        )
+
+    def links_xml(feature):
+        saida = []
+        if not isinstance(feature, dict):
+            return saida
+        links = feature.get("links")
+        if not isinstance(links, list):
+            return saida
+        for link in links:
+            if not isinstance(link, dict):
+                continue
+            href = link.get("href")
+            tipo = str(link.get("type") or "").lower()
+            if (
+                isinstance(href, str)
+                and href.startswith("https://")
+                and (href.lower().endswith(".xml") or "xml" in tipo)
+            ):
+                saida.append({
+                    "href": href,
+                    "rel": link.get("rel"),
+                    "type": link.get("type"),
+                })
+        return saida
+
+    def momento_feature(feature):
+        props = feature.get("properties") if isinstance(feature, dict) else {}
+        if not isinstance(props, dict):
+            return None
+        for chave in ("pubtime", "datetime", "pubTime"):
+            valor = props.get(chave)
+            if not isinstance(valor, str) or not valor.strip():
+                continue
+            try:
+                texto = valor.strip().replace("Z", "+00:00")
+                dt = datetime.fromisoformat(texto)
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=UTC)
+                return dt.astimezone(UTC)
+            except Exception:
+                pass
+        return None
+
+    encontrados = {}
+
+    # OGC API Features define o parametro datetime. Testamos janelas
+    # progressivas para evitar depender da ordem padrao da colecao.
+    for dias in (2, 7, 30, 90):
+        inicio = agora_utc - timedelta(days=dias)
+        params = {
+            "f": "json",
+            "metadata_id": metadata_alvo,
+            "datetime": iso_z(inicio) + "/" + iso_z(agora_utc),
+            "limit": 100,
+        }
+        teste = {
+            "dias": dias,
+            "datetime": params["datetime"],
+            "http_status": None,
+            "quantidade_features": 0,
+            "quantidade_data_alerta": 0,
+            "numberMatched": None,
+            "erro": None,
+        }
+        try:
+            r = requests.get(endpoint, params=params, timeout=(10, 25), headers=headers)
+            teste["http_status"] = r.status_code
+            if r.ok:
+                obj = r.json()
+                teste["numberMatched"] = obj.get("numberMatched") if isinstance(obj, dict) else None
+                feats = extrair_features(obj)
+                teste["quantidade_features"] = len(feats)
+                dados = [f for f in feats if eh_data_alerta(f)]
+                teste["quantidade_data_alerta"] = len(dados)
+                for f in dados:
+                    props = f.get("properties") or {}
+                    chave = str(f.get("id") or props.get("data_id") or "")
+                    if chave:
+                        encontrados[chave] = f
+            else:
+                teste["erro"] = r.text[:300]
+        except Exception as e:
+            teste["erro"] = str(e)[:500]
+        resultado["consultas_temporais"].append(teste)
+
+    # Teste documental das extensoes de ordenacao. Se o servidor nao as
+    # suportar, o erro fica registrado e as janelas datetime continuam sendo
+    # a estrategia principal.
+    for campo in ("-datetime", "-pubtime"):
+        teste = {
+            "sortby": campo,
+            "http_status": None,
+            "quantidade_features": 0,
+            "primeiro_momento": None,
+            "erro": None,
+        }
+        try:
+            r = requests.get(
+                endpoint,
+                params={
+                    "f": "json",
+                    "metadata_id": metadata_alvo,
+                    "sortby": campo,
+                    "limit": 20,
+                },
+                timeout=(10, 25),
+                headers=headers,
+            )
+            teste["http_status"] = r.status_code
+            if r.ok:
+                obj = r.json()
+                feats = [f for f in extrair_features(obj) if eh_data_alerta(f)]
+                teste["quantidade_features"] = len(feats)
+                if feats:
+                    m = momento_feature(feats[0])
+                    teste["primeiro_momento"] = iso_z(m) if m else None
+                for f in feats:
+                    props = f.get("properties") or {}
+                    chave = str(f.get("id") or props.get("data_id") or "")
+                    if chave:
+                        encontrados[chave] = f
+            else:
+                teste["erro"] = r.text[:300]
+        except Exception as e:
+            teste["erro"] = str(e)[:500]
+        resultado["consultas_ordenacao"].append(teste)
+
+    itens = []
+    for feature in encontrados.values():
+        props = feature.get("properties") or {}
+        momento = momento_feature(feature)
+        xmls = links_xml(feature)
+        itens.append({
+            "id": feature.get("id"),
+            "data_id": props.get("data_id"),
+            "metadata_id": props.get("metadata_id"),
+            "datetime": props.get("datetime"),
+            "pubtime": props.get("pubtime"),
+            "momento_normalizado_utc": iso_z(momento) if momento else None,
+            "links_xml": xmls,
+            "_momento": momento,
+        })
+
+    itens.sort(
+        key=lambda x: x.get("_momento") or datetime(1970, 1, 1, tzinfo=UTC),
+        reverse=True,
+    )
+
+    for item in itens[:30]:
+        limpo = dict(item)
+        limpo.pop("_momento", None)
+        resultado["mensagens_data_recentes"].append(limpo)
+        for link in item.get("links_xml", []):
+            href = link.get("href")
+            if href and href not in [x.get("href") for x in resultado["links_xml_recentes"]]:
+                resultado["links_xml_recentes"].append({
+                    **link,
+                    "data_id": item.get("data_id"),
+                    "momento_normalizado_utc": item.get("momento_normalizado_utc"),
+                })
+
+    # Testa somente os cinco XMLs mais recentes encontrados. O objetivo aqui
+    # e provar disponibilidade atual, nao interpretar risco.
+    for link in resultado["links_xml_recentes"][:5]:
+        teste = {
+            "href": link.get("href"),
+            "data_id": link.get("data_id"),
+            "momento_normalizado_utc": link.get("momento_normalizado_utc"),
+            "http_status": None,
+            "content_type": None,
+            "parece_xml_cap": False,
+            "erro": None,
+        }
+        try:
+            r = requests.get(
+                link["href"],
+                timeout=(10, 25),
+                headers={
+                    "User-Agent": "Monitor-Guaxanduva/1.0",
+                    "Accept": "application/xml,text/xml,*/*",
+                },
+            )
+            teste["http_status"] = r.status_code
+            teste["content_type"] = r.headers.get("Content-Type")
+            if r.status_code == 200:
+                inicio = r.content[:1000].lower()
+                teste["parece_xml_cap"] = b"<alert" in inicio or b":alert" in inicio
+                if teste["parece_xml_cap"]:
+                    resultado["xml_recente_disponivel"] = True
+            else:
+                teste["erro"] = r.text[:300]
+        except Exception as e:
+            teste["erro"] = str(e)[:500]
+        resultado["xmls_testados"].append(teste)
+
+    if resultado["xml_recente_disponivel"]:
+        resultado["status"] = "cap_recente_xml_disponivel"
+        resultado["observacao"] = (
+            "Foi localizado ao menos um recurso XML recente disponivel no "
+            "WIS2/INMET. A proxima etapa pode decodificar CAP e validar area, "
+            "vigencia e mencao explicita a granizo, ainda sem inferencias."
+        )
+    elif resultado["mensagens_data_recentes"]:
+        resultado["status"] = "cap_recente_localizado_xml_indisponivel"
+        resultado["observacao"] = (
+            "Mensagens DATA recentes foram localizadas, mas os XMLs testados "
+            "nao estavam disponiveis. Isso nao significa ausencia de alerta."
+        )
+    elif any(x.get("http_status") == 200 for x in resultado["consultas_temporais"]):
+        resultado["status"] = "consultas_temporais_online_sem_cap_data_na_janela"
+        resultado["observacao"] = (
+            "O servidor respondeu as consultas temporais, mas nenhuma mensagem "
+            "DATA de alerta foi localizada nas janelas testadas. Isso nao e "
+            "convertido em ausencia operacional de alerta."
+        )
+    else:
+        resultado["status"] = "consultas_temporais_indisponiveis"
+
+    return resultado
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     dados = {
@@ -8592,6 +8867,8 @@ def main():
         "diagnostico_cap_por_metadata_id_153": diagnosticar_cap_por_metadata_id_153(),
 
         "diagnostico_xml_cap_inmet_154": diagnosticar_xml_cap_inmet_154(),
+
+        "diagnostico_cap_recente_inmet_155": diagnosticar_cap_recente_inmet_155(),
  
         "emergencia": {
             "defesa_civil":

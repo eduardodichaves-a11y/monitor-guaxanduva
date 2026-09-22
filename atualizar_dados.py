@@ -5791,6 +5791,184 @@ def investigar_endpoint_pcds_139(chuva_cemaden):
         return resultado
 
 
+
+# =========================================================
+# #140 - DESCOBERTA DA CHAMADA MAPAINTERATIVOWS / CEMADEN
+# =========================================================
+
+def investigar_mapservices_cemaden_140(chuva_cemaden):
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#140",
+        "tipo": "descoberta_chamada_mapainterativows",
+        "fonte": "CEMADEN",
+        "estacao": None,
+        "pagina_origem": None,
+        "base_mapservices": (
+            "https://mapservices.cemaden.gov.br/"
+            "MapaInterativoWS/resources/"
+        ),
+        "chamadas_identificadas": [],
+        "contextos_mapservices": [],
+        "requisicoes_teste": [],
+        "serie_temporal_integrada": False,
+        "publicacao_automatica": False,
+        "regra_seguranca": (
+            "A #140 investiga chamadas estruturadas do servico usado pelo "
+            "grafico oficial CEMADEN. Respostas de teste nao sao publicadas "
+            "como chuva sem validacao de campos, unidade e referencia temporal."
+        ),
+    }
+
+    try:
+        selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
+        idestacao = selecionada.get("id")
+        if idestacao is None:
+            resultado["status"] = "sem_estacao_selecionada"
+            return resultado
+
+        resultado["estacao"] = {
+            "id": idestacao,
+            "codigo": selecionada.get("codigo"),
+            "nome": selecionada.get("nome"),
+            "uf": selecionada.get("uf"),
+        }
+
+        pagina = (
+            CEMADEN_RECURSOS
+            + "/graficos/interativo/grafico_pcds.php?idpcd="
+            + str(idestacao)
+        )
+        resultado["pagina_origem"] = pagina
+        resposta = get(pagina)
+        texto = resposta.text or ""
+
+        # Guarda contextos literais ao redor de qualquer referencia ao
+        # MapainterativoWS/mapservices para auditoria humana.
+        contextos = []
+        baixo = texto.lower()
+        termos = [
+            "mapainterativows",
+            "mapservices.cemaden.gov.br",
+            "var path",
+            "$.ajax",
+            "$.get",
+            "$http",
+        ]
+        for termo in termos:
+            inicio = 0
+            while len(contextos) < 120:
+                pos = baixo.find(termo.lower(), inicio)
+                if pos < 0:
+                    break
+                a = max(0, pos - 700)
+                b = min(len(texto), pos + 1800)
+                trecho = re.sub(r"\s+", " ", texto[a:b]).strip()
+                item = {
+                    "termo": termo,
+                    "trecho": trecho[:2600],
+                }
+                if item not in contextos:
+                    contextos.append(item)
+                inicio = pos + len(termo)
+        resultado["contextos_mapservices"] = contextos
+
+        # Procura expressoes em que a variavel path e concatenada a uma rota.
+        chamadas = []
+        vistos = set()
+        padroes = [
+            r'path\s*\+\s*["\']([^"\']+)["\']',
+            r'path\s*\+\s*([A-Za-z_$][\w$]*)',
+            r'(?:url\s*:\s*|getJSON\s*\(|ajax\s*\()\s*path\s*\+\s*([^,;\)\n]+)',
+            r'["\'](https://mapservices\.cemaden\.gov\.br/MapaInterativoWS/resources/[^"\']*)["\']',
+        ]
+        for padrao in padroes:
+            for achado in re.findall(padrao, texto, flags=re.I):
+                bruto = str(achado).strip()
+                if not bruto:
+                    continue
+                chave = bruto
+                if chave in vistos:
+                    continue
+                vistos.add(chave)
+                chamadas.append({"expressao": bruto[:1200]})
+        resultado["chamadas_identificadas"] = chamadas[:120]
+
+        # Extrai rotas literais relativas que aparecem proximas a "path".
+        rotas = []
+        for contexto in contextos:
+            trecho = contexto["trecho"]
+            for rota in re.findall(
+                r'["\']([A-Za-z0-9_./?=&%-]{3,240})["\']',
+                trecho,
+            ):
+                rlow = rota.lower()
+                if (
+                    "resource" in rlow
+                    or "pcd" in rlow
+                    or "estacao" in rlow
+                    or "pluv" in rlow
+                    or "dado" in rlow
+                    or "graf" in rlow
+                ):
+                    if rota not in rotas:
+                        rotas.append(rota)
+        resultado["rotas_literais_candidatas"] = rotas[:80]
+
+        # Somente rotas literais seguras, sem templates/variaveis, sao
+        # consultadas. A resposta e guardada apenas como diagnostico.
+        base = resultado["base_mapservices"]
+        testes = []
+        for rota in rotas[:20]:
+            if (
+                "{{" in rota
+                or "}}" in rota
+                or "$" in rota
+                or " " in rota
+                or not rota
+            ):
+                continue
+            url_teste = urljoin(base, rota)
+            if not url_teste.startswith(base):
+                continue
+            try:
+                rt = get(url_teste)
+                corpo = rt.text or ""
+                testes.append({
+                    "url": url_teste,
+                    "http_status": rt.status_code,
+                    "content_type": rt.headers.get("Content-Type"),
+                    "bytes": len(rt.content),
+                    "amostra": re.sub(r"\s+", " ", corpo).strip()[:1600],
+                })
+            except Exception as e:
+                testes.append({
+                    "url": url_teste,
+                    "status": "erro",
+                    "erro": str(e)[:400],
+                })
+        resultado["requisicoes_teste"] = testes
+
+        if chamadas or contextos:
+            resultado["status"] = "chamadas_encontradas_para_revisao"
+        else:
+            resultado["status"] = "pagina_acessivel_sem_chamada_identificada"
+
+        resultado["observacao"] = (
+            "A #140 preserva expressoes e contextos do codigo oficial para "
+            "descobrir a rota exata. Nenhuma resposta e promovida a dado "
+            "operacional nesta etapa."
+        )
+        return resultado
+
+    except Exception as e:
+        resultado["erro"] = str(e)
+        resultado["observacao"] = (
+            "Falha da #140 nao altera as integracoes CEMADEN anteriores."
+        )
+        return resultado
+
+
 # =========================================================
 # #123 - CHUVA OBSERVADA / ESTAÇÃO INMET - RECUPERADA NA #128
 # =========================================================
@@ -5850,6 +6028,9 @@ def main():
 
         "investigacao_cemaden_139":
             investigar_endpoint_pcds_139(chuva_cemaden),
+
+        "investigacao_cemaden_140":
+            investigar_mapservices_cemaden_140(chuva_cemaden),
  
         "chuva_observada_inmet":
             buscar_chuva_observada_inmet(),

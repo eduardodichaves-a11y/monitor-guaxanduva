@@ -13,6 +13,7 @@ import requests
 import urllib3
 from PIL import Image
 from bs4 import BeautifulSoup
+import paho.mqtt.client as mqtt
  
  
 # =========================================================
@@ -7294,6 +7295,182 @@ def buscar_alerta_granizo_148():
 
     return saida
 
+
+def diagnosticar_wis2_inmet_149():
+    """
+    #149 - Diagnóstico isolado do WIS2/INMET.
+
+    Este bloco NÃO altera o estado operacional de granizo.
+    Ele apenas testa se o GitHub Actions consegue:
+    - abrir TLS/MQTT com um Global Broker WIS2;
+    - assinar o tópico oficial de avisos do INMET;
+    - receber uma notificação WIS2, caso uma seja publicada durante a janela;
+    - registrar links canonical/update sem interpretar o CAP ainda.
+    """
+    resultado = {
+        "status": "nao_testado",
+        "versao": "#149",
+        "fonte": "WIS2 / INMET / WMO",
+        "broker": "globalbroker.meteo.fr",
+        "porta": 8883,
+        "topico": (
+            "origin/a/wis2/br-inmet/data/core/weather/"
+            "advisories-warnings/#"
+        ),
+        "conectado": False,
+        "assinatura_confirmada": False,
+        "notificacao_recebida": False,
+        "quantidade_notificacoes": 0,
+        "links": [],
+        "amostra_propriedades": None,
+        "erro": None,
+        "uso_operacional_granizo": False,
+        "observacao": (
+            "Diagnostico de conectividade e estrutura. Ausencia de mensagem "
+            "durante a janela de teste nao significa ausencia de alerta."
+        ),
+    }
+
+    mensagens = []
+
+    try:
+        cliente = mqtt.Client(
+            mqtt.CallbackAPIVersion.VERSION2,
+            client_id="monitor-guaxanduva-wis2-149",
+            protocol=mqtt.MQTTv311,
+        )
+        cliente.username_pw_set("everyone", "everyone")
+        cliente.tls_set()
+
+        def ao_conectar(client, userdata, flags, reason_code, properties):
+            try:
+                codigo = int(reason_code)
+            except Exception:
+                codigo = 0 if str(reason_code).lower() == "success" else -1
+
+            if codigo == 0:
+                resultado["conectado"] = True
+                client.subscribe(resultado["topico"], qos=0)
+            else:
+                resultado["erro"] = (
+                    "MQTT recusou conexao: " + str(reason_code)
+                )
+
+        def ao_assinar(client, userdata, mid, reason_codes, properties):
+            resultado["assinatura_confirmada"] = True
+
+        def ao_mensagem(client, userdata, msg):
+            try:
+                texto = msg.payload.decode("utf-8", errors="replace")
+                dados = json.loads(texto)
+
+                item = {
+                    "topico": msg.topic,
+                    "bytes": len(msg.payload),
+                    "links": [],
+                    "propriedades": None,
+                }
+
+                if isinstance(dados, dict):
+                    props = dados.get("properties")
+                    if isinstance(props, dict):
+                        item["propriedades"] = {
+                            k: props.get(k)
+                            for k in (
+                                "datetime",
+                                "pubtime",
+                                "data_id",
+                                "metadata_id",
+                            )
+                            if k in props
+                        }
+
+                    links = dados.get("links")
+                    if isinstance(links, list):
+                        for link in links:
+                            if not isinstance(link, dict):
+                                continue
+                            rel = link.get("rel")
+                            href = link.get("href")
+                            if (
+                                rel in ("canonical", "update")
+                                and isinstance(href, str)
+                                and href.startswith(("https://", "http://"))
+                            ):
+                                item["links"].append({
+                                    "rel": rel,
+                                    "href": href,
+                                    "type": link.get("type"),
+                                })
+
+                mensagens.append(item)
+
+                if len(mensagens) >= 3:
+                    client.disconnect()
+
+            except Exception as e:
+                mensagens.append({
+                    "topico": msg.topic,
+                    "erro_parse": str(e)[:500],
+                })
+
+        cliente.on_connect = ao_conectar
+        cliente.on_subscribe = ao_assinar
+        cliente.on_message = ao_mensagem
+
+        cliente.connect(
+            resultado["broker"],
+            port=resultado["porta"],
+            keepalive=30,
+        )
+
+        cliente.loop_start()
+
+        # Janela curta: suficiente para provar conectividade sem atrasar
+        # excessivamente o workflow de 15 em 15 minutos.
+        import time
+        inicio = time.monotonic()
+        while time.monotonic() - inicio < 15:
+            if resultado["erro"]:
+                break
+            if len(mensagens) >= 3:
+                break
+            time.sleep(0.25)
+
+        try:
+            cliente.disconnect()
+        except Exception:
+            pass
+        cliente.loop_stop()
+
+        resultado["quantidade_notificacoes"] = len(mensagens)
+        resultado["notificacao_recebida"] = bool(mensagens)
+
+        if mensagens:
+            primeiro = mensagens[0]
+            resultado["links"] = primeiro.get("links", [])
+            resultado["amostra_propriedades"] = primeiro.get(
+                "propriedades"
+            )
+
+        if resultado["conectado"] and resultado["assinatura_confirmada"]:
+            resultado["status"] = (
+                "mqtt_ok_com_notificacao"
+                if mensagens
+                else "mqtt_ok_sem_notificacao_na_janela"
+            )
+        elif resultado["conectado"]:
+            resultado["status"] = "mqtt_conectado_assinatura_nao_confirmada"
+        else:
+            resultado["status"] = "mqtt_indisponivel"
+
+        return resultado
+
+    except Exception as e:
+        resultado["status"] = "mqtt_indisponivel"
+        resultado["erro"] = str(e)
+        return resultado
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     dados = {
@@ -7356,6 +7533,8 @@ def main():
         "radar":
             buscar_radar(),
         "granizo": buscar_alerta_granizo_148(),
+
+        "diagnostico_wis2_inmet_149": diagnosticar_wis2_inmet_149(),
  
         "emergencia": {
             "defesa_civil":

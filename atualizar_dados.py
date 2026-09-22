@@ -245,7 +245,7 @@ def media_angular_ponderada(valores):
 # =========================================================
 # HISTÓRICO DE AUTOVALIDAÇÃO #120 - RECUPERADO NA #128
 # =========================================================
-
+ 
 def carregar_historico_validacao():
     try:
         with open(HISTORICO_ARQUIVO, "r", encoding="utf-8") as arquivo:
@@ -259,8 +259,8 @@ def carregar_historico_validacao():
     except Exception as e:
         print("Aviso: histórico anterior não pôde ser lido: " + str(e))
         return []
-
-
+ 
+ 
 def registrar_historico_validacao(dados):
     radar = dados.get("radar", {})
     validacao = radar.get("autovalidacao_preditiva") or {}
@@ -268,7 +268,7 @@ def registrar_historico_validacao(dados):
     avaliacao = radar.get("avaliacao_trajetorias") or {}
     registro = {
         "gerado_em": dados.get("gerado_em"),
-        "versao": "#129",
+        "versao": "#130",
         "horario_ultimo_quadro": radar.get("horario_ultimo_quadro"),
         "radar_status": radar.get("status"),
         "dados_frescos": radar.get("dados_frescos"),
@@ -293,7 +293,7 @@ def registrar_historico_validacao(dados):
     historico = {
         "monitor": "Monitor Guaxanduva",
         "tipo": "historico_autovalidacao_preditiva_radar",
-        "versao": "#129",
+        "versao": "#130",
         "metodo": "projecao_retrospectiva_1_quadro_com_velocidade_media",
         "atualizado_em": dados.get("gerado_em"),
         "maximo_registros": HISTORICO_MAX_REGISTROS,
@@ -315,8 +315,8 @@ def registrar_historico_validacao(dados):
     with open(HISTORICO_ARQUIVO,"w",encoding="utf-8") as arquivo:
         json.dump(historico,arquivo,ensure_ascii=False,indent=2)
     return historico
-
-
+ 
+ 
 # =========================================================
 # OPEN-METEO
 # =========================================================
@@ -654,7 +654,7 @@ def buscar_mare():
 # =========================================================
 # #128 - INVESTIGAÇÃO DOCUMENTAL DO RADARSC
 # =========================================================
-
+ 
 def investigar_fonte_radarsc():
     """Procura evidência textual de dBZ/escala no HTML e JS oficiais.
     É diagnóstico documental: não atribui dBZ e não libera ETA.
@@ -702,8 +702,8 @@ def investigar_fonte_radarsc():
         resultado["status"]="indisponivel"
         resultado["erro"]=str(e)
         return resultado
-
-
+ 
+ 
 # =========================================================
 # LEGENDA OFICIAL RADARSC
 # =========================================================
@@ -809,9 +809,9 @@ def legenda():
  
             "fonte":
                 "legenda oficial RadarSC",
-
+ 
             "dimensoes_px": {"largura": imagem.width, "altura": imagem.height},
-
+ 
             "diagnostico_128": "RGB e geometria extraídos diretamente da legenda oficial; dBZ continua sem atribuição até evidência textual oficial.",
  
             "sha256":
@@ -4056,7 +4056,7 @@ def avaliar_todas_trilhas(
 # =========================================================
 # #129 - ECO OFICIAL RADARSC AO REDOR DO COMASA
 # =========================================================
-
+ 
 def diagnostico_eco_oficial_local(imagem, legenda_oficial):
     """Cruza o PNG com as cores RGB da legenda oficial em 2, 5, 10 e 25 km."""
     classes = (legenda_oficial or {}).get("classes", [])
@@ -4133,8 +4133,172 @@ def diagnostico_eco_oficial_local(imagem, legenda_oficial):
         "Não significa chuva medida no solo e não atribui dBZ enquanto a escala numérica não for validada."
     )
     return resultado
-
-
+ 
+ 
+ 
+# =========================================================
+# #130 - DICIONÁRIO QUALITATIVO DE CORES DO RADAR
+# =========================================================
+ 
+def familia_cor_radar(rgb):
+    """Classifica apenas a família visual da cor oficial.
+ 
+    A interpretação meteorológica é deliberadamente qualitativa:
+    SIMEPAR documenta verde/amarelo como chuva de menor intensidade e
+    vermelho/rosa como chuva mais intensa/tempestades. A Defesa Civil SC
+    publica CMAX (dBZ) com vermelho/rosa em instabilidades intensas.
+    Nenhum valor numérico de dBZ ou mm/h é inferido aqui.
+    """
+    if not isinstance(rgb, (list, tuple)) or len(rgb) < 3:
+        return "outra"
+    r, g, b = [int(v) for v in rgb[:3]]
+    mx, mn = max(r, g, b), min(r, g, b)
+    if mx - mn < 28:
+        return "neutra"
+    # rosa/magenta/roxo: vermelho e azul dominantes
+    if r >= 150 and b >= 120 and g <= min(r, b) * 0.82:
+        return "rosa_magenta_roxo"
+    # vermelho: canal R claramente dominante
+    if r >= 160 and r >= g * 1.35 and r >= b * 1.25:
+        return "vermelho"
+    # laranja: R dominante com G intermediário
+    if r >= 180 and 55 <= g < 210 and b <= 120:
+        return "laranja"
+    # amarelo: R e G altos, B baixo
+    if r >= 170 and g >= 150 and b <= 130:
+        return "amarelo"
+    # verde: G dominante
+    if g >= 110 and g >= r * 1.15 and g >= b * 1.10:
+        return "verde"
+    # ciano/azul: B ou combinação G+B dominantes
+    if b >= 120 and (b >= r * 1.20 or g >= r * 1.25):
+        return "azul_ciano"
+    return "outra"
+ 
+ 
+def significado_qualitativo_familia(familia):
+    if familia in ("verde", "amarelo"):
+        return {
+            "categoria": "precipitacao_menor_intensidade_documentada",
+            "nivel_evidencia": "documental_qualitativo",
+        }
+    if familia == "laranja":
+        return {
+            "categoria": "precipitacao_temporal_documentado_sem_faixa_numerica",
+            "nivel_evidencia": "documental_qualitativo",
+        }
+    if familia in ("vermelho", "rosa_magenta_roxo"):
+        return {
+            "categoria": "precipitacao_intensa_ou_tempestade_documentada",
+            "nivel_evidencia": "documental_qualitativo",
+        }
+    return {
+        "categoria": "sem_interpretacao_meteorologica_validada",
+        "nivel_evidencia": "nao_classificado",
+    }
+ 
+ 
+def construir_dicionario_cores_130(legenda_oficial):
+    classes = (legenda_oficial or {}).get("classes") or []
+    saida = []
+    for item in classes:
+        rgb = item.get("rgb")
+        familia = familia_cor_radar(rgb)
+        significado = significado_qualitativo_familia(familia)
+        saida.append({
+            "classe": item.get("classe"),
+            "rgb": rgb,
+            "familia_cor": familia,
+            **significado,
+            "dbz": None,
+            "mm_h": None,
+        })
+    return {
+        "versao": "#130",
+        "status": "dicionario_qualitativo_ativo" if saida else "sem_classes",
+        "fonte_cores": "legenda oficial RadarSC baixada em cada execução",
+        "produto_monitor": "COMP / C-MAX",
+        "classes": saida,
+        "fontes_documentais": [
+            {
+                "fonte": "SIMEPAR - Informações dos mapas de Radar",
+                "regra": "vermelho/rosa: chuvas mais intensas/tempestades; amarelo/verde: chuvas de menor intensidade",
+            },
+            {
+                "fonte": "Defesa Civil SC - publicações CMAX (dBZ)",
+                "regra": "vermelho/rosa aparecem documentados em instabilidades/temporais intensos",
+            },
+        ],
+        "regra_seguranca": (
+            "A #130 ensina famílias qualitativas usando somente RGBs da legenda oficial RadarSC. "
+            "Não converte cor em dBZ, mm/h ou chuva medida no solo. ETA permanece bloqueado."
+        ),
+        "dbz_numerico_validado": False,
+        "eta_liberado": False,
+    }
+ 
+ 
+def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
+    dicionario = construir_dicionario_cores_130(legenda_oficial)
+    mapa = {tuple(x["rgb"]): x for x in dicionario.get("classes", []) if x.get("rgb")}
+    base = {
+        "versao": "#130",
+        "referencia": "Comasa - coordenada pública aproximada",
+        "raios_km": [2, 5, 10, 25],
+        "dbz_numerico_validado": False,
+        "equivale_chuva_medida": False,
+        "eta_liberado": False,
+    }
+    if not mapa:
+        return {**base, "status": "sem_dicionario_oficial", "por_raio": {}}
+    rgba = imagem.convert("RGBA")
+    largura, altura = rgba.size
+    x0, y0 = geo2px(LON, LAT, largura, altura)
+    # Converte raios km em uma caixa de busca segura; hav() decide inclusão real.
+    km_por_px_lat = abs((EXT[3] - EXT[1]) * 111.32 / max(1, altura - 1))
+    km_por_px_lon = abs((EXT[2] - EXT[0]) * 111.32 * math.cos(math.radians(LAT)) / max(1, largura - 1))
+    passo = max(0.01, min(km_por_px_lat, km_por_px_lon))
+    alcance_px = int(math.ceil(25 / passo)) + 2
+    contagens = {r: Counter() for r in (2, 5, 10, 25)}
+    familias = {r: Counter() for r in (2, 5, 10, 25)}
+    for y in range(max(0, y0-alcance_px), min(altura, y0+alcance_px+1)):
+        for x in range(max(0, x0-alcance_px), min(largura, x0+alcance_px+1)):
+            px = rgba.getpixel((x, y))
+            if px[3] == 0:
+                continue
+            info = mapa.get(tuple(px[:3]))
+            if not info:
+                continue
+            lat, lon = px2geo(x, y, largura, altura)
+            dist = hav(LAT, LON, lat, lon)
+            for raio in (2, 5, 10, 25):
+                if dist <= raio:
+                    contagens[raio][int(info["classe"])] += 1
+                    familias[raio][info["familia_cor"]] += 1
+    por_raio = {}
+    for raio in (2, 5, 10, 25):
+        total = sum(contagens[raio].values())
+        por_raio[str(raio)] = {
+            "pixels_oficiais_classificados": total,
+            "eco_oficial_detectado": total > 0,
+            "classes_presentes": [
+                {"classe": c, "pixels": n} for c, n in sorted(contagens[raio].items())
+            ],
+            "familias_cor": [
+                {"familia": f, "pixels": n, **significado_qualitativo_familia(f)}
+                for f, n in familias[raio].most_common()
+            ],
+        }
+    return {
+        **base,
+        "status": "diagnostico_qualitativo_ativo",
+        "por_raio": por_raio,
+        "regra_seguranca": (
+            "Presença de cor oficial é detecção por radar, não medição de chuva no solo. "
+            "As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+        ),
+    }
+ 
 # =========================================================
 # DOWNLOAD DO RADAR
 # =========================================================
@@ -4188,9 +4352,15 @@ def baixar(nome, legenda_oficial=None):
             analisar(
                 imagem
             ),
-
+ 
         "eco_oficial_local_129":
             diagnostico_eco_oficial_local(
+                imagem,
+                legenda_oficial,
+            ),
+ 
+        "classificacao_qualitativa_local_130":
+            diagnostico_qualitativo_local_130(
                 imagem,
                 legenda_oficial,
             ),
@@ -4635,13 +4805,19 @@ def buscar_radar():
  
             "validacao_paleta_radar":
                 validacao_paleta,
-
+ 
             "eco_oficial_local_129":
                 ultimo.get("eco_oficial_local_129"),
  
+            "dicionario_cores_130":
+                construir_dicionario_cores_130(leg),
+ 
+            "classificacao_qualitativa_local_130":
+                ultimo.get("classificacao_qualitativa_local_130"),
+ 
             "metodo_eco": {
                 "status":
-                    "experimental_validacao",
+                    "experimental_validacao_qualitativa_130",
  
                 "fundo":
                     "alpha_zero_excluido",
@@ -4650,10 +4826,13 @@ def buscar_radar():
                     "excluido_ate_validacao",
  
                 "demais_pixels_visiveis":
-                    "candidatos_meteorologicos",
+                    "nao_usados_como_chuva_na_classificacao_130",
  
                 "dbz":
                     "nao_atribuido",
+ 
+                "classificacao_qualitativa":
+                    "somente_rgb_exato_da_legenda_oficial",
  
                 "validacao_rgb":
                     validacao_paleta.get("status"),
@@ -4760,7 +4939,7 @@ def buscar_radar():
 # =========================================================
 # #123 - CHUVA OBSERVADA / ESTAÇÃO INMET - RECUPERADA NA #128
 # =========================================================
-
+ 
 def numero_inmet(valor):
     if valor is None: return None
     texto=str(valor).strip().replace(",", ".")
@@ -4768,15 +4947,15 @@ def numero_inmet(valor):
     try: numero=float(texto)
     except (TypeError,ValueError): return None
     return None if abs(numero)>=9999 else numero
-
-
+ 
+ 
 def horario_inmet_utc(data,hora):
     if not data or hora is None: return None
     h=str(hora).strip().zfill(4)[:4]
     try: return datetime.strptime(f"{data} {h}","%Y-%m-%d %H%M").replace(tzinfo=UTC)
     except Exception: return None
-
-
+ 
+ 
 def buscar_chuva_observada_inmet():
     try:
         resposta=get(INMET_ATUAL+IBGE_JOINVILLE).json()
@@ -4794,8 +4973,8 @@ def buscar_chuva_observada_inmet():
         return {"status":status,"tipo":"observacao_estacao_automatica","fonte":"INMET","fonte_primaria":"Instituto Nacional de Meteorologia","geocodigo_ibge_consultado":IBGE_JOINVILLE,"estacao":{"codigo":estacao.get("CODIGO") or dados.get("CD_ESTACAO"),"nome":estacao.get("NOME") or dados.get("DC_NOME"),"uf":estacao.get("UF") or dados.get("UF"),"distancia_referencia_joinville_km":distancia},"leitura_horaria_mm":chuva,"horario_medicao_utc":instante.isoformat() if instante else None,"horario_medicao_local":horario_local,"idade_leitura_min":idade,"dados_frescos":fresco,"representatividade":"Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.","regra_seguranca":"Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."}
     except Exception as e:
         return {"status":"indisponivel","tipo":"observacao_estacao_automatica","fonte":"INMET","geocodigo_ibge_consultado":IBGE_JOINVILLE,"leitura_horaria_mm":None,"horario_medicao_utc":None,"horario_medicao_local":None,"idade_leitura_min":None,"dados_frescos":False,"erro":str(e),"regra_seguranca":"Falha de coleta não é interpretada como ausência de chuva."}
-
-
+ 
+ 
 def main():
     dados = {
         "monitor":
@@ -4826,10 +5005,10 @@ def main():
  
         "chuva_observada_inmet":
             buscar_chuva_observada_inmet(),
-
+ 
         "investigacao_radarsc_128":
             investigar_fonte_radarsc(),
-
+ 
         "mare":
             buscar_mare(),
  
@@ -4871,7 +5050,7 @@ def main():
     }
  
     historico = registrar_historico_validacao(dados)
-
+ 
     with open(
         ARQUIVO,
         "w",

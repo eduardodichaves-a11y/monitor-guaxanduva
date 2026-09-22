@@ -7879,6 +7879,262 @@ def diagnosticar_filtro_cap_inmet_151():
         )
         return resultado
 
+
+def diagnosticar_data_id_cap_inmet_152():
+    """
+    #152 - Descobre o identificador real dos CAPs a partir do
+    discovery-metadata oficial WIS2/INMET, sem inventar prefixos.
+
+    Preserva strings e links relevantes da resposta oficial e testa como
+    data_id somente candidatos que apareçam literalmente no metadata.
+    Não altera o card operacional de granizo.
+    """
+    metadata_url = (
+        "https://wis2bra.inmet.gov.br/oapi/collections/"
+        "discovery-metadata/items/"
+        "urn%3Awmo%3Amd%3Abr-inmet%3Aalerts"
+    )
+    messages_url = (
+        "https://wis2bra.inmet.gov.br/oapi/"
+        "collections/messages/items"
+    )
+
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#152",
+        "fonte": "WIS2 Node oficial do INMET / discovery-metadata",
+        "metadata_url": metadata_url,
+        "metadata_http": None,
+        "chaves_metadata": [],
+        "links_metadata": [],
+        "strings_relevantes": [],
+        "candidatos_data_id": [],
+        "testes_data_id": [],
+        "cap_localizado": False,
+        "notificacoes_cap": [],
+        "uso_operacional_granizo": False,
+        "regra_seguranca": (
+            "Diagnostico documental. Nenhum resultado deste bloco afirma "
+            "alerta ativo, ausencia de alerta ou risco de granizo."
+        ),
+    }
+
+    headers = {
+        "User-Agent": "Monitor-Guaxanduva/1.0",
+        "Accept": "application/geo+json,application/json",
+    }
+
+    def coletar_strings(obj, caminho="$", saida=None):
+        if saida is None:
+            saida = []
+        if len(saida) >= 400:
+            return saida
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                coletar_strings(v, f"{caminho}.{k}", saida)
+        elif isinstance(obj, list):
+            for i, v in enumerate(obj[:200]):
+                coletar_strings(v, f"{caminho}[{i}]", saida)
+        elif isinstance(obj, str):
+            baixo = obj.lower()
+            if any(
+                termo in baixo
+                for termo in (
+                    "alert", "advis", "warning", "cap",
+                    "br-inmet", "weather", "xml",
+                )
+            ):
+                saida.append({
+                    "caminho": caminho,
+                    "valor": obj[:1000],
+                })
+        return saida
+
+    def extrair_links(obj):
+        encontrados = []
+        vistos = set()
+
+        def andar(x):
+            if isinstance(x, dict):
+                href = x.get("href")
+                if isinstance(href, str) and href.startswith(
+                    ("https://", "http://")
+                ):
+                    chave = (x.get("rel"), href, x.get("type"))
+                    if chave not in vistos:
+                        vistos.add(chave)
+                        encontrados.append({
+                            "rel": x.get("rel"),
+                            "href": href,
+                            "type": x.get("type"),
+                            "title": x.get("title"),
+                        })
+                for v in x.values():
+                    andar(v)
+            elif isinstance(x, list):
+                for v in x:
+                    andar(v)
+
+        andar(obj)
+        return encontrados[:100]
+
+    def extrair_candidatos(strings):
+        candidatos = []
+        vistos = set()
+
+        for item in strings:
+            valor = str(item.get("valor") or "").strip()
+            baixo = valor.lower()
+            if (
+                "br-inmet" in baixo
+                and any(t in baixo for t in ("alert", "advis", "warning"))
+            ):
+                pedacos = re.split(r"[\s,;\"'<>]+", valor)
+                for p in pedacos:
+                    p = p.strip("()[]{}")
+                    pl = p.lower()
+                    if (
+                        "br-inmet" in pl
+                        and any(t in pl for t in ("alert", "advis", "warning"))
+                        and len(p) <= 500
+                        and p not in vistos
+                    ):
+                        vistos.add(p)
+                        candidatos.append(p)
+
+        return candidatos[:30]
+
+    try:
+        r = requests.get(
+            metadata_url,
+            params={"f": "json"},
+            timeout=(10, 25),
+            headers=headers,
+        )
+        resultado["metadata_http"] = r.status_code
+        r.raise_for_status()
+        metadata = r.json()
+
+        if isinstance(metadata, dict):
+            resultado["chaves_metadata"] = sorted(
+                str(k) for k in metadata.keys()
+            )
+
+        resultado["links_metadata"] = extrair_links(metadata)
+        strings = coletar_strings(metadata)
+        resultado["strings_relevantes"] = strings[:100]
+        candidatos = extrair_candidatos(strings)
+        resultado["candidatos_data_id"] = candidatos
+
+        notificacoes = []
+        vistos_not = set()
+
+        for candidato in candidatos[:15]:
+            teste = {
+                "data_id": candidato,
+                "http_status": None,
+                "quantidade_features": 0,
+                "amostras": [],
+                "erro": None,
+            }
+
+            try:
+                rr = requests.get(
+                    messages_url,
+                    params={
+                        "f": "json",
+                        "data_id": candidato,
+                        "limit": 20,
+                    },
+                    timeout=(10, 25),
+                    headers=headers,
+                )
+                teste["http_status"] = rr.status_code
+
+                if rr.ok:
+                    obj = rr.json()
+                    feats = (
+                        obj.get("features", [])
+                        if isinstance(obj, dict)
+                        else []
+                    )
+                    if not isinstance(feats, list):
+                        feats = []
+
+                    teste["quantidade_features"] = len(feats)
+
+                    for f in feats[:20]:
+                        if not isinstance(f, dict):
+                            continue
+                        p = f.get("properties")
+                        if not isinstance(p, dict):
+                            p = {}
+
+                        amostra = {
+                            "id": f.get("id"),
+                            "data_id": p.get("data_id"),
+                            "datetime": p.get("datetime"),
+                            "pubtime": p.get("pubtime"),
+                            "metadata_id": p.get("metadata_id"),
+                            "links": extrair_links(f)[:10],
+                        }
+                        teste["amostras"].append(amostra)
+
+                        chave = (
+                            str(amostra["id"]),
+                            str(amostra["data_id"]),
+                            str(amostra["pubtime"]),
+                        )
+                        if chave not in vistos_not:
+                            vistos_not.add(chave)
+                            notificacoes.append(amostra)
+                else:
+                    teste["erro"] = rr.text[:500]
+
+            except Exception as e:
+                teste["erro"] = str(e)[:500]
+
+            resultado["testes_data_id"].append(teste)
+
+        resultado["notificacoes_cap"] = notificacoes[:30]
+        resultado["cap_localizado"] = bool(notificacoes)
+
+        if notificacoes:
+            resultado["status"] = "data_id_documentado_e_cap_localizado"
+            resultado["observacao"] = (
+                "O discovery-metadata forneceu candidato documental e ao "
+                "menos uma notificacao historica foi localizada. O proximo "
+                "passo e validar o recurso CAP/XML real."
+            )
+        elif candidatos:
+            resultado["status"] = (
+                "data_id_documentado_sem_notificacao_localizada"
+            )
+            resultado["observacao"] = (
+                "O discovery-metadata revelou candidato literal, mas o "
+                "filtro exato nao retornou notificacao nesta consulta. "
+                "Isso nao significa ausencia de alertas."
+            )
+        else:
+            resultado["status"] = (
+                "metadata_online_sem_data_id_literal_extraido"
+            )
+            resultado["observacao"] = (
+                "O metadata oficial respondeu, mas nenhum data_id CAP foi "
+                "extraido pelas regras conservadoras. Strings e links foram "
+                "preservados para a proxima investigacao."
+            )
+
+        return resultado
+
+    except Exception as e:
+        resultado["erro"] = str(e)
+        resultado["observacao"] = (
+            "Falha no diagnostico #152. Nenhuma conclusao sobre alerta de "
+            "granizo e produzida."
+        )
+        return resultado
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     dados = {
@@ -7947,6 +8203,8 @@ def main():
         "diagnostico_historico_cap_inmet_150": diagnosticar_historico_cap_inmet_150(),
 
         "diagnostico_filtro_cap_inmet_151": diagnosticar_filtro_cap_inmet_151(),
+
+        "diagnostico_data_id_cap_inmet_152": diagnosticar_data_id_cap_inmet_152(),
  
         "emergencia": {
             "defesa_civil":

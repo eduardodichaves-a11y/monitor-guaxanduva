@@ -8334,6 +8334,190 @@ def diagnosticar_cap_por_metadata_id_153():
         )
         return resultado
 
+
+def diagnosticar_xml_cap_inmet_154():
+    """#154 - Baixa e disseca XMLs CAP reais do INMET, sem uso operacional."""
+    import xml.etree.ElementTree as ET
+
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#154",
+        "fonte": "WIS2 Node oficial do INMET / CAP XML canonical",
+        "xmls_testados": 0,
+        "xmls_http_200": 0,
+        "xmls_cap_parseaveis": 0,
+        "amostras": [],
+        "campos_cap_confirmados": [],
+        "estrutura_area_confirmada": False,
+        "estrutura_geocode_confirmada": False,
+        "estrutura_polygon_confirmada": False,
+        "mencao_granizo_encontrada_nas_amostras": False,
+        "uso_operacional_granizo": False,
+        "regra_seguranca": (
+            "Diagnostico estrutural de XML CAP historico. Mencao historica "
+            "a granizo nao significa alerta atual/cobertura de Joinville; "
+            "ausencia nas amostras tambem nao significa ausencia de alerta."
+        ),
+    }
+
+    diag153 = diagnosticar_cap_por_metadata_id_153()
+    candidatos = diag153.get("links_xml_candidatos", [])
+    if not isinstance(candidatos, list) or not candidatos:
+        resultado["status"] = "sem_link_xml_da_153"
+        return resultado
+
+    headers = {
+        "User-Agent": "Monitor-Guaxanduva/1.0",
+        "Accept": "application/xml,text/xml,*/*",
+    }
+
+    def local(tag):
+        return tag.rsplit("}", 1)[-1] if isinstance(tag, str) and "}" in tag else tag
+
+    def textos(elem, nome):
+        return [
+            (x.text or "").strip()
+            for x in elem.iter()
+            if local(x.tag) == nome and (x.text or "").strip()
+        ]
+
+    def primeiro(elem, nome):
+        vals = textos(elem, nome)
+        return vals[0] if vals else None
+
+    def areas_info(info):
+        saida = []
+        for area in [x for x in info.iter() if local(x.tag) == "area"]:
+            geocodes = []
+            for geo in [x for x in area if local(x.tag) == "geocode"]:
+                geocodes.append({
+                    "valueName": primeiro(geo, "valueName"),
+                    "value": primeiro(geo, "value"),
+                })
+            poligonos = [
+                (x.text or "").strip()
+                for x in area
+                if local(x.tag) == "polygon" and (x.text or "").strip()
+            ]
+            saida.append({
+                "areaDesc": primeiro(area, "areaDesc"),
+                "geocodes": geocodes,
+                "polygons": poligonos,
+            })
+        return saida
+
+    campos = set()
+    amostras = []
+
+    for cand in candidatos[:5]:
+        href = cand.get("href") if isinstance(cand, dict) else None
+        if not isinstance(href, str) or not href.startswith("https://"):
+            continue
+
+        resultado["xmls_testados"] += 1
+        a = {
+            "url": href,
+            "data_id": cand.get("data_id"),
+            "http_status": None,
+            "content_type": None,
+            "parseavel": False,
+            "raiz": None,
+            "namespace": None,
+            "identifier": None,
+            "sender": None,
+            "sent": None,
+            "status_cap": None,
+            "msgType": None,
+            "scope": None,
+            "infos": [],
+            "menciona_granizo_ou_hail": False,
+            "erro": None,
+        }
+
+        try:
+            r = requests.get(href, timeout=(10, 25), headers=headers)
+            a["http_status"] = r.status_code
+            a["content_type"] = r.headers.get("Content-Type")
+            if r.status_code != 200:
+                a["erro"] = r.text[:300]
+                amostras.append(a)
+                continue
+
+            resultado["xmls_http_200"] += 1
+            raiz = ET.fromstring(r.content)
+            a["parseavel"] = True
+            resultado["xmls_cap_parseaveis"] += 1
+            a["raiz"] = local(raiz.tag)
+            if raiz.tag.startswith("{") and "}" in raiz.tag:
+                a["namespace"] = raiz.tag[1:].split("}", 1)[0]
+
+            for x in raiz.iter():
+                campos.add(local(x.tag))
+
+            for nome in ("identifier", "sender", "sent", "msgType", "scope"):
+                a[nome] = primeiro(raiz, nome)
+            a["status_cap"] = primeiro(raiz, "status")
+
+            busca = []
+            for info in [x for x in raiz.iter() if local(x.tag) == "info"]:
+                areas = areas_info(info)
+                if areas:
+                    resultado["estrutura_area_confirmada"] = True
+                for area in areas:
+                    if area["geocodes"]:
+                        resultado["estrutura_geocode_confirmada"] = True
+                    if area["polygons"]:
+                        resultado["estrutura_polygon_confirmada"] = True
+
+                item = {
+                    "language": primeiro(info, "language"),
+                    "category": textos(info, "category"),
+                    "event": primeiro(info, "event"),
+                    "urgency": primeiro(info, "urgency"),
+                    "severity": primeiro(info, "severity"),
+                    "certainty": primeiro(info, "certainty"),
+                    "effective": primeiro(info, "effective"),
+                    "onset": primeiro(info, "onset"),
+                    "expires": primeiro(info, "expires"),
+                    "headline": primeiro(info, "headline"),
+                    "description": primeiro(info, "description"),
+                    "instruction": primeiro(info, "instruction"),
+                    "areas": areas,
+                }
+                a["infos"].append(item)
+                for k in ("event", "headline", "description", "instruction"):
+                    if isinstance(item.get(k), str):
+                        busca.append(item[k])
+                for area in areas:
+                    if isinstance(area.get("areaDesc"), str):
+                        busca.append(area["areaDesc"])
+
+            total = " ".join(busca).lower()
+            a["menciona_granizo_ou_hail"] = "granizo" in total or "hail" in total
+            if a["menciona_granizo_ou_hail"]:
+                resultado["mencao_granizo_encontrada_nas_amostras"] = True
+
+        except Exception as e:
+            a["erro"] = str(e)[:500]
+
+        amostras.append(a)
+
+    resultado["amostras"] = amostras
+    resultado["campos_cap_confirmados"] = sorted(campos)
+
+    if any(a.get("parseavel") and a.get("raiz") == "alert" for a in amostras):
+        resultado["status"] = "cap_xml_real_parseado"
+        resultado["observacao"] = (
+            "Recurso canonical baixado e parseado como CAP XML com raiz "
+            "alert. Estrutura real registrada; sem decisao operacional."
+        )
+    elif resultado["xmls_http_200"] > 0:
+        resultado["status"] = "xml_baixado_sem_raiz_cap_alert_confirmada"
+    else:
+        resultado["status"] = "xml_cap_nao_baixado"
+
+    return resultado
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     dados = {
@@ -8406,6 +8590,8 @@ def main():
         "diagnostico_data_id_cap_inmet_152": diagnosticar_data_id_cap_inmet_152(),
 
         "diagnostico_cap_por_metadata_id_153": diagnosticar_cap_por_metadata_id_153(),
+
+        "diagnostico_xml_cap_inmet_154": diagnosticar_xml_cap_inmet_154(),
  
         "emergencia": {
             "defesa_civil":

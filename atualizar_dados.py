@@ -268,7 +268,7 @@ def registrar_historico_validacao(dados):
     avaliacao = radar.get("avaliacao_trajetorias") or {}
     registro = {
         "gerado_em": dados.get("gerado_em"),
-        "versao": "#132",
+        "versao": "#133",
         "horario_ultimo_quadro": radar.get("horario_ultimo_quadro"),
         "radar_status": radar.get("status"),
         "dados_frescos": radar.get("dados_frescos"),
@@ -293,7 +293,7 @@ def registrar_historico_validacao(dados):
     historico = {
         "monitor": "Monitor Guaxanduva",
         "tipo": "historico_autovalidacao_preditiva_radar",
-        "versao": "#132",
+        "versao": "#133",
         "metodo": "projecao_retrospectiva_1_quadro_com_velocidade_media",
         "atualizado_em": dados.get("gerado_em"),
         "maximo_registros": HISTORICO_MAX_REGISTROS,
@@ -1162,6 +1162,59 @@ def mascara(imagem):
     }
  
     return pontos, indices
+
+
+# =========================================================
+# #133 - MÁSCARA OPERACIONAL SOMENTE COM CORES OFICIAIS
+# =========================================================
+
+def mascara_oficial_133(imagem, legenda_oficial):
+    """Seleciona exclusivamente pixels cujo RGB coincide exatamente com
+    uma classe extraída da legenda oficial RadarSC.
+
+    Esta máscara passa a alimentar componentes, trilhas e autovalidação.
+    Não converte cor em dBZ/mm/h e não libera ETA.
+    """
+    if imagem.mode != "P":
+        return set(), {}, {}
+
+    classes = (legenda_oficial or {}).get("classes") or []
+    mapa_rgb_classe = {}
+    for item in classes:
+        if not isinstance(item, dict):
+            continue
+        rgb = item.get("rgb")
+        classe = item.get("classe")
+        if isinstance(rgb, list) and len(rgb) == 3 and classe is not None:
+            mapa_rgb_classe[tuple(int(v) for v in rgb)] = int(classe)
+
+    if not mapa_rgb_classe:
+        return set(), {}, {}
+
+    paleta = imagem.getpalette()
+    transparencia = imagem.info.get("transparency")
+    indices = {}
+    classes_por_indice = {}
+
+    for indice in set(imagem.getdata()):
+        rgb = rgb_idx(paleta, indice)
+        if (
+            alpha_idx(transparencia, indice) > 0
+            and rgb is not None
+            and tuple(rgb) in mapa_rgb_classe
+        ):
+            indices[indice] = rgb
+            classes_por_indice[indice] = mapa_rgb_classe[tuple(rgb)]
+
+    pixels = imagem.load()
+    pontos = {
+        (x, y)
+        for y in range(imagem.height)
+        for x in range(imagem.width)
+        if pixels[x, y] in indices
+    }
+
+    return pontos, indices, classes_por_indice
  
  
 # =========================================================
@@ -1426,9 +1479,10 @@ def resumo_comp(
     }
  
  
-def analisar(imagem):
-    pontos, indices = mascara(
-        imagem
+def analisar(imagem, legenda_oficial=None):
+    pontos, indices, classes_por_indice = mascara_oficial_133(
+        imagem,
+        legenda_oficial,
     )
  
     xc, yc = geo2px(
@@ -1441,7 +1495,7 @@ def analisar(imagem):
     if not pontos:
         return {
             "status":
-                "sem_pixels_candidatos",
+                "sem_pixels_oficiais",
  
             "pixel_comasa": {
                 "x": xc,
@@ -1573,7 +1627,16 @@ def analisar(imagem):
             "diagnostico_espacial_ativo",
  
         "metodo":
-            "componentes_conectados_8_vizinhos",
+            "componentes_conectados_8_vizinhos_rgb_oficial_#133",
+
+        "fonte_mascara":
+            "somente_rgb_exato_da_legenda_oficial_radarsc",
+
+        "dbz_numerico_validado":
+            False,
+
+        "eta_liberado":
+            False,
  
         "pixel_comasa": {
             "x":
@@ -1599,6 +1662,9 @@ def analisar(imagem):
  
                 "rgb":
                     list(rgb),
+
+                "classe_oficial":
+                    classes_por_indice.get(indice),
             }
  
             for indice, rgb
@@ -2306,7 +2372,7 @@ def rastrear(quadros):
                 "dados_insuficientes",
  
             "versao":
-                "#118_identidade_temporal",
+                "#133_rgb_oficial_identidade_temporal",
  
             "trilhas":
                 [],
@@ -3396,7 +3462,7 @@ def analisar_interceptacao(
             "diagnostico",
  
         "versao_metodo":
-            "#118_identidade_temporal_multivetorial",
+            "#133_rgb_oficial_identidade_temporal_multivetorial",
  
         "trilha_id":
             trilha.get(
@@ -4321,7 +4387,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
             mapa_oficial[tuple(int(v) for v in rgb)] = item.get("classe")
 
     base = {
-        "versao": "#132",
+        "versao": "#133",
         "status": "auditoria_espacial_ativa",
         "referencia": "Comasa - coordenada pública aproximada",
         "coordenada_referencia": {"latitude": LAT, "longitude": LON},
@@ -4531,7 +4597,8 @@ def baixar(nome, legenda_oficial=None):
  
         "analise_espacial":
             analisar(
-                imagem
+                imagem,
+                legenda_oficial,
             ),
 
         "eco_oficial_local_129":
@@ -5004,10 +5071,21 @@ def buscar_radar():
 
             "auditoria_espacial_132":
                 ultimo.get("auditoria_espacial_132"),
+
+            "correcao_rastreamento_133": {
+                "versao": "#133",
+                "status": "ativa",
+                "mascara_operacional": "somente_rgb_exato_da_legenda_oficial_radarsc",
+                "pixels_visiveis_nao_oficiais": "excluidos_de_componentes_trilhas_e_autovalidacao",
+                "criterio_legado": "mantido_apenas_na_auditoria_132_para_comparacao",
+                "dbz_numerico_validado": False,
+                "eta_liberado": False,
+                "regra_seguranca": "Cor oficial detectada por radar não equivale a chuva medida no solo. A #133 corrige a seleção espacial; não atribui dBZ, mm/h nem libera ETA.",
+            },
  
             "metodo_eco": {
                 "status":
-                    "experimental_auditoria_espacial_132",
+                    "experimental_rastreamento_rgb_oficial_133",
  
                 "fundo":
                     "alpha_zero_excluido",
@@ -5016,13 +5094,19 @@ def buscar_radar():
                     "excluido_ate_validacao",
  
                 "demais_pixels_visiveis":
-                    "nao_usados_como_chuva_na_classificacao_130",
+                    "excluidos_do_rastreamento_#133",
  
                 "dbz":
                     "nao_atribuido",
 
                 "classificacao_qualitativa":
                     "somente_rgb_exato_da_legenda_oficial",
+
+                "rastreamento_temporal":
+                    "somente_componentes_formados_por_rgb_oficial_#133",
+
+                "autovalidacao":
+                    "somente_trilhas_derivadas_de_rgb_oficial_#133",
  
                 "validacao_rgb":
                     validacao_paleta.get("status"),

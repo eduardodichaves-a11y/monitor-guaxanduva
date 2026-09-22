@@ -33,7 +33,7 @@ jobs:
       - name: Instalar dependências
         run: |
           python -m pip install --upgrade pip
-          pip install requests beautifulsoup4 pillow
+          pip install requests beautifulsoup4 pillow paho-mqtt
 
       - name: Atualizar dados e histórico
         run: python atualizar_dados.py
@@ -50,25 +50,15 @@ jobs:
             exit 0
           fi
 
-          # Guarda os dois arquivos produzidos nesta execução.
           cp dados.json /tmp/dados-monitor-guaxanduva.json
           cp historico_validacao.json /tmp/historico-validacao-monitor-guaxanduva.json
-
-          # Descarta as alterações locais temporariamente para permitir
-          # a sincronização segura com a versão mais recente da main.
           git reset --hard HEAD
-
-          # Busca tudo que entrou na main enquanto o radar era processado.
           git fetch origin main
           git reset --hard origin/main
-
-          # Recoloca exclusivamente os arquivos recém-gerados.
           cp /tmp/dados-monitor-guaxanduva.json dados.json
           cp /tmp/historico-validacao-monitor-guaxanduva.json historico_validacao.json
           git add dados.json historico_validacao.json
 
-          # Se outra execução já publicou exatamente estes dados,
-          # não há nada para enviar.
           if git diff --cached --quiet; then
             echo "Os dados e o histórico mais recentes já estão publicados."
             exit 0
@@ -76,8 +66,6 @@ jobs:
 
           git commit -m "Atualiza dados e histórico do Monitor Guaxanduva"
 
-          # Última proteção contra uma atualização que tenha ocorrido
-          # nos poucos instantes entre o fetch e o push.
           for tentativa in 1 2 3; do
             if git push origin HEAD:main; then
               echo "dados.json e historico_validacao.json publicados com sucesso."

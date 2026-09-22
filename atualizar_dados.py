@@ -28,6 +28,8 @@ LAT = -26.27
 LON = -48.81
 IBGE_JOINVILLE = "4209102"
 INMET_ATUAL = "https://apiprevmet3.inmet.gov.br/estacao/proxima/"
+CEMADEN_RECURSOS = "https://resources.cemaden.gov.br"
+CEMADEN_PLUV_24H = CEMADEN_RECURSOS + "/dados/311_24.json"
  
 FUSO = ZoneInfo("America/Sao_Paulo")
 UTC = ZoneInfo("UTC")
@@ -268,7 +270,7 @@ def registrar_historico_validacao(dados):
     avaliacao = radar.get("avaliacao_trajetorias") or {}
     registro = {
         "gerado_em": dados.get("gerado_em"),
-        "versao": "#135",
+        "versao": "#136",
         "horario_ultimo_quadro": radar.get("horario_ultimo_quadro"),
         "radar_status": radar.get("status"),
         "dados_frescos": radar.get("dados_frescos"),
@@ -293,7 +295,7 @@ def registrar_historico_validacao(dados):
     historico = {
         "monitor": "Monitor Guaxanduva",
         "tipo": "historico_autovalidacao_preditiva_radar",
-        "versao": "#135",
+        "versao": "#136",
         "metodo": "projecao_retrospectiva_1_quadro_com_velocidade_media",
         "atualizado_em": dados.get("gerado_em"),
         "maximo_registros": HISTORICO_MAX_REGISTROS,
@@ -5390,6 +5392,190 @@ def buscar_radar():
 # ARQUIVO FINAL
 # =========================================================
  
+
+# =========================================================
+# #136 - CHUVA OBSERVADA / CEMADEN - ACUMULADO 24 H
+# =========================================================
+
+def numero_cemaden(valor):
+    if valor is None:
+        return None
+    texto = str(valor).strip().replace(",", ".")
+    if not texto or texto.lower() in ("null", "none", "nan"):
+        return None
+    try:
+        numero = float(texto)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(numero) or numero < 0:
+        return None
+    return numero
+
+
+def inteiro_cemaden(valor):
+    try:
+        return int(str(valor).strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_jsonp_cemaden(texto):
+    if not isinstance(texto, str):
+        raise ValueError("Resposta CEMADEN não textual.")
+    bruto = texto.lstrip("\ufeff").strip()
+    if not bruto:
+        raise ValueError("Resposta CEMADEN vazia.")
+    if bruto[0] in "[{":
+        return json.loads(bruto.rstrip(";").strip())
+    combinado = re.match(
+        r"^\s*([A-Za-z_$][\w$]*)\s*\((.*)\)\s*;?\s*$",
+        bruto,
+        flags=re.S,
+    )
+    if not combinado:
+        raise ValueError("Formato JSONP CEMADEN não reconhecido.")
+    callback = combinado.group(1)
+    if callback != "estacoes":
+        raise ValueError("Callback JSONP inesperado: " + callback)
+    return json.loads(combinado.group(2))
+
+
+def extrair_estacoes_cemaden(payload):
+    blocos = payload if isinstance(payload, list) else [payload]
+    estacoes = []
+    for bloco in blocos:
+        if not isinstance(bloco, dict):
+            continue
+        lista = bloco.get("estacao")
+        if isinstance(lista, list):
+            estacoes.extend(
+                item for item in lista
+                if isinstance(item, dict)
+            )
+    return estacoes
+
+
+def buscar_chuva_cemaden_136():
+    base = {
+        "status": "indisponivel",
+        "versao_integracao": "#136",
+        "tipo": "observacao_pluviometrica_acumulada",
+        "fonte": "CEMADEN",
+        "fonte_primaria": (
+            "Centro Nacional de Monitoramento e Alertas "
+            "de Desastres Naturais"
+        ),
+        "endpoint_publico": CEMADEN_PLUV_24H,
+        "produto_mapa": "311_24",
+        "janela_acumulado_h": 24,
+        "referencia": "Comasa - coordenada publica aproximada",
+        "coordenada_referencia": {
+            "latitude": LAT,
+            "longitude": LON,
+        },
+        "estacao_selecionada": None,
+        "acumulado_24h_mm": None,
+        "quantidade_estacoes_joinville_ativas": 0,
+        "estacoes_joinville_ativas": [],
+        "horario_medicao": None,
+        "idade_leitura_min": None,
+        "dados_frescos": None,
+        "equivale_medicao_no_comasa": False,
+        "classificacao_risco_automatica": False,
+        "regra_seguranca": (
+            "Dado bruto de estação CEMADEN. O acumulado pertence à estação "
+            "selecionada e não equivale a medição no Comasa. Falha, ausência "
+            "ou valor nulo nunca é convertido em 0 mm."
+        ),
+    }
+    try:
+        resposta = get(CEMADEN_PLUV_24H)
+        payload = parse_jsonp_cemaden(resposta.text)
+        estacoes = extrair_estacoes_cemaden(payload)
+        if not estacoes:
+            raise ValueError("Feed CEMADEN sem estações reconhecíveis.")
+
+        candidatas = []
+        for estacao in estacoes:
+            cidade = str(estacao.get("cidade") or "").strip()
+            uf = str(estacao.get("uf") or "").strip().upper()
+            tipo = inteiro_cemaden(estacao.get("idtipoestacao"))
+            status = inteiro_cemaden(estacao.get("status"))
+            if cidade.casefold() != "joinville":
+                continue
+            if uf != "SC" or tipo != 1 or status != 0:
+                continue
+
+            try:
+                lat = float(str(estacao.get("latitude")).replace(",", "."))
+                lon = float(str(estacao.get("longitude")).replace(",", "."))
+            except (TypeError, ValueError):
+                continue
+            if not (
+                math.isfinite(lat)
+                and math.isfinite(lon)
+                and -90 <= lat <= 90
+                and -180 <= lon <= 180
+            ):
+                continue
+
+            acumulado = numero_cemaden(estacao.get("acumulado"))
+            candidatas.append({
+                "id": estacao.get("idestacao"),
+                "codigo": estacao.get("codestacao"),
+                "nome": estacao.get("nomeestacao"),
+                "rede": estacao.get("sigla"),
+                "cidade": cidade,
+                "uf": uf,
+                "latitude": lat,
+                "longitude": lon,
+                "distancia_comasa_aprox_km": round(hav(LAT, LON, lat, lon), 2),
+                "acumulado_24h_mm": acumulado,
+                "acumulado_disponivel": acumulado is not None,
+            })
+
+        candidatas.sort(
+            key=lambda item: item["distancia_comasa_aprox_km"]
+        )
+        base["quantidade_estacoes_joinville_ativas"] = len(candidatas)
+        base["estacoes_joinville_ativas"] = candidatas
+
+        if not candidatas:
+            base["status"] = "online_sem_estacao_joinville_ativa"
+            base["observacao"] = (
+                "O endpoint respondeu, mas nenhuma estação automática ativa "
+                "de Joinville/SC passou pelos filtros da integração #136."
+            )
+            return base
+
+        com_leitura = [
+            item for item in candidatas
+            if item["acumulado_disponivel"]
+        ]
+        selecionada = com_leitura[0] if com_leitura else candidatas[0]
+        base["estacao_selecionada"] = selecionada
+        base["acumulado_24h_mm"] = selecionada["acumulado_24h_mm"]
+        base["coletado_em"] = agora().isoformat()
+
+        if selecionada["acumulado_disponivel"]:
+            base["status"] = "online_dado_bruto_24h"
+        else:
+            base["status"] = "online_sem_acumulado_valido"
+            base["observacao"] = (
+                "Estação identificada, porém o feed não trouxe acumulado "
+                "24 h válido. O Monitor mantém o valor indisponível."
+            )
+        return base
+
+    except Exception as e:
+        base["erro"] = str(e)
+        base["observacao"] = (
+            "Falha na coleta do feed público 311_24 do CEMADEN; "
+            "não interpretar como ausência de chuva."
+        )
+        return base
+
+
 # =========================================================
 # #123 - CHUVA OBSERVADA / ESTAÇÃO INMET - RECUPERADA NA #128
 # =========================================================
@@ -5440,22 +5626,8 @@ def main():
         "gerado_em":
             agora().isoformat(),
  
-        "chuva": {
-            "status":
-                "aguardando_integracao",
- 
-            "fonte":
-                "CEMADEN",
- 
-            "leitura_mm":
-                None,
- 
-            "acumulado_1h_mm":
-                None,
- 
-            "acumulado_24h_mm":
-                None,
-        },
+        "chuva":
+            buscar_chuva_cemaden_136(),
  
         "chuva_observada_inmet":
             buscar_chuva_observada_inmet(),

@@ -51,6 +51,21 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 </section>
  
 <section class="card">
+<div class="local">🌈 ECO RADARSC • CLASSIFICAÇÃO QUALITATIVA #130</div>
+<h2>Cor oficial detectada perto do Comasa</h2>
+<div class="sub">Somente RGB idêntico à legenda oficial RadarSC • interpretação qualitativa experimental</div>
+<div id="ecoQualEstado" class="box aviso">Carregando classificação das cores...</div>
+<div class="radar-grid">
+<div class="radar-item">🎨 Família de cor<b id="ecoQualCor">--</b></div>
+<div class="radar-item">🧩 Classe oficial<b id="ecoQualClasse">--</b></div>
+<div class="radar-item">📍 Menor raio com eco<b id="ecoQualRaio">--</b></div>
+<div class="radar-item">🔎 Pixels oficiais<b id="ecoQualPixels">--</b></div>
+</div>
+<div id="ecoQualInterpretacao" class="box aviso">Aguardando diagnóstico qualitativo...</div>
+<small>DETECTADO POR RADAR. A cor é comparada com a legenda oficial do RadarSC. A categoria de intensidade é qualitativa; não representa chuva medida no solo, não atribui mm/h e não converte a cor em dBZ numérico. Se o quadro estiver desatualizado, a detecção também é antiga.</small>
+</section>
+ 
+<section class="card">
 <div class="local">🎨 VALIDAÇÃO RADARSC • EXPERIMENTAL</div>
 <h2>Legenda oficial × paleta dos quadros</h2>
 <div class="sub">Diagnóstico estrutural #125 • correspondência RGB observada nos PNGs do radar</div>
@@ -155,6 +170,16 @@ const f=(v,n=1)=>v==null?"--":Number(v).toFixed(n).replace(".",",");
 function relogio(){$("hora").textContent="🕒 "+new Date().toLocaleString("pt-BR")}
 function pontoCardinal(g){if(g==null)return "--";const p=["N","NE","L","SE","S","SO","O","NO"];return p[Math.round(Number(g)/45)%8]+" • "+Math.round(g)+"°"}
 function horaCurta(t){if(!t)return "--";const d=new Date(t);return isNaN(d)?String(t).slice(11,16):d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}
+function nomeFamilia(v){return v?String(v).replaceAll("_"," ").toUpperCase():"--"}
+function textoCategoria(v){
+ const mapa={
+  precipitacao_menor_intensidade_documentada:"Precipitação de menor intensidade • classificação qualitativa documentada",
+  precipitacao_temporal_documentado_sem_faixa_numerica:"Precipitação/temporal • classificação qualitativa, sem faixa numérica validada",
+  precipitacao_intensa_ou_tempestade_documentada:"Precipitação intensa ou tempestade • classificação qualitativa documentada",
+  sem_interpretacao_meteorologica_validada:"Cor oficial detectada, mas sem interpretação meteorológica validada"
+ };
+ return mapa[v]||"Interpretação qualitativa ainda não disponível";
+}
 relogio();setInterval(relogio,1000);
  
 async function carregarHistorico(){
@@ -187,19 +212,39 @@ async function carregar(){
   const cand=av.quantidade_candidatos_eta??0;
   $("etaEstado").innerHTML='<span class="aviso">🧪 ETA experimental bloqueado • candidatos atuais: '+cand+'</span>';
  
+  const cq=rad.classificacao_qualitativa_local_130||{}, pr=cq.por_raio||{};
+  let escolhido=null;
+  for(const raio of ["2","5","10","25"]){
+   const x=pr[raio]||{};
+   if(x.eco_oficial_detectado){escolhido={raio,...x};break}
+  }
+  if(escolhido){
+   const cls=(escolhido.classes_presentes||[])[0]||{};
+   const fam=(escolhido.familias_cor||[])[0]||{};
+   $("ecoQualCor").textContent=nomeFamilia(fam.familia);
+   $("ecoQualClasse").textContent=cls.classe==null?"--":"CLASSE "+cls.classe;
+   $("ecoQualRaio").textContent="≤ "+escolhido.raio+" km";
+   $("ecoQualPixels").textContent=escolhido.pixels_oficiais_classificados??"--";
+   const fresco=rad.dados_frescos===true;
+   $("ecoQualEstado").innerHTML=fresco?'<span class="ok">🟢 ECO OFICIAL DETECTADO</span> • RGB idêntico à legenda RadarSC':'<span class="aviso">🟡 ECO OFICIAL DETECTADO EM QUADRO DESATUALIZADO</span>';
+   $("ecoQualInterpretacao").innerHTML='<b>'+textoCategoria(fam.categoria)+'</b><br><small>Raio mostrado = menor raio em que a #130 encontrou pixel de classe oficial. Não significa que esteja chovendo no ponto de referência.</small>';
+  }else if(cq.status){
+   $("ecoQualCor").textContent="--";$("ecoQualClasse").textContent="--";$("ecoQualRaio").textContent="NENHUM ≤ 25 km";$("ecoQualPixels").textContent="0";
+   $("ecoQualEstado").innerHTML='<span class="aviso">⚪ Nenhum RGB oficial detectado até 25 km neste quadro</span>';
+   $("ecoQualInterpretacao").innerHTML='<small>Ausência de eco oficial nesta busca não prova ausência de chuva no solo.</small>';
+  }else{
+   $("ecoQualEstado").innerHTML='<span class="erro">🔴 Diagnóstico qualitativo #130 indisponível</span>';
+  }
+ 
   const vp=rad.validacao_paleta_radar||{};
   const compat=vp.status==="compatibilidade_rgb_observada";
   $("paletaStatus").textContent=vp.status?(compat?"OBSERVADA":"NÃO OBSERVADA"):"--";
   $("paletaClasses").textContent=vp.classes_legenda_total==null?"--":(vp.classes_legenda_observadas??0)+" de "+vp.classes_legenda_total;
   $("paletaDbz").textContent=vp.dbz_numerico_validado?"SIM":"NÃO";
   $("paletaEta").textContent=vp.eta_liberado?"SIM":"NÃO";
-  if(!vp.status){
-   $("paletaEstado").innerHTML='<span class="aviso">🟡 Diagnóstico da paleta ainda não recebido</span>';
-  }else if(compat){
-   $("paletaEstado").innerHTML='<span class="ok">🟢 Compatibilidade estrutural RGB observada</span> • dBZ numérico e ETA continuam bloqueados';
-  }else{
-   $("paletaEstado").innerHTML='<span class="aviso">🟡 Sem correspondência RGB observada nesta amostra</span> • continuar coletando evidências';
-  }
+  if(!vp.status){$("paletaEstado").innerHTML='<span class="aviso">🟡 Diagnóstico da paleta ainda não recebido</span>'}
+  else if(compat){$("paletaEstado").innerHTML='<span class="ok">🟢 Compatibilidade estrutural RGB observada</span> • dBZ numérico e ETA continuam bloqueados'}
+  else{$("paletaEstado").innerHTML='<span class="aviso">🟡 Sem correspondência RGB observada nesta amostra</span> • continuar coletando evidências'}
  
   $("chuva").textContent=f(c.leitura_mm);$("h1").textContent=f(c.acumulado_1h_mm);$("h24").textContent=f(c.acumulado_24h_mm);
   $("cs").textContent=c.leitura_mm==null?"⚪ SEM LEITURA INTEGRADA • isso não significa ausência de chuva":"🟢 OBSERVADO • leitura automática recebida";
@@ -221,7 +266,10 @@ async function carregar(){
    $("previsao7dias").innerHTML=html+'<div class="ok" style="margin-top:12px">🟢 PREVISTO • previsão de 7 dias recebida</div>';
   }else{$("previsao7dias").innerHTML='<span class="erro">🔴 INDISPONÍVEL • previsão de 7 dias não recebida</span>'}
   $("granizo").textContent=g.status==="sem_alerta_integrado"?"⚪ INDISPONÍVEL • alerta oficial ainda não integrado":"🟡 "+g.status;
- }catch(e){$("sistema").innerHTML='<span class="erro">🔴 Falha ao carregar dados.json</span>';$("coleta").textContent=e.message;$("radarEstado").innerHTML='<span class="erro">🔴 Falha ao carregar radar</span>'}
+ }catch(e){
+  $("sistema").innerHTML='<span class="erro">🔴 Falha ao carregar dados.json</span>';$("coleta").textContent=e.message;$("radarEstado").innerHTML='<span class="erro">🔴 Falha ao carregar radar</span>';
+  $("ecoQualEstado").innerHTML='<span class="erro">🔴 Falha ao carregar classificação qualitativa</span>';
+ }
 }
 carregar();carregarHistorico();setInterval(carregar,60000);setInterval(carregarHistorico,60000);
 </script>

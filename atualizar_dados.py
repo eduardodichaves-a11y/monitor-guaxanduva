@@ -5670,6 +5670,127 @@ def investigar_serie_cemaden_138(chuva_cemaden):
         return resultado
 
 
+
+# =========================================================
+# #139 - SONDA DO ENDPOINT grafico_pcds.php / CEMADEN
+# =========================================================
+
+def investigar_endpoint_pcds_139(chuva_cemaden):
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#139",
+        "tipo": "sonda_diagnostica_endpoint_grafico_pcds",
+        "fonte": "CEMADEN",
+        "estacao": None,
+        "endpoint": None,
+        "http_status": None,
+        "content_type": None,
+        "bytes_resposta": None,
+        "amostra_textual": None,
+        "referencias_encontradas": [],
+        "padroes_temporais": [],
+        "estruturas_tabela": [],
+        "serie_temporal_integrada": False,
+        "publicacao_automatica": False,
+        "regra_seguranca": (
+            "A #139 apenas audita a resposta do endpoint grafico_pcds.php. "
+            "Nenhum numero e publicado como chuva, horario, acumulado ou "
+            "intensidade sem validacao explicita da estrutura e unidade."
+        ),
+    }
+    try:
+        selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
+        idestacao = selecionada.get("id")
+        if idestacao is None:
+            resultado["status"] = "sem_estacao_selecionada"
+            return resultado
+        resultado["estacao"] = {
+            "id": idestacao,
+            "codigo": selecionada.get("codigo"),
+            "nome": selecionada.get("nome"),
+            "uf": selecionada.get("uf"),
+        }
+        endpoint = CEMADEN_RECURSOS + "/graficos/interativo/grafico_pcds.php?idpcd=" + str(idestacao)
+        resultado["endpoint"] = endpoint
+        resposta = get(endpoint)
+        resultado["http_status"] = resposta.status_code
+        resultado["content_type"] = resposta.headers.get("Content-Type")
+        resultado["bytes_resposta"] = len(resposta.content)
+        texto = resposta.text or ""
+        resultado["amostra_textual"] = re.sub(r"\s+", " ", texto).strip()[:3000]
+
+        referencias = []
+        vistos = set()
+        for padrao in [
+            r"(?:src|href)\s*=\s*[\"']([^\"']+)[\"']",
+            r"(?:url\s*:\s*|fetch\s*\(|getJSON\s*\()[\"']([^\"']+)[\"']",
+            r"[\"']([^\"']*(?:pluv|chuva|pcd|serie|dados|graf)[^\"']*(?:\.php|\.json|\.csv)[^\"']*)[\"']",
+        ]:
+            for achado in re.findall(padrao, texto, flags=re.I):
+                bruto = str(achado).strip()
+                if not bruto or bruto.startswith("javascript:"):
+                    continue
+                resolvida = urljoin(endpoint, bruto)
+                chave = (bruto, resolvida)
+                if chave not in vistos:
+                    vistos.add(chave)
+                    referencias.append({"referencia_bruta": bruto[:700], "url_resolvida": resolvida[:1200]})
+        resultado["referencias_encontradas"] = referencias[:120]
+
+        temporais = []
+        vistos_temporais = set()
+        for padrao in [
+            r"\b\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(?::\d{2})?\b",
+            r"\b\d{2}/\d{2}/\d{4}\s+\d{2}:\d{2}(?::\d{2})?\b",
+            r"\b\d{2}:\d{2}(?::\d{2})?\b",
+        ]:
+            for achado in re.findall(padrao, texto):
+                if achado not in vistos_temporais:
+                    vistos_temporais.add(achado)
+                    temporais.append(achado)
+        resultado["padroes_temporais"] = temporais[:120]
+
+        tabelas = []
+        for indice, bloco in enumerate(re.findall(r"<table\b[^>]*>(.*?)</table>", texto, flags=re.I | re.S)):
+            linhas = []
+            for linha in re.findall(r"<tr\b[^>]*>(.*?)</tr>", bloco, flags=re.I | re.S):
+                celulas = []
+                for celula in re.findall(r"<t[dh]\b[^>]*>(.*?)</t[dh]>", linha, flags=re.I | re.S):
+                    limpo = re.sub(r"<[^>]+>", " ", celula)
+                    limpo = re.sub(r"\s+", " ", limpo).strip()
+                    celulas.append(limpo[:300])
+                if celulas:
+                    linhas.append(celulas)
+            if linhas:
+                tabelas.append({"indice": indice, "quantidade_linhas": len(linhas), "amostra_linhas": linhas[:20]})
+        resultado["estruturas_tabela"] = tabelas[:20]
+        resultado["sinais_estruturais"] = {
+            "tem_tabela_html": bool(tabelas),
+            "tem_timestamp": bool(temporais),
+            "tem_referencias": bool(referencias),
+            "menciona_mm": bool(re.search(r"\bmm\b|mil[ií]metro", texto, flags=re.I)),
+            "menciona_chuva": bool(re.search(r"chuva|precipita", texto, flags=re.I)),
+            "menciona_acumulado": bool(re.search(r"acumul", texto, flags=re.I)),
+        }
+        resultado["status"] = (
+            "resposta_com_estrutura_para_revisao"
+            if resposta.status_code == 200 and (tabelas or temporais or referencias)
+            else "resposta_acessivel_sem_estrutura_identificada"
+            if resposta.status_code == 200
+            else "indisponivel"
+        )
+        resultado["observacao"] = (
+            "Resultado bruto para auditoria. A #139 nao converte a resposta "
+            "em chuva recente; primeiro precisamos confirmar campos, unidade, "
+            "timezone e significado temporal."
+        )
+        return resultado
+    except Exception as e:
+        resultado["erro"] = str(e)
+        resultado["observacao"] = "Falha da sonda #139 nao altera a integracao CEMADEN #136 nem a sonda #138."
+        return resultado
+
+
 # =========================================================
 # #123 - CHUVA OBSERVADA / ESTAÇÃO INMET - RECUPERADA NA #128
 # =========================================================
@@ -5726,6 +5847,9 @@ def main():
 
         "investigacao_cemaden_138":
             investigar_serie_cemaden_138(chuva_cemaden),
+
+        "investigacao_cemaden_139":
+            investigar_endpoint_pcds_139(chuva_cemaden),
  
         "chuva_observada_inmet":
             buscar_chuva_observada_inmet(),

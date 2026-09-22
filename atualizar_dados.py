@@ -250,7 +250,7 @@ def media_angular_ponderada(valores):
 # =========================================================
 # HISTÓRICO DE AUTOVALIDAÇÃO #120 - RECUPERADO NA #128
 # =========================================================
-
+ 
 def carregar_historico_validacao():
     try:
         with open(HISTORICO_ARQUIVO, "r", encoding="utf-8") as arquivo:
@@ -264,8 +264,8 @@ def carregar_historico_validacao():
     except Exception as e:
         print("Aviso: histórico anterior não pôde ser lido: " + str(e))
         return []
-
-
+ 
+ 
 def registrar_historico_validacao(dados):
     radar = dados.get("radar", {})
     validacao = radar.get("autovalidacao_preditiva") or {}
@@ -320,8 +320,8 @@ def registrar_historico_validacao(dados):
     with open(HISTORICO_ARQUIVO,"w",encoding="utf-8") as arquivo:
         json.dump(historico,arquivo,ensure_ascii=False,indent=2)
     return historico
-
-
+ 
+ 
 # =========================================================
 # OPEN-METEO
 # =========================================================
@@ -435,13 +435,13 @@ def buscar_previsao():
             prob_max = dv(
                 "precipitation_probability_max"
             )
-
+ 
             horarios_prob_max = []
             probs_horarias = horario.get(
                 "precipitation_probability",
                 [],
             )
-
+ 
             for j, texto_hora in enumerate(
                 horario.get("time", [])
             ):
@@ -461,16 +461,16 @@ def buscar_previsao():
                         )
                 except Exception:
                     pass
-
+ 
             dias.append({
                 "data":
                     data,
-
+ 
                 "temperatura_min_c":
                     dv(
                         "temperature_2m_min"
                     ),
-
+ 
                 "temperatura_max_c":
                     dv(
                         "temperature_2m_max"
@@ -478,7 +478,7 @@ def buscar_previsao():
  
                 "probabilidade_chuva_pct":
                     prob_max,
-
+ 
                 "horarios_probabilidade_max":
                     horarios_prob_max,
  
@@ -506,7 +506,7 @@ def buscar_previsao():
             "atual": {
                 "horario":
                     atual.get("time"),
-
+ 
                 "temperatura_c":
                     atual.get(
                         "temperature_2m"
@@ -536,7 +536,7 @@ def buscar_previsao():
             "proxima_hora": {
                 "horario":
                     hv("time"),
-
+ 
                 "temperatura_c":
                     hv(
                         "temperature_2m"
@@ -714,7 +714,7 @@ def buscar_mare():
 # =========================================================
 # #128 - INVESTIGAÇÃO DOCUMENTAL DO RADARSC
 # =========================================================
-
+ 
 def investigar_fonte_radarsc():
     """Procura evidência textual de dBZ/escala no HTML e JS oficiais.
     É diagnóstico documental: não atribui dBZ e não libera ETA.
@@ -762,8 +762,8 @@ def investigar_fonte_radarsc():
         resultado["status"]="indisponivel"
         resultado["erro"]=str(e)
         return resultado
-
-
+ 
+ 
 # =========================================================
 # LEGENDA OFICIAL RADARSC
 # =========================================================
@@ -869,9 +869,9 @@ def legenda():
  
             "fonte":
                 "legenda oficial RadarSC",
-
+ 
             "dimensoes_px": {"largura": imagem.width, "altura": imagem.height},
-
+ 
             "diagnostico_128": "RGB e geometria extraídos diretamente da legenda oficial; dBZ continua sem atribuição até evidência textual oficial.",
  
             "sha256":
@@ -1222,22 +1222,22 @@ def mascara(imagem):
     }
  
     return pontos, indices
-
-
+ 
+ 
 # =========================================================
 # #133 - MÁSCARA OPERACIONAL SOMENTE COM CORES OFICIAIS
 # =========================================================
-
+ 
 def mascara_oficial_133(imagem, legenda_oficial):
     """Seleciona exclusivamente pixels cujo RGB coincide exatamente com
     uma classe extraída da legenda oficial RadarSC.
-
+ 
     Esta máscara passa a alimentar componentes, trilhas e autovalidação.
     Não converte cor em dBZ/mm/h e não libera ETA.
     """
     if imagem.mode != "P":
         return set(), {}, {}
-
+ 
     classes = (legenda_oficial or {}).get("classes") or []
     mapa_rgb_classe = {}
     for item in classes:
@@ -1247,15 +1247,15 @@ def mascara_oficial_133(imagem, legenda_oficial):
         classe = item.get("classe")
         if isinstance(rgb, list) and len(rgb) == 3 and classe is not None:
             mapa_rgb_classe[tuple(int(v) for v in rgb)] = int(classe)
-
+ 
     if not mapa_rgb_classe:
         return set(), {}, {}
-
+ 
     paleta = imagem.getpalette()
     transparencia = imagem.info.get("transparency")
     indices = {}
     classes_por_indice = {}
-
+ 
     for indice in set(imagem.getdata()):
         rgb = rgb_idx(paleta, indice)
         if (
@@ -1265,7 +1265,7 @@ def mascara_oficial_133(imagem, legenda_oficial):
         ):
             indices[indice] = rgb
             classes_por_indice[indice] = mapa_rgb_classe[tuple(rgb)]
-
+ 
     pixels = imagem.load()
     pontos = {
         (x, y)
@@ -1273,7 +1273,7 @@ def mascara_oficial_133(imagem, legenda_oficial):
         for x in range(imagem.width)
         if pixels[x, y] in indices
     }
-
+ 
     return pontos, indices, classes_por_indice
  
  
@@ -1688,13 +1688,13 @@ def analisar(imagem, legenda_oficial=None):
  
         "metodo":
             "componentes_conectados_8_vizinhos_rgb_oficial_#133",
-
+ 
         "fonte_mascara":
             "somente_rgb_exato_da_legenda_oficial_radarsc",
-
+ 
         "dbz_numerico_validado":
             False,
-
+ 
         "eta_liberado":
             False,
  
@@ -1722,7 +1722,7 @@ def analisar(imagem, legenda_oficial=None):
  
                 "rgb":
                     list(rgb),
-
+ 
                 "classe_oficial":
                     classes_por_indice.get(indice),
             }
@@ -4180,18 +4180,18 @@ def avaliar_todas_trilhas(
  
  
 # =========================================================
-
-
+ 
+ 
 # =========================================================
 # #134 - AUDITORIA FÍSICA PRELIMINAR DAS TRILHAS OFICIAIS
 # =========================================================
-
+ 
 def auditoria_fisica_trilhas_134(rastreamento):
     """Audita coerência cinemática das trilhas #133 sem liberar ETA."""
     trilhas = (rastreamento or {}).get("trilhas", [])
     elegiveis = [t for t in trilhas if t.get("elegivel_para_analise")]
     itens = []
-
+ 
     for trilha in elegiveis:
         passos = trilha.get("passos") or []
         velocidades = [
@@ -4201,12 +4201,12 @@ def auditoria_fisica_trilhas_134(rastreamento):
         ]
         velocidades_faixa_eta = [v for v in velocidades if 5 <= v <= 120]
         velocidades_faixa_rastreio = [v for v in velocidades if 0 <= v <= 150]
-
+ 
         transicoes = trilha.get("transicoes") or 0
         score = trilha.get("score_medio")
         dispersao = trilha.get("dispersao_direcao_max_graus")
         similaridade = trilha.get("similaridade_cores_media")
-
+ 
         criterios = {
             "transicoes_minimas_3": transicoes >= 3,
             "score_geometrico_minimo_0_55": isinstance(score, (int, float)) and score >= 0.55,
@@ -4215,7 +4215,7 @@ def auditoria_fisica_trilhas_134(rastreamento):
             "nenhum_passo_acima_limite_rastreio_150": len(velocidades_faixa_rastreio) == len(velocidades),
         }
         falhas = [nome for nome, ok in criterios.items() if not ok]
-
+ 
         if velocidades:
             vel_min = round(min(velocidades), 1)
             vel_max = round(max(velocidades), 1)
@@ -4223,7 +4223,7 @@ def auditoria_fisica_trilhas_134(rastreamento):
             amplitude = round(vel_max - vel_min, 1)
         else:
             vel_min = vel_max = vel_media = amplitude = None
-
+ 
         itens.append({
             "id_trilha": trilha.get("id_trilha"),
             "status": "coerente_para_estudo" if not falhas else "requer_revisao",
@@ -4247,15 +4247,15 @@ def auditoria_fisica_trilhas_134(rastreamento):
             "falhas": falhas,
             "eta_liberado": False,
         })
-
+ 
     coerentes = [x for x in itens if x["status"] == "coerente_para_estudo"]
     revisar = [x for x in itens if x["status"] == "requer_revisao"]
-
+ 
     contagem_falhas = {}
     for item in revisar:
         for falha in item["falhas"]:
             contagem_falhas[falha] = contagem_falhas.get(falha, 0) + 1
-
+ 
     return {
         "versao": "#135",
         "status": "auditoria_fisica_preliminar_ativa",
@@ -4281,11 +4281,11 @@ def auditoria_fisica_trilhas_134(rastreamento):
             "Ela não prova precipitação no solo, não valida dBZ e não autoriza ETA automático."
         ),
     }
-
+ 
 # =========================================================
 # #135 - FUNIL OPERACIONAL EXPERIMENTAL DAS TRILHAS
 # =========================================================
-
+ 
 def funil_operacional_135(rastreamento, auditoria_134):
     """Filtra para estudo operacional apenas trilhas aprovadas na #134."""
     trilhas = (rastreamento or {}).get("trilhas", [])
@@ -4318,8 +4318,8 @@ def funil_operacional_135(rastreamento, auditoria_134):
             "Nenhuma trilha autoriza ETA, dBZ numérico ou chuva medida."
         ),
     }
-
-
+ 
+ 
 def rastreamento_operacional_135(rastreamento, funil):
     """Visão filtrada; preserva separadamente o rastreamento diagnóstico completo."""
     base = dict(rastreamento or {})
@@ -4335,11 +4335,11 @@ def rastreamento_operacional_135(rastreamento, funil):
     )
     base["eta_liberado"] = False
     return base
-
-
+ 
+ 
 # #129 - ECO OFICIAL RADARSC AO REDOR DO COMASA
 # =========================================================
-
+ 
 def diagnostico_eco_oficial_local(imagem, legenda_oficial):
     """Cruza o PNG com as cores RGB da legenda oficial em 2, 5, 10 e 25 km."""
     classes = (legenda_oficial or {}).get("classes", [])
@@ -4416,16 +4416,16 @@ def diagnostico_eco_oficial_local(imagem, legenda_oficial):
         "Não significa chuva medida no solo e não atribui dBZ enquanto a escala numérica não for validada."
     )
     return resultado
-
-
-
+ 
+ 
+ 
 # =========================================================
 # #130 - DICIONÁRIO QUALITATIVO DE CORES DO RADAR
 # =========================================================
-
+ 
 def familia_cor_radar(rgb):
     """Classifica apenas a família visual da cor oficial.
-
+ 
     A interpretação meteorológica é deliberadamente qualitativa:
     SIMEPAR documenta verde/amarelo como chuva de menor intensidade e
     vermelho/rosa como chuva mais intensa/tempestades. A Defesa Civil SC
@@ -4457,8 +4457,8 @@ def familia_cor_radar(rgb):
     if b >= 120 and (b >= r * 1.20 or g >= r * 1.25):
         return "azul_ciano"
     return "outra"
-
-
+ 
+ 
 def significado_qualitativo_familia(familia):
     if familia in ("verde", "amarelo"):
         return {
@@ -4479,8 +4479,8 @@ def significado_qualitativo_familia(familia):
         "categoria": "sem_interpretacao_meteorologica_validada",
         "nivel_evidencia": "nao_classificado",
     }
-
-
+ 
+ 
 def construir_dicionario_cores_130(legenda_oficial):
     classes = (legenda_oficial or {}).get("classes") or []
     saida = []
@@ -4519,8 +4519,8 @@ def construir_dicionario_cores_130(legenda_oficial):
         "dbz_numerico_validado": False,
         "eta_liberado": False,
     }
-
-
+ 
+ 
 def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
     dicionario = construir_dicionario_cores_130(legenda_oficial)
     mapa = {tuple(x["rgb"]): x for x in dicionario.get("classes", []) if x.get("rgb")}
@@ -4581,14 +4581,14 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
             "As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
         ),
     }
-
+ 
 # =========================================================
 # #132 - AUDITORIA ESPACIAL: LEGADO x RGB OFICIAL
 # =========================================================
-
+ 
 def auditoria_espacial_132(imagem, legenda_oficial):
     """Explica a divergência entre a máscara legada e as cores oficiais.
-
+ 
     A máscara histórica considera candidato todo pixel visível diferente de
     CINZA (200,200,200). A auditoria #132 não usa isso como chuva: ela mostra
     qual RGB/índice gerou o candidato mais próximo e se esse RGB pertence ou
@@ -4602,7 +4602,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
         rgb = item.get("rgb")
         if isinstance(rgb, list) and len(rgb) == 3:
             mapa_oficial[tuple(int(v) for v in rgb)] = item.get("classe")
-
+ 
     base = {
         "versao": "#133",
         "status": "auditoria_espacial_ativa",
@@ -4614,15 +4614,15 @@ def auditoria_espacial_132(imagem, legenda_oficial):
         "equivale_chuva_medida": False,
         "eta_liberado": False,
     }
-
+ 
     if imagem.mode != "P":
         return {**base, "status": "modo_png_inesperado", "modo": imagem.mode}
-
+ 
     largura, altura = imagem.size
     x0, y0 = geo2px(LON, LAT, largura, altura)
     lat_rt, lon_rt = px2geo(x0, y0, largura, altura)
     erro_rt = hav(LAT, LON, lat_rt, lon_rt)
-
+ 
     paleta = imagem.getpalette()
     transparencia = imagem.info.get("transparency")
     pixels = imagem.load()
@@ -4630,7 +4630,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
     rgb_ponto = rgb_idx(paleta, indice_ponto)
     alpha_ponto = alpha_idx(transparencia, indice_ponto)
     classe_ponto = mapa_oficial.get(tuple(rgb_ponto)) if rgb_ponto else None
-
+ 
     pontos_legado, indices_legado = mascara(imagem)
     legado_mais_proximo = None
     for x, y in pontos_legado:
@@ -4642,7 +4642,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
             alpha = alpha_idx(transparencia, indice)
             classe = mapa_oficial.get(tuple(rgb)) if rgb else None
             legado_mais_proximo = (d, x, y, indice, rgb, alpha, classe, lat, lon)
-
+ 
     oficial_mais_proximo = None
     # Varre o quadro inteiro apenas por RGBs oficiais. Isso é diagnóstico,
     # não medição de chuva e não atribui intensidade numérica.
@@ -4662,7 +4662,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
                 d = hav(LAT, LON, lat, lon)
                 if oficial_mais_proximo is None or d < oficial_mais_proximo[0]:
                     oficial_mais_proximo = (d, x, y, indice, rgb, classe, lat, lon)
-
+ 
     def pacote_legado(item):
         if not item:
             return None
@@ -4684,7 +4684,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
                 else "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
             ),
         }
-
+ 
     def pacote_oficial(item):
         if not item:
             return None
@@ -4699,7 +4699,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
             "latitude": round(lat, 6),
             "longitude": round(lon, 6),
         }
-
+ 
     legado = pacote_legado(legado_mais_proximo)
     oficial = pacote_oficial(oficial_mais_proximo)
     divergencia = None
@@ -4707,7 +4707,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
         divergencia = round(
             oficial["distancia_comasa_km"] - legado["distancia_comasa_km"], 3
         )
-
+ 
     # Conta, em raios locais, quantos candidatos legados são de fato cores
     # oficiais. Assim a #132 mede a contaminação do critério antigo.
     raios = (2, 5, 10, 25)
@@ -4727,7 +4727,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
                     cont[r]["oficial"] += 1
                 else:
                     cont[r]["legado_nao_oficial"] += 1
-
+ 
     return {
         **base,
         "transformacao_geografica": {
@@ -4761,8 +4761,8 @@ def auditoria_espacial_132(imagem, legenda_oficial):
             "dBZ numerico e ETA permanecem bloqueados."
         ),
     }
-
-
+ 
+ 
 # =========================================================
 # DOWNLOAD DO RADAR
 # =========================================================
@@ -4817,19 +4817,19 @@ def baixar(nome, legenda_oficial=None):
                 imagem,
                 legenda_oficial,
             ),
-
+ 
         "eco_oficial_local_129":
             diagnostico_eco_oficial_local(
                 imagem,
                 legenda_oficial,
             ),
-
+ 
         "classificacao_qualitativa_local_130":
             diagnostico_qualitativo_local_130(
                 imagem,
                 legenda_oficial,
             ),
-
+ 
         "auditoria_espacial_132":
             auditoria_espacial_132(
                 imagem,
@@ -4998,16 +4998,16 @@ def buscar_radar():
         rastreamento = rastrear(
             validos
         )
-
+ 
         auditoria_fisica_134 = auditoria_fisica_trilhas_134(
             rastreamento
         )
-
+ 
         funil_135 = funil_operacional_135(
             rastreamento,
             auditoria_fisica_134,
         )
-
+ 
         rastreamento_operacional = rastreamento_operacional_135(
             rastreamento,
             funil_135,
@@ -5290,19 +5290,19 @@ def buscar_radar():
  
             "validacao_paleta_radar":
                 validacao_paleta,
-
+ 
             "eco_oficial_local_129":
                 ultimo.get("eco_oficial_local_129"),
-
+ 
             "dicionario_cores_130":
                 construir_dicionario_cores_130(leg),
-
+ 
             "classificacao_qualitativa_local_130":
                 ultimo.get("classificacao_qualitativa_local_130"),
-
+ 
             "auditoria_espacial_132":
                 ultimo.get("auditoria_espacial_132"),
-
+ 
             "correcao_rastreamento_133": {
                 "versao": "#133",
                 "status": "ativa",
@@ -5329,13 +5329,13 @@ def buscar_radar():
  
                 "dbz":
                     "nao_atribuido",
-
+ 
                 "classificacao_qualitativa":
                     "somente_rgb_exato_da_legenda_oficial",
-
+ 
                 "rastreamento_temporal":
                     "somente_componentes_formados_por_rgb_oficial_#133",
-
+ 
                 "autovalidacao":
                     "somente_trilhas_rgb_oficial_que_passaram_auditoria_fisica_#135",
  
@@ -5348,13 +5348,13 @@ def buscar_radar():
  
             "rastreamento_temporal":
                 rastreamento,
-
+ 
             "auditoria_fisica_trilhas_134":
                 auditoria_fisica_134,
-
+ 
             "funil_operacional_135":
                 funil_135,
-
+ 
             "rastreamento_operacional_135":
                 rastreamento_operacional,
  
@@ -5450,11 +5450,11 @@ def buscar_radar():
 # ARQUIVO FINAL
 # =========================================================
  
-
+ 
 # =========================================================
 # #136 - CHUVA OBSERVADA / CEMADEN - ACUMULADO 24 H
 # =========================================================
-
+ 
 def numero_cemaden(valor):
     if valor is None:
         return None
@@ -5468,15 +5468,15 @@ def numero_cemaden(valor):
     if not math.isfinite(numero) or numero < 0:
         return None
     return numero
-
-
+ 
+ 
 def inteiro_cemaden(valor):
     try:
         return int(str(valor).strip())
     except (TypeError, ValueError):
         return None
-
-
+ 
+ 
 def parse_jsonp_cemaden(texto):
     if not isinstance(texto, str):
         raise ValueError("Resposta CEMADEN não textual.")
@@ -5496,8 +5496,8 @@ def parse_jsonp_cemaden(texto):
     if callback != "estacoes":
         raise ValueError("Callback JSONP inesperado: " + callback)
     return json.loads(combinado.group(2))
-
-
+ 
+ 
 def extrair_estacoes_cemaden(payload):
     blocos = payload if isinstance(payload, list) else [payload]
     estacoes = []
@@ -5511,8 +5511,8 @@ def extrair_estacoes_cemaden(payload):
                 if isinstance(item, dict)
             )
     return estacoes
-
-
+ 
+ 
 def buscar_chuva_cemaden_136():
     base = {
         "status": "indisponivel",
@@ -5552,7 +5552,7 @@ def buscar_chuva_cemaden_136():
         estacoes = extrair_estacoes_cemaden(payload)
         if not estacoes:
             raise ValueError("Feed CEMADEN sem estações reconhecíveis.")
-
+ 
         candidatas = []
         for estacao in estacoes:
             cidade = str(estacao.get("cidade") or "").strip()
@@ -5563,7 +5563,7 @@ def buscar_chuva_cemaden_136():
                 continue
             if uf != "SC" or tipo != 1 or status != 0:
                 continue
-
+ 
             try:
                 lat = float(str(estacao.get("latitude")).replace(",", "."))
                 lon = float(str(estacao.get("longitude")).replace(",", "."))
@@ -5576,7 +5576,7 @@ def buscar_chuva_cemaden_136():
                 and -180 <= lon <= 180
             ):
                 continue
-
+ 
             acumulado = numero_cemaden(estacao.get("acumulado"))
             candidatas.append({
                 "id": estacao.get("idestacao"),
@@ -5591,13 +5591,13 @@ def buscar_chuva_cemaden_136():
                 "acumulado_24h_mm": acumulado,
                 "acumulado_disponivel": acumulado is not None,
             })
-
+ 
         candidatas.sort(
             key=lambda item: item["distancia_comasa_aprox_km"]
         )
         base["quantidade_estacoes_joinville_ativas"] = len(candidatas)
         base["estacoes_joinville_ativas"] = candidatas
-
+ 
         if not candidatas:
             base["status"] = "online_sem_estacao_joinville_ativa"
             base["observacao"] = (
@@ -5605,7 +5605,7 @@ def buscar_chuva_cemaden_136():
                 "de Joinville/SC passou pelos filtros da integração #136."
             )
             return base
-
+ 
         com_leitura = [
             item for item in candidatas
             if item["acumulado_disponivel"]
@@ -5614,7 +5614,7 @@ def buscar_chuva_cemaden_136():
         base["estacao_selecionada"] = selecionada
         base["acumulado_24h_mm"] = selecionada["acumulado_24h_mm"]
         base["coletado_em"] = agora().isoformat()
-
+ 
         if selecionada["acumulado_disponivel"]:
             base["status"] = "online_dado_bruto_24h"
         else:
@@ -5624,7 +5624,7 @@ def buscar_chuva_cemaden_136():
                 "24 h válido. O Monitor mantém o valor indisponível."
             )
         return base
-
+ 
     except Exception as e:
         base["erro"] = str(e)
         base["observacao"] = (
@@ -5632,12 +5632,12 @@ def buscar_chuva_cemaden_136():
             "não interpretar como ausência de chuva."
         )
         return base
-
-
+ 
+ 
 # =========================================================
 # #138 - SONDA DIAGNOSTICA DA SERIE TEMPORAL CEMADEN
 # =========================================================
-
+ 
 def investigar_serie_cemaden_138(chuva_cemaden):
     resultado = {
         "status": "indisponivel",
@@ -5664,7 +5664,7 @@ def investigar_serie_cemaden_138(chuva_cemaden):
             resultado["status"] = "sem_estacao_selecionada"
             resultado["observacao"] = "A coleta #136 nao selecionou estacao; a sonda #138 nao foi executada."
             return resultado
-
+ 
         resultado["estacao"] = {
             "id": idestacao,
             "codigo": selecionada.get("codigo"),
@@ -5677,7 +5677,7 @@ def investigar_serie_cemaden_138(chuva_cemaden):
         html = resposta.text
         resultado["http_status"] = resposta.status_code
         resultado["bytes_html"] = len(resposta.content)
-
+ 
         recursos = re.findall(r'''(?:src|href)\s*=\s*["']([^"']+)["']''', html, flags=re.I)
         urls = []
         for item in recursos:
@@ -5685,7 +5685,7 @@ def investigar_serie_cemaden_138(chuva_cemaden):
             if absoluta not in urls:
                 urls.append(absoluta)
         resultado["recursos_encontrados"] = urls[:80]
-
+ 
         textos = [(url, html)]
         for recurso in urls:
             baixo = recurso.lower().split("?", 1)[0]
@@ -5696,7 +5696,7 @@ def investigar_serie_cemaden_138(chuva_cemaden):
                 textos.append((recurso, rjs.text))
             except Exception as e:
                 resultado.setdefault("erros_recursos", []).append({"url": recurso, "erro": str(e)[:220]})
-
+ 
         padroes = [
             r'''(?:url\s*:\s*|fetch\s*\(|getJSON\s*\()["']([^"']+)["']''',
             r'''["']([^"']*(?:pluv|chuva|cemaden|graf|serie|dados)[^"']*(?:\.php|\.json|\.csv)[^"']*)["']''',
@@ -5726,13 +5726,13 @@ def investigar_serie_cemaden_138(chuva_cemaden):
         resultado["erro"] = str(e)
         resultado["observacao"] = "Falha da sonda #138 nao altera nem invalida o acumulado 24 h da #136."
         return resultado
-
-
-
+ 
+ 
+ 
 # =========================================================
 # #139 - SONDA DO ENDPOINT grafico_pcds.php / CEMADEN
 # =========================================================
-
+ 
 def investigar_endpoint_pcds_139(chuva_cemaden):
     resultado = {
         "status": "indisponivel",
@@ -5776,7 +5776,7 @@ def investigar_endpoint_pcds_139(chuva_cemaden):
         resultado["bytes_resposta"] = len(resposta.content)
         texto = resposta.text or ""
         resultado["amostra_textual"] = re.sub(r"\s+", " ", texto).strip()[:3000]
-
+ 
         referencias = []
         vistos = set()
         for padrao in [
@@ -5794,7 +5794,7 @@ def investigar_endpoint_pcds_139(chuva_cemaden):
                     vistos.add(chave)
                     referencias.append({"referencia_bruta": bruto[:700], "url_resolvida": resolvida[:1200]})
         resultado["referencias_encontradas"] = referencias[:120]
-
+ 
         temporais = []
         vistos_temporais = set()
         for padrao in [
@@ -5807,7 +5807,7 @@ def investigar_endpoint_pcds_139(chuva_cemaden):
                     vistos_temporais.add(achado)
                     temporais.append(achado)
         resultado["padroes_temporais"] = temporais[:120]
-
+ 
         tabelas = []
         for indice, bloco in enumerate(re.findall(r"<table\b[^>]*>(.*?)</table>", texto, flags=re.I | re.S)):
             linhas = []
@@ -5847,13 +5847,13 @@ def investigar_endpoint_pcds_139(chuva_cemaden):
         resultado["erro"] = str(e)
         resultado["observacao"] = "Falha da sonda #139 nao altera a integracao CEMADEN #136 nem a sonda #138."
         return resultado
-
-
-
+ 
+ 
+ 
 # =========================================================
 # #140 - DESCOBERTA DA CHAMADA MAPAINTERATIVOWS / CEMADEN
 # =========================================================
-
+ 
 def investigar_mapservices_cemaden_140(chuva_cemaden):
     resultado = {
         "status": "indisponivel",
@@ -5877,21 +5877,21 @@ def investigar_mapservices_cemaden_140(chuva_cemaden):
             "como chuva sem validacao de campos, unidade e referencia temporal."
         ),
     }
-
+ 
     try:
         selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
         idestacao = selecionada.get("id")
         if idestacao is None:
             resultado["status"] = "sem_estacao_selecionada"
             return resultado
-
+ 
         resultado["estacao"] = {
             "id": idestacao,
             "codigo": selecionada.get("codigo"),
             "nome": selecionada.get("nome"),
             "uf": selecionada.get("uf"),
         }
-
+ 
         pagina = (
             CEMADEN_RECURSOS
             + "/graficos/interativo/grafico_pcds.php?idpcd="
@@ -5900,7 +5900,7 @@ def investigar_mapservices_cemaden_140(chuva_cemaden):
         resultado["pagina_origem"] = pagina
         resposta = get(pagina)
         texto = resposta.text or ""
-
+ 
         # Guarda contextos literais ao redor de qualquer referencia ao
         # MapainterativoWS/mapservices para auditoria humana.
         contextos = []
@@ -5930,7 +5930,7 @@ def investigar_mapservices_cemaden_140(chuva_cemaden):
                     contextos.append(item)
                 inicio = pos + len(termo)
         resultado["contextos_mapservices"] = contextos
-
+ 
         # Procura expressoes em que a variavel path e concatenada a uma rota.
         chamadas = []
         vistos = set()
@@ -5951,7 +5951,7 @@ def investigar_mapservices_cemaden_140(chuva_cemaden):
                 vistos.add(chave)
                 chamadas.append({"expressao": bruto[:1200]})
         resultado["chamadas_identificadas"] = chamadas[:120]
-
+ 
         # Extrai rotas literais relativas que aparecem proximas a "path".
         rotas = []
         for contexto in contextos:
@@ -5972,7 +5972,7 @@ def investigar_mapservices_cemaden_140(chuva_cemaden):
                     if rota not in rotas:
                         rotas.append(rota)
         resultado["rotas_literais_candidatas"] = rotas[:80]
-
+ 
         # Somente rotas literais seguras, sem templates/variaveis, sao
         # consultadas. A resposta e guardada apenas como diagnostico.
         base = resultado["base_mapservices"]
@@ -6006,32 +6006,32 @@ def investigar_mapservices_cemaden_140(chuva_cemaden):
                     "erro": str(e)[:400],
                 })
         resultado["requisicoes_teste"] = testes
-
+ 
         if chamadas or contextos:
             resultado["status"] = "chamadas_encontradas_para_revisao"
         else:
             resultado["status"] = "pagina_acessivel_sem_chamada_identificada"
-
+ 
         resultado["observacao"] = (
             "A #140 preserva expressoes e contextos do codigo oficial para "
             "descobrir a rota exata. Nenhuma resposta e promovida a dado "
             "operacional nesta etapa."
         )
         return resultado
-
+ 
     except Exception as e:
         resultado["erro"] = str(e)
         resultado["observacao"] = (
             "Falha da #140 nao altera as integracoes CEMADEN anteriores."
         )
         return resultado
-
-
-
+ 
+ 
+ 
 # =========================================================
 # #141 - AUDITORIA DO JSON HORARIO / CEMADEN
 # =========================================================
-
+ 
 def auditar_json_horario_cemaden_141(chuva_cemaden):
     resultado = {
         "status": "indisponivel",
@@ -6064,21 +6064,21 @@ def auditar_json_horario_cemaden_141(chuva_cemaden):
             "Primeiro valida estrutura, unidade, janela e referencia temporal."
         ),
     }
-
+ 
     try:
         selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
         idestacao = selecionada.get("id")
         if idestacao is None:
             resultado["status"] = "sem_estacao_selecionada"
             return resultado
-
+ 
         resultado["estacao_solicitada"] = {
             "id": idestacao,
             "codigo": selecionada.get("codigo"),
             "nome": selecionada.get("nome"),
             "uf": selecionada.get("uf"),
         }
-
+ 
         # O JS oficial usa:
         # url = path + "horario/" + idEstacao + "/" + (horas - 1)
         # A pagina define select_hr default como 24 + fuso.
@@ -6087,7 +6087,7 @@ def auditar_json_horario_cemaden_141(chuva_cemaden):
         parametro = horas - 1
         resultado["parametro_horas_pagina"] = horas
         resultado["parametro_final_endpoint"] = parametro
-
+ 
         base = (
             "https://mapservices.cemaden.gov.br/"
             "MapaInterativoWS/resources/"
@@ -6100,20 +6100,20 @@ def auditar_json_horario_cemaden_141(chuva_cemaden):
             + str(parametro)
         )
         resultado["endpoint"] = endpoint
-
+ 
         resposta = get(endpoint)
         resultado["http_status"] = resposta.status_code
         resultado["content_type"] = resposta.headers.get("Content-Type")
         resultado["bytes_resposta"] = len(resposta.content)
-
+ 
         dados = resposta.json()
         if not isinstance(dados, dict):
             raise ValueError(
                 "Endpoint horario respondeu JSON, mas a raiz nao e objeto."
             )
-
+ 
         resultado["chaves_raiz"] = sorted(str(k) for k in dados.keys())
-
+ 
         estacao = dados.get("estacao")
         if isinstance(estacao, dict):
             rede = estacao.get("idRede")
@@ -6137,16 +6137,16 @@ def auditar_json_horario_cemaden_141(chuva_cemaden):
                     else None
                 ),
             }
-
+ 
         datas = dados.get("datas")
         horarios = dados.get("horarios")
         acumulados = dados.get("acumulados")
-
+ 
         if isinstance(datas, list):
             resultado["datas"] = datas[:40]
         if isinstance(horarios, list):
             resultado["horarios"] = horarios[:80]
-
+ 
         if isinstance(acumulados, list):
             linhas = len(acumulados)
             comprimentos = [
@@ -6162,7 +6162,7 @@ def auditar_json_horario_cemaden_141(chuva_cemaden):
                 linha[:40] if isinstance(linha, list) else linha
                 for linha in acumulados[:8]
             ]
-
+ 
             numeros = []
             for linha in acumulados:
                 itens = linha if isinstance(linha, list) else [linha]
@@ -6174,13 +6174,13 @@ def auditar_json_horario_cemaden_141(chuva_cemaden):
                             numeros.append(float(valor.replace(",", ".")))
                         except Exception:
                             pass
-
+ 
             resultado["valores_numericos"] = {
                 "quantidade": len(numeros),
                 "minimo": min(numeros) if numeros else None,
                 "maximo": max(numeros) if numeros else None,
             }
-
+ 
         campos_extras = {}
         for chave, valor in dados.items():
             if chave in ("estacao", "datas", "horarios", "acumulados"):
@@ -6199,19 +6199,19 @@ def auditar_json_horario_cemaden_141(chuva_cemaden):
                     "chaves": sorted(str(k) for k in valor.keys())[:40],
                 }
         resultado["campos_extras"] = campos_extras
-
+ 
         estrutura_minima = (
             isinstance(datas, list)
             and isinstance(horarios, list)
             and isinstance(acumulados, list)
         )
         resultado["estrutura_minima_esperada"] = estrutura_minima
-
+ 
         if estrutura_minima:
             resultado["status"] = "json_horario_recebido_para_validacao"
         else:
             resultado["status"] = "json_recebido_estrutura_inesperada"
-
+ 
         resultado["observacao"] = (
             "A #141 confirma somente a estrutura bruta da rota horario. "
             "Mesmo com valores numericos, eles permanecem diagnosticos ate "
@@ -6219,7 +6219,7 @@ def auditar_json_horario_cemaden_141(chuva_cemaden):
             "janela cada celula representa."
         )
         return resultado
-
+ 
     except Exception as e:
         resultado["erro"] = str(e)
         resultado["observacao"] = (
@@ -6227,13 +6227,13 @@ def auditar_json_horario_cemaden_141(chuva_cemaden):
             "diagnosticos #138-#140."
         )
         return resultado
-
-
-
+ 
+ 
+ 
 # =========================================================
 # #142 - DECODIFICACAO TEMPORAL DA MATRIZ HORARIA CEMADEN
 # =========================================================
-
+ 
 def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
     resultado = {
         "status": "indisponivel",
@@ -6265,14 +6265,14 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
             "nao validada."
         ),
     }
-
+ 
     try:
         selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
         idestacao = selecionada.get("id")
         if idestacao is None:
             resultado["status"] = "sem_estacao_selecionada"
             return resultado
-
+ 
         resultado["estacao"] = {
             "id": idestacao,
             "codigo": selecionada.get("codigo"),
@@ -6282,23 +6282,23 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
                 "distancia_comasa_aprox_km"
             ),
         }
-
+ 
         base = (
             "https://mapservices.cemaden.gov.br/"
             "MapaInterativoWS/resources/"
         )
         endpoint = base + "horario/" + str(idestacao) + "/23"
         resultado["endpoint"] = endpoint
-
+ 
         resposta = get(endpoint)
         dados = resposta.json()
         if not isinstance(dados, dict):
             raise ValueError("Resposta horario sem objeto JSON.")
-
+ 
         datas = dados.get("datas")
         horarios = dados.get("horarios")
         acumulados = dados.get("acumulados")
-
+ 
         if not (
             isinstance(datas, list)
             and isinstance(horarios, list)
@@ -6307,7 +6307,7 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
             raise ValueError(
                 "Matriz horario sem datas/horarios/acumulados validos."
             )
-
+ 
         leituras = []
         for indice_data, data_txt in enumerate(datas):
             if indice_data >= len(acumulados):
@@ -6315,19 +6315,19 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
             linha = acumulados[indice_data]
             if not isinstance(linha, list):
                 continue
-
+ 
             for indice_hora, hora_txt in enumerate(horarios):
                 if indice_hora >= len(linha):
                     continue
                 valor = linha[indice_hora]
                 if valor is None:
                     continue
-
+ 
                 try:
                     numero = float(str(valor).replace(",", "."))
                 except Exception:
                     continue
-
+ 
                 data_base = datetime.strptime(
                     str(data_txt).strip(),
                     "%d/%m/%Y",
@@ -6338,7 +6338,7 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
                 hora = int(achado_hora.group(1))
                 if hora < 0 or hora > 23:
                     continue
-
+ 
                 instante_utc = data_base.replace(
                     hour=hora,
                     minute=0,
@@ -6347,7 +6347,7 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
                     tzinfo=UTC,
                 )
                 instante_local = instante_utc.astimezone(FUSO)
-
+ 
                 leituras.append({
                     "instante_utc": instante_utc,
                     "instante_local": instante_local,
@@ -6355,9 +6355,9 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
                     "data_fonte": str(data_txt),
                     "hora_fonte": str(hora_txt),
                 })
-
+ 
         leituras.sort(key=lambda x: x["instante_utc"])
-
+ 
         unicas = {}
         for leitura in leituras:
             unicas[leitura["instante_utc"].isoformat()] = leitura
@@ -6365,7 +6365,7 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
             unicas.values(),
             key=lambda x: x["instante_utc"],
         )
-
+ 
         resultado["quantidade_leituras_validas"] = len(leituras)
         resultado["leituras_validas"] = [
             {
@@ -6377,17 +6377,17 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
             }
             for x in leituras[-30:]
         ]
-
+ 
         if not leituras:
             resultado["status"] = "matriz_sem_leitura_numerica"
             return resultado
-
+ 
         ultima = leituras[-1]
         idade = (
             datetime.now(UTC) - ultima["instante_utc"]
         ).total_seconds() / 60.0
         idade = max(0.0, round(idade, 1))
-
+ 
         resultado["ultima_leitura"] = {
             "instante_utc": ultima["instante_utc"].isoformat(),
             "instante_local": ultima["instante_local"].isoformat(),
@@ -6397,7 +6397,7 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
         }
         resultado["idade_ultima_leitura_min"] = idade
         resultado["dados_frescos_diagnostico"] = idade <= 120
-
+ 
         def somar_ultimas_horas(qtd):
             escolhidas = leituras[-qtd:]
             if len(escolhidas) < qtd:
@@ -6412,17 +6412,17 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
                 sum(x["valor_mm"] for x in escolhidas),
                 2,
             )
-
+ 
         soma_1h = somar_ultimas_horas(1)
         soma_6h = somar_ultimas_horas(6)
         soma_24h = somar_ultimas_horas(24)
-
+ 
         resultado["acumulados_diagnosticos"] = {
             "1h_mm": soma_1h,
             "6h_mm": soma_6h,
             "24h_mm": soma_24h,
         }
-
+ 
         produto_24h = (chuva_cemaden or {}).get("acumulado_24h_mm")
         diferenca = None
         confere = None
@@ -6432,21 +6432,21 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
         ):
             diferenca = round(float(soma_24h) - float(produto_24h), 2)
             confere = abs(diferenca) <= 0.01
-
+ 
         resultado["comparacao_produto_311_24"] = {
             "produto_311_24_mm": produto_24h,
             "soma_24_celulas_horarias_mm": soma_24h,
             "diferenca_mm": diferenca,
             "coincide_tolerancia_0_01_mm": confere,
         }
-
+ 
         if confere is True:
             resultado["status"] = "matriz_decodificada_com_concordancia_24h"
         elif soma_24h is None:
             resultado["status"] = "matriz_decodificada_sem_24h_continuas"
         else:
             resultado["status"] = "matriz_decodificada_divergencia_24h"
-
+ 
         resultado["observacao"] = (
             "A #142 transforma datas/horarios em instantes UTC e local, "
             "mede a idade da ultima celula e compara a soma de 24 celulas "
@@ -6454,7 +6454,7 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
             "diagnosticos nesta etapa; 10 min continua indisponivel."
         )
         return resultado
-
+ 
     except Exception as e:
         resultado["erro"] = str(e)
         resultado["observacao"] = (
@@ -6462,13 +6462,13 @@ def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
             "diagnosticos anteriores."
         )
         return resultado
-
-
-
+ 
+ 
+ 
 # =========================================================
 # #143 - AUDITORIA SEMANTICA DAS JANELAS HORARIAS CEMADEN
 # =========================================================
-
+ 
 def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
     resultado = {
         "status": "indisponivel",
@@ -6497,24 +6497,24 @@ def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
             "inventa granularidade de 10 minutos."
         ),
     }
-
+ 
     try:
         selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
         idestacao = selecionada.get("id")
         if idestacao is None:
             resultado["status"] = "sem_estacao_selecionada"
             return resultado
-
+ 
         resultado["estacao"] = {
             "id": idestacao,
             "codigo": selecionada.get("codigo"),
             "nome": selecionada.get("nome"),
             "uf": selecionada.get("uf"),
         }
-
+ 
         base = resultado["base_endpoint"]
         mapas = {}
-
+ 
         def extrair_celulas(dados):
             datas = dados.get("datas")
             horarios = dados.get("horarios")
@@ -6525,7 +6525,7 @@ def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
                 and isinstance(acumulados, list)
             ):
                 return []
-
+ 
             celulas = []
             for i, data_txt in enumerate(datas):
                 if i >= len(acumulados) or not isinstance(acumulados[i], list):
@@ -6568,7 +6568,7 @@ def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
                     })
             unicas = {x["instante_utc"]: x for x in celulas}
             return [unicas[k] for k in sorted(unicas)]
-
+ 
         for horas in resultado["janelas_testadas_h"]:
             parametro = horas - 1
             endpoint = base + str(idestacao) + "/" + str(parametro)
@@ -6601,15 +6601,15 @@ def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
                 }
             except Exception as e:
                 item["erro"] = str(e)[:500]
-
+ 
             resultado["resultados_janelas"].append(item)
-
+ 
         # Janelas maiores devem preservar exatamente as celulas da janela menor
         # quando os instantes se sobrepoem.
         pares = [(1, 2), (2, 6), (6, 24), (24, 48)]
         comparacoes = []
         todas_coerentes = True
-
+ 
         for menor, maior in pares:
             a = mapas.get(menor, {})
             b = mapas.get(maior, {})
@@ -6622,7 +6622,7 @@ def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
                         "menor_mm": a[instante],
                         "maior_mm": b[instante],
                     })
-
+ 
             esperado_minimo = min(
                 len(a),
                 len(b),
@@ -6635,7 +6635,7 @@ def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
             )
             if not coerente:
                 todas_coerentes = False
-
+ 
             comparacoes.append({
                 "janela_menor_h": menor,
                 "janela_maior_h": maior,
@@ -6645,9 +6645,9 @@ def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
                 "divergencias_valor": divergencias[:20],
                 "sobreposicao_coerente": coerente,
             })
-
+ 
         resultado["comparacoes_sobreposicao"] = comparacoes
-
+ 
         # Valida a regra horas -> quantidade de celulas quando o servico
         # retorna a janela completa.
         validacoes_quantidade = []
@@ -6660,23 +6660,23 @@ def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
                 "quantidade_compativel_com_janela": qtd == horas,
             })
         resultado["validacoes_quantidade"] = validacoes_quantidade
-
+ 
         quantidades_ok = all(
             x["quantidade_compativel_com_janela"]
             for x in validacoes_quantidade
         )
-
+ 
         resultado["semantica_confirmada"] = (
             todas_coerentes and quantidades_ok
         )
-
+ 
         produto_24 = (chuva_cemaden or {}).get("acumulado_24h_mm")
         soma_24 = None
         for item in resultado["resultados_janelas"]:
             if item["janela_solicitada_h"] == 24:
                 soma_24 = item["soma_mm"]
                 break
-
+ 
         if (
             isinstance(produto_24, (int, float))
             and isinstance(soma_24, (int, float))
@@ -6695,12 +6695,12 @@ def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
                 "diferenca_mm": None,
                 "coincide_0_01_mm": None,
             }
-
+ 
         if resultado["semantica_confirmada"]:
             resultado["status"] = "janelas_horarias_coerentes"
         else:
             resultado["status"] = "janelas_horarias_requerem_revisao"
-
+ 
         resultado["observacao"] = (
             "A #143 testa a propria regra do JavaScript oficial: pedir N horas "
             "usa parametro N-1. Ela exige que janelas maiores preservem os "
@@ -6709,20 +6709,20 @@ def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
             "estabelece granularidade sub-horaria."
         )
         return resultado
-
+ 
     except Exception as e:
         resultado["erro"] = str(e)
         resultado["observacao"] = (
             "Falha da #143 nao altera CEMADEN #136 nem diagnosticos #138-#142."
         )
         return resultado
-
-
-
+ 
+ 
+ 
 # =========================================================
 # #144 - CHUVA OBSERVADA CEMADEN / BLOCO OPERACIONAL SEGURO
 # =========================================================
-
+ 
 def chuva_observada_cemaden_144(chuva_cemaden):
     resultado = {
         "status": "indisponivel",
@@ -6752,14 +6752,14 @@ def chuva_observada_cemaden_144(chuva_cemaden):
             "é convertida em 0 mm. O bloco não infere chuva no Comasa."
         ),
     }
-
+ 
     try:
         selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
         idestacao = selecionada.get("id")
         if idestacao is None:
             resultado["status"] = "sem_estacao_selecionada"
             return resultado
-
+ 
         resultado["estacao"] = {
             "id": idestacao,
             "codigo": selecionada.get("codigo"),
@@ -6770,24 +6770,24 @@ def chuva_observada_cemaden_144(chuva_cemaden):
                 "distancia_comasa_aprox_km"
             ),
         }
-
+ 
         base = (
             "https://mapservices.cemaden.gov.br/"
             "MapaInterativoWS/resources/horario/"
         )
-
+ 
         def extrair_janela(horas):
             endpoint = base + str(idestacao) + "/" + str(horas - 1)
             resposta = get(endpoint)
             dados = resposta.json()
-
+ 
             if not isinstance(dados, dict):
                 raise ValueError("Resposta CEMADEN horario sem objeto JSON.")
-
+ 
             datas = dados.get("datas")
             horarios = dados.get("horarios")
             acumulados = dados.get("acumulados")
-
+ 
             if not (
                 isinstance(datas, list)
                 and isinstance(horarios, list)
@@ -6796,27 +6796,27 @@ def chuva_observada_cemaden_144(chuva_cemaden):
                 raise ValueError(
                     "Resposta CEMADEN sem datas/horarios/acumulados validos."
                 )
-
+ 
             celulas = []
             for i, data_txt in enumerate(datas):
                 if i >= len(acumulados) or not isinstance(acumulados[i], list):
                     continue
-
+ 
                 linha = acumulados[i]
-
+ 
                 for j, hora_txt in enumerate(horarios):
                     if j >= len(linha):
                         continue
-
+ 
                     valor = linha[j]
                     if valor is None:
                         continue
-
+ 
                     try:
                         numero = float(str(valor).replace(",", "."))
                     except Exception:
                         continue
-
+ 
                     try:
                         data_base = datetime.strptime(
                             str(data_txt).strip(),
@@ -6824,15 +6824,15 @@ def chuva_observada_cemaden_144(chuva_cemaden):
                         )
                     except Exception:
                         continue
-
+ 
                     achado = re.search(r"(\d{1,2})", str(hora_txt))
                     if not achado:
                         continue
-
+ 
                     hora = int(achado.group(1))
                     if hora < 0 or hora > 23:
                         continue
-
+ 
                     instante_utc = data_base.replace(
                         hour=hora,
                         minute=0,
@@ -6840,12 +6840,12 @@ def chuva_observada_cemaden_144(chuva_cemaden):
                         microsecond=0,
                         tzinfo=UTC,
                     )
-
+ 
                     celulas.append({
                         "instante_utc": instante_utc,
                         "valor_mm": numero,
                     })
-
+ 
             unicas = {
                 x["instante_utc"].isoformat(): x
                 for x in celulas
@@ -6854,7 +6854,7 @@ def chuva_observada_cemaden_144(chuva_cemaden):
                 unicas.values(),
                 key=lambda x: x["instante_utc"],
             )
-
+ 
             if len(celulas) != horas:
                 raise ValueError(
                     "Janela de "
@@ -6863,18 +6863,18 @@ def chuva_observada_cemaden_144(chuva_cemaden):
                     + str(len(celulas))
                     + " celulas numericas."
                 )
-
+ 
             for anterior, posterior in zip(celulas, celulas[1:]):
                 delta = (
                     posterior["instante_utc"]
                     - anterior["instante_utc"]
                 ).total_seconds() / 3600.0
-
+ 
                 if abs(delta - 1.0) > 1e-9:
                     raise ValueError(
                         "Janela CEMADEN sem continuidade horaria."
                     )
-
+ 
             return {
                 "horas": horas,
                 "endpoint": endpoint,
@@ -6885,13 +6885,13 @@ def chuva_observada_cemaden_144(chuva_cemaden):
                 ),
                 "ultima": celulas[-1],
             }
-
+ 
         janela_1 = extrair_janela(1)
         janela_6 = extrair_janela(6)
         janela_24 = extrair_janela(24)
-
+ 
         ultima = janela_1["ultima"]
-
+ 
         # Exige que todas as janelas terminem no mesmo instante.
         if not (
             janela_6["ultima"]["instante_utc"] == ultima["instante_utc"]
@@ -6900,33 +6900,33 @@ def chuva_observada_cemaden_144(chuva_cemaden):
             raise ValueError(
                 "Janelas 1h/6h/24h nao terminam no mesmo instante."
             )
-
+ 
         idade = (
             datetime.now(UTC) - ultima["instante_utc"]
         ).total_seconds() / 60.0
         idade = max(0.0, round(idade, 1))
         fresco = idade <= resultado["limite_frescor_min"]
-
+ 
         # A janela de 24h precisa continuar concordando com o produto
         # independente 311_24 antes de ser promovida neste bloco.
         produto_24 = (chuva_cemaden or {}).get("acumulado_24h_mm")
         concorda_24 = False
         diferenca_24 = None
-
+ 
         if isinstance(produto_24, (int, float)):
             diferenca_24 = round(
                 janela_24["soma_mm"] - float(produto_24),
                 2,
             )
             concorda_24 = abs(diferenca_24) <= 0.01
-
+ 
         resultado["validacao_24h"] = {
             "produto_311_24_mm": produto_24,
             "soma_24_celulas_mm": janela_24["soma_mm"],
             "diferenca_mm": diferenca_24,
             "coincide_tolerancia_0_01_mm": concorda_24,
         }
-
+ 
         if not concorda_24:
             resultado["status"] = "bloqueado_divergencia_24h"
             resultado["observacao"] = (
@@ -6934,7 +6934,7 @@ def chuva_observada_cemaden_144(chuva_cemaden):
                 "1h/6h/24h permanecem indisponiveis no bloco operacional."
             )
             return resultado
-
+ 
         resultado["1h_mm"] = janela_1["soma_mm"]
         resultado["6h_mm"] = janela_6["soma_mm"]
         resultado["24h_mm"] = janela_24["soma_mm"]
@@ -6951,13 +6951,13 @@ def chuva_observada_cemaden_144(chuva_cemaden):
             "6h": janela_6["endpoint"],
             "24h": janela_24["endpoint"],
         }
-
+ 
         resultado["status"] = (
             "online_fresco_validado"
             if fresco
             else "online_desatualizado_validado"
         )
-
+ 
         resultado["observacao"] = (
             "Bloco operacional baseado em janelas horarias coerentes "
             "validadas nas #141-#143. O horario exibido e o rotulo temporal "
@@ -6965,9 +6965,9 @@ def chuva_observada_cemaden_144(chuva_cemaden):
             "se ele representa inicio ou fechamento do intervalo horario. "
             "Granularidade de 10 minutos permanece indisponivel."
         )
-
+ 
         return resultado
-
+ 
     except Exception as e:
         resultado["erro"] = str(e)
         resultado["observacao"] = (
@@ -6975,12 +6975,12 @@ def chuva_observada_cemaden_144(chuva_cemaden):
             "nenhum valor ausente e convertido em zero."
         )
         return resultado
-
-
+ 
+ 
 # =========================================================
 # #123 - CHUVA OBSERVADA / ESTAÇÃO INMET - RECUPERADA NA #128
 # =========================================================
-
+ 
 def numero_inmet(valor):
     if valor is None: return None
     texto=str(valor).strip().replace(",", ".")
@@ -6988,15 +6988,15 @@ def numero_inmet(valor):
     try: numero=float(texto)
     except (TypeError,ValueError): return None
     return None if abs(numero)>=9999 else numero
-
-
+ 
+ 
 def horario_inmet_utc(data,hora):
     if not data or hora is None: return None
     h=str(hora).strip().zfill(4)[:4]
     try: return datetime.strptime(f"{data} {h}","%Y-%m-%d %H%M").replace(tzinfo=UTC)
     except Exception: return None
-
-
+ 
+ 
 def buscar_chuva_observada_inmet():
     try:
         resposta=get(INMET_ATUAL+IBGE_JOINVILLE).json()
@@ -7014,13 +7014,13 @@ def buscar_chuva_observada_inmet():
         return {"status":status,"tipo":"observacao_estacao_automatica","fonte":"INMET","fonte_primaria":"Instituto Nacional de Meteorologia","geocodigo_ibge_consultado":IBGE_JOINVILLE,"estacao":{"codigo":estacao.get("CODIGO") or dados.get("CD_ESTACAO"),"nome":estacao.get("NOME") or dados.get("DC_NOME"),"uf":estacao.get("UF") or dados.get("UF"),"distancia_referencia_joinville_km":distancia},"leitura_horaria_mm":chuva,"horario_medicao_utc":instante.isoformat() if instante else None,"horario_medicao_local":horario_local,"idade_leitura_min":idade,"dados_frescos":fresco,"representatividade":"Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.","regra_seguranca":"Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."}
     except Exception as e:
         return {"status":"indisponivel","tipo":"observacao_estacao_automatica","fonte":"INMET","geocodigo_ibge_consultado":IBGE_JOINVILLE,"leitura_horaria_mm":None,"horario_medicao_utc":None,"horario_medicao_local":None,"idade_leitura_min":None,"dados_frescos":False,"erro":str(e),"regra_seguranca":"Falha de coleta não é interpretada como ausência de chuva."}
-
-
-
+ 
+ 
+ 
 def buscar_alerta_granizo_148():
     """
     #148 - Consulta resiliente dos alertas oficiais da Defesa Civil SC.
-
+ 
     Estratégia:
     1) tenta mais de uma rota oficial do mesmo portal;
     2) usa timeouts curtos e tentativas controladas;
@@ -7050,7 +7050,7 @@ def buscar_alerta_granizo_148():
             "ausencia de risco."
         ),
     }
-
+ 
     def requisicao_curta(url, params=None):
         ultimo_erro = None
         for tentativa in range(1, 3):
@@ -7069,7 +7069,7 @@ def buscar_alerta_granizo_148():
             except Exception as e:
                 ultimo_erro = str(e)
         return None, 2, ultimo_erro
-
+ 
     def coletar_links_html(html, base):
         soup = BeautifulSoup(html, "html.parser")
         achados = []
@@ -7087,7 +7087,7 @@ def buscar_alerta_granizo_148():
                 vistos.add(href)
                 achados.append(href)
         return achados
-
+ 
     rotas = [
         (
             "pagina_alertas",
@@ -7105,11 +7105,11 @@ def buscar_alerta_granizo_148():
             {"search": "granizo Joinville", "per_page": 20},
         ),
     ]
-
+ 
     links = []
     vistos = set()
     alguma_rota_online = False
-
+ 
     for nome, url, params in rotas:
         resposta, tentativas, erro = requisicao_curta(url, params=params)
         registro = {
@@ -7121,12 +7121,12 @@ def buscar_alerta_granizo_148():
         if erro:
             registro["erro"] = erro[:500]
         saida["rotas_testadas"].append(registro)
-
+ 
         if resposta is None:
             continue
-
+ 
         alguma_rota_online = True
-
+ 
         try:
             if nome == "busca_wordpress_json":
                 dados = resposta.json()
@@ -7150,43 +7150,43 @@ def buscar_alerta_granizo_148():
                         links.append(href)
         except Exception as e:
             registro["parse_erro"] = str(e)[:500]
-
+ 
     # Publicações de alerta são curtas; limitar evita transformar uma
     # indisponibilidade parcial em execução excessivamente longa.
     links = links[:12]
     relevantes = []
-
+ 
     for href in links:
         pagina, tentativas, erro = requisicao_curta(href)
         if pagina is None:
             continue
-
+ 
         try:
             psoup = BeautifulSoup(pagina.text, "html.parser")
             h1 = psoup.find("h1")
             titulo = " ".join(h1.stripped_strings) if h1 else ""
             texto = " ".join(psoup.stripped_strings)
             baixo = texto.lower()
-
+ 
             if "joinville" not in baixo or "granizo" not in baixo:
                 continue
-
+ 
             m = re.search(
                 r"(\d{1,2})/(\d{1,2})\s+(\d{1,2}):(\d{2})",
                 titulo,
             )
             if not m:
                 continue
-
+ 
             dia, mes, hora, minuto = map(int, m.groups())
             my = re.search(r"/(20\d{2})/", href)
             ano = int(my.group(1)) if my else agora().year
             inicio = datetime(ano, mes, dia, hora, minuto, tzinfo=FUSO)
-
+ 
             # Descartar publicações muito antigas da análise operacional.
             if inicio < agora() - timedelta(days=7):
                 continue
-
+ 
             mj = re.search(
                 r"pr[oó]ximas?\s+(\d+)\s+horas?",
                 titulo,
@@ -7198,7 +7198,7 @@ def buscar_alerta_granizo_148():
                 janela = 1
             else:
                 janela = None
-
+ 
             validade = inicio + timedelta(hours=janela) if janela else None
             nivel = (
                 "ALERTA" if titulo.upper().startswith("ALERTA")
@@ -7206,7 +7206,7 @@ def buscar_alerta_granizo_148():
                 else "OBSERVACAO" if titulo.upper().startswith("OBSERVAÇÃO")
                 else "INFORMATIVO"
             )
-
+ 
             relevantes.append({
                 "titulo": titulo,
                 "url": href,
@@ -7217,10 +7217,10 @@ def buscar_alerta_granizo_148():
             })
         except Exception:
             continue
-
+ 
     saida["links_candidatos"] = len(links)
     saida["publicacoes_relevantes_7d"] = len(relevantes)
-
+ 
     if not alguma_rota_online:
         saida["observacao"] = (
             "Todas as rotas oficiais testadas falharam nesta coleta. "
@@ -7228,7 +7228,7 @@ def buscar_alerta_granizo_148():
             "de alerta de granizo."
         )
         return saida
-
+ 
     if not relevantes:
         # A fonte respondeu, mas não é seguro afirmar "sem alerta" se não
         # conseguimos decodificar nenhuma publicação recente para Joinville.
@@ -7240,7 +7240,7 @@ def buscar_alerta_granizo_148():
             "o Monitor nao converte isso em 'sem alerta'."
         )
         return saida
-
+ 
     relevantes.sort(key=lambda x: x["inicio"], reverse=True)
     ultimo = relevantes[0]
     ativos = [
@@ -7248,7 +7248,7 @@ def buscar_alerta_granizo_148():
         if x["validade"] is not None
         and x["inicio"] <= agora() <= x["validade"]
     ]
-
+ 
     saida["ultima_publicacao_relevante"] = {
         "titulo": ultimo["titulo"],
         "inicio_local": ultimo["inicio"].isoformat(),
@@ -7257,7 +7257,7 @@ def buscar_alerta_granizo_148():
         ),
         "url": ultimo["url"],
     }
-
+ 
     if ativos:
         ativos.sort(key=lambda x: x["inicio"], reverse=True)
         atual = ativos[0]
@@ -7292,14 +7292,14 @@ def buscar_alerta_granizo_148():
                 "decodificadas para Joinville estao fora da validade."
             ),
         })
-
+ 
     return saida
-
-
+ 
+ 
 def diagnosticar_wis2_inmet_149():
     """
     #149 - Diagnóstico isolado do WIS2/INMET.
-
+ 
     Este bloco NÃO altera o estado operacional de granizo.
     Ele apenas testa se o GitHub Actions consegue:
     - abrir TLS/MQTT com um Global Broker WIS2;
@@ -7330,9 +7330,9 @@ def diagnosticar_wis2_inmet_149():
             "durante a janela de teste nao significa ausencia de alerta."
         ),
     }
-
+ 
     mensagens = []
-
+ 
     try:
         cliente = mqtt.Client(
             mqtt.CallbackAPIVersion.VERSION2,
@@ -7341,13 +7341,13 @@ def diagnosticar_wis2_inmet_149():
         )
         cliente.username_pw_set("everyone", "everyone")
         cliente.tls_set()
-
+ 
         def ao_conectar(client, userdata, flags, reason_code, properties):
             try:
                 codigo = int(reason_code)
             except Exception:
                 codigo = 0 if str(reason_code).lower() == "success" else -1
-
+ 
             if codigo == 0:
                 resultado["conectado"] = True
                 client.subscribe(resultado["topico"], qos=0)
@@ -7355,22 +7355,22 @@ def diagnosticar_wis2_inmet_149():
                 resultado["erro"] = (
                     "MQTT recusou conexao: " + str(reason_code)
                 )
-
+ 
         def ao_assinar(client, userdata, mid, reason_codes, properties):
             resultado["assinatura_confirmada"] = True
-
+ 
         def ao_mensagem(client, userdata, msg):
             try:
                 texto = msg.payload.decode("utf-8", errors="replace")
                 dados = json.loads(texto)
-
+ 
                 item = {
                     "topico": msg.topic,
                     "bytes": len(msg.payload),
                     "links": [],
                     "propriedades": None,
                 }
-
+ 
                 if isinstance(dados, dict):
                     props = dados.get("properties")
                     if isinstance(props, dict):
@@ -7384,7 +7384,7 @@ def diagnosticar_wis2_inmet_149():
                             )
                             if k in props
                         }
-
+ 
                     links = dados.get("links")
                     if isinstance(links, list):
                         for link in links:
@@ -7402,30 +7402,30 @@ def diagnosticar_wis2_inmet_149():
                                     "href": href,
                                     "type": link.get("type"),
                                 })
-
+ 
                 mensagens.append(item)
-
+ 
                 if len(mensagens) >= 3:
                     client.disconnect()
-
+ 
             except Exception as e:
                 mensagens.append({
                     "topico": msg.topic,
                     "erro_parse": str(e)[:500],
                 })
-
+ 
         cliente.on_connect = ao_conectar
         cliente.on_subscribe = ao_assinar
         cliente.on_message = ao_mensagem
-
+ 
         cliente.connect(
             resultado["broker"],
             port=resultado["porta"],
             keepalive=30,
         )
-
+ 
         cliente.loop_start()
-
+ 
         # Janela curta: suficiente para provar conectividade sem atrasar
         # excessivamente o workflow de 15 em 15 minutos.
         import time
@@ -7436,23 +7436,23 @@ def diagnosticar_wis2_inmet_149():
             if len(mensagens) >= 3:
                 break
             time.sleep(0.25)
-
+ 
         try:
             cliente.disconnect()
         except Exception:
             pass
         cliente.loop_stop()
-
+ 
         resultado["quantidade_notificacoes"] = len(mensagens)
         resultado["notificacao_recebida"] = bool(mensagens)
-
+ 
         if mensagens:
             primeiro = mensagens[0]
             resultado["links"] = primeiro.get("links", [])
             resultado["amostra_propriedades"] = primeiro.get(
                 "propriedades"
             )
-
+ 
         if resultado["conectado"] and resultado["assinatura_confirmada"]:
             resultado["status"] = (
                 "mqtt_ok_com_notificacao"
@@ -7463,23 +7463,23 @@ def diagnosticar_wis2_inmet_149():
             resultado["status"] = "mqtt_conectado_assinatura_nao_confirmada"
         else:
             resultado["status"] = "mqtt_indisponivel"
-
+ 
         return resultado
-
+ 
     except Exception as e:
         resultado["status"] = "mqtt_indisponivel"
         resultado["erro"] = str(e)
         return resultado
-
-
+ 
+ 
 def diagnosticar_historico_cap_inmet_150():
     """
     #150 - Consulta o histórico de notificações do próprio WIS2 Node do INMET.
-
+ 
     A API OGC do wis2box expõe a coleção 'messages'. Este diagnóstico tenta
     recuperar notificações já publicadas, em vez de depender de uma nova
     mensagem surgir durante poucos segundos de MQTT.
-
+ 
     Nenhum resultado deste bloco altera o card operacional de granizo.
     """
     resultado = {
@@ -7501,7 +7501,7 @@ def diagnosticar_historico_cap_inmet_150():
             "Nao afirma alerta ativo, ausencia de alerta ou risco de granizo."
         ),
     }
-
+ 
     try:
         resposta = requests.get(
             resultado["endpoint"],
@@ -7518,15 +7518,15 @@ def diagnosticar_historico_cap_inmet_150():
         resultado["http_status"] = resposta.status_code
         resposta.raise_for_status()
         dados = resposta.json()
-
+ 
         features = []
         if isinstance(dados, dict):
             bruto = dados.get("features")
             if isinstance(bruto, list):
                 features = bruto
-
+ 
         resultado["quantidade_features"] = len(features)
-
+ 
         if features and isinstance(features[0], dict):
             primeira = features[0]
             props = primeira.get("properties")
@@ -7541,17 +7541,17 @@ def diagnosticar_historico_cap_inmet_150():
                 ),
                 "id": primeira.get("id"),
             }
-
+ 
         candidatos = []
-
+ 
         for feature in features:
             if not isinstance(feature, dict):
                 continue
-
+ 
             props = feature.get("properties")
             if not isinstance(props, dict):
                 props = {}
-
+ 
             # A estrutura pode variar por versão do wis2box. Para o
             # diagnóstico, serializamos somente a feature corrente e
             # procuramos o tópico/data_id oficial de advisories-warnings.
@@ -7561,7 +7561,7 @@ def diagnosticar_historico_cap_inmet_150():
                 separators=(",", ":"),
             )
             baixo = texto.lower()
-
+ 
             if (
                 "br-inmet" in baixo
                 and "advisories-warnings" in baixo
@@ -7571,7 +7571,7 @@ def diagnosticar_historico_cap_inmet_150():
                     links = props.get("links")
                 if not isinstance(links, list):
                     links = []
-
+ 
                 links_seguros = []
                 for link in links:
                     if not isinstance(link, dict):
@@ -7587,7 +7587,7 @@ def diagnosticar_historico_cap_inmet_150():
                             "href": href,
                             "type": link.get("type"),
                         })
-
+ 
                 candidatos.append({
                     "id": feature.get("id"),
                     "datetime": (
@@ -7605,10 +7605,10 @@ def diagnosticar_historico_cap_inmet_150():
                         str(k) for k in props.keys()
                     )[:80],
                 })
-
+ 
         resultado["quantidade_cap_candidatos"] = len(candidatos)
         resultado["amostras_cap"] = candidatos[:10]
-
+ 
         if candidatos:
             resultado["status"] = "historico_cap_encontrado"
             resultado["observacao"] = (
@@ -7629,9 +7629,9 @@ def diagnosticar_historico_cap_inmet_150():
                 "A API oficial respondeu sem features nesta consulta. "
                 "Isso nao significa ausencia de alertas."
             )
-
+ 
         return resultado
-
+ 
     except Exception as e:
         resultado["erro"] = str(e)
         resultado["observacao"] = (
@@ -7639,23 +7639,23 @@ def diagnosticar_historico_cap_inmet_150():
             "alerta de granizo e produzida a partir desta falha."
         )
         return resultado
-
-
+ 
+ 
 def diagnosticar_filtro_cap_inmet_151():
     """
     #151 - Descobre e testa filtros seletivos da OGC API do WIS2/INMET.
-
+ 
     Objetivo:
     - consultar /queryables da coleção messages;
     - verificar se data_id é filtrável;
     - testar filtros seletivos para advisories-warnings;
     - registrar data_ids reais retornados pela API.
-
+ 
     Continua estritamente diagnóstico: não altera o card de granizo.
     """
     base = "https://wis2bra.inmet.gov.br/oapi/collections/messages"
     alvo = "advisories-warnings"
-
+ 
     resultado = {
         "status": "indisponivel",
         "versao": "#151",
@@ -7672,12 +7672,12 @@ def diagnosticar_filtro_cap_inmet_151():
             "significa alerta ativo, ausencia de alerta ou risco de granizo."
         ),
     }
-
+ 
     headers = {
         "User-Agent": "Monitor-Guaxanduva/1.0",
         "Accept": "application/geo+json,application/json",
     }
-
+ 
     def ler_features(resp):
         try:
             obj = resp.json()
@@ -7687,7 +7687,7 @@ def diagnosticar_filtro_cap_inmet_151():
             return [], obj
         feats = obj.get("features")
         return (feats if isinstance(feats, list) else []), obj
-
+ 
     def resumir_features(features, limite=20):
         saida = []
         for f in features[:limite]:
@@ -7704,7 +7704,7 @@ def diagnosticar_filtro_cap_inmet_151():
                 "metadata_id": p.get("metadata_id"),
             })
         return saida
-
+ 
     try:
         # 1) Descobre formalmente quais propriedades a coleção declara
         # como consultáveis.
@@ -7716,14 +7716,14 @@ def diagnosticar_filtro_cap_inmet_151():
             headers=headers,
         )
         resultado["queryables_http"] = qr.status_code
-
+ 
         if qr.ok:
             qobj = qr.json()
             props = qobj.get("properties") if isinstance(qobj, dict) else None
             if isinstance(props, dict):
                 resultado["queryables"] = sorted(str(k) for k in props.keys())
                 resultado["data_id_filtravel"] = "data_id" in props
-
+ 
         # 2) Coleta uma amostra real de data_id para não depender de
         # suposição sobre a forma do identificador.
         geral = requests.get(
@@ -7745,7 +7745,7 @@ def diagnosticar_filtro_cap_inmet_151():
                 if did is not None and str(did) not in ids:
                     ids.append(str(did))
             resultado["data_ids_amostra_consulta_geral"] = ids[:30]
-
+ 
         # 3) Testa variantes suportadas por implementações pygeoapi/OGC.
         # Não assumimos que uma delas funciona: cada resposta é registrada.
         testes = [
@@ -7762,9 +7762,9 @@ def diagnosticar_filtro_cap_inmet_151():
             ),
             ("texto_q", {"q": alvo, "limit": 100}),
         ]
-
+ 
         candidatos = []
-
+ 
         for nome, params in testes:
             params = {"f": "json", **params}
             item = {
@@ -7775,7 +7775,7 @@ def diagnosticar_filtro_cap_inmet_151():
                 "features_amostra": [],
                 "erro": None,
             }
-
+ 
             try:
                 r = requests.get(
                     base + "/items",
@@ -7784,12 +7784,12 @@ def diagnosticar_filtro_cap_inmet_151():
                     headers=headers,
                 )
                 item["http_status"] = r.status_code
-
+ 
                 if r.ok:
                     feats, _ = ler_features(r)
                     item["quantidade_features"] = len(feats)
                     item["features_amostra"] = resumir_features(feats, 10)
-
+ 
                     for f in feats:
                         if not isinstance(f, dict):
                             continue
@@ -7827,12 +7827,12 @@ def diagnosticar_filtro_cap_inmet_151():
                             candidatos.append(cand)
                 else:
                     item["erro"] = r.text[:500]
-
+ 
             except Exception as e:
                 item["erro"] = str(e)[:500]
-
+ 
             resultado["tentativas"].append(item)
-
+ 
         # Remove duplicatas por id/data_id/pubtime.
         unicos = []
         vistos = set()
@@ -7846,9 +7846,9 @@ def diagnosticar_filtro_cap_inmet_151():
                 continue
             vistos.add(chave)
             unicos.append(c)
-
+ 
         resultado["candidatos_cap"] = unicos[:20]
-
+ 
         if unicos:
             resultado["status"] = "cap_localizado_por_filtro"
             resultado["observacao"] = (
@@ -7868,9 +7868,9 @@ def diagnosticar_filtro_cap_inmet_151():
                 "A consulta diagnostica executou, mas /queryables nao foi "
                 "confirmado com HTTP 200. Nenhuma conclusao sobre alertas."
             )
-
+ 
         return resultado
-
+ 
     except Exception as e:
         resultado["erro"] = str(e)
         resultado["observacao"] = (
@@ -7878,13 +7878,13 @@ def diagnosticar_filtro_cap_inmet_151():
             "alerta de granizo e produzida."
         )
         return resultado
-
-
+ 
+ 
 def diagnosticar_data_id_cap_inmet_152():
     """
     #152 - Descobre o identificador real dos CAPs a partir do
     discovery-metadata oficial WIS2/INMET, sem inventar prefixos.
-
+ 
     Preserva strings e links relevantes da resposta oficial e testa como
     data_id somente candidatos que apareçam literalmente no metadata.
     Não altera o card operacional de granizo.
@@ -7898,7 +7898,7 @@ def diagnosticar_data_id_cap_inmet_152():
         "https://wis2bra.inmet.gov.br/oapi/"
         "collections/messages/items"
     )
-
+ 
     resultado = {
         "status": "indisponivel",
         "versao": "#152",
@@ -7918,12 +7918,12 @@ def diagnosticar_data_id_cap_inmet_152():
             "alerta ativo, ausencia de alerta ou risco de granizo."
         ),
     }
-
+ 
     headers = {
         "User-Agent": "Monitor-Guaxanduva/1.0",
         "Accept": "application/geo+json,application/json",
     }
-
+ 
     def coletar_strings(obj, caminho="$", saida=None):
         if saida is None:
             saida = []
@@ -7949,11 +7949,11 @@ def diagnosticar_data_id_cap_inmet_152():
                     "valor": obj[:1000],
                 })
         return saida
-
+ 
     def extrair_links(obj):
         encontrados = []
         vistos = set()
-
+ 
         def andar(x):
             if isinstance(x, dict):
                 href = x.get("href")
@@ -7974,14 +7974,14 @@ def diagnosticar_data_id_cap_inmet_152():
             elif isinstance(x, list):
                 for v in x:
                     andar(v)
-
+ 
         andar(obj)
         return encontrados[:100]
-
+ 
     def extrair_candidatos(strings):
         candidatos = []
         vistos = set()
-
+ 
         for item in strings:
             valor = str(item.get("valor") or "").strip()
             baixo = valor.lower()
@@ -8001,9 +8001,9 @@ def diagnosticar_data_id_cap_inmet_152():
                     ):
                         vistos.add(p)
                         candidatos.append(p)
-
+ 
         return candidatos[:30]
-
+ 
     try:
         r = requests.get(
             metadata_url,
@@ -8014,21 +8014,21 @@ def diagnosticar_data_id_cap_inmet_152():
         resultado["metadata_http"] = r.status_code
         r.raise_for_status()
         metadata = r.json()
-
+ 
         if isinstance(metadata, dict):
             resultado["chaves_metadata"] = sorted(
                 str(k) for k in metadata.keys()
             )
-
+ 
         resultado["links_metadata"] = extrair_links(metadata)
         strings = coletar_strings(metadata)
         resultado["strings_relevantes"] = strings[:100]
         candidatos = extrair_candidatos(strings)
         resultado["candidatos_data_id"] = candidatos
-
+ 
         notificacoes = []
         vistos_not = set()
-
+ 
         for candidato in candidatos[:15]:
             teste = {
                 "data_id": candidato,
@@ -8037,7 +8037,7 @@ def diagnosticar_data_id_cap_inmet_152():
                 "amostras": [],
                 "erro": None,
             }
-
+ 
             try:
                 rr = requests.get(
                     messages_url,
@@ -8050,7 +8050,7 @@ def diagnosticar_data_id_cap_inmet_152():
                     headers=headers,
                 )
                 teste["http_status"] = rr.status_code
-
+ 
                 if rr.ok:
                     obj = rr.json()
                     feats = (
@@ -8060,16 +8060,16 @@ def diagnosticar_data_id_cap_inmet_152():
                     )
                     if not isinstance(feats, list):
                         feats = []
-
+ 
                     teste["quantidade_features"] = len(feats)
-
+ 
                     for f in feats[:20]:
                         if not isinstance(f, dict):
                             continue
                         p = f.get("properties")
                         if not isinstance(p, dict):
                             p = {}
-
+ 
                         amostra = {
                             "id": f.get("id"),
                             "data_id": p.get("data_id"),
@@ -8079,7 +8079,7 @@ def diagnosticar_data_id_cap_inmet_152():
                             "links": extrair_links(f)[:10],
                         }
                         teste["amostras"].append(amostra)
-
+ 
                         chave = (
                             str(amostra["id"]),
                             str(amostra["data_id"]),
@@ -8090,15 +8090,15 @@ def diagnosticar_data_id_cap_inmet_152():
                             notificacoes.append(amostra)
                 else:
                     teste["erro"] = rr.text[:500]
-
+ 
             except Exception as e:
                 teste["erro"] = str(e)[:500]
-
+ 
             resultado["testes_data_id"].append(teste)
-
+ 
         resultado["notificacoes_cap"] = notificacoes[:30]
         resultado["cap_localizado"] = bool(notificacoes)
-
+ 
         if notificacoes:
             resultado["status"] = "data_id_documentado_e_cap_localizado"
             resultado["observacao"] = (
@@ -8124,9 +8124,9 @@ def diagnosticar_data_id_cap_inmet_152():
                 "extraido pelas regras conservadoras. Strings e links foram "
                 "preservados para a proxima investigacao."
             )
-
+ 
         return resultado
-
+ 
     except Exception as e:
         resultado["erro"] = str(e)
         resultado["observacao"] = (
@@ -8134,17 +8134,17 @@ def diagnosticar_data_id_cap_inmet_152():
             "granizo e produzida."
         )
         return resultado
-
-
+ 
+ 
 def diagnosticar_cap_por_metadata_id_153():
     """
     #153 - Separa mensagens de METADATA das mensagens de DATA.
-
+ 
     A #151 confirmou que metadata_id e filtravel. A #152 confirmou
     documentalmente que o dataset de alertas possui o identificador
     urn:wmo:md:br-inmet:alerts. Aqui usamos esse identificador no campo
     metadata_id da colecao messages, em vez de confundi-lo com data_id.
-
+ 
     O objetivo e localizar notificacoes de dados CAP/XML reais.
     Este bloco ainda nao altera o card operacional de granizo.
     """
@@ -8153,7 +8153,7 @@ def diagnosticar_cap_por_metadata_id_153():
         "collections/messages/items"
     )
     metadata_alvo = "urn:wmo:md:br-inmet:alerts"
-
+ 
     resultado = {
         "status": "indisponivel",
         "versao": "#153",
@@ -8175,19 +8175,19 @@ def diagnosticar_cap_por_metadata_id_153():
             "alerta ou risco de granizo."
         ),
     }
-
+ 
     headers = {
         "User-Agent": "Monitor-Guaxanduva/1.0",
         "Accept": "application/geo+json,application/json",
     }
-
+ 
     def links_http(feature):
         saida = []
         vistos = set()
         links = feature.get("links") if isinstance(feature, dict) else None
         if not isinstance(links, list):
             return saida
-
+ 
         for link in links:
             if not isinstance(link, dict):
                 continue
@@ -8206,7 +8206,7 @@ def diagnosticar_cap_por_metadata_id_153():
                 "type": link.get("type"),
             })
         return saida
-
+ 
     try:
         r = requests.get(
             endpoint,
@@ -8220,7 +8220,7 @@ def diagnosticar_cap_por_metadata_id_153():
         )
         resultado["http_status"] = r.status_code
         r.raise_for_status()
-
+ 
         obj = r.json()
         features = (
             obj.get("features", [])
@@ -8229,41 +8229,41 @@ def diagnosticar_cap_por_metadata_id_153():
         )
         if not isinstance(features, list):
             features = []
-
+ 
         resultado["quantidade_features"] = len(features)
-
+ 
         data_ids = []
         notificacoes = []
         links_xml = []
-
+ 
         for feature in features:
             if not isinstance(feature, dict):
                 continue
-
+ 
             props = feature.get("properties")
             if not isinstance(props, dict):
                 props = {}
-
+ 
             data_id = props.get("data_id")
             metadata_id = props.get("metadata_id")
             links = links_http(feature)
-
+ 
             # Mensagens de atualização de metadata são explicitamente
             # separadas das mensagens de dados.
             eh_metadata = (
                 isinstance(data_id, str)
                 and "/metadata/" in data_id.lower()
             )
-
+ 
             if eh_metadata:
                 resultado["quantidade_metadata"] += 1
                 continue
-
+ 
             resultado["quantidade_data"] += 1
-
+ 
             if isinstance(data_id, str) and data_id not in data_ids:
                 data_ids.append(data_id)
-
+ 
             item = {
                 "id": feature.get("id"),
                 "data_id": data_id,
@@ -8274,7 +8274,7 @@ def diagnosticar_cap_por_metadata_id_153():
                 "links": links,
             }
             notificacoes.append(item)
-
+ 
             for link in links:
                 href = link.get("href")
                 tipo = str(link.get("type") or "").lower()
@@ -8292,16 +8292,16 @@ def diagnosticar_cap_por_metadata_id_153():
                             "type": link.get("type"),
                             "data_id": data_id,
                         })
-
+ 
         resultado["data_ids_reais"] = data_ids[:30]
         resultado["notificacoes_data_cap"] = notificacoes[:30]
         resultado["links_xml_candidatos"] = links_xml[:30]
-
+ 
         # Nesta etapa "XML confirmado" significa apenas que uma mensagem
         # DATA associada ao dataset oficial publicou link explicitamente XML.
         # O conteúdo CAP ainda será decodificado numa etapa posterior.
         resultado["xml_cap_confirmado"] = bool(links_xml)
-
+ 
         if links_xml:
             resultado["status"] = "mensagem_data_cap_com_link_xml_localizada"
             resultado["observacao"] = (
@@ -8323,9 +8323,9 @@ def diagnosticar_cap_por_metadata_id_153():
                 "DATA foi localizada nas features retornadas. Isso nao "
                 "significa ausencia de alertas."
             )
-
+ 
         return resultado
-
+ 
     except Exception as e:
         resultado["erro"] = str(e)
         resultado["observacao"] = (
@@ -8333,12 +8333,12 @@ def diagnosticar_cap_por_metadata_id_153():
             "granizo e produzida."
         )
         return resultado
-
-
+ 
+ 
 def diagnosticar_xml_cap_inmet_154():
     """#154 - Baixa e disseca XMLs CAP reais do INMET, sem uso operacional."""
     import xml.etree.ElementTree as ET
-
+ 
     resultado = {
         "status": "indisponivel",
         "versao": "#154",
@@ -8359,32 +8359,32 @@ def diagnosticar_xml_cap_inmet_154():
             "ausencia nas amostras tambem nao significa ausencia de alerta."
         ),
     }
-
+ 
     diag153 = diagnosticar_cap_por_metadata_id_153()
     candidatos = diag153.get("links_xml_candidatos", [])
     if not isinstance(candidatos, list) or not candidatos:
         resultado["status"] = "sem_link_xml_da_153"
         return resultado
-
+ 
     headers = {
         "User-Agent": "Monitor-Guaxanduva/1.0",
         "Accept": "application/xml,text/xml,*/*",
     }
-
+ 
     def local(tag):
         return tag.rsplit("}", 1)[-1] if isinstance(tag, str) and "}" in tag else tag
-
+ 
     def textos(elem, nome):
         return [
             (x.text or "").strip()
             for x in elem.iter()
             if local(x.tag) == nome and (x.text or "").strip()
         ]
-
+ 
     def primeiro(elem, nome):
         vals = textos(elem, nome)
         return vals[0] if vals else None
-
+ 
     def areas_info(info):
         saida = []
         for area in [x for x in info.iter() if local(x.tag) == "area"]:
@@ -8405,15 +8405,15 @@ def diagnosticar_xml_cap_inmet_154():
                 "polygons": poligonos,
             })
         return saida
-
+ 
     campos = set()
     amostras = []
-
+ 
     for cand in candidatos[:5]:
         href = cand.get("href") if isinstance(cand, dict) else None
         if not isinstance(href, str) or not href.startswith("https://"):
             continue
-
+ 
         resultado["xmls_testados"] += 1
         a = {
             "url": href,
@@ -8433,7 +8433,7 @@ def diagnosticar_xml_cap_inmet_154():
             "menciona_granizo_ou_hail": False,
             "erro": None,
         }
-
+ 
         try:
             r = requests.get(href, timeout=(10, 25), headers=headers)
             a["http_status"] = r.status_code
@@ -8442,7 +8442,7 @@ def diagnosticar_xml_cap_inmet_154():
                 a["erro"] = r.text[:300]
                 amostras.append(a)
                 continue
-
+ 
             resultado["xmls_http_200"] += 1
             raiz = ET.fromstring(r.content)
             a["parseavel"] = True
@@ -8450,14 +8450,14 @@ def diagnosticar_xml_cap_inmet_154():
             a["raiz"] = local(raiz.tag)
             if raiz.tag.startswith("{") and "}" in raiz.tag:
                 a["namespace"] = raiz.tag[1:].split("}", 1)[0]
-
+ 
             for x in raiz.iter():
                 campos.add(local(x.tag))
-
+ 
             for nome in ("identifier", "sender", "sent", "msgType", "scope"):
                 a[nome] = primeiro(raiz, nome)
             a["status_cap"] = primeiro(raiz, "status")
-
+ 
             busca = []
             for info in [x for x in raiz.iter() if local(x.tag) == "info"]:
                 areas = areas_info(info)
@@ -8468,7 +8468,7 @@ def diagnosticar_xml_cap_inmet_154():
                         resultado["estrutura_geocode_confirmada"] = True
                     if area["polygons"]:
                         resultado["estrutura_polygon_confirmada"] = True
-
+ 
                 item = {
                     "language": primeiro(info, "language"),
                     "category": textos(info, "category"),
@@ -8491,20 +8491,20 @@ def diagnosticar_xml_cap_inmet_154():
                 for area in areas:
                     if isinstance(area.get("areaDesc"), str):
                         busca.append(area["areaDesc"])
-
+ 
             total = " ".join(busca).lower()
             a["menciona_granizo_ou_hail"] = "granizo" in total or "hail" in total
             if a["menciona_granizo_ou_hail"]:
                 resultado["mencao_granizo_encontrada_nas_amostras"] = True
-
+ 
         except Exception as e:
             a["erro"] = str(e)[:500]
-
+ 
         amostras.append(a)
-
+ 
     resultado["amostras"] = amostras
     resultado["campos_cap_confirmados"] = sorted(campos)
-
+ 
     if any(a.get("parseavel") and a.get("raiz") == "alert" for a in amostras):
         resultado["status"] = "cap_xml_real_parseado"
         resultado["observacao"] = (
@@ -8515,10 +8515,10 @@ def diagnosticar_xml_cap_inmet_154():
         resultado["status"] = "xml_baixado_sem_raiz_cap_alert_confirmada"
     else:
         resultado["status"] = "xml_cap_nao_baixado"
-
+ 
     return resultado
-
-
+ 
+ 
 def diagnosticar_cap_recente_inmet_155():
     """#155 - Localiza CAPs recentes por janela temporal e testa XMLs ainda disponíveis."""
     endpoint = (
@@ -8527,7 +8527,7 @@ def diagnosticar_cap_recente_inmet_155():
     )
     metadata_alvo = "urn:wmo:md:br-inmet:alerts"
     agora_utc = datetime.now(UTC)
-
+ 
     resultado = {
         "status": "indisponivel",
         "versao": "#155",
@@ -8548,19 +8548,19 @@ def diagnosticar_cap_recente_inmet_155():
             "operacional de granizo."
         ),
     }
-
+ 
     headers = {
         "User-Agent": "Monitor-Guaxanduva/1.0",
         "Accept": "application/geo+json,application/json",
     }
-
+ 
     def iso_z(dt):
         return dt.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-
+ 
     def extrair_features(obj):
         feats = obj.get("features", []) if isinstance(obj, dict) else []
         return feats if isinstance(feats, list) else []
-
+ 
     def eh_data_alerta(feature):
         if not isinstance(feature, dict):
             return False
@@ -8573,7 +8573,7 @@ def diagnosticar_cap_recente_inmet_155():
             and "/metadata/" not in data_id.lower()
             and "alerts/" in data_id.lower()
         )
-
+ 
     def links_xml(feature):
         saida = []
         if not isinstance(feature, dict):
@@ -8597,7 +8597,7 @@ def diagnosticar_cap_recente_inmet_155():
                     "type": link.get("type"),
                 })
         return saida
-
+ 
     def momento_feature(feature):
         props = feature.get("properties") if isinstance(feature, dict) else {}
         if not isinstance(props, dict):
@@ -8615,9 +8615,9 @@ def diagnosticar_cap_recente_inmet_155():
             except Exception:
                 pass
         return None
-
+ 
     encontrados = {}
-
+ 
     # OGC API Features define o parametro datetime. Testamos janelas
     # progressivas para evitar depender da ordem padrao da colecao.
     for dias in (2, 7, 30, 90):
@@ -8657,7 +8657,7 @@ def diagnosticar_cap_recente_inmet_155():
         except Exception as e:
             teste["erro"] = str(e)[:500]
         resultado["consultas_temporais"].append(teste)
-
+ 
     # Teste documental das extensoes de ordenacao. Se o servidor nao as
     # suportar, o erro fica registrado e as janelas datetime continuam sendo
     # a estrategia principal.
@@ -8699,7 +8699,7 @@ def diagnosticar_cap_recente_inmet_155():
         except Exception as e:
             teste["erro"] = str(e)[:500]
         resultado["consultas_ordenacao"].append(teste)
-
+ 
     itens = []
     for feature in encontrados.values():
         props = feature.get("properties") or {}
@@ -8715,12 +8715,12 @@ def diagnosticar_cap_recente_inmet_155():
             "links_xml": xmls,
             "_momento": momento,
         })
-
+ 
     itens.sort(
         key=lambda x: x.get("_momento") or datetime(1970, 1, 1, tzinfo=UTC),
         reverse=True,
     )
-
+ 
     for item in itens[:30]:
         limpo = dict(item)
         limpo.pop("_momento", None)
@@ -8733,7 +8733,7 @@ def diagnosticar_cap_recente_inmet_155():
                     "data_id": item.get("data_id"),
                     "momento_normalizado_utc": item.get("momento_normalizado_utc"),
                 })
-
+ 
     # Testa somente os cinco XMLs mais recentes encontrados. O objetivo aqui
     # e provar disponibilidade atual, nao interpretar risco.
     for link in resultado["links_xml_recentes"][:5]:
@@ -8767,7 +8767,7 @@ def diagnosticar_cap_recente_inmet_155():
         except Exception as e:
             teste["erro"] = str(e)[:500]
         resultado["xmls_testados"].append(teste)
-
+ 
     if resultado["xml_recente_disponivel"]:
         resultado["status"] = "cap_recente_xml_disponivel"
         resultado["observacao"] = (
@@ -8790,11 +8790,310 @@ def diagnosticar_cap_recente_inmet_155():
         )
     else:
         resultado["status"] = "consultas_temporais_indisponiveis"
-
+ 
     return resultado
-
+ 
+ 
+def diagnosticar_conteudo_cap_inmet_156(diag155=None):
+    """#156 - Decodifica CAPs recentes e testa vigencia/area/granizo, sem uso operacional."""
+    import xml.etree.ElementTree as ET
+ 
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#156",
+        "fonte": "WIS2 Node oficial do INMET / CAP XML recente",
+        "xmls_analisados": 0,
+        "xmls_cap_validos": 0,
+        "alertas": [],
+        "estrutura_area_confirmada": False,
+        "estrutura_geocode_confirmada": False,
+        "estrutura_polygon_confirmada": False,
+        "mencao_granizo_em_algum_cap": False,
+        "joinville_identificada_em_algum_cap": False,
+        "cap_vigente_em_algum_cap": False,
+        "candidato_granizo_joinville_vigente": False,
+        "uso_operacional_granizo": False,
+        "regra_seguranca": (
+            "Diagnostico estrutural dos CAPs recentes. Somente mencao explicita "
+            "a granizo/hail, vigencia temporal e cobertura documental de Joinville "
+            "sao registradas. O bloco nao altera o card operacional de granizo."
+        ),
+    }
+ 
+    if not isinstance(diag155, dict):
+        diag155 = diagnosticar_cap_recente_inmet_155()
+ 
+    links = diag155.get("links_xml_recentes", [])
+    if not isinstance(links, list) or not links:
+        resultado["status"] = "sem_xml_recente_da_155"
+        return resultado
+ 
+    headers = {
+        "User-Agent": "Monitor-Guaxanduva/1.0",
+        "Accept": "application/xml,text/xml,*/*",
+    }
+ 
+    def local(tag):
+        if not isinstance(tag, str):
+            return tag
+        return tag.rsplit("}", 1)[-1] if "}" in tag else tag
+ 
+    def filhos(elem, nome):
+        return [x for x in list(elem) if local(x.tag) == nome]
+ 
+    def descendentes(elem, nome):
+        return [x for x in elem.iter() if local(x.tag) == nome]
+ 
+    def texto_direto(elem, nome):
+        for x in filhos(elem, nome):
+            t = (x.text or "").strip()
+            if t:
+                return t
+        return None
+ 
+    def textos_diretos(elem, nome):
+        saida = []
+        for x in filhos(elem, nome):
+            t = (x.text or "").strip()
+            if t:
+                saida.append(t)
+        return saida
+ 
+    def parse_dt(valor):
+        if not isinstance(valor, str) or not valor.strip():
+            return None
+        try:
+            dt = datetime.fromisoformat(valor.strip().replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=UTC)
+            return dt.astimezone(UTC)
+        except Exception:
+            return None
+ 
+    def ponto_no_poligono(lat, lon, texto):
+        try:
+            pontos = []
+            for par in str(texto).replace(";", " ").split():
+                a, b = par.split(",", 1)
+                pontos.append((float(b), float(a)))  # x=lon, y=lat
+            if len(pontos) < 3:
+                return False
+            x, y = float(lon), float(lat)
+            dentro = False
+            j = len(pontos) - 1
+            for i in range(len(pontos)):
+                xi, yi = pontos[i]
+                xj, yj = pontos[j]
+                cruza = ((yi > y) != (yj > y))
+                if cruza:
+                    x_inter = (xj - xi) * (y - yi) / ((yj - yi) or 1e-15) + xi
+                    if x < x_inter:
+                        dentro = not dentro
+                j = i
+            return dentro
+        except Exception:
+            return False
+ 
+    def area_joinville(area):
+        area_desc = str(area.get("areaDesc") or "")
+        if "joinville" in area_desc.lower():
+            return True, "areaDesc"
+ 
+        for geo in area.get("geocodes", []):
+            nome = str(geo.get("valueName") or "").lower()
+            valor = str(geo.get("value") or "").strip()
+            somente_digitos = re.sub(r"\\D", "", valor)
+            if valor == IBGE_JOINVILLE or somente_digitos == IBGE_JOINVILLE:
+                return True, "geocode_ibge_4209102"
+            if "joinville" in valor.lower():
+                return True, "geocode_textual"
+            if "ibge" in nome and somente_digitos == IBGE_JOINVILLE:
+                return True, "geocode_ibge_4209102"
+ 
+        for pol in area.get("polygons", []):
+            if ponto_no_poligono(LAT, LON, pol):
+                return True, "polygon_contem_coordenada_publica_comasa"
+ 
+        return False, None
+ 
+    agora_utc = datetime.now(UTC)
+ 
+    for cand in links[:5]:
+        href = cand.get("href") if isinstance(cand, dict) else None
+        if not isinstance(href, str) or not href.startswith("https://"):
+            continue
+ 
+        resultado["xmls_analisados"] += 1
+        alerta = {
+            "data_id": cand.get("data_id"),
+            "url": href,
+            "http_status": None,
+            "raiz": None,
+            "identifier": None,
+            "sender": None,
+            "sent": None,
+            "status_cap": None,
+            "msgType": None,
+            "scope": None,
+            "infos": [],
+            "menciona_granizo_ou_hail": False,
+            "joinville_identificada": False,
+            "metodo_identificacao_joinville": [],
+            "vigente_agora": False,
+            "candidato_granizo_joinville_vigente": False,
+            "erro": None,
+        }
+ 
+        try:
+            r = requests.get(href, timeout=(10, 25), headers=headers)
+            alerta["http_status"] = r.status_code
+            if r.status_code != 200:
+                alerta["erro"] = r.text[:300]
+                resultado["alertas"].append(alerta)
+                continue
+ 
+            raiz = ET.fromstring(r.content)
+            alerta["raiz"] = local(raiz.tag)
+            if alerta["raiz"] != "alert":
+                alerta["erro"] = "raiz_xml_nao_e_alert"
+                resultado["alertas"].append(alerta)
+                continue
+ 
+            resultado["xmls_cap_validos"] += 1
+            alerta["identifier"] = texto_direto(raiz, "identifier")
+            alerta["sender"] = texto_direto(raiz, "sender")
+            alerta["sent"] = texto_direto(raiz, "sent")
+            alerta["status_cap"] = texto_direto(raiz, "status")
+            alerta["msgType"] = texto_direto(raiz, "msgType")
+            alerta["scope"] = texto_direto(raiz, "scope")
+ 
+            busca_alerta = []
+            metodos_joinville = set()
+            algum_info_vigente = False
+ 
+            for info in filhos(raiz, "info"):
+                areas = []
+                info_joinville = False
+                info_metodos = set()
+ 
+                for area_el in filhos(info, "area"):
+                    geocodes = []
+                    for geo in filhos(area_el, "geocode"):
+                        geocodes.append({
+                            "valueName": texto_direto(geo, "valueName"),
+                            "value": texto_direto(geo, "value"),
+                        })
+                    polygons = textos_diretos(area_el, "polygon")
+                    area = {
+                        "areaDesc": texto_direto(area_el, "areaDesc"),
+                        "geocodes": geocodes,
+                        "polygons": polygons,
+                    }
+                    if area["areaDesc"] or geocodes or polygons:
+                        resultado["estrutura_area_confirmada"] = True
+                    if geocodes:
+                        resultado["estrutura_geocode_confirmada"] = True
+                    if polygons:
+                        resultado["estrutura_polygon_confirmada"] = True
+ 
+                    cobre, metodo = area_joinville(area)
+                    if cobre:
+                        info_joinville = True
+                        info_metodos.add(metodo)
+                        metodos_joinville.add(metodo)
+                    areas.append(area)
+ 
+                inicio_txt = (
+                    texto_direto(info, "onset")
+                    or texto_direto(info, "effective")
+                    or alerta.get("sent")
+                )
+                fim_txt = texto_direto(info, "expires")
+                inicio = parse_dt(inicio_txt)
+                fim = parse_dt(fim_txt)
+                vigente = bool(
+                    inicio is not None
+                    and fim is not None
+                    and inicio <= agora_utc <= fim
+                )
+                if vigente:
+                    algum_info_vigente = True
+ 
+                item = {
+                    "language": texto_direto(info, "language"),
+                    "category": textos_diretos(info, "category"),
+                    "event": texto_direto(info, "event"),
+                    "urgency": texto_direto(info, "urgency"),
+                    "severity": texto_direto(info, "severity"),
+                    "certainty": texto_direto(info, "certainty"),
+                    "effective": texto_direto(info, "effective"),
+                    "onset": texto_direto(info, "onset"),
+                    "expires": texto_direto(info, "expires"),
+                    "headline": texto_direto(info, "headline"),
+                    "description": texto_direto(info, "description"),
+                    "instruction": texto_direto(info, "instruction"),
+                    "areas": areas,
+                    "joinville_identificada": info_joinville,
+                    "metodos_identificacao_joinville": sorted(info_metodos),
+                    "vigente_agora": vigente,
+                }
+                alerta["infos"].append(item)
+ 
+                for chave in ("event", "headline", "description", "instruction"):
+                    if isinstance(item.get(chave), str):
+                        busca_alerta.append(item[chave])
+ 
+            total = " ".join(busca_alerta).lower()
+            alerta["menciona_granizo_ou_hail"] = (
+                "granizo" in total or re.search(r"\\bhail\\b", total) is not None
+            )
+            alerta["joinville_identificada"] = bool(metodos_joinville)
+            alerta["metodo_identificacao_joinville"] = sorted(metodos_joinville)
+            alerta["vigente_agora"] = algum_info_vigente
+ 
+            # Exige as tres provas simultaneamente no mesmo CAP. O bloco
+            # permanece diagnostico; nao publica o resultado no card.
+            alerta["candidato_granizo_joinville_vigente"] = bool(
+                alerta["menciona_granizo_ou_hail"]
+                and alerta["joinville_identificada"]
+                and alerta["vigente_agora"]
+                and str(alerta.get("status_cap") or "").lower() == "actual"
+                and str(alerta.get("scope") or "").lower() == "public"
+                and str(alerta.get("msgType") or "").lower() not in {"cancel", "error"}
+            )
+ 
+            if alerta["menciona_granizo_ou_hail"]:
+                resultado["mencao_granizo_em_algum_cap"] = True
+            if alerta["joinville_identificada"]:
+                resultado["joinville_identificada_em_algum_cap"] = True
+            if alerta["vigente_agora"]:
+                resultado["cap_vigente_em_algum_cap"] = True
+            if alerta["candidato_granizo_joinville_vigente"]:
+                resultado["candidato_granizo_joinville_vigente"] = True
+ 
+        except Exception as e:
+            alerta["erro"] = str(e)[:500]
+ 
+        resultado["alertas"].append(alerta)
+ 
+    if resultado["xmls_cap_validos"]:
+        resultado["status"] = "cap_recente_decodificado"
+        resultado["observacao"] = (
+            "CAPs recentes foram parseados e os campos de fenomeno, vigencia "
+            "e area foram registrados. Mesmo um candidato que cumpra os testes "
+            "permanece diagnostico nesta versao; o card operacional nao muda."
+        )
+    elif resultado["xmls_analisados"]:
+        resultado["status"] = "xml_recente_sem_cap_valido_parseado"
+    else:
+        resultado["status"] = "sem_xml_recente_analisavel"
+ 
+    return resultado
+ 
+ 
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
+    diag155 = diagnosticar_cap_recente_inmet_155()
     dados = {
         "monitor":
             "Monitor Guaxanduva",
@@ -8807,34 +9106,34 @@ def main():
  
         "chuva":
             chuva_cemaden,
-
+ 
         "investigacao_cemaden_138":
             investigar_serie_cemaden_138(chuva_cemaden),
-
+ 
         "investigacao_cemaden_139":
             investigar_endpoint_pcds_139(chuva_cemaden),
-
+ 
         "investigacao_cemaden_140":
             investigar_mapservices_cemaden_140(chuva_cemaden),
-
+ 
         "investigacao_cemaden_141":
             auditar_json_horario_cemaden_141(chuva_cemaden),
-
+ 
         "investigacao_cemaden_142":
             decodificar_matriz_horaria_cemaden_142(chuva_cemaden),
-
+ 
         "investigacao_cemaden_143":
             auditar_janelas_horarias_cemaden_143(chuva_cemaden),
-
+ 
         "chuva_observada_cemaden_144":
             chuva_observada_cemaden_144(chuva_cemaden),
  
         "chuva_observada_inmet":
             buscar_chuva_observada_inmet(),
-
+ 
         "investigacao_radarsc_128":
             investigar_fonte_radarsc(),
-
+ 
         "mare":
             buscar_mare(),
  
@@ -8855,20 +9154,22 @@ def main():
         "radar":
             buscar_radar(),
         "granizo": buscar_alerta_granizo_148(),
-
+ 
         "diagnostico_wis2_inmet_149": diagnosticar_wis2_inmet_149(),
-
+ 
         "diagnostico_historico_cap_inmet_150": diagnosticar_historico_cap_inmet_150(),
-
+ 
         "diagnostico_filtro_cap_inmet_151": diagnosticar_filtro_cap_inmet_151(),
-
+ 
         "diagnostico_data_id_cap_inmet_152": diagnosticar_data_id_cap_inmet_152(),
-
+ 
         "diagnostico_cap_por_metadata_id_153": diagnosticar_cap_por_metadata_id_153(),
-
+ 
         "diagnostico_xml_cap_inmet_154": diagnosticar_xml_cap_inmet_154(),
-
-        "diagnostico_cap_recente_inmet_155": diagnosticar_cap_recente_inmet_155(),
+ 
+        "diagnostico_cap_recente_inmet_155": diag155,
+ 
+        "diagnostico_conteudo_cap_inmet_156": diagnosticar_conteudo_cap_inmet_156(diag155),
  
         "emergencia": {
             "defesa_civil":
@@ -8880,7 +9181,7 @@ def main():
     }
  
     historico = registrar_historico_validacao(dados)
-
+ 
     with open(
         ARQUIVO,
         "w",

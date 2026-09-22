@@ -6171,6 +6171,241 @@ def auditar_json_horario_cemaden_141(chuva_cemaden):
         return resultado
 
 
+
+# =========================================================
+# #142 - DECODIFICACAO TEMPORAL DA MATRIZ HORARIA CEMADEN
+# =========================================================
+
+def decodificar_matriz_horaria_cemaden_142(chuva_cemaden):
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#142",
+        "tipo": "decodificacao_temporal_matriz_horaria_cemaden",
+        "fonte": "CEMADEN",
+        "estacao": None,
+        "endpoint": None,
+        "timezone_fonte": "UTC",
+        "timezone_local": "America/Sao_Paulo",
+        "leituras_validas": [],
+        "quantidade_leituras_validas": 0,
+        "ultima_leitura": None,
+        "idade_ultima_leitura_min": None,
+        "dados_frescos_diagnostico": None,
+        "limite_frescor_diagnostico_min": 120,
+        "acumulados_diagnosticos": {
+            "1h_mm": None,
+            "6h_mm": None,
+            "24h_mm": None,
+        },
+        "comparacao_produto_311_24": None,
+        "publicacao_automatica": False,
+        "classificacao_risco_automatica": False,
+        "regra_seguranca": (
+            "A #142 decodifica a matriz horaria em instantes UTC e calcula "
+            "somatorios apenas como diagnostico. Nao publica chuva operacional "
+            "nem infere chuva no Comasa. A granularidade de 10 minutos continua "
+            "nao validada."
+        ),
+    }
+
+    try:
+        selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
+        idestacao = selecionada.get("id")
+        if idestacao is None:
+            resultado["status"] = "sem_estacao_selecionada"
+            return resultado
+
+        resultado["estacao"] = {
+            "id": idestacao,
+            "codigo": selecionada.get("codigo"),
+            "nome": selecionada.get("nome"),
+            "uf": selecionada.get("uf"),
+            "distancia_comasa_aprox_km": selecionada.get(
+                "distancia_comasa_aprox_km"
+            ),
+        }
+
+        base = (
+            "https://mapservices.cemaden.gov.br/"
+            "MapaInterativoWS/resources/"
+        )
+        endpoint = base + "horario/" + str(idestacao) + "/23"
+        resultado["endpoint"] = endpoint
+
+        resposta = get(endpoint)
+        dados = resposta.json()
+        if not isinstance(dados, dict):
+            raise ValueError("Resposta horario sem objeto JSON.")
+
+        datas = dados.get("datas")
+        horarios = dados.get("horarios")
+        acumulados = dados.get("acumulados")
+
+        if not (
+            isinstance(datas, list)
+            and isinstance(horarios, list)
+            and isinstance(acumulados, list)
+        ):
+            raise ValueError(
+                "Matriz horario sem datas/horarios/acumulados validos."
+            )
+
+        leituras = []
+        for indice_data, data_txt in enumerate(datas):
+            if indice_data >= len(acumulados):
+                continue
+            linha = acumulados[indice_data]
+            if not isinstance(linha, list):
+                continue
+
+            for indice_hora, hora_txt in enumerate(horarios):
+                if indice_hora >= len(linha):
+                    continue
+                valor = linha[indice_hora]
+                if valor is None:
+                    continue
+
+                try:
+                    numero = float(str(valor).replace(",", "."))
+                except Exception:
+                    continue
+
+                data_base = datetime.strptime(
+                    str(data_txt).strip(),
+                    "%d/%m/%Y",
+                )
+                achado_hora = re.search(r"(\d{1,2})", str(hora_txt))
+                if not achado_hora:
+                    continue
+                hora = int(achado_hora.group(1))
+                if hora < 0 or hora > 23:
+                    continue
+
+                instante_utc = data_base.replace(
+                    hour=hora,
+                    minute=0,
+                    second=0,
+                    microsecond=0,
+                    tzinfo=UTC,
+                )
+                instante_local = instante_utc.astimezone(FUSO)
+
+                leituras.append({
+                    "instante_utc": instante_utc,
+                    "instante_local": instante_local,
+                    "valor_mm": numero,
+                    "data_fonte": str(data_txt),
+                    "hora_fonte": str(hora_txt),
+                })
+
+        leituras.sort(key=lambda x: x["instante_utc"])
+
+        unicas = {}
+        for leitura in leituras:
+            unicas[leitura["instante_utc"].isoformat()] = leitura
+        leituras = sorted(
+            unicas.values(),
+            key=lambda x: x["instante_utc"],
+        )
+
+        resultado["quantidade_leituras_validas"] = len(leituras)
+        resultado["leituras_validas"] = [
+            {
+                "instante_utc": x["instante_utc"].isoformat(),
+                "instante_local": x["instante_local"].isoformat(),
+                "valor_mm": x["valor_mm"],
+                "data_fonte": x["data_fonte"],
+                "hora_fonte": x["hora_fonte"],
+            }
+            for x in leituras[-30:]
+        ]
+
+        if not leituras:
+            resultado["status"] = "matriz_sem_leitura_numerica"
+            return resultado
+
+        ultima = leituras[-1]
+        idade = (
+            datetime.now(UTC) - ultima["instante_utc"]
+        ).total_seconds() / 60.0
+        idade = max(0.0, round(idade, 1))
+
+        resultado["ultima_leitura"] = {
+            "instante_utc": ultima["instante_utc"].isoformat(),
+            "instante_local": ultima["instante_local"].isoformat(),
+            "valor_mm": ultima["valor_mm"],
+            "data_fonte": ultima["data_fonte"],
+            "hora_fonte": ultima["hora_fonte"],
+        }
+        resultado["idade_ultima_leitura_min"] = idade
+        resultado["dados_frescos_diagnostico"] = idade <= 120
+
+        def somar_ultimas_horas(qtd):
+            escolhidas = leituras[-qtd:]
+            if len(escolhidas) < qtd:
+                return None
+            for anterior, posterior in zip(escolhidas, escolhidas[1:]):
+                delta = (
+                    posterior["instante_utc"] - anterior["instante_utc"]
+                ).total_seconds() / 3600.0
+                if abs(delta - 1.0) > 1e-9:
+                    return None
+            return round(
+                sum(x["valor_mm"] for x in escolhidas),
+                2,
+            )
+
+        soma_1h = somar_ultimas_horas(1)
+        soma_6h = somar_ultimas_horas(6)
+        soma_24h = somar_ultimas_horas(24)
+
+        resultado["acumulados_diagnosticos"] = {
+            "1h_mm": soma_1h,
+            "6h_mm": soma_6h,
+            "24h_mm": soma_24h,
+        }
+
+        produto_24h = (chuva_cemaden or {}).get("acumulado_24h_mm")
+        diferenca = None
+        confere = None
+        if (
+            isinstance(produto_24h, (int, float))
+            and isinstance(soma_24h, (int, float))
+        ):
+            diferenca = round(float(soma_24h) - float(produto_24h), 2)
+            confere = abs(diferenca) <= 0.01
+
+        resultado["comparacao_produto_311_24"] = {
+            "produto_311_24_mm": produto_24h,
+            "soma_24_celulas_horarias_mm": soma_24h,
+            "diferenca_mm": diferenca,
+            "coincide_tolerancia_0_01_mm": confere,
+        }
+
+        if confere is True:
+            resultado["status"] = "matriz_decodificada_com_concordancia_24h"
+        elif soma_24h is None:
+            resultado["status"] = "matriz_decodificada_sem_24h_continuas"
+        else:
+            resultado["status"] = "matriz_decodificada_divergencia_24h"
+
+        resultado["observacao"] = (
+            "A #142 transforma datas/horarios em instantes UTC e local, "
+            "mede a idade da ultima celula e compara a soma de 24 celulas "
+            "com o produto independente 311_24. 1h/6h/24h permanecem "
+            "diagnosticos nesta etapa; 10 min continua indisponivel."
+        )
+        return resultado
+
+    except Exception as e:
+        resultado["erro"] = str(e)
+        resultado["observacao"] = (
+            "Falha da #142 nao altera a integracao CEMADEN #136 nem os "
+            "diagnosticos anteriores."
+        )
+        return resultado
+
+
 # =========================================================
 # #123 - CHUVA OBSERVADA / ESTAÇÃO INMET - RECUPERADA NA #128
 # =========================================================
@@ -6236,6 +6471,9 @@ def main():
 
         "investigacao_cemaden_141":
             auditar_json_horario_cemaden_141(chuva_cemaden),
+
+        "investigacao_cemaden_142":
+            decodificar_matriz_horaria_cemaden_142(chuva_cemaden),
  
         "chuva_observada_inmet":
             buscar_chuva_observada_inmet(),

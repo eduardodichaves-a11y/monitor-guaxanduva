@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-09-22T11:08:53.325246-03:00",
+  "gerado_em": "2026-09-22T11:09:51.885509-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -143,7 +143,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-09-22T11:08:53.323103-03:00"
+    "coletado_em": "2026-09-22T11:09:51.882684-03:00"
   },
   "investigacao_cemaden_138": {
     "status": "evidencias_encontradas_para_revisao",
@@ -689,7 +689,7 @@
       "data_fonte": "22/09/2026",
       "hora_fonte": "14h"
     },
-    "idade_ultima_leitura_min": 9.1,
+    "idade_ultima_leitura_min": 10.0,
     "dados_frescos_diagnostico": true,
     "limite_frescor_diagnostico_min": 120,
     "acumulados_diagnosticos": {
@@ -708,6 +708,196 @@
     "regra_seguranca": "A #142 decodifica a matriz horaria em instantes UTC e calcula somatorios apenas como diagnostico. Nao publica chuva operacional nem infere chuva no Comasa. A granularidade de 10 minutos continua nao validada.",
     "observacao": "A #142 transforma datas/horarios em instantes UTC e local, mede a idade da ultima celula e compara a soma de 24 celulas com o produto independente 311_24. 1h/6h/24h permanecem diagnosticos nesta etapa; 10 min continua indisponivel."
   },
+  "investigacao_cemaden_143": {
+    "status": "janelas_horarias_coerentes",
+    "versao": "#143",
+    "tipo": "auditoria_semantica_janelas_horarias_cemaden",
+    "fonte": "CEMADEN",
+    "estacao": {
+      "id": 6259,
+      "codigo": "420910203A",
+      "nome": "Aventureiro",
+      "uf": "SC"
+    },
+    "base_endpoint": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/horario/",
+    "regra_js_oficial": "cria_grafico_horario(horas): endpoint = horario/idEstacao/(horas-1)",
+    "janelas_testadas_h": [
+      1,
+      2,
+      6,
+      24,
+      48
+    ],
+    "resultados_janelas": [
+      {
+        "janela_solicitada_h": 1,
+        "parametro_endpoint": 0,
+        "endpoint": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/horario/6259/0",
+        "http_status": 200,
+        "quantidade_celulas_numericas": 1,
+        "primeira_celula": {
+          "instante_utc": "2026-09-22T14:00:00+00:00",
+          "instante_local": "2026-09-22T11:00:00-03:00",
+          "valor_mm": 0.0
+        },
+        "ultima_celula": {
+          "instante_utc": "2026-09-22T14:00:00+00:00",
+          "instante_local": "2026-09-22T11:00:00-03:00",
+          "valor_mm": 0.0
+        },
+        "soma_mm": 0.0
+      },
+      {
+        "janela_solicitada_h": 2,
+        "parametro_endpoint": 1,
+        "endpoint": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/horario/6259/1",
+        "http_status": 200,
+        "quantidade_celulas_numericas": 2,
+        "primeira_celula": {
+          "instante_utc": "2026-09-22T13:00:00+00:00",
+          "instante_local": "2026-09-22T10:00:00-03:00",
+          "valor_mm": 0.0
+        },
+        "ultima_celula": {
+          "instante_utc": "2026-09-22T14:00:00+00:00",
+          "instante_local": "2026-09-22T11:00:00-03:00",
+          "valor_mm": 0.0
+        },
+        "soma_mm": 0.0
+      },
+      {
+        "janela_solicitada_h": 6,
+        "parametro_endpoint": 5,
+        "endpoint": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/horario/6259/5",
+        "http_status": 200,
+        "quantidade_celulas_numericas": 6,
+        "primeira_celula": {
+          "instante_utc": "2026-09-22T09:00:00+00:00",
+          "instante_local": "2026-09-22T06:00:00-03:00",
+          "valor_mm": 0.0
+        },
+        "ultima_celula": {
+          "instante_utc": "2026-09-22T14:00:00+00:00",
+          "instante_local": "2026-09-22T11:00:00-03:00",
+          "valor_mm": 0.0
+        },
+        "soma_mm": 0.0
+      },
+      {
+        "janela_solicitada_h": 24,
+        "parametro_endpoint": 23,
+        "endpoint": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/horario/6259/23",
+        "http_status": 200,
+        "quantidade_celulas_numericas": 24,
+        "primeira_celula": {
+          "instante_utc": "2026-09-21T15:00:00+00:00",
+          "instante_local": "2026-09-21T12:00:00-03:00",
+          "valor_mm": 0.0
+        },
+        "ultima_celula": {
+          "instante_utc": "2026-09-22T14:00:00+00:00",
+          "instante_local": "2026-09-22T11:00:00-03:00",
+          "valor_mm": 0.0
+        },
+        "soma_mm": 0.0
+      },
+      {
+        "janela_solicitada_h": 48,
+        "parametro_endpoint": 47,
+        "endpoint": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/horario/6259/47",
+        "http_status": 200,
+        "quantidade_celulas_numericas": 48,
+        "primeira_celula": {
+          "instante_utc": "2026-09-20T15:00:00+00:00",
+          "instante_local": "2026-09-20T12:00:00-03:00",
+          "valor_mm": 0.0
+        },
+        "ultima_celula": {
+          "instante_utc": "2026-09-22T14:00:00+00:00",
+          "instante_local": "2026-09-22T11:00:00-03:00",
+          "valor_mm": 0.0
+        },
+        "soma_mm": 0.0
+      }
+    ],
+    "comparacoes_sobreposicao": [
+      {
+        "janela_menor_h": 1,
+        "janela_maior_h": 2,
+        "celulas_menor": 1,
+        "celulas_maior": 2,
+        "instantes_em_comum": 1,
+        "divergencias_valor": [],
+        "sobreposicao_coerente": true
+      },
+      {
+        "janela_menor_h": 2,
+        "janela_maior_h": 6,
+        "celulas_menor": 2,
+        "celulas_maior": 6,
+        "instantes_em_comum": 2,
+        "divergencias_valor": [],
+        "sobreposicao_coerente": true
+      },
+      {
+        "janela_menor_h": 6,
+        "janela_maior_h": 24,
+        "celulas_menor": 6,
+        "celulas_maior": 24,
+        "instantes_em_comum": 6,
+        "divergencias_valor": [],
+        "sobreposicao_coerente": true
+      },
+      {
+        "janela_menor_h": 24,
+        "janela_maior_h": 48,
+        "celulas_menor": 24,
+        "celulas_maior": 48,
+        "instantes_em_comum": 24,
+        "divergencias_valor": [],
+        "sobreposicao_coerente": true
+      }
+    ],
+    "semantica_confirmada": true,
+    "granularidade_10min_confirmada": false,
+    "publicacao_automatica": false,
+    "classificacao_risco_automatica": false,
+    "regra_seguranca": "A #143 compara varias janelas da mesma rota oficial para validar a semantica temporal. Nao promove 1h/6h/24h ao painel e nao inventa granularidade de 10 minutos.",
+    "validacoes_quantidade": [
+      {
+        "janela_h": 1,
+        "celulas": 1,
+        "quantidade_compativel_com_janela": true
+      },
+      {
+        "janela_h": 2,
+        "celulas": 2,
+        "quantidade_compativel_com_janela": true
+      },
+      {
+        "janela_h": 6,
+        "celulas": 6,
+        "quantidade_compativel_com_janela": true
+      },
+      {
+        "janela_h": 24,
+        "celulas": 24,
+        "quantidade_compativel_com_janela": true
+      },
+      {
+        "janela_h": 48,
+        "celulas": 48,
+        "quantidade_compativel_com_janela": true
+      }
+    ],
+    "comparacao_311_24": {
+      "produto_311_24_mm": 0.0,
+      "soma_janela_24h_mm": 0.0,
+      "diferenca_mm": 0.0,
+      "coincide_0_01_mm": true
+    },
+    "observacao": "A #143 testa a propria regra do JavaScript oficial: pedir N horas usa parametro N-1. Ela exige que janelas maiores preservem os mesmos valores nos instantes sobrepostos e que a quantidade de celulas numericas corresponda a janela pedida. O teste nao estabelece granularidade sub-horaria."
+  },
   "chuva_observada_inmet": {
     "status": "online_fresco",
     "tipo": "observacao_estacao_automatica",
@@ -723,7 +913,7 @@
     "leitura_horaria_mm": 0.0,
     "horario_medicao_utc": "2026-09-22T13:00:00+00:00",
     "horario_medicao_local": "2026-09-22T10:00:00-03:00",
-    "idade_leitura_min": 69.1,
+    "idade_leitura_min": 70.1,
     "dados_frescos": true,
     "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
     "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
@@ -962,7 +1152,7 @@
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
     "horario_ultimo_quadro": "2026-09-22T11:00:00-03:00",
-    "idade_ultimo_quadro_min": 9.3,
+    "idade_ultimo_quadro_min": 10.4,
     "dados_frescos": true,
     "limite_frescor_min": 30,
     "legenda_oficial": {

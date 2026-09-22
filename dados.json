@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-09-22T01:08:45.695166-03:00",
+  "gerado_em": "2026-09-22T01:11:40.135818-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -143,7 +143,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-09-22T01:08:45.692755-03:00"
+    "coletado_em": "2026-09-22T01:11:40.133344-03:00"
   },
   "investigacao_cemaden_138": {
     "status": "evidencias_encontradas_para_revisao",
@@ -207,25 +207,83 @@
     "bytes_html": 9609,
     "observacao": "Resultado bruto para auditoria. A #138 nao interpreta nem publica serie temporal automaticamente."
   },
+  "investigacao_cemaden_139": {
+    "status": "resposta_com_estrutura_para_revisao",
+    "versao": "#139",
+    "tipo": "sonda_diagnostica_endpoint_grafico_pcds",
+    "fonte": "CEMADEN",
+    "estacao": {
+      "id": 6259,
+      "codigo": "420910203A",
+      "nome": "Aventureiro",
+      "uf": "SC"
+    },
+    "endpoint": "https://resources.cemaden.gov.br/graficos/interativo/grafico_pcds.php?idpcd=6259",
+    "http_status": 200,
+    "content_type": "text/html; charset=UTF-8",
+    "bytes_resposta": 28935,
+    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-22 00h00 UTC','2026-09-22 01h00 UTC','2026-09-22 02h00 UTC','2026-09-22 03h00 UTC','2026-09-22 04h00 UTC'],'2026-09-22 ',[0,0,0,0,0],'Acumulada',[0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643','#4B8F",
+    "referencias_encontradas": [
+      {
+        "referencia_bruta": "css/estilo_.css",
+        "url_resolvida": "https://resources.cemaden.gov.br/graficos/interativo/css/estilo_.css"
+      },
+      {
+        "referencia_bruta": "../js/jquery.min.js",
+        "url_resolvida": "https://resources.cemaden.gov.br/graficos/js/jquery.min.js"
+      },
+      {
+        "referencia_bruta": "../js/highcharts.new.js",
+        "url_resolvida": "https://resources.cemaden.gov.br/graficos/js/highcharts.new.js"
+      },
+      {
+        "referencia_bruta": "../js/exporting.new.js",
+        "url_resolvida": "https://resources.cemaden.gov.br/graficos/js/exporting.new.js"
+      },
+      {
+        "referencia_bruta": "css/bootstrap.min.css",
+        "url_resolvida": "https://resources.cemaden.gov.br/graficos/interativo/css/bootstrap.min.css"
+      },
+      {
+        "referencia_bruta": "css/personalizacao.css",
+        "url_resolvida": "https://resources.cemaden.gov.br/graficos/interativo/css/personalizacao.css"
+      },
+      {
+        "referencia_bruta": "js/bootstrap.min.js",
+        "url_resolvida": "https://resources.cemaden.gov.br/graficos/interativo/js/bootstrap.min.js"
+      },
+      {
+        "referencia_bruta": "img/logo.png",
+        "url_resolvida": "https://resources.cemaden.gov.br/graficos/interativo/img/logo.png"
+      }
+    ],
+    "padroes_temporais": [],
+    "estruturas_tabela": [],
+    "serie_temporal_integrada": false,
+    "publicacao_automatica": false,
+    "regra_seguranca": "A #139 apenas audita a resposta do endpoint grafico_pcds.php. Nenhum numero e publicado como chuva, horario, acumulado ou intensidade sem validacao explicita da estrutura e unidade.",
+    "sinais_estruturais": {
+      "tem_tabela_html": false,
+      "tem_timestamp": false,
+      "tem_referencias": true,
+      "menciona_mm": true,
+      "menciona_chuva": true,
+      "menciona_acumulado": true
+    },
+    "observacao": "Resultado bruto para auditoria. A #139 nao converte a resposta em chuva recente; primeiro precisamos confirmar campos, unidade, timezone e significado temporal."
+  },
   "chuva_observada_inmet": {
-    "status": "online_fresco",
+    "status": "indisponivel",
     "tipo": "observacao_estacao_automatica",
     "fonte": "INMET",
-    "fonte_primaria": "Instituto Nacional de Meteorologia",
     "geocodigo_ibge_consultado": "4209102",
-    "estacao": {
-      "codigo": "A868",
-      "nome": "ITAJAI",
-      "uf": "SC",
-      "distancia_referencia_joinville_km": 81.0
-    },
-    "leitura_horaria_mm": 2.0,
-    "horario_medicao_utc": "2026-09-22T03:00:00+00:00",
-    "horario_medicao_local": "2026-09-22T00:00:00-03:00",
-    "idade_leitura_min": 68.9,
-    "dados_frescos": true,
-    "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
-    "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
+    "leitura_horaria_mm": null,
+    "horario_medicao_utc": null,
+    "horario_medicao_local": null,
+    "idade_leitura_min": null,
+    "dados_frescos": false,
+    "erro": "HTTPSConnectionPool(host='apiprevmet3.inmet.gov.br', port=443): Max retries exceeded with url: /estacao/proxima/4209102 (Caused by ConnectTimeoutError(<HTTPSConnection(host='apiprevmet3.inmet.gov.br', port=443) at 0x7ff15df203e0>, 'Connection to apiprevmet3.inmet.gov.br timed out. (connect timeout=30)'))",
+    "regra_seguranca": "Falha de coleta não é interpretada como ausência de chuva."
   },
   "investigacao_radarsc_128": {
     "status": "evidencia_textual_encontrada_para_revisao",
@@ -461,7 +519,7 @@
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
     "horario_ultimo_quadro": "2026-09-22T01:00:00-03:00",
-    "idade_ultimo_quadro_min": 9.2,
+    "idade_ultimo_quadro_min": 12.6,
     "dados_frescos": true,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -13631,7 +13689,7 @@
             "projecao_adiante_km": 236.64,
             "velocidade_recente_media_kmh": 46.2,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -13678,7 +13736,7 @@
             "projecao_adiante_km": -17.41,
             "velocidade_recente_media_kmh": 46.0,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -13725,7 +13783,7 @@
             "projecao_adiante_km": 187.43,
             "velocidade_recente_media_kmh": 54.2,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -13772,7 +13830,7 @@
             "projecao_adiante_km": -299.59,
             "velocidade_recente_media_kmh": 78.6,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -13819,7 +13877,7 @@
             "projecao_adiante_km": 297.79,
             "velocidade_recente_media_kmh": 47.7,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -13866,7 +13924,7 @@
             "projecao_adiante_km": 232.4,
             "velocidade_recente_media_kmh": 69.1,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -13913,7 +13971,7 @@
             "projecao_adiante_km": 202.31,
             "velocidade_recente_media_kmh": 41.9,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -13960,7 +14018,7 @@
             "projecao_adiante_km": 1.88,
             "velocidade_recente_media_kmh": 66.4,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -14007,7 +14065,7 @@
             "projecao_adiante_km": -265.26,
             "velocidade_recente_media_kmh": 51.8,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -14054,7 +14112,7 @@
             "projecao_adiante_km": -43.9,
             "velocidade_recente_media_kmh": 18.3,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -14101,7 +14159,7 @@
             "projecao_adiante_km": 299.05,
             "velocidade_recente_media_kmh": 50.4,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -14148,7 +14206,7 @@
             "projecao_adiante_km": 258.01,
             "velocidade_recente_media_kmh": 41.5,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -14195,7 +14253,7 @@
             "projecao_adiante_km": -72.92,
             "velocidade_recente_media_kmh": 63.8,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -14242,7 +14300,7 @@
             "projecao_adiante_km": 196.19,
             "velocidade_recente_media_kmh": 68.9,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -14289,7 +14347,7 @@
             "projecao_adiante_km": 319.55,
             "velocidade_recente_media_kmh": 72.5,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -14336,7 +14394,7 @@
             "projecao_adiante_km": 197.46,
             "velocidade_recente_media_kmh": 63.4,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -14383,7 +14441,7 @@
             "projecao_adiante_km": 134.68,
             "velocidade_recente_media_kmh": 75.4,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -14430,7 +14488,7 @@
             "projecao_adiante_km": 174.04,
             "velocidade_recente_media_kmh": 91.1,
             "radar_fresco": true,
-            "idade_radar_min": 9.2,
+            "idade_radar_min": 12.6,
             "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -14487,7 +14545,7 @@
           "projecao_adiante_km": 174.04,
           "velocidade_recente_media_kmh": 91.1,
           "radar_fresco": true,
-          "idade_radar_min": 9.2,
+          "idade_radar_min": 12.6,
           "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
           "criterios": {
             "minimo_transicoes": 3,
@@ -14539,7 +14597,7 @@
       "projecao_adiante_km": 174.04,
       "velocidade_recente_media_kmh": 91.1,
       "radar_fresco": true,
-      "idade_radar_min": 9.2,
+      "idade_radar_min": 12.6,
       "horario_ultimo_quadro": "2026-09-22T04:00:00+00:00",
       "criterios": {
         "minimo_transicoes": 3,

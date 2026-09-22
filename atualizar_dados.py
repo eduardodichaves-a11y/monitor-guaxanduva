@@ -5969,6 +5969,208 @@ def investigar_mapservices_cemaden_140(chuva_cemaden):
         return resultado
 
 
+
+# =========================================================
+# #141 - AUDITORIA DO JSON HORARIO / CEMADEN
+# =========================================================
+
+def auditar_json_horario_cemaden_141(chuva_cemaden):
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#141",
+        "tipo": "auditoria_json_horario_mapainterativows",
+        "fonte": "CEMADEN",
+        "estacao_solicitada": None,
+        "endpoint": None,
+        "parametro_horas_pagina": None,
+        "parametro_final_endpoint": None,
+        "http_status": None,
+        "content_type": None,
+        "bytes_resposta": None,
+        "chaves_raiz": [],
+        "metadados_estacao": None,
+        "datas": [],
+        "horarios": [],
+        "dimensoes_acumulados": None,
+        "amostra_acumulados": [],
+        "valores_numericos": {
+            "quantidade": 0,
+            "minimo": None,
+            "maximo": None,
+        },
+        "serie_temporal_integrada": False,
+        "publicacao_automatica": False,
+        "regra_seguranca": (
+            "A #141 consulta diretamente a rota horario descoberta no codigo "
+            "oficial do grafico CEMADEN, mas nao publica chuva recente. "
+            "Primeiro valida estrutura, unidade, janela e referencia temporal."
+        ),
+    }
+
+    try:
+        selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
+        idestacao = selecionada.get("id")
+        if idestacao is None:
+            resultado["status"] = "sem_estacao_selecionada"
+            return resultado
+
+        resultado["estacao_solicitada"] = {
+            "id": idestacao,
+            "codigo": selecionada.get("codigo"),
+            "nome": selecionada.get("nome"),
+            "uf": selecionada.get("uf"),
+        }
+
+        # O JS oficial usa:
+        # url = path + "horario/" + idEstacao + "/" + (horas - 1)
+        # A pagina define select_hr default como 24 + fuso.
+        # A #141 usa explicitamente 24 como janela de auditoria e envia 23.
+        horas = 24
+        parametro = horas - 1
+        resultado["parametro_horas_pagina"] = horas
+        resultado["parametro_final_endpoint"] = parametro
+
+        base = (
+            "https://mapservices.cemaden.gov.br/"
+            "MapaInterativoWS/resources/"
+        )
+        endpoint = (
+            base
+            + "horario/"
+            + str(idestacao)
+            + "/"
+            + str(parametro)
+        )
+        resultado["endpoint"] = endpoint
+
+        resposta = get(endpoint)
+        resultado["http_status"] = resposta.status_code
+        resultado["content_type"] = resposta.headers.get("Content-Type")
+        resultado["bytes_resposta"] = len(resposta.content)
+
+        dados = resposta.json()
+        if not isinstance(dados, dict):
+            raise ValueError(
+                "Endpoint horario respondeu JSON, mas a raiz nao e objeto."
+            )
+
+        resultado["chaves_raiz"] = sorted(str(k) for k in dados.keys())
+
+        estacao = dados.get("estacao")
+        if isinstance(estacao, dict):
+            rede = estacao.get("idRede")
+            resultado["metadados_estacao"] = {
+                "id": estacao.get("idEstacao") or estacao.get("id"),
+                "codigo": (
+                    estacao.get("codEstacao")
+                    or estacao.get("codigo")
+                    or estacao.get("codestacao")
+                ),
+                "nome": estacao.get("nome"),
+                "cidade": estacao.get("cidade"),
+                "uf": estacao.get("uf") or estacao.get("estado"),
+                "rede": rede if isinstance(rede, (str, int, float)) else (
+                    {
+                        "idRede": rede.get("idRede"),
+                        "sigla": rede.get("sigla"),
+                        "nome": rede.get("nome"),
+                    }
+                    if isinstance(rede, dict)
+                    else None
+                ),
+            }
+
+        datas = dados.get("datas")
+        horarios = dados.get("horarios")
+        acumulados = dados.get("acumulados")
+
+        if isinstance(datas, list):
+            resultado["datas"] = datas[:40]
+        if isinstance(horarios, list):
+            resultado["horarios"] = horarios[:80]
+
+        if isinstance(acumulados, list):
+            linhas = len(acumulados)
+            comprimentos = [
+                len(linha)
+                for linha in acumulados
+                if isinstance(linha, list)
+            ]
+            resultado["dimensoes_acumulados"] = {
+                "linhas": linhas,
+                "colunas_por_linha": comprimentos[:40],
+            }
+            resultado["amostra_acumulados"] = [
+                linha[:40] if isinstance(linha, list) else linha
+                for linha in acumulados[:8]
+            ]
+
+            numeros = []
+            for linha in acumulados:
+                itens = linha if isinstance(linha, list) else [linha]
+                for valor in itens:
+                    if isinstance(valor, (int, float)) and not isinstance(valor, bool):
+                        numeros.append(float(valor))
+                    elif isinstance(valor, str):
+                        try:
+                            numeros.append(float(valor.replace(",", ".")))
+                        except Exception:
+                            pass
+
+            resultado["valores_numericos"] = {
+                "quantidade": len(numeros),
+                "minimo": min(numeros) if numeros else None,
+                "maximo": max(numeros) if numeros else None,
+            }
+
+        campos_extras = {}
+        for chave, valor in dados.items():
+            if chave in ("estacao", "datas", "horarios", "acumulados"):
+                continue
+            if isinstance(valor, (str, int, float, bool)) or valor is None:
+                campos_extras[str(chave)] = valor
+            elif isinstance(valor, list):
+                campos_extras[str(chave)] = {
+                    "tipo": "lista",
+                    "quantidade": len(valor),
+                    "amostra": valor[:5],
+                }
+            elif isinstance(valor, dict):
+                campos_extras[str(chave)] = {
+                    "tipo": "objeto",
+                    "chaves": sorted(str(k) for k in valor.keys())[:40],
+                }
+        resultado["campos_extras"] = campos_extras
+
+        estrutura_minima = (
+            isinstance(datas, list)
+            and isinstance(horarios, list)
+            and isinstance(acumulados, list)
+        )
+        resultado["estrutura_minima_esperada"] = estrutura_minima
+
+        if estrutura_minima:
+            resultado["status"] = "json_horario_recebido_para_validacao"
+        else:
+            resultado["status"] = "json_recebido_estrutura_inesperada"
+
+        resultado["observacao"] = (
+            "A #141 confirma somente a estrutura bruta da rota horario. "
+            "Mesmo com valores numericos, eles permanecem diagnosticos ate "
+            "validarmos como datas, horarios e acumulados se combinam e qual "
+            "janela cada celula representa."
+        )
+        return resultado
+
+    except Exception as e:
+        resultado["erro"] = str(e)
+        resultado["observacao"] = (
+            "Falha da #141 nao altera o acumulado CEMADEN #136 nem os "
+            "diagnosticos #138-#140."
+        )
+        return resultado
+
+
 # =========================================================
 # #123 - CHUVA OBSERVADA / ESTAÇÃO INMET - RECUPERADA NA #128
 # =========================================================
@@ -6031,6 +6233,9 @@ def main():
 
         "investigacao_cemaden_140":
             investigar_mapservices_cemaden_140(chuva_cemaden),
+
+        "investigacao_cemaden_141":
+            auditar_json_horario_cemaden_141(chuva_cemaden),
  
         "chuva_observada_inmet":
             buscar_chuva_observada_inmet(),

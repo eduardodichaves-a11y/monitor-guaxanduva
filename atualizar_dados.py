@@ -6660,6 +6660,265 @@ def auditar_janelas_horarias_cemaden_143(chuva_cemaden):
         return resultado
 
 
+
+# =========================================================
+# #144 - CHUVA OBSERVADA CEMADEN / BLOCO OPERACIONAL SEGURO
+# =========================================================
+
+def chuva_observada_cemaden_144(chuva_cemaden):
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#144",
+        "tipo": "observacao_pluviometrica_horaria_estacao",
+        "fonte": "CEMADEN",
+        "fonte_primaria": "Centro Nacional de Monitoramento e Alertas de Desastres Naturais",
+        "estacao": None,
+        "1h_mm": None,
+        "6h_mm": None,
+        "24h_mm": None,
+        "horario_ultima_celula_utc": None,
+        "horario_ultima_celula_local": None,
+        "idade_leitura_min": None,
+        "dados_frescos": False,
+        "limite_frescor_min": 120,
+        "granularidade": "horaria",
+        "granularidade_10min_disponivel": False,
+        "representatividade": (
+            "Medição observada na estação CEMADEN selecionada. "
+            "Não equivale a medição no Comasa."
+        ),
+        "classificacao_risco_automatica": False,
+        "regra_seguranca": (
+            "Valor zero significa zero somente na estação e nas janelas "
+            "horárias informadas. Falha, atraso ou ausência de dado nunca "
+            "é convertida em 0 mm. O bloco não infere chuva no Comasa."
+        ),
+    }
+
+    try:
+        selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
+        idestacao = selecionada.get("id")
+        if idestacao is None:
+            resultado["status"] = "sem_estacao_selecionada"
+            return resultado
+
+        resultado["estacao"] = {
+            "id": idestacao,
+            "codigo": selecionada.get("codigo"),
+            "nome": selecionada.get("nome"),
+            "cidade": selecionada.get("cidade"),
+            "uf": selecionada.get("uf"),
+            "distancia_comasa_aprox_km": selecionada.get(
+                "distancia_comasa_aprox_km"
+            ),
+        }
+
+        base = (
+            "https://mapservices.cemaden.gov.br/"
+            "MapaInterativoWS/resources/horario/"
+        )
+
+        def extrair_janela(horas):
+            endpoint = base + str(idestacao) + "/" + str(horas - 1)
+            resposta = get(endpoint)
+            dados = resposta.json()
+
+            if not isinstance(dados, dict):
+                raise ValueError("Resposta CEMADEN horario sem objeto JSON.")
+
+            datas = dados.get("datas")
+            horarios = dados.get("horarios")
+            acumulados = dados.get("acumulados")
+
+            if not (
+                isinstance(datas, list)
+                and isinstance(horarios, list)
+                and isinstance(acumulados, list)
+            ):
+                raise ValueError(
+                    "Resposta CEMADEN sem datas/horarios/acumulados validos."
+                )
+
+            celulas = []
+            for i, data_txt in enumerate(datas):
+                if i >= len(acumulados) or not isinstance(acumulados[i], list):
+                    continue
+
+                linha = acumulados[i]
+
+                for j, hora_txt in enumerate(horarios):
+                    if j >= len(linha):
+                        continue
+
+                    valor = linha[j]
+                    if valor is None:
+                        continue
+
+                    try:
+                        numero = float(str(valor).replace(",", "."))
+                    except Exception:
+                        continue
+
+                    try:
+                        data_base = datetime.strptime(
+                            str(data_txt).strip(),
+                            "%d/%m/%Y",
+                        )
+                    except Exception:
+                        continue
+
+                    achado = re.search(r"(\d{1,2})", str(hora_txt))
+                    if not achado:
+                        continue
+
+                    hora = int(achado.group(1))
+                    if hora < 0 or hora > 23:
+                        continue
+
+                    instante_utc = data_base.replace(
+                        hour=hora,
+                        minute=0,
+                        second=0,
+                        microsecond=0,
+                        tzinfo=UTC,
+                    )
+
+                    celulas.append({
+                        "instante_utc": instante_utc,
+                        "valor_mm": numero,
+                    })
+
+            unicas = {
+                x["instante_utc"].isoformat(): x
+                for x in celulas
+            }
+            celulas = sorted(
+                unicas.values(),
+                key=lambda x: x["instante_utc"],
+            )
+
+            if len(celulas) != horas:
+                raise ValueError(
+                    "Janela de "
+                    + str(horas)
+                    + "h retornou "
+                    + str(len(celulas))
+                    + " celulas numericas."
+                )
+
+            for anterior, posterior in zip(celulas, celulas[1:]):
+                delta = (
+                    posterior["instante_utc"]
+                    - anterior["instante_utc"]
+                ).total_seconds() / 3600.0
+
+                if abs(delta - 1.0) > 1e-9:
+                    raise ValueError(
+                        "Janela CEMADEN sem continuidade horaria."
+                    )
+
+            return {
+                "horas": horas,
+                "endpoint": endpoint,
+                "celulas": celulas,
+                "soma_mm": round(
+                    sum(x["valor_mm"] for x in celulas),
+                    2,
+                ),
+                "ultima": celulas[-1],
+            }
+
+        janela_1 = extrair_janela(1)
+        janela_6 = extrair_janela(6)
+        janela_24 = extrair_janela(24)
+
+        ultima = janela_1["ultima"]
+
+        # Exige que todas as janelas terminem no mesmo instante.
+        if not (
+            janela_6["ultima"]["instante_utc"] == ultima["instante_utc"]
+            and janela_24["ultima"]["instante_utc"] == ultima["instante_utc"]
+        ):
+            raise ValueError(
+                "Janelas 1h/6h/24h nao terminam no mesmo instante."
+            )
+
+        idade = (
+            datetime.now(UTC) - ultima["instante_utc"]
+        ).total_seconds() / 60.0
+        idade = max(0.0, round(idade, 1))
+        fresco = idade <= resultado["limite_frescor_min"]
+
+        # A janela de 24h precisa continuar concordando com o produto
+        # independente 311_24 antes de ser promovida neste bloco.
+        produto_24 = (chuva_cemaden or {}).get("acumulado_24h_mm")
+        concorda_24 = False
+        diferenca_24 = None
+
+        if isinstance(produto_24, (int, float)):
+            diferenca_24 = round(
+                janela_24["soma_mm"] - float(produto_24),
+                2,
+            )
+            concorda_24 = abs(diferenca_24) <= 0.01
+
+        resultado["validacao_24h"] = {
+            "produto_311_24_mm": produto_24,
+            "soma_24_celulas_mm": janela_24["soma_mm"],
+            "diferenca_mm": diferenca_24,
+            "coincide_tolerancia_0_01_mm": concorda_24,
+        }
+
+        if not concorda_24:
+            resultado["status"] = "bloqueado_divergencia_24h"
+            resultado["observacao"] = (
+                "A janela horaria de 24h divergiu do produto 311_24; "
+                "1h/6h/24h permanecem indisponiveis no bloco operacional."
+            )
+            return resultado
+
+        resultado["1h_mm"] = janela_1["soma_mm"]
+        resultado["6h_mm"] = janela_6["soma_mm"]
+        resultado["24h_mm"] = janela_24["soma_mm"]
+        resultado["horario_ultima_celula_utc"] = (
+            ultima["instante_utc"].isoformat()
+        )
+        resultado["horario_ultima_celula_local"] = (
+            ultima["instante_utc"].astimezone(FUSO).isoformat()
+        )
+        resultado["idade_leitura_min"] = idade
+        resultado["dados_frescos"] = fresco
+        resultado["endpoints"] = {
+            "1h": janela_1["endpoint"],
+            "6h": janela_6["endpoint"],
+            "24h": janela_24["endpoint"],
+        }
+
+        resultado["status"] = (
+            "online_fresco_validado"
+            if fresco
+            else "online_desatualizado_validado"
+        )
+
+        resultado["observacao"] = (
+            "Bloco operacional baseado em janelas horarias coerentes "
+            "validadas nas #141-#143. O horario exibido e o rotulo temporal "
+            "da ultima celula fornecida pelo CEMADEN; a #144 nao afirma "
+            "se ele representa inicio ou fechamento do intervalo horario. "
+            "Granularidade de 10 minutos permanece indisponivel."
+        )
+
+        return resultado
+
+    except Exception as e:
+        resultado["erro"] = str(e)
+        resultado["observacao"] = (
+            "Falha da #144 mantem 1h/6h/24h indisponiveis; "
+            "nenhum valor ausente e convertido em zero."
+        )
+        return resultado
+
+
 # =========================================================
 # #123 - CHUVA OBSERVADA / ESTAÇÃO INMET - RECUPERADA NA #128
 # =========================================================
@@ -6731,6 +6990,9 @@ def main():
 
         "investigacao_cemaden_143":
             auditar_janelas_horarias_cemaden_143(chuva_cemaden),
+
+        "chuva_observada_cemaden_144":
+            chuva_observada_cemaden_144(chuva_cemaden),
  
         "chuva_observada_inmet":
             buscar_chuva_observada_inmet(),

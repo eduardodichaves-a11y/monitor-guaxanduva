@@ -7471,6 +7471,175 @@ def diagnosticar_wis2_inmet_149():
         resultado["erro"] = str(e)
         return resultado
 
+
+def diagnosticar_historico_cap_inmet_150():
+    """
+    #150 - Consulta o histórico de notificações do próprio WIS2 Node do INMET.
+
+    A API OGC do wis2box expõe a coleção 'messages'. Este diagnóstico tenta
+    recuperar notificações já publicadas, em vez de depender de uma nova
+    mensagem surgir durante poucos segundos de MQTT.
+
+    Nenhum resultado deste bloco altera o card operacional de granizo.
+    """
+    resultado = {
+        "status": "indisponivel",
+        "versao": "#150",
+        "fonte": "WIS2 Node oficial do INMET / wis2box OGC API",
+        "endpoint": (
+            "https://wis2bra.inmet.gov.br/oapi/"
+            "collections/messages/items"
+        ),
+        "http_status": None,
+        "quantidade_features": 0,
+        "quantidade_cap_candidatos": 0,
+        "amostras_cap": [],
+        "estrutura_primeira_feature": None,
+        "uso_operacional_granizo": False,
+        "regra_seguranca": (
+            "Este bloco apenas investiga notificacoes historicas do CAP. "
+            "Nao afirma alerta ativo, ausencia de alerta ou risco de granizo."
+        ),
+    }
+
+    try:
+        resposta = requests.get(
+            resultado["endpoint"],
+            params={
+                "f": "json",
+                "limit": 100,
+            },
+            timeout=(10, 20),
+            headers={
+                "User-Agent": "Monitor-Guaxanduva/1.0",
+                "Accept": "application/geo+json,application/json",
+            },
+        )
+        resultado["http_status"] = resposta.status_code
+        resposta.raise_for_status()
+        dados = resposta.json()
+
+        features = []
+        if isinstance(dados, dict):
+            bruto = dados.get("features")
+            if isinstance(bruto, list):
+                features = bruto
+
+        resultado["quantidade_features"] = len(features)
+
+        if features and isinstance(features[0], dict):
+            primeira = features[0]
+            props = primeira.get("properties")
+            resultado["estrutura_primeira_feature"] = {
+                "chaves_feature": sorted(
+                    str(k) for k in primeira.keys()
+                )[:50],
+                "chaves_properties": (
+                    sorted(str(k) for k in props.keys())[:80]
+                    if isinstance(props, dict)
+                    else []
+                ),
+                "id": primeira.get("id"),
+            }
+
+        candidatos = []
+
+        for feature in features:
+            if not isinstance(feature, dict):
+                continue
+
+            props = feature.get("properties")
+            if not isinstance(props, dict):
+                props = {}
+
+            # A estrutura pode variar por versão do wis2box. Para o
+            # diagnóstico, serializamos somente a feature corrente e
+            # procuramos o tópico/data_id oficial de advisories-warnings.
+            texto = json.dumps(
+                feature,
+                ensure_ascii=False,
+                separators=(",", ":"),
+            )
+            baixo = texto.lower()
+
+            if (
+                "br-inmet" in baixo
+                and "advisories-warnings" in baixo
+            ):
+                links = feature.get("links")
+                if not isinstance(links, list):
+                    links = props.get("links")
+                if not isinstance(links, list):
+                    links = []
+
+                links_seguros = []
+                for link in links:
+                    if not isinstance(link, dict):
+                        continue
+                    href = link.get("href")
+                    rel = link.get("rel")
+                    if (
+                        isinstance(href, str)
+                        and href.startswith(("https://", "http://"))
+                    ):
+                        links_seguros.append({
+                            "rel": rel,
+                            "href": href,
+                            "type": link.get("type"),
+                        })
+
+                candidatos.append({
+                    "id": feature.get("id"),
+                    "datetime": (
+                        props.get("datetime")
+                        or props.get("pubtime")
+                        or props.get("created")
+                    ),
+                    "data_id": props.get("data_id"),
+                    "topic": (
+                        props.get("topic")
+                        or props.get("channel")
+                    ),
+                    "links": links_seguros[:10],
+                    "chaves_properties": sorted(
+                        str(k) for k in props.keys()
+                    )[:80],
+                })
+
+        resultado["quantidade_cap_candidatos"] = len(candidatos)
+        resultado["amostras_cap"] = candidatos[:10]
+
+        if candidatos:
+            resultado["status"] = "historico_cap_encontrado"
+            resultado["observacao"] = (
+                "Foram encontradas notificacoes historicas relacionadas "
+                "ao topico CAP/advisories-warnings do INMET. O proximo passo "
+                "e validar e baixar um XML real pelos links publicados."
+            )
+        elif features:
+            resultado["status"] = "api_online_sem_cap_nas_100_features"
+            resultado["observacao"] = (
+                "A API oficial respondeu e retornou mensagens, mas nenhuma "
+                "das 100 features recuperadas pertenceu ao topico CAP. "
+                "Isso nao significa ausencia de alertas."
+            )
+        else:
+            resultado["status"] = "api_online_sem_features"
+            resultado["observacao"] = (
+                "A API oficial respondeu sem features nesta consulta. "
+                "Isso nao significa ausencia de alertas."
+            )
+
+        return resultado
+
+    except Exception as e:
+        resultado["erro"] = str(e)
+        resultado["observacao"] = (
+            "Falha no diagnostico historico #150. Nenhuma conclusao sobre "
+            "alerta de granizo e produzida a partir desta falha."
+        )
+        return resultado
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     dados = {
@@ -7535,6 +7704,8 @@ def main():
         "granizo": buscar_alerta_granizo_148(),
 
         "diagnostico_wis2_inmet_149": diagnosticar_wis2_inmet_149(),
+
+        "diagnostico_historico_cap_inmet_150": diagnosticar_historico_cap_inmet_150(),
  
         "emergencia": {
             "defesa_civil":

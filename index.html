@@ -126,6 +126,20 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <a href="https://mapainterativo.cemaden.gov.br/" target="_blank">ABRIR CEMADEN</a>
 </div>
 <div class="card">
+<div class="local">🌧️ REDE PLUVIOMÉTRICA MULTIFONTE • JOINVILLE • #165</div>
+<h2>Estações observacionais de chuva</h2>
+<div class="sub">CEMADEN • EPAGRI/CIRAM • ANA/SNIRH • Rede Municipal/Defesa Civil</div>
+<div class="radar-grid">
+<div class="radar-item">📍 Estações catalogadas<b id="rede165Total">--</b></div>
+<div class="radar-item">🟢 Com leitura disponível<b id="rede165Online">--</b></div>
+<div class="radar-item">🟡 Sem aquisição integrada<b id="rede165NaoIntegradas">--</b></div>
+<div class="radar-item">🛡️ Uso automático no risco?<b id="rede165Risco">NÃO</b></div>
+</div>
+<div id="rede165Estado" class="box aviso">Carregando rede pluviométrica #165...</div>
+<div id="rede165Estacoes" class="box"><small>Carregando estações...</small></div>
+<div class="box"><small><b>Regra de segurança:</b> cada pluviômetro representa seu próprio ponto. Leituras de estações diferentes não são somadas nem promediadas como se fossem chuva no Comasa. Valor ausente nunca é convertido em 0 mm. Fontes identificadas sem telemetria automática validada aparecem sem valor atual.</small></div>
+</div>
+<div class="card">
 <div class="local">🌊 OBSERVADO • EPAGRI/CIRAM • JOINVILLE/BABITONGA</div><h2>Maré observada</h2><div class="sub">Medição instrumental do marégrafo oficial • separada da tábua de maré prevista</div>
 <div class="mare-grid">
 <div class="mare-item">🌊 Nível observado<div class="mare-valor" id="mareObsNivel">--</div><div class="mare-hora" id="mareObsHora">--</div></div>
@@ -268,7 +282,7 @@ async function carregarHistorico(){
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
-  const d=await r.json(),c=d.chuva||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{};
+  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
 
@@ -345,6 +359,20 @@ async function carregar(){
   }else{
    $("cs").innerHTML='<span class="erro">🔴 CEMADEN indisponível nesta coleta</span>';
    $("cemadenNota").innerHTML='<small>'+(c.observacao||"Falha ou resposta não validada. Isso não significa ausência de chuva.")+'</small>';
+  }
+
+  $("rede165Total").textContent=r165.quantidade_estacoes==null?"--":String(r165.quantidade_estacoes);
+  $("rede165Online").textContent=r165.quantidade_com_leitura_atual==null?"--":String(r165.quantidade_com_leitura_atual);
+  $("rede165NaoIntegradas").textContent=r165.quantidade_sem_leitura_automatica_integrada==null?"--":String(r165.quantidade_sem_leitura_automatica_integrada);
+  $("rede165Risco").textContent=r165.uso_no_risco===true?"SIM":"NÃO";
+  const est165=Array.isArray(r165.estacoes)?[...r165.estacoes]:[];
+  const ordem165={CEMADEN:0,"EPAGRI/CIRAM":1,"ANA/SNIRH":2};
+  est165.sort((x,y)=>{const rx=ordem165[x.rede]??9,ry=ordem165[y.rede]??9;if(rx!==ry)return rx-ry;const ax=x.acumulado_24h_mm,ay=y.acumulado_24h_mm;if(ax==null&&ay!=null)return 1;if(ax!=null&&ay==null)return -1;if(ax!=null&&ay!=null&&Number(ax)!==Number(ay))return Number(ay)-Number(ax);return String(x.nome||"").localeCompare(String(y.nome||""))});
+  $("rede165Estacoes").innerHTML=est165.length?'<b>Rede catalogada pela #165</b><br><small>🟢 leitura disponível • ⚪ indisponível • 🟡 fonte identificada, ainda sem aquisição automática integrada</small>'+est165.map(e=>{const leitura=e.leitura_atual_disponivel===true&&e.acumulado_24h_mm!=null;const integrada=e.aquisicao_automatica_integrada===true;const icone=leitura?"🟢":(integrada?"⚪":"🟡");const valor=leitura?f(e.acumulado_24h_mm,2)+" mm":(integrada?"INDISPONÍVEL":"SEM LEITURA INTEGRADA");const codigo=e.codigo?" • "+String(e.codigo):"";const dist=e.distancia_comasa_aprox_km==null?"":(" • "+f(e.distancia_comasa_aprox_km,2)+" km da referência do Comasa");return '<div class="estacao-linha"><div><b>'+icone+' '+String(e.nome||"Estação")+'</b><div class="estacao-meta">'+String(e.rede||e.fonte||"fonte não informada")+codigo+dist+'</div></div><div class="estacao-mm">'+valor+'</div></div>'}).join(""):'<small>Rede #165 sem estações recebidas nesta coleta.</small>';
+  if(r165.versao==="#165"&&est165.length){
+   $("rede165Estado").innerHTML='<span class="ok">🟢 #165 RECEBIDA</span> • rede multifuente carregada • sem agregação espacial automática';
+  }else{
+   $("rede165Estado").innerHTML='<span class="aviso">⚪ #165 INDISPONÍVEL OU INCOMPLETA</span> • nenhuma ausência é interpretada como 0 mm';
   }
 
   $("mareObsNivel").textContent=mo.nivel_m==null?"--":f(mo.nivel_m,3)+" m";

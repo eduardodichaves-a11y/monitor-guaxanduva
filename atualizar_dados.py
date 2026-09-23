@@ -422,6 +422,95 @@ def buscar_previsao():
  
             return None
  
+        # =========================================================
+        # #162 - PREVISAO ACUMULADA • PROXIMAS 24 HORAS
+        # Janela movel baseada exclusivamente na serie horaria
+        # de precipitacao ja recebida do Open-Meteo.
+        # Nao alimenta classificacao automatica de risco nesta etapa.
+        # =========================================================
+
+        previsao_24h = {
+            "status": "indisponivel",
+            "fonte": "Open-Meteo",
+            "modelo": "Best Match",
+            "tipo": "previsao_horaria_acumulada",
+            "janela_horas": 24,
+            "inicio": None,
+            "fim": None,
+            "fim_exclusivo": None,
+            "horas_esperadas": 24,
+            "horas_validas": 0,
+            "precipitacao_acumulada_mm": None,
+            "integridade": False,
+            "uso_no_risco": False,
+            "observacao": (
+                "Janela movel das proximas 24 horas. "
+                "Nesta etapa, o valor e diagnostico e nao alimenta "
+                "classificacao automatica de risco."
+            ),
+        }
+
+        tempos_horarios = horario.get("time", [])
+        precipitacoes_horarias = horario.get("precipitation", [])
+
+        if indice is not None:
+            fim_indice = indice + 24
+            tempos_janela = tempos_horarios[indice:fim_indice]
+            precipitacoes_janela = precipitacoes_horarias[indice:fim_indice]
+
+            if tempos_janela:
+                previsao_24h["inicio"] = tempos_janela[0]
+                previsao_24h["fim"] = tempos_janela[-1]
+
+                try:
+                    fim_exclusivo = (
+                        datetime
+                        .fromisoformat(tempos_janela[0])
+                        .replace(tzinfo=FUSO)
+                        + timedelta(hours=24)
+                    )
+                    previsao_24h["fim_exclusivo"] = (
+                        fim_exclusivo.isoformat()
+                    )
+                except Exception:
+                    pass
+
+            valores_validos = []
+            serie_completa = (
+                len(tempos_janela) == 24
+                and len(precipitacoes_janela) == 24
+            )
+
+            if serie_completa:
+                for valor in precipitacoes_janela:
+                    try:
+                        if valor is None:
+                            raise ValueError("precipitacao ausente")
+                        numero = float(valor)
+                        if numero < 0:
+                            raise ValueError("precipitacao negativa")
+                        valores_validos.append(numero)
+                    except Exception:
+                        valores_validos = []
+                        break
+
+            previsao_24h["horas_validas"] = len(valores_validos)
+
+            if serie_completa and len(valores_validos) == 24:
+                previsao_24h["status"] = "online_completo"
+                previsao_24h["precipitacao_acumulada_mm"] = round(
+                    sum(valores_validos),
+                    2,
+                )
+                previsao_24h["integridade"] = True
+            else:
+                previsao_24h["status"] = "janela_incompleta"
+                previsao_24h["observacao"] = (
+                    "Nao foi possivel formar 24 intervalos horarios "
+                    "validos consecutivos. Ausencia de dados nao e "
+                    "interpretada como 0 mm."
+                )
+
         dias = []
  
         for i, data in enumerate(
@@ -575,6 +664,9 @@ def buscar_previsao():
                     ),
             },
  
+            "proximas_24h":
+                previsao_24h,
+
             "proximos_7_dias":
                 dias,
         }

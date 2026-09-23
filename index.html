@@ -126,6 +126,22 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <a href="https://mapainterativo.cemaden.gov.br/" target="_blank">ABRIR CEMADEN</a>
 </div>
 <div class="card">
+<div class="local">🌊 OBSERVADO • EPAGRI/CIRAM • JOINVILLE/BABITONGA</div><h2>Maré observada</h2><div class="sub">Medição instrumental do marégrafo oficial • separada da tábua de maré prevista</div>
+<div class="mare-grid">
+<div class="mare-item">🌊 Nível observado<div class="mare-valor" id="mareObsNivel">--</div><div class="mare-hora" id="mareObsHora">--</div></div>
+<div class="mare-item">⏱️ Idade da leitura<div class="mare-valor" id="mareObsIdade">--</div><div class="mare-hora" id="mareObsFrescor">--</div></div>
+</div>
+<div class="radar-grid">
+<div class="radar-item">📐 Maré astronômica<b id="mareObsAstronomica">--</b></div>
+<div class="radar-item">↕️ Residual observado<b id="mareObsResidual">--</b></div>
+<div class="radar-item">📏 NMM<b id="mareObsNmm">--</b></div>
+<div class="radar-item">🧪 Validação aritmética<b id="mareObsValidacao">--</b></div>
+</div>
+<div id="mareObsEstado" class="box aviso">Carregando maré observada...</div>
+<div class="box"><b>Fonte:</b> EPAGRI/CIRAM<br><small>OBSERVADO em Joinville/Babitonga. Não é nível do Rio Guaxanduva e, nesta etapa, não entra automaticamente no painel de risco.</small></div>
+<a href="https://ciram.epagri.sc.gov.br/index.php/maregrafos/" target="_blank">ABRIR EPAGRI/CIRAM</a>
+</div>
+<div class="card">
 <div class="local">🌊 MARÉ PREVISTA</div><h2>Joinville • Babitonga</h2><div class="sub">Tábua de maré • extremos previstos</div>
 <div class="mare-grid">
 <div class="mare-item">⬅️ Último extremo<div class="mare-valor" id="mareAnterior">--</div><div class="mare-hora" id="mareAnteriorHora">--</div></div>
@@ -240,7 +256,7 @@ async function carregarHistorico(){
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
-  const d=await r.json(),c=d.chuva||{},m=d.mare||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{};
+  const d=await r.json(),c=d.chuva||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
 
@@ -317,6 +333,22 @@ async function carregar(){
   }else{
    $("cs").innerHTML='<span class="erro">🔴 CEMADEN indisponível nesta coleta</span>';
    $("cemadenNota").innerHTML='<small>'+(c.observacao||"Falha ou resposta não validada. Isso não significa ausência de chuva.")+'</small>';
+  }
+
+  $("mareObsNivel").textContent=mo.nivel_m==null?"--":f(mo.nivel_m,3)+" m";
+  $("mareObsHora").textContent=mo.horario?dataHoraBR(mo.horario):"--";
+  $("mareObsIdade").textContent=mo.idade_min==null?"--":f(mo.idade_min,1)+" min";
+  $("mareObsFrescor").textContent=mo.frescor==="atual"?"LEITURA ATUAL":(mo.frescor==="atrasado"?"LEITURA ATRASADA":"--");
+  $("mareObsAstronomica").textContent=mo.mare_astronomica_cm==null?"--":f(mo.mare_astronomica_cm,1)+" cm";
+  $("mareObsResidual").textContent=mo.residual_cm==null?"--":f(mo.residual_cm,1)+" cm";
+  $("mareObsNmm").textContent=mo.nmm_cm==null?"--":f(mo.nmm_cm,1)+" cm";
+  $("mareObsValidacao").textContent=mo.residual_aritmetica_validada===true?"VALIDADA":(mo.residual_aritmetica_validada===false?"DIVERGENTE":"--");
+  if(mo.status==="observado_disponivel"){
+   $("mareObsEstado").innerHTML='<span class="ok">🟢 OBSERVADO • EPAGRI/CIRAM • leitura disponível</span>';
+  }else if(mo.status==="observado_atrasado"){
+   $("mareObsEstado").innerHTML='<span class="aviso">🟡 OBSERVADO • EPAGRI/CIRAM • leitura atrasada</span>';
+  }else{
+   $("mareObsEstado").innerHTML='<span class="erro">🔴 INDISPONÍVEL • maré observada não recebida</span>';
   }
 
   const ma=m.anterior||null,mp=m.proximo||null;

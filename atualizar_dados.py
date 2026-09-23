@@ -42,6 +42,13 @@ MARE = (
     "ciram_arquivos/oceano/tabuamare/csv/"
     "Tabua_Mare_Joinville.csv"
 )
+
+# #160 - Marégrafo observado oficial EPAGRI/CIRAM para Joinville.
+# Esta série é de maré em Joinville/Babitonga e NÃO mede o Rio Guaxanduva.
+MAREGRAFO_JOINVILLE = (
+    "https://ciram.epagri.sc.gov.br/"
+    "graficos/getDataMare11_2913.php"
+)
  
 RADAR = "https://sifap.defesacivil.sc.gov.br/radarsc/"
 LISTA = RADAR + "rest/radar/getUltimasImagens"
@@ -711,6 +718,163 @@ def buscar_mare():
         }
  
  
+# =========================================================
+# #160 - MARÉ OBSERVADA • JOINVILLE / BABITONGA • EPAGRI/CIRAM
+# =========================================================
+
+def _numero_maregrafo_160(valor):
+    """Converte números do DataTable; 'null' textual e nulo viram None."""
+    if valor is None:
+        return None
+    texto = str(valor).strip()
+    if not texto or texto.lower() in {"null", "none", "nan"}:
+        return None
+    try:
+        return float(texto.replace(",", "."))
+    except Exception:
+        return None
+
+
+def _momento_maregrafo_160(rotulo, referencia):
+    """Interpreta DD/MM HH:MM escolhendo o ano mais próximo da coleta."""
+    texto = str(rotulo or "").strip()
+    base = datetime.strptime(texto, "%d/%m %H:%M")
+    candidatos = []
+    for ano in (referencia.year - 1, referencia.year, referencia.year + 1):
+        try:
+            candidatos.append(
+                datetime(
+                    ano, base.month, base.day, base.hour, base.minute,
+                    tzinfo=FUSO,
+                )
+            )
+        except ValueError:
+            continue
+    if not candidatos:
+        raise ValueError("Data/hora inválida no marégrafo: " + texto)
+    return min(candidatos, key=lambda dt: abs((dt - referencia).total_seconds()))
+
+
+def buscar_mare_observada_joinville_160():
+    """Lê o último valor observado não nulo do marégrafo oficial de Joinville.
+
+    A página oficial da EPAGRI/CIRAM associa este endpoint ao gráfico de
+    Joinville e define a unidade vertical como cm. O bloco permanece separado
+    do Rio Guaxanduva: não é sensor fluvial e não altera o risco operacional.
+    """
+    resultado = {
+        "status": "indisponivel",
+        "fonte": "EPAGRI/CIRAM",
+        "tipo": "mare_observada",
+        "local": "Joinville / Babitonga",
+        "unidade": "cm",
+        "url_fonte": MAREGRAFO_JOINVILLE,
+        "nivel_cm": None,
+        "nivel_m": None,
+        "mare_astronomica_cm": None,
+        "residual_cm": None,
+        "nmm_cm": None,
+        "horario": None,
+        "idade_min": None,
+        "frescor": "indisponivel",
+        "residual_aritmetica_validada": None,
+        "uso_no_risco": False,
+        "observacao": (
+            "Medição de maré em Joinville/Babitonga; não é nível do "
+            "Rio Guaxanduva e não entra automaticamente no painel de risco."
+        ),
+    }
+
+    try:
+        resposta = get(MAREGRAFO_JOINVILLE)
+        payload = resposta.json()
+        colunas = payload.get("cols") or []
+        linhas = payload.get("rows") or []
+
+        rotulos = [str(c.get("label") or "").strip() for c in colunas]
+        esperados = [
+            "Topping",
+            "Mare Obser. (MO)",
+            "Mare Astron (MA)",
+            "Mare Residual (MA-MO)",
+            "Previsao MohidSC",
+            "Mare Residual Prevista",
+            "NMM",
+        ]
+        resultado["colunas_recebidas"] = rotulos
+        resultado["estrutura_validada"] = rotulos[:7] == esperados
+        if not resultado["estrutura_validada"]:
+            raise ValueError("Estrutura inesperada no DataTable do marégrafo")
+
+        atual = agora()
+        observacoes = []
+        for linha in linhas:
+            celulas = linha.get("c") or []
+            if len(celulas) < 7:
+                continue
+            valores = [c.get("v") if isinstance(c, dict) else None for c in celulas[:7]]
+            nivel = _numero_maregrafo_160(valores[1])
+            if nivel is None:
+                continue
+            try:
+                momento = _momento_maregrafo_160(valores[0], atual)
+            except Exception:
+                continue
+            observacoes.append({
+                "momento": momento,
+                "nivel_cm": nivel,
+                "mare_astronomica_cm": _numero_maregrafo_160(valores[2]),
+                "residual_cm": _numero_maregrafo_160(valores[3]),
+                "nmm_cm": _numero_maregrafo_160(valores[6]),
+            })
+
+        if not observacoes:
+            raise ValueError("Nenhuma observação de maré não nula encontrada")
+
+        # Não seleciona um ponto futuro como observação atual por erro de relógio/dado.
+        passadas = [o for o in observacoes if o["momento"] <= atual + timedelta(minutes=5)]
+        ultimo = max(passadas or observacoes, key=lambda o: o["momento"])
+        idade_min = max(0.0, (atual - ultimo["momento"]).total_seconds() / 60.0)
+
+        astronomica = ultimo["mare_astronomica_cm"]
+        residual = ultimo["residual_cm"]
+        validacao = None
+        erro_residual = None
+        if astronomica is not None and residual is not None:
+            calculado = ultimo["nivel_cm"] - astronomica
+            erro_residual = abs(calculado - residual)
+            validacao = erro_residual <= 0.2
+
+        # A série observada é de 15 min. Até 90 min é apresentada como atual;
+        # acima disso o valor permanece disponível, mas explicitamente atrasado.
+        if idade_min <= 90:
+            status = "observado_disponivel"
+            frescor = "atual"
+        else:
+            status = "observado_atrasado"
+            frescor = "atrasado"
+
+        resultado.update({
+            "status": status,
+            "nivel_cm": round(ultimo["nivel_cm"], 2),
+            "nivel_m": round(ultimo["nivel_cm"] / 100.0, 3),
+            "mare_astronomica_cm": astronomica,
+            "residual_cm": residual,
+            "nmm_cm": ultimo["nmm_cm"],
+            "horario": ultimo["momento"].isoformat(),
+            "idade_min": round(idade_min, 1),
+            "frescor": frescor,
+            "residual_aritmetica_validada": validacao,
+            "erro_residual_cm": None if erro_residual is None else round(erro_residual, 3),
+            "quantidade_observacoes_validas": len(observacoes),
+        })
+        return resultado
+
+    except Exception as e:
+        resultado["erro"] = str(e)
+        return resultado
+
+
 # =========================================================
 # #128 - INVESTIGAÇÃO DOCUMENTAL DO RADARSC
 # =========================================================
@@ -9262,6 +9426,9 @@ def main():
  
         "mare":
             buscar_mare(),
+
+        "mare_observada_joinville_160":
+            buscar_mare_observada_joinville_160(),
  
         "rio": {
             "nome":

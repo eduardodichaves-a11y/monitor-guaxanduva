@@ -9587,8 +9587,166 @@ def calcular_pico_mare_previsto_24h_164(previsao):
         resultado["observacao"] = "Falha ao obter ou interpretar a tabua de mare EPAGRI/CIRAM. A #164 permanece inconclusiva e nao substitui ausencia por zero."
         return resultado
 
+# =========================================================
+# #165 - REDE PLUVIOMETRICA MULTIFONTE • JOINVILLE
+# Camada observacional: preserva cada estacao como ponto independente.
+# Nesta etapa, somente leituras automaticas ja comprovadas entram como atuais.
+# Ausencia, falha ou valor nulo nunca e convertido em 0 mm.
+# =========================================================
+
+def construir_rede_pluviometrica_multifonte_165(chuva_cemaden):
+    resultado = {
+        "status": "inventario_multifonte_com_dados_parciais",
+        "versao": "#165",
+        "tipo": "rede_pluviometrica_multifonte_joinville",
+        "municipio": "Joinville/SC",
+        "referencia": "Comasa - coordenada publica aproximada",
+        "coordenada_referencia": {"latitude": LAT, "longitude": LON},
+        "estacoes": [],
+        "fontes": [],
+        "quantidade_estacoes": 0,
+        "quantidade_com_leitura_atual": 0,
+        "quantidade_sem_leitura_automatica_integrada": 0,
+        "uso_no_risco": False,
+        "classificacao_risco_automatica": False,
+        "regra_seguranca": (
+            "Cada pluviometro representa seu proprio ponto. Leituras de estacoes "
+            "diferentes nao sao somadas, promediadas nem tratadas como medicao no "
+            "Comasa. Ausencia, falha ou valor nulo nunca e convertido em 0 mm."
+        ),
+        "observacao": (
+            "A #165 nasce como camada observacional multifuente. Nesta versao, "
+            "somente a rede CEMADEN possui aquisicao automatica publica integrada. "
+            "EPAGRI/CIRAM, ANA/SNIRH e Rede Municipal/Defesa Civil permanecem "
+            "identificadas sem publicar milimetros atuais ate existir canal "
+            "automatico publico comprovado e validado."
+        ),
+    }
+
+    estacoes_cemaden = (
+        chuva_cemaden.get("estacoes_joinville_ativas", [])
+        if isinstance(chuva_cemaden, dict) else []
+    )
+    if not isinstance(estacoes_cemaden, list):
+        estacoes_cemaden = []
+
+    for estacao in estacoes_cemaden:
+        if not isinstance(estacao, dict):
+            continue
+        disponivel = (
+            estacao.get("acumulado_disponivel") is True
+            and isinstance(estacao.get("acumulado_24h_mm"), (int, float))
+            and not isinstance(estacao.get("acumulado_24h_mm"), bool)
+            and estacao.get("acumulado_24h_mm") >= 0
+        )
+        resultado["estacoes"].append({
+            "nome": estacao.get("nome"),
+            "fonte": "CEMADEN",
+            "rede": "CEMADEN",
+            "codigo": estacao.get("codigo"),
+            "id": estacao.get("id"),
+            "latitude": estacao.get("latitude"),
+            "longitude": estacao.get("longitude"),
+            "distancia_comasa_aprox_km": estacao.get("distancia_comasa_aprox_km"),
+            "janela_acumulado_h": 24,
+            "acumulado_24h_mm": estacao.get("acumulado_24h_mm") if disponivel else None,
+            "leitura_atual_disponivel": disponivel,
+            "aquisicao_automatica_integrada": True,
+            "status": "online" if disponivel else "indisponivel",
+            "equivale_medicao_no_comasa": False,
+        })
+
+    # EPAGRI/CIRAM: estacao automatica identificada, sem endpoint publico
+    # pluviometrico validado no Monitor nesta etapa. Nao presumimos que
+    # o codigo 2382 seja a mesma estacao ANA 02648033.
+    resultado["estacoes"].append({
+        "nome": "Joinville - Pirabeiraba",
+        "fonte": "EPAGRI/CIRAM",
+        "rede": "EPAGRI/CIRAM",
+        "codigo": "2382",
+        "latitude": None,
+        "longitude": None,
+        "distancia_comasa_aprox_km": None,
+        "janela_acumulado_h": None,
+        "acumulado_24h_mm": None,
+        "leitura_atual_disponivel": False,
+        "aquisicao_automatica_integrada": False,
+        "status": "fonte_identificada_sem_endpoint_publico_validado",
+        "equivale_medicao_no_comasa": False,
+        "observacao": (
+            "Estacao automatica identificada em publicacoes operacionais da EPAGRI. "
+            "A #165 nao presume equivalencia com a estacao ANA 02648033 e nao "
+            "publica chuva atual sem endpoint operacional validado."
+        ),
+    })
+
+    # ANA/SNIRH: inventario historico. Nao e telemetria atual nesta versao.
+    inventario_ana = [
+        ("Joinville/RVPSC", "02648014"),
+        ("Ponte SC-301", "02648028"),
+        ("Pirabeiraba", "02648033"),
+        ("Estrada dos Morros", "02648034"),
+        ("Primeiro Salto do Cubatao", "02649060"),
+    ]
+    for nome, codigo in inventario_ana:
+        resultado["estacoes"].append({
+            "nome": nome,
+            "fonte": "ANA/SNIRH - inventario historico citado no PMGRD Joinville 2026",
+            "rede": "ANA/SNIRH",
+            "codigo": codigo,
+            "latitude": None,
+            "longitude": None,
+            "distancia_comasa_aprox_km": None,
+            "janela_acumulado_h": None,
+            "acumulado_24h_mm": None,
+            "leitura_atual_disponivel": False,
+            "aquisicao_automatica_integrada": False,
+            "status": "estacao_identificada_sem_telemetria_atual_integrada",
+            "equivale_medicao_no_comasa": False,
+        })
+
+    resultado["fontes"] = [
+        {
+            "fonte": "CEMADEN",
+            "status_integracao": "automatica_integrada",
+            "endpoint": CEMADEN_PLUV_24H,
+        },
+        {
+            "fonte": "EPAGRI/CIRAM",
+            "status_integracao": "estacoes_identificadas_sem_endpoint_pluviometrico_publico_validado",
+            "endpoint": None,
+        },
+        {
+            "fonte": "ANA/SNIRH",
+            "status_integracao": "inventario_historico_identificado_sem_telemetria_atual_integrada",
+            "endpoint": None,
+        },
+        {
+            "fonte": "Prefeitura de Joinville / Defesa Civil",
+            "status_integracao": "rede_identificada_sem_endpoint_publico_automatico_validado",
+            "endpoint": None,
+        },
+    ]
+
+    resultado["quantidade_estacoes"] = len(resultado["estacoes"])
+    resultado["quantidade_com_leitura_atual"] = sum(
+        1 for e in resultado["estacoes"]
+        if e.get("leitura_atual_disponivel") is True
+    )
+    resultado["quantidade_sem_leitura_automatica_integrada"] = sum(
+        1 for e in resultado["estacoes"]
+        if e.get("aquisicao_automatica_integrada") is not True
+    )
+
+    if not estacoes_cemaden:
+        resultado["status"] = "inventario_multifonte_sem_dados_automaticos_disponiveis"
+
+    return resultado
+
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
+    rede165 = construir_rede_pluviometrica_multifonte_165(chuva_cemaden)
     diag155 = diagnosticar_cap_recente_inmet_155()
     diag156 = diagnosticar_conteudo_cap_inmet_156(diag155)
     granizo157 = granizo_operacional_inmet_157(diag156)
@@ -9608,6 +9766,9 @@ def main():
  
         "chuva":
             chuva_cemaden,
+
+        "rede_pluviometrica_multifonte_165":
+            rede165,
  
         "investigacao_cemaden_138":
             investigar_serie_cemaden_138(chuva_cemaden),

@@ -42,7 +42,7 @@ MARE = (
     "ciram_arquivos/oceano/tabuamare/csv/"
     "Tabua_Mare_Joinville.csv"
 )
-
+ 
 # #160 - Marégrafo observado oficial EPAGRI/CIRAM para Joinville.
 # Esta série é de maré em Joinville/Babitonga e NÃO mede o Rio Guaxanduva.
 MAREGRAFO_JOINVILLE = (
@@ -428,7 +428,7 @@ def buscar_previsao():
         # de precipitacao ja recebida do Open-Meteo.
         # Nao alimenta classificacao automatica de risco nesta etapa.
         # =========================================================
-
+ 
         previsao_24h = {
             "status": "indisponivel",
             "fonte": "Open-Meteo",
@@ -449,19 +449,19 @@ def buscar_previsao():
                 "classificacao automatica de risco."
             ),
         }
-
+ 
         tempos_horarios = horario.get("time", [])
         precipitacoes_horarias = horario.get("precipitation", [])
-
+ 
         if indice is not None:
             fim_indice = indice + 24
             tempos_janela = tempos_horarios[indice:fim_indice]
             precipitacoes_janela = precipitacoes_horarias[indice:fim_indice]
-
+ 
             if tempos_janela:
                 previsao_24h["inicio"] = tempos_janela[0]
                 previsao_24h["fim"] = tempos_janela[-1]
-
+ 
                 try:
                     fim_exclusivo = (
                         datetime
@@ -474,13 +474,13 @@ def buscar_previsao():
                     )
                 except Exception:
                     pass
-
+ 
             valores_validos = []
             serie_completa = (
                 len(tempos_janela) == 24
                 and len(precipitacoes_janela) == 24
             )
-
+ 
             if serie_completa:
                 for valor in precipitacoes_janela:
                     try:
@@ -493,9 +493,9 @@ def buscar_previsao():
                     except Exception:
                         valores_validos = []
                         break
-
+ 
             previsao_24h["horas_validas"] = len(valores_validos)
-
+ 
             if serie_completa and len(valores_validos) == 24:
                 previsao_24h["status"] = "online_completo"
                 previsao_24h["precipitacao_acumulada_mm"] = round(
@@ -510,7 +510,7 @@ def buscar_previsao():
                     "validos consecutivos. Ausencia de dados nao e "
                     "interpretada como 0 mm."
                 )
-
+ 
         dias = []
  
         for i, data in enumerate(
@@ -666,7 +666,7 @@ def buscar_previsao():
  
             "proximas_24h":
                 previsao_24h,
-
+ 
             "proximos_7_dias":
                 dias,
         }
@@ -813,7 +813,7 @@ def buscar_mare():
 # =========================================================
 # #160 - MARÉ OBSERVADA • JOINVILLE / BABITONGA • EPAGRI/CIRAM
 # =========================================================
-
+ 
 def _numero_maregrafo_160(valor):
     """Converte números do DataTable; 'null' textual e nulo viram None."""
     if valor is None:
@@ -825,8 +825,8 @@ def _numero_maregrafo_160(valor):
         return float(texto.replace(",", "."))
     except Exception:
         return None
-
-
+ 
+ 
 def _momento_maregrafo_160(rotulo, referencia):
     """Interpreta DD/MM HH:MM escolhendo o ano mais próximo da coleta."""
     texto = str(rotulo or "").strip()
@@ -845,11 +845,11 @@ def _momento_maregrafo_160(rotulo, referencia):
     if not candidatos:
         raise ValueError("Data/hora inválida no marégrafo: " + texto)
     return min(candidatos, key=lambda dt: abs((dt - referencia).total_seconds()))
-
-
+ 
+ 
 def buscar_mare_observada_joinville_160():
     """Lê o último valor observado não nulo do marégrafo oficial de Joinville.
-
+ 
     A página oficial da EPAGRI/CIRAM associa este endpoint ao gráfico de
     Joinville e define a unidade vertical como cm. O bloco permanece separado
     do Rio Guaxanduva: não é sensor fluvial e não altera o risco operacional.
@@ -876,13 +876,13 @@ def buscar_mare_observada_joinville_160():
             "Rio Guaxanduva e não entra automaticamente no painel de risco."
         ),
     }
-
+ 
     try:
         resposta = get(MAREGRAFO_JOINVILLE)
         payload = resposta.json()
         colunas = payload.get("cols") or []
         linhas = payload.get("rows") or []
-
+ 
         rotulos = [str(c.get("label") or "").strip() for c in colunas]
         esperados = [
             "Topping",
@@ -897,7 +897,7 @@ def buscar_mare_observada_joinville_160():
         resultado["estrutura_validada"] = rotulos[:7] == esperados
         if not resultado["estrutura_validada"]:
             raise ValueError("Estrutura inesperada no DataTable do marégrafo")
-
+ 
         atual = agora()
         observacoes = []
         for linha in linhas:
@@ -919,15 +919,15 @@ def buscar_mare_observada_joinville_160():
                 "residual_cm": _numero_maregrafo_160(valores[3]),
                 "nmm_cm": _numero_maregrafo_160(valores[6]),
             })
-
+ 
         if not observacoes:
             raise ValueError("Nenhuma observação de maré não nula encontrada")
-
+ 
         # Não seleciona um ponto futuro como observação atual por erro de relógio/dado.
         passadas = [o for o in observacoes if o["momento"] <= atual + timedelta(minutes=5)]
         ultimo = max(passadas or observacoes, key=lambda o: o["momento"])
         idade_min = max(0.0, (atual - ultimo["momento"]).total_seconds() / 60.0)
-
+ 
         astronomica = ultimo["mare_astronomica_cm"]
         residual = ultimo["residual_cm"]
         validacao = None
@@ -936,7 +936,7 @@ def buscar_mare_observada_joinville_160():
             calculado = ultimo["nivel_cm"] - astronomica
             erro_residual = abs(calculado - residual)
             validacao = erro_residual <= 0.2
-
+ 
         # A série observada é de 15 min. Até 90 min é apresentada como atual;
         # acima disso o valor permanece disponível, mas explicitamente atrasado.
         if idade_min <= 90:
@@ -945,7 +945,7 @@ def buscar_mare_observada_joinville_160():
         else:
             status = "observado_atrasado"
             frescor = "atrasado"
-
+ 
         resultado.update({
             "status": status,
             "nivel_cm": round(ultimo["nivel_cm"], 2),
@@ -961,12 +961,12 @@ def buscar_mare_observada_joinville_160():
             "quantidade_observacoes_validas": len(observacoes),
         })
         return resultado
-
+ 
     except Exception as e:
         resultado["erro"] = str(e)
         return resultado
-
-
+ 
+ 
 # =========================================================
 # #128 - INVESTIGAÇÃO DOCUMENTAL DO RADARSC
 # =========================================================
@@ -9347,11 +9347,11 @@ def diagnosticar_conteudo_cap_inmet_156(diag155=None):
     return resultado
  
  
-
-
+ 
+ 
 def granizo_operacional_inmet_157(diag156=None):
     """#157 - Publica somente alerta positivo de granizo validado pelo CAP INMET.
-
+ 
     Regra conservadora: um candidato ativo precisa reunir, no mesmo CAP,
     menção explícita a granizo/hail, cobertura da referência pública de
     Joinville/Comasa, vigência temporal, status Actual, scope Public e
@@ -9377,20 +9377,20 @@ def granizo_operacional_inmet_157(diag156=None):
             "nao significa granizo observado ou caindo no Comasa."
         ),
     }
-
+ 
     if not isinstance(diag156, dict):
         resultado["status"] = "indisponivel_sem_diagnostico_156"
         return resultado
-
+ 
     if diag156.get("status") != "cap_recente_decodificado":
         resultado["status"] = "indisponivel_cap_recente_nao_decodificado"
         return resultado
-
+ 
     alertas = diag156.get("alertas")
     if not isinstance(alertas, list):
         resultado["status"] = "indisponivel_lista_alertas_invalida"
         return resultado
-
+ 
     candidatos = []
     for alerta in alertas:
         if not isinstance(alerta, dict):
@@ -9403,7 +9403,7 @@ def granizo_operacional_inmet_157(diag156=None):
             continue
         if str(alerta.get("msgType") or "").lower() in {"cancel", "error"}:
             continue
-
+ 
         infos_validas = []
         for info in alerta.get("infos") or []:
             if not isinstance(info, dict):
@@ -9417,10 +9417,10 @@ def granizo_operacional_inmet_157(diag156=None):
             if "granizo" not in texto and re.search(r"\bhail\b", texto) is None:
                 continue
             infos_validas.append(info)
-
+ 
         if infos_validas:
             candidatos.append((alerta, infos_validas))
-
+ 
     if not candidatos:
         resultado["status"] = "online_sem_conclusao_negativa"
         resultado["ativo"] = None
@@ -9431,7 +9431,7 @@ def granizo_operacional_inmet_157(diag156=None):
             "autoriza publicar 'sem alerta de granizo'."
         )
         return resultado
-
+ 
     # Havendo mais de um candidato, prioriza o CAP enviado mais recentemente.
     def momento_enviado(item):
         alerta = item[0]
@@ -9442,10 +9442,10 @@ def granizo_operacional_inmet_157(diag156=None):
             return dt.astimezone(UTC)
         except Exception:
             return datetime(1970, 1, 1, tzinfo=UTC)
-
+ 
     alerta, infos = sorted(candidatos, key=momento_enviado, reverse=True)[0]
     info = infos[0]
-
+ 
     resultado["status"] = "alerta_ativo_confirmado"
     resultado["ativo"] = True
     resultado["cobertura_referencia_publica_comasa"] = True
@@ -9470,12 +9470,142 @@ def granizo_operacional_inmet_157(diag156=None):
         "url_xml": alerta.get("url"),
     }
     return resultado
-
+ 
+ 
+# =========================================================
+# #163 - CRITERIO HIDROMETEOROLOGICO CALCULADO • PLANCON
+# Diagnostico independente do acionamento oficial da Defesa Civil.
+# Usa a previsao movel #162 e a mare observada EPAGRI/CIRAM #160.
+# =========================================================
+ 
+def calcular_criterio_hidrometeorologico_plancon_163(previsao, mare_observada):
+    resultado = {
+        "status": "inconclusivo",
+        "versao": "#163",
+        "tipo": "correspondencia_criterios_hidrologicos_plancon",
+        "fonte_normativa": (
+            "PMGRD/PLANCON Joinville 2026 - Quadro 4.4.2-1 "
+            "(riscos de desastres hidrologicos)"
+        ),
+        "classificacao_calculada": "inconclusivo",
+        "plancon_oficial": False,
+        "uso_como_plancon_oficial": False,
+        "entradas": {
+            "chuva_prevista_24h_mm": None,
+            "chuva_24h_integra": False,
+            "mare_observada_m": None,
+            "mare_observada_fresca": False,
+            "mare_fonte": "EPAGRI/CIRAM",
+        },
+        "criterios": {
+            "mobilizacao_chuva_superior_20mm_24h": None,
+            "mobilizacao_ocorrencia_confirmada": None,
+            "atencao_chuva_superior_50mm_e_mare_desde_1_5m": None,
+            "alerta_chuva_superior_50mm_e_mare_desde_1_8m": None,
+            "alerta_chuva_superior_80mm_e_mare_desde_1_5m": None,
+            "crise": None,
+        },
+        "limitacoes": [
+            (
+                "Mobilizacao no Quadro 4.4.2-1 tambem exige a deflagracao "
+                "de uma ou mais ocorrencias; o Monitor nao infere essa condicao."
+            ),
+            (
+                "A mare usada neste diagnostico e a observada atual da EPAGRI/CIRAM. "
+                "Ela nao representa automaticamente o pico de mare de toda a janela futura de 24h."
+            ),
+            (
+                "Crise nao e calculada: o PLANCON a relaciona a extrapolacao dos "
+                "recursos existentes/disponiveis na Prefeitura para resposta."
+            ),
+        ],
+        "observacao": (
+            "Resultado tecnico do Monitor Guaxanduva. Nao declara mudanca de "
+            "estagio do PLANCON nem substitui comunicacao oficial da Defesa Civil."
+        ),
+    }
+ 
+    p24 = (previsao or {}).get("proximas_24h") or {}
+    chuva = p24.get("precipitacao_acumulada_mm")
+    chuva_integra = (
+        p24.get("status") == "online_completo"
+        and p24.get("integridade") is True
+        and p24.get("horas_validas") == 24
+        and isinstance(chuva, (int, float))
+        and not isinstance(chuva, bool)
+        and chuva >= 0
+    )
+ 
+    mare = (mare_observada or {}).get("nivel_m")
+    mare_fresca = (
+        (mare_observada or {}).get("status") == "observado_disponivel"
+        and (mare_observada or {}).get("frescor") == "atual"
+        and isinstance(mare, (int, float))
+        and not isinstance(mare, bool)
+        and mare >= 0
+    )
+ 
+    resultado["entradas"].update({
+        "chuva_prevista_24h_mm": chuva if chuva_integra else None,
+        "chuva_24h_integra": chuva_integra,
+        "mare_observada_m": mare if mare_fresca else None,
+        "mare_observada_fresca": mare_fresca,
+        "janela_inicio": p24.get("inicio"),
+        "janela_fim_exclusivo": p24.get("fim_exclusivo"),
+        "mare_horario": (mare_observada or {}).get("horario"),
+        "mare_idade_min": (mare_observada or {}).get("idade_min"),
+    })
+ 
+    if not chuva_integra or not mare_fresca:
+        faltantes = []
+        if not chuva_integra:
+            faltantes.append("previsao_24h_integra")
+        if not mare_fresca:
+            faltantes.append("mare_observada_epagri_fresca")
+        resultado["dados_faltantes"] = faltantes
+        return resultado
+ 
+    mobilizacao_chuva = chuva > 20.0
+    atencao = chuva > 50.0 and mare >= 1.5
+    alerta_50_18 = chuva > 50.0 and mare >= 1.8
+    alerta_80_15 = chuva > 80.0 and mare >= 1.5
+    alerta = alerta_50_18 or alerta_80_15
+ 
+    resultado["criterios"].update({
+        "mobilizacao_chuva_superior_20mm_24h": mobilizacao_chuva,
+        "mobilizacao_ocorrencia_confirmada": None,
+        "atencao_chuva_superior_50mm_e_mare_desde_1_5m": atencao,
+        "alerta_chuva_superior_50mm_e_mare_desde_1_8m": alerta_50_18,
+        "alerta_chuva_superior_80mm_e_mare_desde_1_5m": alerta_80_15,
+        "crise": None,
+    })
+ 
+    resultado["status"] = "calculado"
+ 
+    if alerta:
+        resultado["classificacao_calculada"] = "alerta"
+    elif atencao:
+        resultado["classificacao_calculada"] = "atencao"
+    elif mobilizacao_chuva:
+        # A chuva supera o limiar, mas a ocorrencia adicional exigida pelo
+        # PLANCON nao e inferida automaticamente pelo Monitor.
+        resultado["classificacao_calculada"] = "sinal_pluviometrico_mobilizacao"
+    else:
+        resultado["classificacao_calculada"] = "sem_gatilho_superior_identificado"
+ 
+    return resultado
+ 
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     diag155 = diagnosticar_cap_recente_inmet_155()
     diag156 = diagnosticar_conteudo_cap_inmet_156(diag155)
     granizo157 = granizo_operacional_inmet_157(diag156)
+    previsao = buscar_previsao()
+    mare_observada160 = buscar_mare_observada_joinville_160()
+    criterio163 = calcular_criterio_hidrometeorologico_plancon_163(
+        previsao,
+        mare_observada160,
+    )
     dados = {
         "monitor":
             "Monitor Guaxanduva",
@@ -9518,9 +9648,9 @@ def main():
  
         "mare":
             buscar_mare(),
-
+ 
         "mare_observada_joinville_160":
-            buscar_mare_observada_joinville_160(),
+            mare_observada160,
  
         "rio": {
             "nome":
@@ -9534,7 +9664,10 @@ def main():
         },
  
         "previsao":
-            buscar_previsao(),
+            previsao,
+ 
+        "criterio_hidrometeorologico_plancon_163":
+            criterio163,
  
         "radar":
             buscar_radar(),
@@ -9555,7 +9688,7 @@ def main():
         "diagnostico_cap_recente_inmet_155": diag155,
  
         "diagnostico_conteudo_cap_inmet_156": diag156,
-
+ 
         "granizo_operacional_inmet_157": granizo157,
  
         "emergencia": {

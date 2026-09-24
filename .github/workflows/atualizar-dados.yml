@@ -35,6 +35,308 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 pillow paho-mqtt
 
+      # ============================================================
+      # DIAGNÓSTICO EPAGRI/CIRAM — AGROCONNECT
+      # Investigação isolada: NÃO altera dados.json, #165 ou #166.
+      # Alvos: 2382 Joinville-Pirabeiraba e 1051 Joinville-Vila Nova.
+      # ============================================================
+      - name: Diagnosticar EPAGRI Agroconnect 2382 e 1051
+        shell: bash
+        run: |
+          cat > /tmp/diagnostico_epagri.py <<'PY'
+          import base64
+          import datetime as dt
+          import math
+          import time
+          import urllib.parse
+
+          import requests
+
+          BASE = "https://ciram.epagri.sc.gov.br/agroconnect/"
+          ENDPOINT = BASE + "busca.jsp"
+          CULTURA = 0
+          VARIAVEL = 271
+          GRUPO = 4
+          PRODUTO = "horario"
+          NHORAS = 1
+          LPTYA = "CbkYTPgEQbNLja"
+          CHAVE_FIXA = "1A853d23"
+
+          # Os filtros abaixo são os valores do fluxo normal sem restrição
+          # específica de estado/tipo. O diagnóstico também tenta combinações
+          # observadas no próprio JavaScript do Agroconnect.
+          FILTROS = [
+              ("0", "todas"),
+              ("42", "todas"),
+              ("0", "epagri"),
+              ("42", "epagri"),
+              ("0", "0"),
+              ("42", "0"),
+          ]
+
+          ESTACOES = [
+              (2382, "Joinville-Pirabeiraba"),
+              (1051, "Joinville-Vila Nova"),
+          ]
+
+          sessao = requests.Session()
+          sessao.headers.update({
+              "User-Agent": (
+                  "Mozilla/5.0 (X11; Linux x86_64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/140.0 Safari/537.36"
+              ),
+              "Accept": "*/*",
+              "Referer": BASE,
+              "Origin": "https://ciram.epagri.sc.gov.br",
+              "X-Requested-With": "XMLHttpRequest",
+          })
+
+          def chave_temporal(timestamp_ms):
+              # JS:
+              # keyy = new Date().getTime().toString()
+              # keyy = keyy.substring(0, keyy.length - 5)
+              s = str(timestamp_ms)
+              return s[:-5]
+
+          def marcador_resposta(keyy):
+              # prrtyc():
+              # keyy[0] + "Cb" + keyy[1] + "kY" + ... + keyy[6] + "ja" + "7"
+              partes = []
+              pos = 0
+              for i in range(0, len(LPTYA), 2):
+                  if pos >= len(keyy):
+                      raise ValueError("keyy curto demais para prrtyc()")
+                  partes.append(keyy[pos])
+                  partes.append(LPTYA[i:i+2])
+                  pos += 1
+              partes.append(str(pos))
+              return "".join(partes)
+
+          def ack3uk(texto, keyy):
+              marcador = marcador_resposta(keyy)
+              indice = texto.find(marcador)
+              if indice < 0:
+                  raise ValueError(
+                      "marcador prrtyc() não encontrado; "
+                      f"marcador={marcador!r}"
+                  )
+
+              b64 = texto[:indice]
+              bruto = base64.b64decode(b64)
+              decodificado = bruto.decode("utf-8")
+
+              chars = list(decodificado)
+              n = len(chars)
+              chave = CHAVE_FIXA + keyy
+              k = 0
+
+              # O JS usa Math.trunc(n/2).
+              for i in range(math.trunc(n / 2)):
+                  if k >= len(chave):
+                      k = 0
+
+                  esquerda = ord(chars[i])
+                  direita = ord(chars[n - 1 - i])
+                  ck = ord(chave[k])
+
+                  novo_esquerda = chr(direita ^ ck)
+                  novo_direita = chr(esquerda ^ ck)
+
+                  chars[i] = novo_esquerda
+                  chars[n - 1 - i] = novo_direita
+                  k += 1
+
+              return "".join(chars)
+
+          def date_calculado(data_dd_mm_aaaa, estacao):
+              # Tradução literal da expressão de encod():
+              # pow(nhoras,3) * ano * (mes*12) * (30*dia)
+              # +
+              # pow(cultura,3) * len(produto) * (variavel+1) * (estacao+1)
+              dia, mes, ano = [int(x) for x in data_dd_mm_aaaa.split("-")]
+              parte1 = int(
+                  math.pow(float(NHORAS), 3)
+                  * float(ano)
+                  * (float(mes) * 12)
+                  * (30 * float(dia))
+              )
+              parte2 = int(
+                  math.pow(int(CULTURA), 3)
+                  * len(PRODUTO)
+                  * (int(VARIAVEL) + 1)
+                  * (int(estacao) + 1)
+              )
+              return f"{parte1}{parte2}"
+
+          def montar_parametros(estacao, nome_estacao, estado, tipo_estacao):
+              agora_ms = int(time.time() * 1000)
+              keyy = chave_temporal(agora_ms)
+              hoje = dt.datetime.now(
+                  dt.timezone(dt.timedelta(hours=-3))
+              ).strftime("%d-%m-%Y")
+
+              params = [
+                  ("cd_estacao", str(estacao)),
+                  ("cd_cultura", str(CULTURA)),
+                  ("produto", PRODUTO),
+                  ("cd_variavel", str(VARIAVEL)),
+                  ("grupo", str(GRUPO)),
+                  ("data", hoje),
+                  ("nhoras", str(NHORAS)),
+                  ("estado_", str(estado)),
+                  ("tipoEstacao_", str(tipo_estacao)),
+                  ("dt", str(agora_ms)),
+                  ("date", date_calculado(hoje, estacao)),
+                  ("idestacao", f"{nome_estacao}: {estacao}"),
+                  ("ka", keyy),
+              ]
+              return params, keyy
+
+          def parece_resposta_valida(decodificado, estacao):
+              limpo = decodificado.replace("\\n", "").strip()
+              if not limpo:
+                  return False
+              if ";;" not in limpo:
+                  return False
+              return str(estacao) in limpo
+
+          def mostrar_registros(decodificado, estacao):
+              print("----- REGISTROS DECODIFICADOS -----")
+              achados = 0
+              for registro in decodificado.replace("\\n", "").split(";;"):
+                  registro = registro.strip()
+                  if not registro:
+                      continue
+                  if str(estacao) in registro:
+                      achados += 1
+                      print(f"[ALVO {estacao}] {registro}")
+              if achados == 0:
+                  print(
+                      f"Nenhum registro contendo literalmente {estacao} "
+                      "foi encontrado na resposta decodificada."
+                  )
+              print("-----------------------------------")
+              return achados
+
+          def testar(estacao, nome_estacao):
+              print()
+              print("=" * 78)
+              print(f"EPAGRI/CIRAM — TESTE DA ESTAÇÃO {estacao} — {nome_estacao}")
+              print("=" * 78)
+
+              for estado, tipo_estacao in FILTROS:
+                  params, keyy = montar_parametros(
+                      estacao, nome_estacao, estado, tipo_estacao
+                  )
+                  query = urllib.parse.urlencode(params)
+                  url = ENDPOINT + "?" + query
+
+                  print()
+                  print(
+                      f"Tentativa estado_={estado!r} "
+                      f"tipoEstacao_={tipo_estacao!r}"
+                  )
+                  print(f"keyy={keyy}")
+                  print(f"prrtyc={marcador_resposta(keyy)}")
+                  print(f"URL={url}")
+
+                  for metodo in ("POST", "GET"):
+                      try:
+                          if metodo == "POST":
+                              resposta = sessao.post(
+                                  url, timeout=30, allow_redirects=True
+                              )
+                          else:
+                              resposta = sessao.get(
+                                  url, timeout=30, allow_redirects=True
+                              )
+
+                          texto = resposta.text.replace("\r", "").replace("\n", "")
+                          print(
+                              f"{metodo}: HTTP={resposta.status_code} "
+                              f"bytes={len(resposta.content)} "
+                              f"url_final={resposta.url}"
+                          )
+                          print(
+                              "Content-Type="
+                              + str(resposta.headers.get("content-type"))
+                          )
+
+                          if resposta.status_code != 200:
+                              print(
+                                  "Resposta HTTP não utilizável. "
+                                  f"Amostra={texto[:300]!r}"
+                              )
+                              continue
+
+                          try:
+                              dec = ack3uk(texto, keyy)
+                          except Exception as exc:
+                              print(f"ack3uk FALHOU: {type(exc).__name__}: {exc}")
+                              print(f"Amostra bruta={texto[:500]!r}")
+                              continue
+
+                          print(
+                              f"ack3uk OK — caracteres_decodificados={len(dec)}"
+                          )
+                          print(f"Amostra decodificada={dec[:800]!r}")
+
+                          achados = mostrar_registros(dec, estacao)
+
+                          if parece_resposta_valida(dec, estacao) and achados:
+                              print()
+                              print(
+                                  f"SUCESSO PROVISÓRIO: estação {estacao} "
+                                  "apareceu em resposta decodificada."
+                              )
+                              print(
+                                  "A resposta ainda deve ser conferida quanto a "
+                                  "campo de precipitação, unidade, timestamp e frescor "
+                                  "antes de qualquer integração operacional."
+                              )
+                              return True
+
+                      except Exception as exc:
+                          print(
+                              f"{metodo}: ERRO {type(exc).__name__}: {exc}"
+                          )
+
+              print()
+              print(
+                  f"SEM CONFIRMAÇÃO para {estacao} nesta execução. "
+                  "Isso NÃO significa precipitação zero nem estação indisponível."
+              )
+              return False
+
+          print("DIAGNÓSTICO EPAGRI/CIRAM — MONITOR GUAXANDUVA")
+          print("Este ensaio NÃO escreve em dados.json.")
+          print("Variável 271 = Precipitação Total (mm)")
+          print("Produto = horario | grupo = 4 | nhoras = 1")
+          print()
+
+          resultados = {}
+          for codigo, nome in ESTACOES:
+              resultados[codigo] = testar(codigo, nome)
+
+          print()
+          print("=" * 78)
+          print("RESUMO DO DIAGNÓSTICO")
+          print("=" * 78)
+          for codigo, ok in resultados.items():
+              print(
+                  f"{codigo}: "
+                  + ("resposta decodificada contendo a estação" if ok
+                     else "ainda sem confirmação")
+              )
+
+          # O diagnóstico é deliberadamente não destrutivo.
+          # Não falha a Action caso a EPAGRI não responda, para que o backend
+          # operacional #165 continue executando normalmente.
+          PY
+
+          python /tmp/diagnostico_epagri.py
+
       - name: Atualizar dados e histórico
         run: python atualizar_dados.py
 

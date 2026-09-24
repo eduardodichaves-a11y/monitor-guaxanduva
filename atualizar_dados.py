@@ -1,8 +1,10 @@
 import io
+import base64
 import json
 import math
 import hashlib
 import statistics
+import time
 import re
 from urllib.parse import urljoin
 from collections import Counter, deque
@@ -9588,165 +9590,100 @@ def calcular_pico_mare_previsto_24h_164(previsao):
         return resultado
 
 # =========================================================
-# #165 - REDE PLUVIOMETRICA MULTIFONTE • JOINVILLE
-# Camada observacional: preserva cada estacao como ponto independente.
-# Nesta etapa, somente leituras automaticas ja comprovadas entram como atuais.
-# Ausencia, falha ou valor nulo nunca e convertido em 0 mm.
+# #165 - EPAGRI/CIRAM • AGROCONNECT • PRECIPITACAO HORARIA
+# Variavel 271 = Precipitacao Total (mm), produto horario, grupo 4, nhoras 1.
+# Cada estacao permanece independente; falha/nulo nunca vira 0.
 # =========================================================
+EPAGRI_AGROCONNECT = "https://ciram.epagri.sc.gov.br/agroconnect/"
+EPAGRI_AGROCONNECT_BUSCA = EPAGRI_AGROCONNECT + "busca.jsp"
+EPAGRI_CHAVE_FIXA = "1A853d23"
+EPAGRI_LPTYA = "CbkYTPgEQbNLja"
+EPAGRI_ESTACOES_CHUVA = [(2382, "Joinville - Pirabeiraba"), (1051, "Joinville - Vila Nova")]
 
-def construir_rede_pluviometrica_multifonte_165(chuva_cemaden):
-    resultado = {
-        "status": "inventario_multifonte_com_dados_parciais",
-        "versao": "#165",
-        "tipo": "rede_pluviometrica_multifonte_joinville",
-        "municipio": "Joinville/SC",
-        "referencia": "Comasa - coordenada publica aproximada",
-        "coordenada_referencia": {"latitude": LAT, "longitude": LON},
-        "estacoes": [],
-        "fontes": [],
-        "quantidade_estacoes": 0,
-        "quantidade_com_leitura_atual": 0,
-        "quantidade_sem_leitura_automatica_integrada": 0,
-        "uso_no_risco": False,
-        "classificacao_risco_automatica": False,
-        "regra_seguranca": (
-            "Cada pluviometro representa seu proprio ponto. Leituras de estacoes "
-            "diferentes nao sao somadas, promediadas nem tratadas como medicao no "
-            "Comasa. Ausencia, falha ou valor nulo nunca e convertido em 0 mm."
-        ),
-        "observacao": (
-            "A #165 nasce como camada observacional multifuente. Nesta versao, "
-            "somente a rede CEMADEN possui aquisicao automatica publica integrada. "
-            "EPAGRI/CIRAM, ANA/SNIRH e Rede Municipal/Defesa Civil permanecem "
-            "identificadas sem publicar milimetros atuais ate existir canal "
-            "automatico publico comprovado e validado."
-        ),
-    }
+def _epagri_keyy_165(timestamp_ms):
+    return str(timestamp_ms)[:-5]
 
-    estacoes_cemaden = (
-        chuva_cemaden.get("estacoes_joinville_ativas", [])
-        if isinstance(chuva_cemaden, dict) else []
-    )
-    if not isinstance(estacoes_cemaden, list):
-        estacoes_cemaden = []
+def _epagri_marcador_165(keyy):
+    partes=[]; pos=0
+    for i in range(0,len(EPAGRI_LPTYA),2):
+        if pos>=len(keyy): raise ValueError("keyy EPAGRI curto demais")
+        partes.extend((keyy[pos],EPAGRI_LPTYA[i:i+2])); pos+=1
+    partes.append(str(pos)); return "".join(partes)
 
-    for estacao in estacoes_cemaden:
-        if not isinstance(estacao, dict):
-            continue
-        disponivel = (
-            estacao.get("acumulado_disponivel") is True
-            and isinstance(estacao.get("acumulado_24h_mm"), (int, float))
-            and not isinstance(estacao.get("acumulado_24h_mm"), bool)
-            and estacao.get("acumulado_24h_mm") >= 0
-        )
-        resultado["estacoes"].append({
-            "nome": estacao.get("nome"),
-            "fonte": "CEMADEN",
-            "rede": "CEMADEN",
-            "codigo": estacao.get("codigo"),
-            "id": estacao.get("id"),
-            "latitude": estacao.get("latitude"),
-            "longitude": estacao.get("longitude"),
-            "distancia_comasa_aprox_km": estacao.get("distancia_comasa_aprox_km"),
-            "janela_acumulado_h": 24,
-            "acumulado_24h_mm": estacao.get("acumulado_24h_mm") if disponivel else None,
-            "leitura_atual_disponivel": disponivel,
-            "aquisicao_automatica_integrada": True,
-            "status": "online" if disponivel else "indisponivel",
-            "equivale_medicao_no_comasa": False,
-        })
+def _epagri_ack3uk_165(texto,keyy):
+    marcador=_epagri_marcador_165(keyy); indice=texto.find(marcador)
+    if indice<0: raise ValueError("marcador EPAGRI prrtyc nao encontrado")
+    chars=list(base64.b64decode(texto[:indice]).decode("utf-8")); chave=EPAGRI_CHAVE_FIXA+keyy; n=len(chars); k=0
+    for i in range(math.trunc(n/2)):
+        if k>=len(chave): k=0
+        esquerda=ord(chars[i]); direita=ord(chars[n-1-i]); ck=ord(chave[k])
+        chars[i]=chr(direita^ck); chars[n-1-i]=chr(esquerda^ck); k+=1
+    return "".join(chars)
 
-    # EPAGRI/CIRAM: estacao automatica identificada, sem endpoint publico
-    # pluviometrico validado no Monitor nesta etapa. Nao presumimos que
-    # o codigo 2382 seja a mesma estacao ANA 02648033.
-    resultado["estacoes"].append({
-        "nome": "Joinville - Pirabeiraba",
-        "fonte": "EPAGRI/CIRAM",
-        "rede": "EPAGRI/CIRAM",
-        "codigo": "2382",
-        "latitude": None,
-        "longitude": None,
-        "distancia_comasa_aprox_km": None,
-        "janela_acumulado_h": None,
-        "acumulado_24h_mm": None,
-        "leitura_atual_disponivel": False,
-        "aquisicao_automatica_integrada": False,
-        "status": "fonte_identificada_sem_endpoint_publico_validado",
-        "equivale_medicao_no_comasa": False,
-        "observacao": (
-            "Estacao automatica identificada em publicacoes operacionais da EPAGRI. "
-            "A #165 nao presume equivalencia com a estacao ANA 02648033 e nao "
-            "publica chuva atual sem endpoint operacional validado."
-        ),
-    })
+def _epagri_date_165(data_dd_mm_aaaa,estacao):
+    dia,mes,ano=[int(x) for x in data_dd_mm_aaaa.split("-")]
+    return f"{int(ano*(mes*12)*(30*dia))}0"
 
-    # ANA/SNIRH: inventario historico. Nao e telemetria atual nesta versao.
-    inventario_ana = [
-        ("Joinville/RVPSC", "02648014"),
-        ("Ponte SC-301", "02648028"),
-        ("Pirabeiraba", "02648033"),
-        ("Estrada dos Morros", "02648034"),
-        ("Primeiro Salto do Cubatao", "02649060"),
-    ]
-    for nome, codigo in inventario_ana:
-        resultado["estacoes"].append({
-            "nome": nome,
-            "fonte": "ANA/SNIRH - inventario historico citado no PMGRD Joinville 2026",
-            "rede": "ANA/SNIRH",
-            "codigo": codigo,
-            "latitude": None,
-            "longitude": None,
-            "distancia_comasa_aprox_km": None,
-            "janela_acumulado_h": None,
-            "acumulado_24h_mm": None,
-            "leitura_atual_disponivel": False,
-            "aquisicao_automatica_integrada": False,
-            "status": "estacao_identificada_sem_telemetria_atual_integrada",
-            "equivale_medicao_no_comasa": False,
-        })
+def _epagri_instante_165(texto):
+    try: return datetime.strptime(str(texto).strip(),"%d/%m/%Y %H:%M").replace(tzinfo=FUSO)
+    except Exception: return None
 
-    resultado["fontes"] = [
-        {
-            "fonte": "CEMADEN",
-            "status_integracao": "automatica_integrada",
-            "endpoint": CEMADEN_PLUV_24H,
-        },
-        {
-            "fonte": "EPAGRI/CIRAM",
-            "status_integracao": "estacoes_identificadas_sem_endpoint_pluviometrico_publico_validado",
-            "endpoint": None,
-        },
-        {
-            "fonte": "ANA/SNIRH",
-            "status_integracao": "inventario_historico_identificado_sem_telemetria_atual_integrada",
-            "endpoint": None,
-        },
-        {
-            "fonte": "Prefeitura de Joinville / Defesa Civil",
-            "status_integracao": "rede_identificada_sem_endpoint_publico_automatico_validado",
-            "endpoint": None,
-        },
-    ]
-
-    resultado["quantidade_estacoes"] = len(resultado["estacoes"])
-    resultado["quantidade_com_leitura_atual"] = sum(
-        1 for e in resultado["estacoes"]
-        if e.get("leitura_atual_disponivel") is True
-    )
-    resultado["quantidade_sem_leitura_automatica_integrada"] = sum(
-        1 for e in resultado["estacoes"]
-        if e.get("aquisicao_automatica_integrada") is not True
-    )
-
-    if not estacoes_cemaden:
-        resultado["status"] = "inventario_multifonte_sem_dados_automaticos_disponiveis"
-
+def buscar_chuva_epagri_165():
+    resultado={"status":"indisponivel","fonte":"EPAGRI/CIRAM","tipo":"precipitacao_horaria_observada","variavel":271,"produto":"horario","grupo":4,"janela_h":1,"estacoes":[],"regra_seguranca":"Cada leitura pertence a sua propria estacao. Zero retornado no campo de precipitacao e preservado como zero; falha, ausencia ou valor invalido permanece null e nunca e convertido em zero."}
+    sessao=requests.Session(); sessao.headers.update({"User-Agent":"Mozilla/5.0 Monitor-Guaxanduva/1.0","Accept":"*/*","Referer":EPAGRI_AGROCONNECT,"Origin":"https://ciram.epagri.sc.gov.br","X-Requested-With":"XMLHttpRequest"})
+    filtros=[("0","todas"),("42","todas"),("0","epagri"),("42","epagri"),("0","0"),("42","0")]
+    for codigo,nome in EPAGRI_ESTACOES_CHUVA:
+        item={"codigo":str(codigo),"nome":nome,"fonte":"EPAGRI/CIRAM","rede":"EPAGRI/CIRAM","latitude":None,"longitude":None,"precipitacao_1h_mm":None,"horario_medicao":None,"idade_leitura_min":None,"dados_frescos":False,"leitura_atual_disponivel":False,"aquisicao_automatica_integrada":True,"status":"indisponivel","equivale_medicao_no_comasa":False}
+        ultimo_erro=None
+        for estado,tipo_estacao in filtros:
+            agora_ms=int(time.time()*1000); keyy=_epagri_keyy_165(agora_ms); hoje=agora().strftime("%d-%m-%Y")
+            params=[("cd_estacao",str(codigo)),("cd_cultura","0"),("produto","horario"),("cd_variavel","271"),("grupo","4"),("data",hoje),("nhoras","1"),("estado_",estado),("tipoEstacao_",tipo_estacao),("dt",str(agora_ms)),("date",_epagri_date_165(hoje,codigo)),("idestacao",f"{nome}: {codigo}"),("ka",keyy)]
+            try:
+                r=sessao.post(EPAGRI_AGROCONNECT_BUSCA,params=params,timeout=30,allow_redirects=True); r.raise_for_status()
+                dec=_epagri_ack3uk_165(r.text.replace("\r","").replace("\n",""),keyy)
+                candidatos=[]
+                for registro in [x.strip() for x in dec.replace("\n","").split(";;") if x.strip()]:
+                    campos=[x.strip() for x in registro.split(",")]
+                    if len(campos)<7 or campos[0]!=str(codigo): continue
+                    try: valor=float(campos[4])
+                    except Exception: valor=None
+                    candidatos.append((_epagri_instante_165(campos[6]),valor,campos))
+                if not candidatos: continue
+                candidatos.sort(key=lambda x:x[0] or datetime.min.replace(tzinfo=FUSO)); instante,valor,campos=candidatos[-1]
+                idade=max(0.0,(agora()-instante).total_seconds()/60.0) if instante else None
+                valido=isinstance(valor,(int,float)) and not isinstance(valor,bool) and math.isfinite(valor) and valor>=0
+                item.update({"latitude":float(campos[3]) if campos[3] else None,"longitude":float(campos[2]) if campos[2] else None,"precipitacao_1h_mm":valor if valido else None,"horario_medicao":instante.isoformat() if instante else campos[6],"idade_leitura_min":round(idade,1) if idade is not None else None,"dados_frescos":bool(idade is not None and idade<=120),"leitura_atual_disponivel":valido,"status":"online" if valido and idade is not None and idade<=120 else "online_leitura_atrasada" if valido else "indisponivel"})
+                break
+            except Exception as exc: ultimo_erro=str(exc)
+        if item["status"]=="indisponivel" and ultimo_erro: item["erro"]=ultimo_erro
+        resultado["estacoes"].append(item)
+    disponiveis=[e for e in resultado["estacoes"] if e.get("leitura_atual_disponivel") is True]; frescas=[e for e in disponiveis if e.get("dados_frescos") is True]
+    if len(frescas)==len(EPAGRI_ESTACOES_CHUVA): resultado["status"]="online"
+    elif disponiveis: resultado["status"]="parcial_ou_atrasado"
     return resultado
 
+def construir_rede_pluviometrica_multifonte_165(chuva_cemaden,chuva_epagri):
+    resultado={"status":"inventario_multifonte_com_dados_parciais","versao":"#165","tipo":"rede_pluviometrica_multifonte_joinville","municipio":"Joinville/SC","referencia":"Comasa - coordenada publica aproximada","coordenada_referencia":{"latitude":LAT,"longitude":LON},"estacoes":[],"fontes":[],"quantidade_estacoes":0,"quantidade_com_leitura_atual":0,"quantidade_sem_leitura_automatica_integrada":0,"uso_no_risco":False,"classificacao_risco_automatica":False,"regra_seguranca":"Cada pluviometro representa seu proprio ponto. Leituras de estacoes diferentes nao sao somadas, promediadas nem tratadas como medicao no Comasa. Ausencia, falha ou valor nulo nunca e convertido em 0 mm.","observacao":"CEMADEN e EPAGRI/CIRAM possuem aquisicao automatica integrada. A chuva EPAGRI e horaria e nao e convertida artificialmente em acumulado de 24 horas. ANA/SNIRH e Rede Municipal/Defesa Civil permanecem inventariadas sem telemetria atual integrada."}
+    estacoes_cemaden=chuva_cemaden.get("estacoes_joinville_ativas",[]) if isinstance(chuva_cemaden,dict) else []
+    if not isinstance(estacoes_cemaden,list): estacoes_cemaden=[]
+    for e in estacoes_cemaden:
+        if not isinstance(e,dict): continue
+        disp=e.get("acumulado_disponivel") is True and isinstance(e.get("acumulado_24h_mm"),(int,float)) and not isinstance(e.get("acumulado_24h_mm"),bool) and e.get("acumulado_24h_mm")>=0
+        resultado["estacoes"].append({"nome":e.get("nome"),"fonte":"CEMADEN","rede":"CEMADEN","codigo":e.get("codigo"),"id":e.get("id"),"latitude":e.get("latitude"),"longitude":e.get("longitude"),"distancia_comasa_aprox_km":e.get("distancia_comasa_aprox_km"),"janela_acumulado_h":24,"acumulado_24h_mm":e.get("acumulado_24h_mm") if disp else None,"precipitacao_1h_mm":None,"leitura_atual_disponivel":disp,"aquisicao_automatica_integrada":True,"status":"online" if disp else "indisponivel","equivale_medicao_no_comasa":False})
+    for e in (chuva_epagri or {}).get("estacoes",[]):
+        if not isinstance(e,dict): continue
+        resultado["estacoes"].append({"nome":e.get("nome"),"fonte":"EPAGRI/CIRAM","rede":"EPAGRI/CIRAM","codigo":e.get("codigo"),"latitude":e.get("latitude"),"longitude":e.get("longitude"),"distancia_comasa_aprox_km":None,"janela_acumulado_h":1,"acumulado_24h_mm":None,"precipitacao_1h_mm":e.get("precipitacao_1h_mm"),"horario_medicao":e.get("horario_medicao"),"idade_leitura_min":e.get("idade_leitura_min"),"dados_frescos":e.get("dados_frescos"),"leitura_atual_disponivel":e.get("leitura_atual_disponivel"),"aquisicao_automatica_integrada":True,"status":e.get("status"),"equivale_medicao_no_comasa":False})
+    for nome,codigo in [("Joinville/RVPSC","02648014"),("Ponte SC-301","02648028"),("Pirabeiraba","02648033"),("Estrada dos Morros","02648034"),("Primeiro Salto do Cubatao","02649060")]:
+        resultado["estacoes"].append({"nome":nome,"fonte":"ANA/SNIRH - inventario historico citado no PMGRD Joinville 2026","rede":"ANA/SNIRH","codigo":codigo,"latitude":None,"longitude":None,"distancia_comasa_aprox_km":None,"janela_acumulado_h":None,"acumulado_24h_mm":None,"precipitacao_1h_mm":None,"leitura_atual_disponivel":False,"aquisicao_automatica_integrada":False,"status":"estacao_identificada_sem_telemetria_atual_integrada","equivale_medicao_no_comasa":False})
+    resultado["fontes"]=[{"fonte":"CEMADEN","status_integracao":"automatica_integrada","endpoint":CEMADEN_PLUV_24H},{"fonte":"EPAGRI/CIRAM","status_integracao":"automatica_integrada_agroconnect","endpoint":EPAGRI_AGROCONNECT_BUSCA},{"fonte":"ANA/SNIRH","status_integracao":"inventario_historico_identificado_sem_telemetria_atual_integrada","endpoint":None},{"fonte":"Prefeitura de Joinville / Defesa Civil","status_integracao":"rede_identificada_sem_endpoint_publico_automatico_validado","endpoint":None}]
+    resultado["quantidade_estacoes"]=len(resultado["estacoes"]); resultado["quantidade_com_leitura_atual"]=sum(1 for e in resultado["estacoes"] if e.get("leitura_atual_disponivel") is True); resultado["quantidade_sem_leitura_automatica_integrada"]=sum(1 for e in resultado["estacoes"] if e.get("aquisicao_automatica_integrada") is not True)
+    if resultado["quantidade_com_leitura_atual"]==0: resultado["status"]="inventario_multifonte_sem_dados_automaticos_disponiveis"
+    return resultado
 
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
-    rede165 = construir_rede_pluviometrica_multifonte_165(chuva_cemaden)
+    chuva_epagri165 = buscar_chuva_epagri_165()
+    rede165 = construir_rede_pluviometrica_multifonte_165(chuva_cemaden, chuva_epagri165)
     diag155 = diagnosticar_cap_recente_inmet_155()
     diag156 = diagnosticar_conteudo_cap_inmet_156(diag155)
     granizo157 = granizo_operacional_inmet_157(diag156)
@@ -9766,6 +9703,9 @@ def main():
  
         "chuva":
             chuva_cemaden,
+
+        "chuva_observada_epagri_165":
+            chuva_epagri165,
 
         "rede_pluviometrica_multifonte_165":
             rede165,

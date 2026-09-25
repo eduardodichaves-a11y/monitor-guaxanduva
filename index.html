@@ -212,6 +212,22 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <small>ALERTA OFICIAL ≠ granizo observado. O Monitor só publica alerta positivo quando o mesmo CAP é Actual, Public, não cancelado, vigente, menciona explicitamente granizo e cobre a referência pública aproximada do Comasa/Joinville. Falha de fonte ou ausência de prova suficiente permanece inconclusiva e nunca é convertida automaticamente em “sem alerta”.</small>
 </section>
 
+<section class="card">
+<div class="local">🧪 HISTÓRICO HIDROMETEOROLÓGICO • GUAXANDUVA • #166</div>
+<h2>Chuva observada × maré de jusante</h2>
+<div class="sub">Série temporal em formação para futura calibração do comportamento do Rio Guaxanduva</div>
+<div class="radar-grid">
+<div class="radar-item">📚 Registros históricos<b id="guax166Registros">--</b></div>
+<div class="radar-item">🌧️ Leituras horárias de chuva<b id="guax166ChuvaQtd">--</b></div>
+<div class="radar-item">🌊 Leituras de maré observada<b id="guax166MareQtd">--</b></div>
+<div class="radar-item">🧮 Nível estimado liberado?<b id="guax166NivelLiberado">NÃO</b></div>
+</div>
+<div id="guax166Estado" class="box aviso">Carregando histórico #166...</div>
+<div id="guax166Estacoes" class="box"><small>Carregando janelas pluviométricas...</small></div>
+<div id="guax166Mare" class="box"><small>Carregando condição de jusante...</small></div>
+<div class="box"><small><b>Regra de segurança:</b> P1h, P3h, P6h e P24h são calculados separadamente para cada estação e somente quando todas as horas necessárias estão presentes. A maré de Joinville/Babitonga é condição de jusante e não representa o nível do Rio Guaxanduva. Enquanto a calibração não estiver validada, o Monitor mantém o nível estimado e o alerta operacional bloqueados.</small></div>
+</section>
+
 <section class="card"><div class="local">🏞️ RIO GUAXANDUVA • INDISPONÍVEL</div><h2>Nível do rio</h2><div class="valor" id="rio">--</div><div id="rs" class="box aviso">Verificando sensor...</div><small>Sem sensor público confirmado, o Monitor não estima o nível do rio.</small></section>
 <section class="card"><div class="local">📐 ALTITUDE DO TERRENO • ESTIMATIVA CARTOGRÁFICA</div><h2>Rua Itapoá • Comasa</h2><div class="valor">≈ 5 m</div><div class="sub">acima do nível do mar</div><div class="box"><b>Fonte:</b> Prefeitura de Joinville / SIMGeo<br><small>ESTIMATIVA. Cota aproximada do terreno. Não representa nível de inundação nem nível atual do rio.</small></div></section>
 
@@ -282,7 +298,7 @@ async function carregarHistorico(){
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
-  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{};
+  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
 
@@ -406,6 +422,22 @@ async function carregar(){
    $("mare164Estado").innerHTML='<span class="ok">🟢 #164 ONLINE • janela íntegra</span> • pico previsto identificado';
   }else{
    $("mare164Estado").innerHTML='<span class="aviso">⚪ #164 INCONCLUSIVA</span> • janela de maré prevista incompleta ou indisponível';
+  }
+
+  $("guax166Registros").textContent=h166.quantidade_registros==null?"--":String(h166.quantidade_registros);
+  $("guax166ChuvaQtd").textContent=h166.quantidade_chuva_horaria==null?"--":String(h166.quantidade_chuva_horaria);
+  $("guax166MareQtd").textContent=h166.quantidade_mare_observada==null?"--":String(h166.quantidade_mare_observada);
+  $("guax166NivelLiberado").textContent=h166.nivel_estimado_liberado===true?"SIM":"NÃO";
+  const est166=Array.isArray(h166.chuva_por_estacao)?h166.chuva_por_estacao:[];
+  $("guax166Estacoes").innerHTML=est166.length?'<b>🌧️ Janelas observadas por estação</b><br><small>'+est166.map(e=>{const janela=(rot,obj)=>{const x=obj||{};return rot+': <b>'+(x.disponivel===true&&x.valor_mm!=null?f(x.valor_mm,2)+' mm':'INDISPONÍVEL')+'</b>'};return '<div class="estacao-linha"><div><b>'+String(e.nome||e.codigo||"Estação")+'</b><div class="estacao-meta">'+String(e.fonte||"fonte não informada")+' • '+(e.equivale_medicao_no_comasa===true?'medição no Comasa':'não equivale a medição no Comasa')+'</div></div><div class="estacao-mm">'+janela('P1h',e.P1h)+'<br>'+janela('P3h',e.P3h)+'<br>'+janela('P6h',e.P6h)+'<br>'+janela('P24h',e.P24h)+'</div></div>'}).join('')+'</small>':'<small>Histórico #166 ainda sem série horária suficiente.</small>';
+  const mj166=h166.mare_jusante_mais_recente||{};
+  $("guax166Mare").innerHTML=mj166.horario_medicao?'<b>🌊 Condição de jusante mais recente</b><br><small>'+dataHoraBR(mj166.horario_medicao)+' • nível observado no marégrafo: <b>'+(mj166.nivel_m==null?'--':f(mj166.nivel_m,3)+' m')+'</b><br>Joinville/Babitonga • não representa nível do Rio Guaxanduva.</small>':'<small>Maré observada de jusante ainda indisponível no histórico #166.</small>';
+  if(h166.status==="historico_em_formacao"){
+   $("guax166Estado").innerHTML='<span class="aviso">🧪 #166 ATIVO • HISTÓRICO EM FORMAÇÃO</span> • calibração e nível estimado continuam bloqueados';
+  }else if(h166.versao){
+   $("guax166Estado").innerHTML='<span class="aviso">🧪 #166 RECEBIDA</span> • estado: '+nomeFamilia(h166.status);
+  }else{
+   $("guax166Estado").innerHTML='<span class="erro">🔴 #166 INDISPONÍVEL</span> • nenhum valor ausente é interpretado como zero';
   }
 
   $("rio").textContent=q.nivel_m==null?"SEM SENSOR":f(q.nivel_m,2)+" m";

@@ -9697,7 +9697,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.12-GATES-LIBERACAO-HDS5-CONTROLE-HIDRAULICO"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.13-ESTADO-DECISAO-HDS5-CONTROLE-HIDRAULICO"
  
  
 def _gxa_haversine_m(a, b):
@@ -9970,7 +9970,7 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
     viagem ou sentido hidraulico ate existir suporte altimetrico/hidraulico.
     """
     resultado = {
-        "versao": "GXA-V0.12-GATES-LIBERACAO-HDS5-CONTROLE-HIDRAULICO",
+        "versao": "GXA-V0.13-ESTADO-DECISAO-HDS5-CONTROLE-HIDRAULICO",
         "status": "indisponivel",
         "segmento_referencia": GUAXANDUVA_SEGMENTO_REFERENCIA,
         "grafo_direcionado": False,
@@ -10458,9 +10458,79 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "nao_publicar_capacidade_definitiva_sem_controle_governante_determinado",
     ]
     controle_hidraulico_bueiro["gates_liberacao_hds5"] = gates_liberacao_hds5
+
+    # V0.13 - estado de decisao HDS-5 e proximo bloqueio acionavel.
+    # Consolida os gates da V0.12 em uma leitura deterministica e fail-closed,
+    # sem criar valores hidraulicos, coeficientes ou equivalencias entre fontes.
+    ordem_gates_hds5 = [
+        "G1_geometria_entrada",
+        "G2_referencial_vertical_saida",
+        "G3_hw_observado_referenciado",
+        "G4_tw_observado_referenciado",
+        "G5_condicao_real_tubos",
+        "G6_parametros_inlet_control",
+        "G7_parametros_outlet_control",
+    ]
+    gates_bloqueados_ordenados = [
+        nome_gate
+        for nome_gate in ordem_gates_hds5
+        if not gates.get(nome_gate, {}).get("satisfeito", False)
+    ]
+    proximo_gate_bloqueado = gates_bloqueados_ordenados[0] if gates_bloqueados_ordenados else None
+    proximo_gate_detalhe = gates.get(proximo_gate_bloqueado) if proximo_gate_bloqueado else None
+
+    estado_decisao_hds5 = {
+        "versao": "GXA-V0.13-ESTADO-DECISAO-HDS5-CONTROLE-HIDRAULICO",
+        "uso_operacional": False,
+        "politica": "fail_closed",
+        "estado_global": (
+            "pronto_para_comparar_controles"
+            if (
+                prontidao_por_calculo_hds5["inlet_control"]["pronto"]
+                and prontidao_por_calculo_hds5["outlet_control"]["pronto"]
+            )
+            else "bloqueado_por_dados_ausentes"
+        ),
+        "gates_em_ordem": ordem_gates_hds5,
+        "gates_bloqueados_em_ordem": gates_bloqueados_ordenados,
+        "proximo_gate_bloqueado": proximo_gate_bloqueado,
+        "proximo_gate_dependencias": (
+            list(proximo_gate_detalhe.get("dependencias", []))
+            if isinstance(proximo_gate_detalhe, dict)
+            else []
+        ),
+        "proximo_gate_libera": (
+            list(proximo_gate_detalhe.get("libera", []))
+            if isinstance(proximo_gate_detalhe, dict)
+            else []
+        ),
+        "familias_calculo": {
+            nome: {
+                "pronto": estado["pronto"],
+                "quantidade_faltantes": estado["quantidade_faltantes"],
+                "campos_faltantes": list(estado["campos_faltantes"]),
+            }
+            for nome, estado in prontidao_por_calculo_hds5.items()
+        },
+        "controle_governante_determinavel": (
+            prontidao_por_calculo_hds5["inlet_control"]["pronto"]
+            and prontidao_por_calculo_hds5["outlet_control"]["pronto"]
+        ),
+        "capacidade_definitiva_liberada": False,
+        "nivel_estimado_liberado": False,
+        "regra": "o_proximo_gate_e_apenas_o_primeiro_bloqueio_na_ordem_tecnica_documentada; nao_e_peso_prioridade_de_risco_ou_estimativa_hidraulica",
+        "proibicoes": [
+            "nao_preencher_dependencia_ausente_com_zero",
+            "nao_converter_chuva_em_HW",
+            "nao_converter_mare_Babitonga_em_TW_local",
+            "nao_inferir_coeficientes_HDS5_sem_classificacao_geometrica_documentada",
+            "nao_liberar_capacidade_definitiva_antes_do_controle_governante",
+        ],
+    }
+    controle_hidraulico_bueiro["estado_decisao_hds5"] = estado_decisao_hds5
  
     resultado = {
-        "versao": "GXA-V0.12-GATES-LIBERACAO-HDS5-CONTROLE-HIDRAULICO",
+        "versao": "GXA-V0.13-ESTADO-DECISAO-HDS5-CONTROLE-HIDRAULICO",
         "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
         "nivel_estimado_m": None,
         "incerteza_m": None,
@@ -10545,6 +10615,9 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "plano_fechamento_hds5_integrado": True,
             "gates_liberacao_hds5_integrados": True,
             "politica_liberacao_hds5_fail_closed": True,
+            "estado_decisao_hds5_integrado": True,
+            "proximo_gate_hds5_bloqueado": proximo_gate_bloqueado,
+            "controle_governante_hds5_determinavel": estado_decisao_hds5["controle_governante_determinavel"],
             "capacidade_definitiva_liberada": False,
         },
         "regras": [
@@ -10563,6 +10636,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "A V0.11 mantem capacidade definitiva, controle governante, HW e TW nulos enquanto suas dependencias documentais e observacionais nao forem satisfeitas.",
             "A V0.12 converte as dependencias HDS-5 em gates booleanos fail-closed; qualquer dependencia ausente mantem o calculo correspondente bloqueado.",
             "A V0.12 nao altera valores hidraulicos nem libera capacidade: apenas torna auditavel a decisao de bloqueio/liberacao de cada familia de calculo.",
+            "A V0.13 consolida os gates HDS-5 em um estado de decisao deterministico e informa o primeiro bloqueio tecnico ainda aberto sem atribuir peso, risco ou valor hidraulico.",
+            "A V0.13 mantem capacidade definitiva e nivel estimado bloqueados; o estado de decisao serve somente para rastreabilidade e fechamento ordenado das dependencias.",
             "As declividades inferidas pelas cotas C2 de A1 e A2 sao usadas apenas como checagem de consistencia documental, nao como calibracao hidraulica.",
             "Nenhum coeficiente de entrada/saida HDS-5 e inferido apenas pela presenca das estruturas ALA-01/ALA-02 no desenho.",
             "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",

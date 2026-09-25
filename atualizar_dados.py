@@ -9697,7 +9697,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.1"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.2-MATEMATICO"
 
 
 def _gxa_haversine_m(a, b):
@@ -9919,6 +9919,156 @@ def _gxa_validar(segmentos_saida, nos_saida):
     return erros
 
 
+
+# =========================================================
+# GUAXANDUVA-MODEL V0.2 - CAMADA MATEMATICA EXPERIMENTAL
+# =========================================================
+# O estimador abaixo NAO transforma maré em nivel do rio e NAO substitui
+# sensor fluviometrico. Ele calcula uma cota experimental no ponto tecnico
+# 30960 a partir de uma referencia de fundo experimental, resposta de chuva
+# e efeito de remanso de jusante. Os coeficientes ficam publicados no JSON,
+# com incerteza ampla, para futura calibracao por eventos e/ou imagem/sensor.
+# Estacoes de chuva nunca sao somadas entre si: usa-se o maior acumulado
+# valido entre as estacoes como forçante conservadora regional.
+
+
+def _gxa_numero_finito(valor):
+    if isinstance(valor, bool) or not isinstance(valor, (int, float)):
+        return None
+    valor = float(valor)
+    return valor if math.isfinite(valor) else None
+
+
+def _gxa_maior_chuva_valida(chuva_por_estacao, janela):
+    candidatos = []
+    fontes = []
+    for estacao in chuva_por_estacao or []:
+        if not isinstance(estacao, dict):
+            continue
+        bloco = estacao.get(janela) or {}
+        if bloco.get("disponivel") is not True:
+            continue
+        valor = _gxa_numero_finito(bloco.get("valor_mm"))
+        if valor is None or valor < 0:
+            continue
+        candidatos.append(valor)
+        fontes.append({
+            "codigo": str(estacao.get("codigo") or ""),
+            "nome": estacao.get("nome"),
+            "valor_mm": round(valor, 3),
+        })
+    if not candidatos:
+        return None, fontes
+    return max(candidatos), fontes
+
+
+def _gxa_calcular_nivel_experimental_v02(guaxanduva166):
+    """Calcula nivel experimental, nunca nivel observado/instrumental."""
+    resultado = {
+        "versao": "GXA-V0.2-MATEMATICO",
+        "status": "indisponivel",
+        "nivel_estimado_m": None,
+        "incerteza_m": None,
+        "confianca": "experimental_baixa",
+        "metodo": "modelo_semiempirico_chuva_remanso_com_restricoes_hidraulicas",
+        "instante": agora().isoformat(),
+        "uso_operacional": False,
+        "alerta_operacional_liberado": False,
+        "representa_medicao_instrumental": False,
+        "parametros": {
+            "cota_fundo_experimental_m": 0.50,
+            "lamina_base_experimental_m": 0.35,
+            "coef_chuva_p3_m_por_mm": 0.008,
+            "coef_chuva_incremental_p6_m_por_mm": 0.004,
+            "coef_chuva_incremental_p24_m_por_mm": 0.0015,
+            "coef_remanso_anomalia_mare": 0.35,
+            "limite_resposta_chuva_m": 1.20,
+            "incerteza_base_m": 0.90,
+        },
+        "regras": [
+            "Pluviometros nao sao somados; usa-se o maior acumulado valido por janela.",
+            "Mare de Joinville/Babitonga e usada somente como condicao de jusante.",
+            "A anomalia de mare e calculada em relacao ao NMM da propria serie; nao se assume equivalencia de datum com o fundo do Guaxanduva.",
+            "Nivel observado permanece nulo sem sensor publico confirmado.",
+            "Resultado experimental nao libera alerta operacional.",
+        ],
+    }
+    if not isinstance(guaxanduva166, dict):
+        resultado["motivo"] = "historico_166_indisponivel"
+        return resultado
+
+    chuvas = guaxanduva166.get("chuva_por_estacao") or []
+    p1, f1 = _gxa_maior_chuva_valida(chuvas, "P1h")
+    p3, f3 = _gxa_maior_chuva_valida(chuvas, "P3h")
+    p6, f6 = _gxa_maior_chuva_valida(chuvas, "P6h")
+    p24, f24 = _gxa_maior_chuva_valida(chuvas, "P24h")
+
+    # P3 e a primeira janela temporal minima para o V0.2. P6/P24 entram
+    # somente quando completas; ausencia permanece ausencia e nao vira zero.
+    if p3 is None:
+        resultado["motivo"] = "P3h_ainda_indisponivel"
+        resultado["forcantes"] = {"P1h_mm": p1, "P3h_mm": None, "P6h_mm": p6, "P24h_mm": p24}
+        return resultado
+
+    mare = guaxanduva166.get("mare_jusante_mais_recente") or {}
+    nivel_mare = _gxa_numero_finito(mare.get("nivel_m"))
+    nmm_cm = _gxa_numero_finito(mare.get("nmm_cm"))
+    if nivel_mare is None or nmm_cm is None:
+        resultado["motivo"] = "mare_jusante_ou_nmm_indisponivel"
+        return resultado
+
+    nmm_m = nmm_cm / 100.0
+    anomalia_mare_m = nivel_mare - nmm_m
+    anomalia_positiva_m = max(0.0, anomalia_mare_m)
+
+    p6_inc = max(0.0, p6 - p3) if p6 is not None else 0.0
+    referencia_p6 = p6 if p6 is not None else p3
+    p24_inc = max(0.0, p24 - referencia_p6) if p24 is not None else 0.0
+
+    resposta_chuva_m = min(
+        1.20,
+        0.008 * p3
+        + 0.004 * p6_inc
+        + 0.0015 * p24_inc,
+    )
+    resposta_remanso_m = 0.35 * anomalia_positiva_m
+    lamina_estimada_m = max(0.0, 0.35 + resposta_chuva_m + resposta_remanso_m)
+    nivel_estimado_m = 0.50 + lamina_estimada_m
+
+    # A incerteza inicial incorpora a incerteza da cota de fundo (0,90 m),
+    # ausencia de P6/P24 e falta de calibracao instrumental direta.
+    penalidade_janelas = (0.12 if p6 is None else 0.0) + (0.18 if p24 is None else 0.0)
+    incerteza_m = 0.90 + penalidade_janelas + 0.20 * resposta_chuva_m + 0.15 * resposta_remanso_m
+
+    resultado.update({
+        "status": "calculado_experimental",
+        "nivel_estimado_m": round(nivel_estimado_m, 3),
+        "incerteza_m": round(incerteza_m, 3),
+        "lamina_estimada_sobre_fundo_m": round(lamina_estimada_m, 3),
+        "componentes_m": {
+            "lamina_base": 0.35,
+            "resposta_chuva": round(resposta_chuva_m, 3),
+            "resposta_remanso_jusante": round(resposta_remanso_m, 3),
+        },
+        "forcantes": {
+            "P1h_mm": p1,
+            "P3h_mm": p3,
+            "P6h_mm": p6,
+            "P24h_mm": p24,
+            "fontes_P1h": f1,
+            "fontes_P3h": f3,
+            "fontes_P6h": f6,
+            "fontes_P24h": f24,
+            "mare_jusante_m": round(nivel_mare, 3),
+            "nmm_m": round(nmm_m, 3),
+            "anomalia_mare_m": round(anomalia_mare_m, 3),
+            "horario_mare": mare.get("horario_medicao"),
+        },
+        "motivo": None,
+    })
+    return resultado
+
+
 def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
     base = {
         "versao": GUAXANDUVA_MODELO_VERSAO,
@@ -10048,6 +10198,14 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
                 "erros": erros,
             },
         })
+
+        camada_matematica = _gxa_calcular_nivel_experimental_v02(guaxanduva166)
+        base["camada_matematica"] = camada_matematica
+        base["rio"]["nivel_estimado_m"] = camada_matematica.get("nivel_estimado_m")
+        base["rio"]["incerteza_m"] = camada_matematica.get("incerteza_m")
+        base["rio"]["confianca"] = camada_matematica.get("confianca")
+        base["rio"]["metodo"] = camada_matematica.get("metodo")
+        base["rio"]["instante"] = camada_matematica.get("instante")
 
         with open(GUAXANDUVA_GRAFO_ARQUIVO, "w", encoding="utf-8") as arquivo:
             json.dump(base, arquivo, ensure_ascii=False, indent=2)
@@ -10301,7 +10459,7 @@ def atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160):
             "CEMADEN 24 h nao e tratado como chuva horaria.",
             "Mare de Joinville/Babitonga e condicao de jusante e nao nivel do Rio Guaxanduva.",
             "P3h, P6h e P24h so existem quando todas as horas da janela estao presentes.",
-            "Nenhum peso chuva x mare e aplicado antes de calibracao historica validada.",
+            "A camada historica #166 nao aplica pesos chuva x mare; coeficientes experimentais, quando existentes, pertencem exclusivamente ao GUAXANDUVA-MODEL e permanecem nao operacionais.",
         ],
     }
 

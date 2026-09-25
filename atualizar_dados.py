@@ -9697,7 +9697,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.14-MATRIZ-EVIDENCIAS-HDS5-CONTROLE-HIDRAULICO"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.15-CONSOLIDACAO-AUDITORIA-FINAL-HDS5"
  
  
 def _gxa_haversine_m(a, b):
@@ -10641,9 +10641,62 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "regra": "a_matriz_define_o_que_pode_fechar_cada_entrada_sem_transformar_evidencia_indireta_em_valor_hidraulico",
     }
     controle_hidraulico_bueiro["auditoria_evidencias_hds5"] = auditoria_evidencias_hds5
+
+    # V0.15 - consolidacao e auditoria final do nucleo HDS-5.
+    # Esta camada nao cria nenhum valor hidraulico. Ela verifica invariantes
+    # construidos entre V0.10 e V0.14 e fecha o ciclo do PY em fail-closed.
+    invariantes_v015 = {
+        "politica_fail_closed": gates_liberacao_hds5.get("politica") == "fail_closed",
+        "gates_presentes": len(gates_liberacao_hds5.get("gates", {})) == 7,
+        "estado_decisao_integrado": isinstance(estado_decisao_hds5, dict),
+        "matriz_evidencias_integrada": isinstance(auditoria_evidencias_hds5, dict),
+        "nivel_estimado_permanece_bloqueado": estado_decisao_hds5.get("nivel_estimado_liberado") is False,
+        "capacidade_definitiva_permanece_bloqueada": estado_decisao_hds5.get("capacidade_definitiva_liberada") is False,
+        "controle_governante_coerente_com_prontidao": (
+            estado_decisao_hds5.get("controle_governante_determinavel")
+            == (
+                prontidao_por_calculo_hds5["inlet_control"]["pronto"]
+                and prontidao_por_calculo_hds5["outlet_control"]["pronto"]
+            )
+        ),
+        "g4_exige_tw_e_invert_saida": (
+            set(gates.get("G4_tw_observado_referenciado", {}).get("dependencias", []))
+            == {"tailwater_referenciado_ao_invert_saida", "cota_invert_final_A3_confirmada"}
+        ),
+        "campos_evidencia_correspondem_entradas_hds5": (
+            set(matriz_evidencias_hds5.keys()) == set(entradas_hds5.keys())
+        ),
+        "nenhum_gate_bloqueado_libera_capacidade": gates_liberacao_hds5["resumo"].get("capacidade_definitiva_liberada") is False,
+    }
+    invariantes_falhos_v015 = [
+        nome for nome, ok in invariantes_v015.items() if ok is not True
+    ]
+    auditoria_final_v015 = {
+        "versao": "GXA-V0.15-CONSOLIDACAO-AUDITORIA-FINAL-HDS5",
+        "uso_operacional": False,
+        "politica": "fail_closed",
+        "estado": "consistente" if not invariantes_falhos_v015 else "inconsistente_bloqueado",
+        "quantidade_invariantes": len(invariantes_v015),
+        "quantidade_aprovados": sum(1 for ok in invariantes_v015.values() if ok is True),
+        "quantidade_falhos": len(invariantes_falhos_v015),
+        "invariantes": invariantes_v015,
+        "invariantes_falhos": invariantes_falhos_v015,
+        "publicacao_hidraulica_liberada": False,
+        "nivel_estimado_m": None,
+        "capacidade_vazao_m3_s": None,
+        "regra": "a_auditoria_final_valida_coerencia_estrutural_sem_preencher_dados_ausentes_nem_liberar_resultados_hidraulicos",
+        "proibicoes": [
+            "nao_converter_None_em_zero",
+            "nao_converter_chuva_em_HW",
+            "nao_converter_mare_Babitonga_em_TW_local",
+            "nao_inferir_coeficientes_HDS5_sem_evidencia_aceitavel",
+            "nao_publicar_nivel_ou_capacidade_enquanto_os_gates_permanecerem_bloqueados",
+        ],
+    }
+    controle_hidraulico_bueiro["auditoria_final_v015"] = auditoria_final_v015
  
     resultado = {
-        "versao": "GXA-V0.14-MATRIZ-EVIDENCIAS-HDS5-CONTROLE-HIDRAULICO",
+        "versao": "GXA-V0.15-CONSOLIDACAO-AUDITORIA-FINAL-HDS5",
         "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
         "nivel_estimado_m": None,
         "incerteza_m": None,
@@ -10730,6 +10783,9 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "politica_liberacao_hds5_fail_closed": True,
             "estado_decisao_hds5_integrado": True,
             "matriz_evidencias_hds5_integrada": True,
+            "auditoria_final_v015_integrada": True,
+            "auditoria_final_v015_estado": auditoria_final_v015["estado"],
+            "auditoria_final_v015_invariantes_falhos": len(invariantes_falhos_v015),
             "quantidade_evidencias_hds5_pendentes": len(campos_evidencia_pendentes),
             "proximo_gate_hds5_bloqueado": proximo_gate_bloqueado,
             "controle_governante_hds5_determinavel": estado_decisao_hds5["controle_governante_determinavel"],
@@ -10755,6 +10811,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "A V0.13 mantem capacidade definitiva e nivel estimado bloqueados; o estado de decisao serve somente para rastreabilidade e fechamento ordenado das dependencias.",
             "A V0.14 associa cada entrada HDS-5 ainda necessaria a classes de evidencia aceitaveis e nao aceitaveis, preservando a politica fail-closed.",
             "A V0.14 nao transforma evidencia indireta em valor hidraulico: uma entrada somente e satisfeita quando deixa de ser None com proveniencia registrada.",
+            "A V0.15 consolida e audita os invariantes das camadas HDS-5 V0.10 a V0.14 sem alterar valores hidraulicos nem preencher entradas ausentes.",
+            "A V0.15 encerra o ciclo planejado do nucleo PY mantendo nivel estimado, capacidade definitiva e publicacao hidraulica bloqueados enquanto os gates nao forem satisfeitos.",
             "As declividades inferidas pelas cotas C2 de A1 e A2 sao usadas apenas como checagem de consistencia documental, nao como calibracao hidraulica.",
             "Nenhum coeficiente de entrada/saida HDS-5 e inferido apenas pela presenca das estruturas ALA-01/ALA-02 no desenho.",
             "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",

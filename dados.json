@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-09-25T13:46:19.170661-03:00",
+  "gerado_em": "2026-09-25T13:49:12.565523-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -143,7 +143,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-09-25T13:45:12.210376-03:00"
+    "coletado_em": "2026-09-25T13:48:52.179434-03:00"
   },
   "chuva_observada_epagri_165": {
     "status": "online",
@@ -163,7 +163,7 @@
         "longitude": -48.9708,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-25T13:00:00-03:00",
-        "idade_leitura_min": 45.2,
+        "idade_leitura_min": 48.9,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -179,7 +179,7 @@
         "longitude": -48.9889,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-25T13:00:00-03:00",
-        "idade_leitura_min": 45.2,
+        "idade_leitura_min": 48.9,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -348,7 +348,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-25T13:00:00-03:00",
-        "idade_leitura_min": 45.2,
+        "idade_leitura_min": 48.9,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -367,7 +367,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-25T13:00:00-03:00",
-        "idade_leitura_min": 45.2,
+        "idade_leitura_min": 48.9,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -1029,7 +1029,7 @@
       "data_fonte": "25/09/2026",
       "hora_fonte": "16h"
     },
-    "idade_ultima_leitura_min": 46.5,
+    "idade_ultima_leitura_min": 49.4,
     "dados_frescos_diagnostico": true,
     "limite_frescor_diagnostico_min": 120,
     "acumulados_diagnosticos": {
@@ -1257,7 +1257,7 @@
     "24h_mm": 0.0,
     "horario_ultima_celula_utc": "2026-09-25T16:00:00+00:00",
     "horario_ultima_celula_local": "2026-09-25T13:00:00-03:00",
-    "idade_leitura_min": 46.6,
+    "idade_leitura_min": 49.5,
     "dados_frescos": true,
     "limite_frescor_min": 120,
     "granularidade": "horaria",
@@ -1279,17 +1279,24 @@
     "observacao": "Bloco operacional baseado em janelas horarias coerentes validadas nas #141-#143. O horario exibido e o rotulo temporal da ultima celula fornecida pelo CEMADEN; a #144 nao afirma se ele representa inicio ou fechamento do intervalo horario. Granularidade de 10 minutos permanece indisponivel."
   },
   "chuva_observada_inmet": {
-    "status": "indisponivel",
+    "status": "online_fresco",
     "tipo": "observacao_estacao_automatica",
     "fonte": "INMET",
+    "fonte_primaria": "Instituto Nacional de Meteorologia",
     "geocodigo_ibge_consultado": "4209102",
-    "leitura_horaria_mm": null,
-    "horario_medicao_utc": null,
-    "horario_medicao_local": null,
-    "idade_leitura_min": null,
-    "dados_frescos": false,
-    "erro": "HTTPSConnectionPool(host='apiprevmet3.inmet.gov.br', port=443): Max retries exceeded with url: /estacao/proxima/4209102 (Caused by ConnectTimeoutError(<HTTPSConnection(host='apiprevmet3.inmet.gov.br', port=443) at 0x7faa27c3ee40>, 'Connection to apiprevmet3.inmet.gov.br timed out. (connect timeout=30)'))",
-    "regra_seguranca": "Falha de coleta não é interpretada como ausência de chuva."
+    "estacao": {
+      "codigo": "A868",
+      "nome": "ITAJAI",
+      "uf": "SC",
+      "distancia_referencia_joinville_km": 81.0
+    },
+    "leitura_horaria_mm": 0.0,
+    "horario_medicao_utc": "2026-09-25T16:00:00+00:00",
+    "horario_medicao_local": "2026-09-25T13:00:00-03:00",
+    "idade_leitura_min": 49.6,
+    "dados_frescos": true,
+    "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
+    "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
   },
   "investigacao_radarsc_128": {
     "status": "evidencia_textual_encontrada_para_revisao",
@@ -1439,13 +1446,13 @@
     "local": "Joinville / Babitonga",
     "unidade": "cm",
     "url_fonte": "https://ciram.epagri.sc.gov.br/graficos/getDataMare11_2913.php",
-    "nivel_cm": 164.4,
-    "nivel_m": 1.644,
-    "mare_astronomica_cm": 167.0,
-    "residual_cm": -2.6,
+    "nivel_cm": 169.6,
+    "nivel_m": 1.696,
+    "mare_astronomica_cm": 172.0,
+    "residual_cm": -2.4,
     "nmm_cm": 103.1,
-    "horario": "2026-09-25T13:15:00-03:00",
-    "idade_min": 31.3,
+    "horario": "2026-09-25T13:30:00-03:00",
+    "idade_min": 19.1,
     "frescor": "atual",
     "residual_aritmetica_validada": true,
     "uso_no_risco": false,
@@ -1461,7 +1468,7 @@
     ],
     "estrutura_validada": true,
     "erro_residual_cm": 0.0,
-    "quantidade_observacoes_validas": 150
+    "quantidade_observacoes_validas": 151
   },
   "mare_prevista_24h_164": {
     "status": "online_completo",
@@ -3323,7 +3330,7 @@
     "versao": "166-v0.2-historico-integrado",
     "status": "historico_em_formacao",
     "arquivo_historico": "historico_guaxanduva_166.json",
-    "gerado_em": "2026-09-25T13:46:16.570850-03:00",
+    "gerado_em": "2026-09-25T13:49:10.206880-03:00",
     "quantidade_registros": 66,
     "quantidade_chuva_horaria": 30,
     "quantidade_mare_observada": 36,
@@ -3410,11 +3417,11 @@
       "fonte": "EPAGRI/CIRAM",
       "codigo_estacao": "maregrafo_joinville_2913",
       "nome_estacao": "Joinville / Babitonga",
-      "horario_medicao": "2026-09-25T13:15:00-03:00",
-      "nivel_cm": 164.4,
-      "nivel_m": 1.644,
-      "mare_astronomica_cm": 167.0,
-      "residual_cm": -2.6,
+      "horario_medicao": "2026-09-25T13:30:00-03:00",
+      "nivel_cm": 169.6,
+      "nivel_m": 1.696,
+      "mare_astronomica_cm": 172.0,
+      "residual_cm": -2.4,
       "nmm_cm": 103.1,
       "representa_nivel_rio_guaxanduva": false,
       "uso": "condicao_de_jusante_para_calibracao_futura"
@@ -3446,8 +3453,8 @@
     ]
   },
   "modelo_computacional_guaxanduva_v01": {
-    "versao": "GXA-V0.11-PLANO-FECHAMENTO-HDS5-CONTROLE-HIDRAULICO",
-    "gerado_em": "2026-09-25T13:46:16.572529-03:00",
+    "versao": "GXA-V0.12-GATES-LIBERACAO-HDS5-CONTROLE-HIDRAULICO",
+    "gerado_em": "2026-09-25T13:49:10.208416-03:00",
     "status": "grafo_hidrografico_integrado",
     "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
     "microbacia": "44-0",
@@ -3464,7 +3471,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "restricoes_geometricas_documentadas_mais_forcantes_observadas_sem_coeficientes_empiricos_arbitrarios",
-      "instante": "2026-09-25T13:46:19.159063-03:00"
+      "instante": "2026-09-25T13:49:12.554023-03:00"
     },
     "parametros_hidraulicos_documentados": {
       "bypass_montezuma_odilon": {
@@ -3599,11 +3606,11 @@
         "fonte": "EPAGRI/CIRAM",
         "codigo_estacao": "maregrafo_joinville_2913",
         "nome_estacao": "Joinville / Babitonga",
-        "horario_medicao": "2026-09-25T13:15:00-03:00",
-        "nivel_cm": 164.4,
-        "nivel_m": 1.644,
-        "mare_astronomica_cm": 167.0,
-        "residual_cm": -2.6,
+        "horario_medicao": "2026-09-25T13:30:00-03:00",
+        "nivel_cm": 169.6,
+        "nivel_m": 1.696,
+        "mare_astronomica_cm": 172.0,
+        "residual_cm": -2.4,
         "nmm_cm": 103.1,
         "representa_nivel_rio_guaxanduva": false,
         "uso": "condicao_de_jusante_para_calibracao_futura"
@@ -13253,7 +13260,7 @@
       "erros": []
     },
     "propagacao_grafo": {
-      "versao": "GXA-V0.11-PLANO-FECHAMENTO-HDS5-CONTROLE-HIDRAULICO",
+      "versao": "GXA-V0.12-GATES-LIBERACAO-HDS5-CONTROLE-HIDRAULICO",
       "status": "calculado_geometrico",
       "segmento_referencia": 30960,
       "grafo_direcionado": false,
@@ -13988,13 +13995,13 @@
       ]
     },
     "camada_matematica": {
-      "versao": "GXA-V0.11-PLANO-FECHAMENTO-HDS5-CONTROLE-HIDRAULICO",
+      "versao": "GXA-V0.12-GATES-LIBERACAO-HDS5-CONTROLE-HIDRAULICO",
       "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
       "nivel_estimado_m": null,
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "restricoes_geometricas_documentadas_mais_forcantes_observadas_sem_coeficientes_empiricos_arbitrarios",
-      "instante": "2026-09-25T13:46:19.159063-03:00",
+      "instante": "2026-09-25T13:49:12.554023-03:00",
       "uso_operacional": false,
       "alerta_operacional_liberado": false,
       "representa_medicao_instrumental": false,
@@ -14408,6 +14415,109 @@
                 "ALA_01_ou_ALA_02_no_desenho_nao_bastam_para_selecionar_coeficientes_HDS5",
                 "capacidade_definitiva_permanece_nula_ate_o_controle_governante_ser_determinavel"
               ]
+            },
+            "gates_liberacao_hds5": {
+              "versao": "GXA-V0.12-GATES-LIBERACAO-HDS5-CONTROLE-HIDRAULICO",
+              "uso_operacional": false,
+              "politica": "fail_closed",
+              "regra_geral": "qualquer_dependencia_ausente_mantem_o_calculo_bloqueado",
+              "gates": {
+                "G1_geometria_entrada": {
+                  "satisfeito": false,
+                  "dependencias": [
+                    "geometria_entrada_inequivoca"
+                  ],
+                  "libera": [
+                    "selecao_coeficientes_inlet_control_hds5",
+                    "selecao_ke"
+                  ]
+                },
+                "G2_referencial_vertical_saida": {
+                  "satisfeito": false,
+                  "dependencias": [
+                    "cota_invert_final_A3_confirmada"
+                  ],
+                  "libera": [
+                    "referenciamento_TW_ao_invert_saida"
+                  ]
+                },
+                "G3_hw_observado_referenciado": {
+                  "satisfeito": false,
+                  "dependencias": [
+                    "headwater_referenciado_ao_invert_entrada"
+                  ],
+                  "libera": [
+                    "avaliacao_inlet_control_quando_demais_dependencias_estiverem_satisfeitas"
+                  ]
+                },
+                "G4_tw_observado_referenciado": {
+                  "satisfeito": false,
+                  "dependencias": [
+                    "tailwater_referenciado_ao_invert_saida",
+                    "cota_invert_final_A3_confirmada"
+                  ],
+                  "libera": [
+                    "avaliacao_submergencia_quando_demais_dependencias_estiverem_satisfeitas"
+                  ]
+                },
+                "G5_condicao_real_tubos": {
+                  "satisfeito": false,
+                  "dependencias": [
+                    "condicao_real_tubos_obstrucao_assoreamento"
+                  ],
+                  "libera": [
+                    "uso_da_geometria_nominal_em_calculo_hidraulico"
+                  ]
+                },
+                "G6_parametros_inlet_control": {
+                  "satisfeito": false,
+                  "dependencias": [
+                    "geometria_entrada_inequivoca",
+                    "coeficientes_inlet_control_hds5"
+                  ],
+                  "libera": [
+                    "parametrizacao_inlet_control"
+                  ]
+                },
+                "G7_parametros_outlet_control": {
+                  "satisfeito": false,
+                  "dependencias": [
+                    "coeficiente_perda_entrada_ke",
+                    "coeficiente_perda_saida_ko",
+                    "rugosidade_local_ou_calibrada"
+                  ],
+                  "libera": [
+                    "parametrizacao_outlet_control"
+                  ]
+                }
+              },
+              "resumo": {
+                "quantidade_gates": 7,
+                "quantidade_satisfeitos": 0,
+                "quantidade_bloqueados": 7,
+                "gates_bloqueados": [
+                  "G1_geometria_entrada",
+                  "G2_referencial_vertical_saida",
+                  "G3_hw_observado_referenciado",
+                  "G4_tw_observado_referenciado",
+                  "G5_condicao_real_tubos",
+                  "G6_parametros_inlet_control",
+                  "G7_parametros_outlet_control"
+                ],
+                "inlet_control_liberado": false,
+                "outlet_control_liberado": false,
+                "submergencia_liberada": false,
+                "controle_governante_liberado": false,
+                "capacidade_definitiva_liberada": false
+              },
+              "proibicoes_explicitas": [
+                "nao_converter_None_em_zero",
+                "nao_usar_chuva_como_HW",
+                "nao_usar_mare_Babitonga_como_TW_local",
+                "nao_selecionar_coeficientes_por_semelhanca_visual",
+                "nao_publicar_controle_governante_sem_inlet_e_outlet_calculados",
+                "nao_publicar_capacidade_definitiva_sem_controle_governante_determinado"
+              ]
             }
           }
         },
@@ -14438,6 +14548,8 @@
         "prontidao_hds5_separada_por_familia_de_calculo": true,
         "quantidade_campos_hds5_faltantes": 9,
         "plano_fechamento_hds5_integrado": true,
+        "gates_liberacao_hds5_integrados": true,
+        "politica_liberacao_hds5_fail_closed": true,
         "capacidade_definitiva_liberada": false
       },
       "regras": [
@@ -14454,6 +14566,8 @@
         "A V0.10 registra em bloco separado os dados geometricos ja documentados para evitar confundir geometria conhecida com entrada hidraulica ainda ausente.",
         "A V0.11 organiza os campos faltantes em um plano de fechamento por dependencia fisica; a ordem e tecnica e nao atribui pesos ou coeficientes ao modelo.",
         "A V0.11 mantem capacidade definitiva, controle governante, HW e TW nulos enquanto suas dependencias documentais e observacionais nao forem satisfeitas.",
+        "A V0.12 converte as dependencias HDS-5 em gates booleanos fail-closed; qualquer dependencia ausente mantem o calculo correspondente bloqueado.",
+        "A V0.12 nao altera valores hidraulicos nem libera capacidade: apenas torna auditavel a decisao de bloqueio/liberacao de cada familia de calculo.",
         "As declividades inferidas pelas cotas C2 de A1 e A2 sao usadas apenas como checagem de consistencia documental, nao como calibracao hidraulica.",
         "Nenhum coeficiente de entrada/saida HDS-5 e inferido apenas pela presenca das estruturas ALA-01/ALA-02 no desenho.",
         "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",
@@ -14525,10 +14639,10 @@
           "regra": "estacoes_independentes_nao_somadas; maior_acumulado_valido_apenas_para_resumo_regional"
         },
         "mare_jusante": {
-          "nivel_m": 1.644,
+          "nivel_m": 1.696,
           "nmm_m": 1.031,
-          "anomalia_relativa_ao_nmm_m": 0.613,
-          "horario_medicao": "2026-09-25T13:15:00-03:00",
+          "anomalia_relativa_ao_nmm_m": 0.665,
+          "horario_medicao": "2026-09-25T13:30:00-03:00",
           "representa_nivel_rio_guaxanduva": false
         }
       }
@@ -14721,13 +14835,13 @@
     "entradas": {
       "chuva_prevista_24h_mm": 0.0,
       "chuva_24h_integra": true,
-      "mare_observada_m": 1.644,
+      "mare_observada_m": 1.696,
       "mare_observada_fresca": true,
       "mare_fonte": "EPAGRI/CIRAM",
       "janela_inicio": "2026-09-25T14:00",
       "janela_fim_exclusivo": "2026-09-26T14:00:00-03:00",
-      "mare_horario": "2026-09-25T13:15:00-03:00",
-      "mare_idade_min": 31.3
+      "mare_horario": "2026-09-25T13:30:00-03:00",
+      "mare_idade_min": 19.1
     },
     "criterios": {
       "mobilizacao_chuva_superior_20mm_24h": false,
@@ -14761,7 +14875,7 @@
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
     "horario_ultimo_quadro": "2026-09-25T13:40:00-03:00",
-    "idade_ultimo_quadro_min": 7.4,
+    "idade_ultimo_quadro_min": 9.9,
     "dados_frescos": true,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -19877,7 +19991,7 @@
     }
   },
   "granizo": {
-    "status": "indisponivel_cap_recente_nao_decodificado",
+    "status": "online_sem_conclusao_negativa",
     "versao": "#157",
     "fonte": "INMET / WIS2 / CAP",
     "tipo": "aviso_meteorologico_oficial_granizo",
@@ -19886,7 +20000,7 @@
     "cobertura_referencia_publica_comasa": null,
     "uso_operacional_granizo": true,
     "regra_seguranca": "Somente alerta positivo comprovado e publicado. Ausencia de candidato na amostra da #156, falha de fonte ou XML indisponivel permanece inconclusiva e nunca vira automaticamente 'sem alerta'.",
-    "observacao": "Aviso oficial indica possibilidade de granizo na area e no periodo; nao significa granizo observado ou caindo no Comasa."
+    "observacao": "Os CAPs inspecionados foram decodificados, mas a #156 avalia apenas uma amostra recente. Portanto, ausencia de candidato positivo nao autoriza publicar 'sem alerta de granizo'."
   },
   "diagnostico_wis2_inmet_149": {
     "status": "mqtt_ok_sem_notificacao_na_janela",
@@ -19906,80 +20020,1750 @@
     "observacao": "Diagnostico de conectividade e estrutura. Ausencia de mensagem durante a janela de teste nao significa ausencia de alerta."
   },
   "diagnostico_historico_cap_inmet_150": {
-    "status": "indisponivel",
+    "status": "api_online_sem_cap_nas_100_features",
     "versao": "#150",
     "fonte": "WIS2 Node oficial do INMET / wis2box OGC API",
     "endpoint": "https://wis2bra.inmet.gov.br/oapi/collections/messages/items",
-    "http_status": null,
-    "quantidade_features": 0,
+    "http_status": 200,
+    "quantidade_features": 100,
     "quantidade_cap_candidatos": 0,
     "amostras_cap": [],
-    "estrutura_primeira_feature": null,
+    "estrutura_primeira_feature": {
+      "chaves_feature": [
+        "conformsTo",
+        "generated_by",
+        "geometry",
+        "id",
+        "links",
+        "properties",
+        "type"
+      ],
+      "chaves_properties": [
+        "content",
+        "data_id",
+        "datetime",
+        "id",
+        "integrity",
+        "metadata_id",
+        "pubtime",
+        "wigos_station_identifier"
+      ],
+      "id": "64fdd1a1-6a61-471e-bb76-b6cb129eadf6"
+    },
     "uso_operacional_granizo": false,
     "regra_seguranca": "Este bloco apenas investiga notificacoes historicas do CAP. Nao afirma alerta ativo, ausencia de alerta ou risco de granizo.",
-    "erro": "HTTPSConnectionPool(host='wis2bra.inmet.gov.br', port=443): Max retries exceeded with url: /oapi/collections/messages/items?f=json&limit=100 (Caused by ConnectTimeoutError(<HTTPSConnection(host='wis2bra.inmet.gov.br', port=443) at 0x7faa278ccb60>, 'Connection to wis2bra.inmet.gov.br timed out. (connect timeout=10)'))",
-    "observacao": "Falha no diagnostico historico #150. Nenhuma conclusao sobre alerta de granizo e produzida a partir desta falha."
+    "observacao": "A API oficial respondeu e retornou mensagens, mas nenhuma das 100 features recuperadas pertenceu ao topico CAP. Isso nao significa ausencia de alertas."
   },
   "diagnostico_filtro_cap_inmet_151": {
-    "status": "indisponivel",
+    "status": "api_e_queryables_online_sem_cap_filtrado",
     "versao": "#151",
     "fonte": "WIS2 Node oficial do INMET / OGC API",
-    "queryables_http": null,
-    "queryables": [],
-    "data_id_filtravel": false,
-    "tentativas": [],
-    "data_ids_amostra_consulta_geral": [],
+    "queryables_http": 200,
+    "queryables": [
+      "content.encoding",
+      "content.size",
+      "content.value",
+      "data_id",
+      "datetime",
+      "geometry",
+      "gts.cccc",
+      "gts.ttaaii",
+      "id",
+      "integrity.method",
+      "integrity.value",
+      "metadata.value",
+      "metadata_id",
+      "phenomenonTime",
+      "pubTime",
+      "pubtime",
+      "resultTime",
+      "value",
+      "wigos_station_identifier"
+    ],
+    "data_id_filtravel": true,
+    "tentativas": [
+      {
+        "teste": "property_data_id_curto",
+        "params": {
+          "f": "json",
+          "data_id": "advisories-warnings",
+          "limit": 100
+        },
+        "http_status": 200,
+        "quantidade_features": 0,
+        "features_amostra": [],
+        "erro": null
+      },
+      {
+        "teste": "property_data_id_topico",
+        "params": {
+          "f": "json",
+          "data_id": "br-inmet/data/core/weather/advisories-warnings",
+          "limit": 100
+        },
+        "http_status": 200,
+        "quantidade_features": 0,
+        "features_amostra": [],
+        "erro": null
+      },
+      {
+        "teste": "texto_q",
+        "params": {
+          "f": "json",
+          "q": "advisories-warnings",
+          "limit": 100
+        },
+        "http_status": 200,
+        "quantidade_features": 0,
+        "features_amostra": [],
+        "erro": null
+      }
+    ],
+    "data_ids_amostra_consulta_geral": [
+      "br-inmet:synop/WIGOS_0-76-0-1504208000000449_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-5300108000000496_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-2202307000000274_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-5300108000000537_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1504455000000289_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-2202505000000268_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1705508000000530_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1504802000000482_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1718907000000500_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-2203909000000067_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1505106000000481_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1700400000000508_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-2204402000000447_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1505536000000418_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1702000000000502_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-2207009000000409_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1505650000000287_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1711902000000531_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-2207702000000051_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-5206206000000570_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1506187000000342_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-2208403000000247_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-2210607000000294_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1506708000000369_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1709500000000161_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-2211209000000305_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1716505000000170_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-5206206000000280_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-1400100000000465_20260728T120000",
+      "br-inmet:synop/WIGOS_0-76-0-2612208000000558_20260728T120000"
+    ],
     "candidatos_cap": [],
     "uso_operacional_granizo": false,
     "regra_seguranca": "Diagnostico de descoberta/filtro. Nenhum resultado deste bloco significa alerta ativo, ausencia de alerta ou risco de granizo.",
-    "erro": "HTTPSConnectionPool(host='wis2bra.inmet.gov.br', port=443): Max retries exceeded with url: /oapi/collections/messages/queryables?f=json (Caused by ConnectTimeoutError(<HTTPSConnection(host='wis2bra.inmet.gov.br', port=443) at 0x7faa278cd9a0>, 'Connection to wis2bra.inmet.gov.br timed out. (connect timeout=10)'))",
-    "observacao": "Falha no diagnostico seletivo #151. Nenhuma conclusao sobre alerta de granizo e produzida."
+    "observacao": "A API e /queryables responderam, mas os filtros testados nao localizaram CAP. Isso nao significa ausencia de alertas."
   },
   "diagnostico_data_id_cap_inmet_152": {
-    "status": "indisponivel",
+    "status": "data_id_documentado_e_cap_localizado",
     "versao": "#152",
     "fonte": "WIS2 Node oficial do INMET / discovery-metadata",
     "metadata_url": "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn%3Awmo%3Amd%3Abr-inmet%3Aalerts",
-    "metadata_http": null,
-    "chaves_metadata": [],
-    "links_metadata": [],
-    "strings_relevantes": [],
-    "candidatos_data_id": [],
-    "testes_data_id": [],
-    "cap_localizado": false,
-    "notificacoes_cap": [],
+    "metadata_http": 200,
+    "chaves_metadata": [
+      "conformsTo",
+      "geometry",
+      "id",
+      "links",
+      "properties",
+      "time",
+      "type",
+      "wis2box"
+    ],
+    "links_metadata": [
+      {
+        "rel": "about",
+        "href": "https://portal.inmet.gov.br",
+        "type": "text/html",
+        "title": null
+      },
+      {
+        "rel": "canonical",
+        "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+        "type": "application/geo+json",
+        "title": "urn:wmo:md:br-inmet:alerts"
+      },
+      {
+        "rel": "root",
+        "href": "https://wis2bra.inmet.gov.br/oapi?f=json",
+        "type": "application/json",
+        "title": "The landing page of this server as JSON"
+      },
+      {
+        "rel": "root",
+        "href": "https://wis2bra.inmet.gov.br/oapi?f=html",
+        "type": "text/html",
+        "title": "The landing page of this server as HTML"
+      },
+      {
+        "rel": "self",
+        "href": "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn:wmo:md:br-inmet:alerts?f=json",
+        "type": "application/geo+json",
+        "title": "This document as JSON"
+      },
+      {
+        "rel": "alternate",
+        "href": "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn:wmo:md:br-inmet:alerts?f=jsonld",
+        "type": "application/ld+json",
+        "title": "This document as RDF (JSON-LD)"
+      },
+      {
+        "rel": "alternate",
+        "href": "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn:wmo:md:br-inmet:alerts?f=html",
+        "type": "text/html",
+        "title": "This document as HTML"
+      },
+      {
+        "rel": "collection",
+        "href": "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata",
+        "type": "application/json",
+        "title": "Discovery metadata"
+      }
+    ],
+    "strings_relevantes": [
+      {
+        "caminho": "$.id",
+        "valor": "urn:wmo:md:br-inmet:alerts"
+      },
+      {
+        "caminho": "$.wis2box.topic_hierarchy",
+        "valor": "br-inmet.data.core.weather.advisories-warnings"
+      },
+      {
+        "caminho": "$.wis2box.centre_id",
+        "valor": "br-inmet"
+      },
+      {
+        "caminho": "$.wis2box.data_mappings.plugins.xml[0].plugin",
+        "valor": "wis2box.data.cap_message.CAPMessageData"
+      },
+      {
+        "caminho": "$.wis2box.data_mappings.plugins.xml[0].file-pattern",
+        "valor": "^.*\\.xml$"
+      },
+      {
+        "caminho": "$.properties.identifier",
+        "valor": "urn:wmo:md:br-inmet:alerts"
+      },
+      {
+        "caminho": "$.properties.title",
+        "valor": "CAP Alerts published by br-inmet"
+      },
+      {
+        "caminho": "$.properties.description",
+        "valor": "Warnings in CAP format issued by INMET, Brazil."
+      },
+      {
+        "caminho": "$.properties.keywords[0]",
+        "valor": "CAP"
+      },
+      {
+        "caminho": "$.properties.keywords[1]",
+        "valor": "warnings"
+      },
+      {
+        "caminho": "$.properties.keywords[2]",
+        "valor": "alerts"
+      },
+      {
+        "caminho": "$.properties.themes[0].concepts[0].id",
+        "valor": "weather"
+      },
+      {
+        "caminho": "$.properties.themes[0].concepts[0].title",
+        "valor": "Weather"
+      },
+      {
+        "caminho": "$.properties.wmo:topicHierarchy",
+        "valor": "origin/a/wis2/br-inmet/data/core/weather/advisories-warnings"
+      },
+      {
+        "caminho": "$.properties.id",
+        "valor": "urn:wmo:md:br-inmet:alerts"
+      },
+      {
+        "caminho": "$.links[0].name",
+        "valor": "origin/a/wis2/br-inmet/data/core/weather/advisories-warnings"
+      },
+      {
+        "caminho": "$.links[0].channel",
+        "valor": "origin/a/wis2/br-inmet/data/core/weather/advisories-warnings"
+      },
+      {
+        "caminho": "$.links[1].href",
+        "valor": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json"
+      },
+      {
+        "caminho": "$.links[1].name",
+        "valor": "urn:wmo:md:br-inmet:alerts"
+      },
+      {
+        "caminho": "$.links[1].title",
+        "valor": "urn:wmo:md:br-inmet:alerts"
+      },
+      {
+        "caminho": "$.links[4].href",
+        "valor": "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn:wmo:md:br-inmet:alerts?f=json"
+      },
+      {
+        "caminho": "$.links[5].href",
+        "valor": "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn:wmo:md:br-inmet:alerts?f=jsonld"
+      },
+      {
+        "caminho": "$.links[6].href",
+        "valor": "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn:wmo:md:br-inmet:alerts?f=html"
+      }
+    ],
+    "candidatos_data_id": [
+      "urn:wmo:md:br-inmet:alerts",
+      "br-inmet.data.core.weather.advisories-warnings",
+      "origin/a/wis2/br-inmet/data/core/weather/advisories-warnings",
+      "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+      "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn:wmo:md:br-inmet:alerts?f=json",
+      "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn:wmo:md:br-inmet:alerts?f=jsonld",
+      "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn:wmo:md:br-inmet:alerts?f=html"
+    ],
+    "testes_data_id": [
+      {
+        "data_id": "urn:wmo:md:br-inmet:alerts",
+        "http_status": 200,
+        "quantidade_features": 20,
+        "amostras": [
+          {
+            "id": "00f62d58-a494-4575-8966-244999453fa0",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-07-28T15:00:09Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "b48f11d3-2de8-407b-afd9-bc70adb1719a",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-07-27T15:00:04Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "afa9a623-8cce-4228-b505-21ddc5709f0b",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-07-30T15:00:03Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "27a9c8ff-007a-4594-bdf4-2cd92e431919",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-07-29T15:00:08Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "31ec671f-a2aa-4178-b1ea-89a91f6e1dd1",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-02T15:00:08Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "96ac91c2-4055-4ff3-abea-36c62a2888da",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-04T15:00:06Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "4417991e-75df-41b4-a61b-b335c001b510",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-05T15:00:18Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "0eab18c6-8c5f-4695-a25f-d4a43d5c461d",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-01T15:00:03Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "577dce31-d7e3-417e-bebe-1b37bc6ee75d",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-07-31T15:00:09Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "decbfd16-d8e2-4838-897a-d74837ef87e9",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-03T15:00:07Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "6fb43fe9-f7d0-4ab3-9c1f-f6dd9fa9e566",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-11T15:00:04Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "eff80449-d294-4578-b61d-728f6e6c8316",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-12T15:00:04Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "74399064-fbc8-4f12-8c1c-bf2b40a5f775",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-18T15:00:03Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "a2d7749d-7f5e-431e-ba23-fc214eceb281",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-10T15:00:07Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "25480629-13c6-4b05-9188-bd6bdd5b3270",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-09T15:00:04Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "f0567a03-a5b2-4fa4-b1f6-dc6d6288bfc3",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-14T15:00:04Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "6af7d104-fa0e-4828-a519-ab382d249744",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-17T15:00:04Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "d8f8cae3-e8a2-4470-aae3-7bec69b570c2",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-16T15:00:03Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "893f8cd1-9709-4449-9ef3-7ffa263bffe2",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-19T15:00:03Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          },
+          {
+            "id": "4fc629e3-bba5-43a3-be77-1ec3fafd8527",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-06T15:00:04Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
+          }
+        ],
+        "erro": null
+      },
+      {
+        "data_id": "br-inmet.data.core.weather.advisories-warnings",
+        "http_status": 200,
+        "quantidade_features": 0,
+        "amostras": [],
+        "erro": null
+      },
+      {
+        "data_id": "origin/a/wis2/br-inmet/data/core/weather/advisories-warnings",
+        "http_status": 200,
+        "quantidade_features": 0,
+        "amostras": [],
+        "erro": null
+      },
+      {
+        "data_id": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+        "http_status": 200,
+        "quantidade_features": 0,
+        "amostras": [],
+        "erro": null
+      },
+      {
+        "data_id": "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn:wmo:md:br-inmet:alerts?f=json",
+        "http_status": 200,
+        "quantidade_features": 0,
+        "amostras": [],
+        "erro": null
+      },
+      {
+        "data_id": "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn:wmo:md:br-inmet:alerts?f=jsonld",
+        "http_status": 200,
+        "quantidade_features": 0,
+        "amostras": [],
+        "erro": null
+      },
+      {
+        "data_id": "https://wis2bra.inmet.gov.br/oapi/collections/discovery-metadata/items/urn:wmo:md:br-inmet:alerts?f=html",
+        "http_status": 200,
+        "quantidade_features": 0,
+        "amostras": [],
+        "erro": null
+      }
+    ],
+    "cap_localizado": true,
+    "notificacoes_cap": [
+      {
+        "id": "00f62d58-a494-4575-8966-244999453fa0",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-07-28T15:00:09Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "b48f11d3-2de8-407b-afd9-bc70adb1719a",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-07-27T15:00:04Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "afa9a623-8cce-4228-b505-21ddc5709f0b",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-07-30T15:00:03Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "27a9c8ff-007a-4594-bdf4-2cd92e431919",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-07-29T15:00:08Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "31ec671f-a2aa-4178-b1ea-89a91f6e1dd1",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-02T15:00:08Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "96ac91c2-4055-4ff3-abea-36c62a2888da",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-04T15:00:06Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "4417991e-75df-41b4-a61b-b335c001b510",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-05T15:00:18Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "0eab18c6-8c5f-4695-a25f-d4a43d5c461d",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-01T15:00:03Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "577dce31-d7e3-417e-bebe-1b37bc6ee75d",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-07-31T15:00:09Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "decbfd16-d8e2-4838-897a-d74837ef87e9",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-03T15:00:07Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "6fb43fe9-f7d0-4ab3-9c1f-f6dd9fa9e566",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-11T15:00:04Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "eff80449-d294-4578-b61d-728f6e6c8316",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-12T15:00:04Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "74399064-fbc8-4f12-8c1c-bf2b40a5f775",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-18T15:00:03Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "a2d7749d-7f5e-431e-ba23-fc214eceb281",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-10T15:00:07Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "25480629-13c6-4b05-9188-bd6bdd5b3270",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-09T15:00:04Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "f0567a03-a5b2-4fa4-b1f6-dc6d6288bfc3",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-14T15:00:04Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "6af7d104-fa0e-4828-a519-ab382d249744",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-17T15:00:04Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "d8f8cae3-e8a2-4470-aae3-7bec69b570c2",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-16T15:00:03Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "893f8cd1-9709-4449-9ef3-7ffa263bffe2",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-19T15:00:03Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      },
+      {
+        "id": "4fc629e3-bba5-43a3-be77-1ec3fafd8527",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-06T15:00:04Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
+      }
+    ],
     "uso_operacional_granizo": false,
     "regra_seguranca": "Diagnostico documental. Nenhum resultado deste bloco afirma alerta ativo, ausencia de alerta ou risco de granizo.",
-    "erro": "HTTPSConnectionPool(host='wis2bra.inmet.gov.br', port=443): Max retries exceeded with url: /oapi/collections/discovery-metadata/items/urn%3Awmo%3Amd%3Abr-inmet%3Aalerts?f=json (Caused by ConnectTimeoutError(<HTTPSConnection(host='wis2bra.inmet.gov.br', port=443) at 0x7faa278ce300>, 'Connection to wis2bra.inmet.gov.br timed out. (connect timeout=10)'))",
-    "observacao": "Falha no diagnostico #152. Nenhuma conclusao sobre alerta de granizo e produzida."
+    "observacao": "O discovery-metadata forneceu candidato documental e ao menos uma notificacao historica foi localizada. O proximo passo e validar o recurso CAP/XML real."
   },
   "diagnostico_cap_por_metadata_id_153": {
-    "status": "indisponivel",
+    "status": "mensagem_data_cap_com_link_xml_localizada",
     "versao": "#153",
     "fonte": "WIS2 Node oficial do INMET / messages",
     "endpoint": "https://wis2bra.inmet.gov.br/oapi/collections/messages/items",
     "metadata_id_alvo": "urn:wmo:md:br-inmet:alerts",
-    "http_status": null,
-    "quantidade_features": 0,
+    "http_status": 200,
+    "quantidade_features": 100,
     "quantidade_metadata": 0,
-    "quantidade_data": 0,
-    "data_ids_reais": [],
-    "notificacoes_data_cap": [],
-    "links_xml_candidatos": [],
-    "xml_cap_confirmado": false,
+    "quantidade_data": 100,
+    "data_ids_reais": [
+      "br-inmet:alerts/INMET-ALERT-55157_20260728",
+      "br-inmet:alerts/INMET-ALERT-55158_20260728",
+      "br-inmet:alerts/INMET-ALERT-55160_20260728",
+      "br-inmet:alerts/INMET-ALERT-55159_20260728",
+      "br-inmet:alerts/INMET-ALERT-55161_20260728",
+      "br-inmet:alerts/INMET-ALERT-55164_20260728",
+      "br-inmet:alerts/INMET-ALERT-55165_20260728",
+      "br-inmet:alerts/INMET-ALERT-55167_20260728",
+      "br-inmet:alerts/INMET-ALERT-55168_20260728",
+      "br-inmet:alerts/INMET-ALERT-55169_20260728",
+      "br-inmet:alerts/INMET-ALERT-55170_20260728",
+      "br-inmet:alerts/INMET-ALERT-55171_20260728",
+      "br-inmet:alerts/INMET-ALERT-55172_20260728",
+      "br-inmet:alerts/INMET-ALERT-55183_20260729",
+      "br-inmet:alerts/INMET-ALERT-55184_20260729",
+      "br-inmet:alerts/INMET-ALERT-55185_20260729",
+      "br-inmet:alerts/INMET-ALERT-55186_20260729",
+      "br-inmet:alerts/INMET-ALERT-55188_20260729",
+      "br-inmet:alerts/INMET-ALERT-55179_20260729",
+      "br-inmet:alerts/INMET-ALERT-55181_20260729",
+      "br-inmet:alerts/INMET-ALERT-55182_20260729",
+      "br-inmet:alerts/INMET-ALERT-55180_20260729",
+      "br-inmet:alerts/INMET-ALERT-55189_20260729",
+      "br-inmet:alerts/INMET-ALERT-55192_20260730",
+      "br-inmet:alerts/INMET-ALERT-55201_20260730",
+      "br-inmet:alerts/INMET-ALERT-55200_20260730",
+      "br-inmet:alerts/INMET-ALERT-55173_20260728",
+      "br-inmet:alerts/INMET-ALERT-55190_20260730",
+      "br-inmet:alerts/INMET-ALERT-55193_20260730",
+      "br-inmet:alerts/INMET-ALERT-55194_20260730"
+    ],
+    "notificacoes_data_cap": [
+      {
+        "id": "d0e3414a-09db-40a2-810b-35f83c4c2d41",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55157_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T00:00:00Z",
+        "pubtime": "2026-07-28T14:01:16Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55157_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "0c953c97-022f-4e99-b2b8-9704d07e2734",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55158_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T00:00:00Z",
+        "pubtime": "2026-07-28T14:01:16Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55158_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "60071be9-842e-4082-aaa1-636880b8c1d3",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55160_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T00:00:00Z",
+        "pubtime": "2026-07-28T14:01:17Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55160_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "742ab207-7781-495c-a081-70eed782bd96",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55159_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T00:00:00Z",
+        "pubtime": "2026-07-28T14:01:17Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55159_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "700c0de6-c1a9-4828-8815-76e255ed6223",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55161_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T00:00:00Z",
+        "pubtime": "2026-07-28T14:01:19Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55161_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "ae919e25-368b-4de8-99ae-79b8449de9e9",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55164_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T00:00:00Z",
+        "pubtime": "2026-07-28T14:01:19Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55164_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "e1adbe1b-811a-4c22-a04a-c25bfc2b327f",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55165_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T00:00:00Z",
+        "pubtime": "2026-07-28T14:01:19Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55165_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "1deda9d4-a6fe-4c4b-8dc6-85979b1ce8c4",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55167_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T00:00:00Z",
+        "pubtime": "2026-07-28T14:01:20Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55167_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "5e861222-68d4-48cf-b7e8-fd949fbe9f52",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55168_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T12:41:26Z",
+        "pubtime": "2026-07-28T14:01:20Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55168_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "bb8c45a0-2bfb-4c12-87e1-874f249afb7b",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55169_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T12:44:41Z",
+        "pubtime": "2026-07-28T14:01:20Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55169_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "7ea89024-8fa2-4463-88c1-51d40574ce69",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55170_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T00:00:00Z",
+        "pubtime": "2026-07-28T14:01:20Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55170_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "ef605e7b-ab10-4ac1-bb4a-0f6987ba6978",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55171_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T12:50:53Z",
+        "pubtime": "2026-07-28T14:01:21Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55171_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "e346566f-234b-4fd0-83d3-4de721333227",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55172_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T12:53:33Z",
+        "pubtime": "2026-07-28T14:01:21Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55172_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "4a9876d4-5de3-43a4-899a-f607e61ed05f",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55183_20260729",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-29T12:32:50Z",
+        "pubtime": "2026-07-29T18:31:03Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55183_20260729.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "c1d03f3c-1d31-4994-9287-cbb2ae648f83",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55184_20260729",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-29T12:39:24Z",
+        "pubtime": "2026-07-29T18:31:03Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55184_20260729.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "06c86d8e-92a0-49dd-83a9-5e21eae0065a",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55185_20260729",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-29T12:46:16Z",
+        "pubtime": "2026-07-29T18:31:04Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55185_20260729.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "7ec169a4-12b5-472c-a0ac-d25b8ff61afc",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55186_20260729",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-29T12:49:39Z",
+        "pubtime": "2026-07-29T18:31:05Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55186_20260729.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "eb7cdcf6-9903-459a-9547-73820a927788",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55188_20260729",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-29T00:00:00Z",
+        "pubtime": "2026-07-29T18:31:06Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55188_20260729.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "1ab4429f-f956-4f67-b8e1-8386003bd84e",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55179_20260729",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-29T12:11:48Z",
+        "pubtime": "2026-07-29T18:30:59Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55179_20260729.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "3e59ad60-12ee-4ae5-b4d6-e87fbf50fe21",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55181_20260729",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-29T12:16:00Z",
+        "pubtime": "2026-07-29T18:30:59Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55181_20260729.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "85d6cff2-8f21-452c-8a8d-f9b48929974a",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55182_20260729",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-29T12:21:13Z",
+        "pubtime": "2026-07-29T18:31:00Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55182_20260729.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "76695693-2dad-47f3-b572-cb68fb54f029",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55180_20260729",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-29T00:00:00Z",
+        "pubtime": "2026-07-29T18:30:58Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55180_20260729.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "01b8011e-3d2a-48b3-a343-6bb5befcc445",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55189_20260729",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-29T20:23:56Z",
+        "pubtime": "2026-07-29T20:31:18Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55189_20260729.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "a3d7d799-0392-4761-807a-6cbcf891aa98",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55192_20260730",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-30T12:00:13Z",
+        "pubtime": "2026-07-30T14:01:11Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-30/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55192_20260730.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "d87d0d56-7963-4911-8f66-88ac2bdf6546",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55201_20260730",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-30T12:25:34Z",
+        "pubtime": "2026-07-30T15:01:13Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-30/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55201_20260730.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "138b90d4-8068-4ca1-bfba-df192ca9d23b",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55200_20260730",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-30T12:21:58Z",
+        "pubtime": "2026-07-30T15:01:13Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-30/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55200_20260730.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "48c330e4-dfd4-4b18-b662-421593060f3e",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55173_20260728",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-28T16:50:16Z",
+        "pubtime": "2026-07-29T00:30:46Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55173_20260728.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "5c5263d9-dc68-419d-a434-4502796ab675",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55190_20260730",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-30T11:55:55Z",
+        "pubtime": "2026-07-30T12:01:07Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-30/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55190_20260730.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "2422ee1f-70e2-4e9b-a5e1-702feee2c09d",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55193_20260730",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-30T12:08:01Z",
+        "pubtime": "2026-07-30T14:01:12Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-30/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55193_20260730.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "faf369a0-8133-444e-8e19-933de14476b6",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55194_20260730",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-07-30T12:08:33Z",
+        "pubtime": "2026-07-30T14:01:12Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-07-30/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55194_20260730.xml",
+            "type": "application/xml"
+          }
+        ]
+      }
+    ],
+    "links_xml_candidatos": [
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55157_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55157_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55158_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55158_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55160_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55160_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55159_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55159_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55161_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55161_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55164_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55164_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55165_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55165_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55167_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55167_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55168_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55168_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55169_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55169_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55170_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55170_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55171_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55171_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55172_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55172_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55183_20260729.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55183_20260729"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55184_20260729.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55184_20260729"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55185_20260729.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55185_20260729"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55186_20260729.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55186_20260729"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55188_20260729.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55188_20260729"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55179_20260729.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55179_20260729"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55181_20260729.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55181_20260729"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55182_20260729.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55182_20260729"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55180_20260729.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55180_20260729"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-29/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55189_20260729.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55189_20260729"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-30/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55192_20260730.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55192_20260730"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-30/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55201_20260730.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55201_20260730"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-30/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55200_20260730.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55200_20260730"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55173_20260728.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55173_20260728"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-30/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55190_20260730.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55190_20260730"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-30/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55193_20260730.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55193_20260730"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-07-30/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55194_20260730.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55194_20260730"
+      }
+    ],
+    "xml_cap_confirmado": true,
     "uso_operacional_granizo": false,
     "regra_seguranca": "Diagnostico de mensagens DATA associadas ao metadata oficial. Nenhum resultado deste bloco afirma alerta ativo, ausencia de alerta ou risco de granizo.",
-    "erro": "HTTPSConnectionPool(host='wis2bra.inmet.gov.br', port=443): Max retries exceeded with url: /oapi/collections/messages/items?f=json&metadata_id=urn%3Awmo%3Amd%3Abr-inmet%3Aalerts&limit=100 (Caused by ConnectTimeoutError(<HTTPSConnection(host='wis2bra.inmet.gov.br', port=443) at 0x7faa278cec60>, 'Connection to wis2bra.inmet.gov.br timed out. (connect timeout=10)'))",
-    "observacao": "Falha no diagnostico #153. Nenhuma conclusao sobre alerta de granizo e produzida."
+    "observacao": "Foram separadas mensagens DATA das mensagens METADATA e foi localizado ao menos um link XML publicado pela mensagem. O proximo passo e baixar e decodificar o XML CAP."
   },
   "diagnostico_xml_cap_inmet_154": {
-    "status": "sem_link_xml_da_153",
+    "status": "xml_cap_nao_baixado",
     "versao": "#154",
     "fonte": "WIS2 Node oficial do INMET / CAP XML canonical",
-    "xmls_testados": 0,
+    "xmls_testados": 5,
     "xmls_http_200": 0,
     "xmls_cap_parseaveis": 0,
-    "amostras": [],
+    "amostras": [
+      {
+        "url": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55157_20260728.xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55157_20260728",
+        "http_status": 404,
+        "content_type": "application/xml",
+        "parseavel": false,
+        "raiz": null,
+        "namespace": null,
+        "identifier": null,
+        "sender": null,
+        "sent": null,
+        "status_cap": null,
+        "msgType": null,
+        "scope": null,
+        "infos": [],
+        "menciona_granizo_ou_hail": false,
+        "erro": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55157_20260728.xml</Key><BucketName>wis2box-public</BucketName><Resource>/wis2box-public/2026-07-28/wis/urn:wmo:md:br-inm"
+      },
+      {
+        "url": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55158_20260728.xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55158_20260728",
+        "http_status": 404,
+        "content_type": "application/xml",
+        "parseavel": false,
+        "raiz": null,
+        "namespace": null,
+        "identifier": null,
+        "sender": null,
+        "sent": null,
+        "status_cap": null,
+        "msgType": null,
+        "scope": null,
+        "infos": [],
+        "menciona_granizo_ou_hail": false,
+        "erro": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55158_20260728.xml</Key><BucketName>wis2box-public</BucketName><Resource>/wis2box-public/2026-07-28/wis/urn:wmo:md:br-inm"
+      },
+      {
+        "url": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55160_20260728.xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55160_20260728",
+        "http_status": 404,
+        "content_type": "application/xml",
+        "parseavel": false,
+        "raiz": null,
+        "namespace": null,
+        "identifier": null,
+        "sender": null,
+        "sent": null,
+        "status_cap": null,
+        "msgType": null,
+        "scope": null,
+        "infos": [],
+        "menciona_granizo_ou_hail": false,
+        "erro": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55160_20260728.xml</Key><BucketName>wis2box-public</BucketName><Resource>/wis2box-public/2026-07-28/wis/urn:wmo:md:br-inm"
+      },
+      {
+        "url": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55159_20260728.xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55159_20260728",
+        "http_status": 404,
+        "content_type": "application/xml",
+        "parseavel": false,
+        "raiz": null,
+        "namespace": null,
+        "identifier": null,
+        "sender": null,
+        "sent": null,
+        "status_cap": null,
+        "msgType": null,
+        "scope": null,
+        "infos": [],
+        "menciona_granizo_ou_hail": false,
+        "erro": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55159_20260728.xml</Key><BucketName>wis2box-public</BucketName><Resource>/wis2box-public/2026-07-28/wis/urn:wmo:md:br-inm"
+      },
+      {
+        "url": "https://wis2bra.inmet.gov.br/data/2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55161_20260728.xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55161_20260728",
+        "http_status": 404,
+        "content_type": "application/xml",
+        "parseavel": false,
+        "raiz": null,
+        "namespace": null,
+        "identifier": null,
+        "sender": null,
+        "sent": null,
+        "status_cap": null,
+        "msgType": null,
+        "scope": null,
+        "infos": [],
+        "menciona_granizo_ou_hail": false,
+        "erro": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>2026-07-28/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55161_20260728.xml</Key><BucketName>wis2box-public</BucketName><Resource>/wis2box-public/2026-07-28/wis/urn:wmo:md:br-inm"
+      }
+    ],
     "campos_cap_confirmados": [],
     "estrutura_area_confirmada": false,
     "estrutura_geocode_confirmada": false,
@@ -19989,7 +21773,7 @@
     "regra_seguranca": "Diagnostico estrutural de XML CAP historico. Mencao historica a granizo nao significa alerta atual/cobertura de Joinville; ausencia nas amostras tambem nao significa ausencia de alerta."
   },
   "diagnostico_cap_recente_inmet_155": {
-    "status": "consultas_temporais_indisponiveis",
+    "status": "cap_recente_xml_disponivel",
     "versao": "#155",
     "fonte": "WIS2 Node oficial do INMET / OGC API messages",
     "endpoint": "https://wis2bra.inmet.gov.br/oapi/collections/messages/items",
@@ -19997,83 +21781,1038 @@
     "consultas_temporais": [
       {
         "dias": 2,
-        "datetime": "2026-09-23T16:45:13Z/2026-09-25T16:45:13Z",
-        "http_status": null,
-        "quantidade_features": 0,
-        "quantidade_data_alerta": 0,
-        "numberMatched": null,
-        "erro": "HTTPSConnectionPool(host='wis2bra.inmet.gov.br', port=443): Max retries exceeded with url: /oapi/collections/messages/items?f=json&metadata_id=urn%3Awmo%3Amd%3Abr-inmet%3Aalerts&datetime=2026-09-23T16%3A45%3A13Z%2F2026-09-25T16%3A45%3A13Z&limit=100 (Caused by ConnectTimeoutError(<HTTPSConnection(host='wis2bra.inmet.gov.br', port=443) at 0x7faa27978d40>, 'Connection to wis2bra.inmet.gov.br timed out. (connect timeout=10)'))"
+        "datetime": "2026-09-23T16:48:53Z/2026-09-25T16:48:53Z",
+        "http_status": 200,
+        "quantidade_features": 17,
+        "quantidade_data_alerta": 17,
+        "numberMatched": 17,
+        "erro": null
       },
       {
         "dias": 7,
-        "datetime": "2026-09-18T16:45:13Z/2026-09-25T16:45:13Z",
-        "http_status": null,
-        "quantidade_features": 0,
-        "quantidade_data_alerta": 0,
-        "numberMatched": null,
-        "erro": "HTTPSConnectionPool(host='wis2bra.inmet.gov.br', port=443): Max retries exceeded with url: /oapi/collections/messages/items?f=json&metadata_id=urn%3Awmo%3Amd%3Abr-inmet%3Aalerts&datetime=2026-09-18T16%3A45%3A13Z%2F2026-09-25T16%3A45%3A13Z&limit=100 (Caused by ConnectTimeoutError(<HTTPSConnection(host='wis2bra.inmet.gov.br', port=443) at 0x7faa27978710>, 'Connection to wis2bra.inmet.gov.br timed out. (connect timeout=10)'))"
+        "datetime": "2026-09-18T16:48:53Z/2026-09-25T16:48:53Z",
+        "http_status": 200,
+        "quantidade_features": 50,
+        "quantidade_data_alerta": 50,
+        "numberMatched": 50,
+        "erro": null
       },
       {
         "dias": 30,
-        "datetime": "2026-08-26T16:45:13Z/2026-09-25T16:45:13Z",
-        "http_status": null,
-        "quantidade_features": 0,
-        "quantidade_data_alerta": 0,
-        "numberMatched": null,
-        "erro": "HTTPSConnectionPool(host='wis2bra.inmet.gov.br', port=443): Max retries exceeded with url: /oapi/collections/messages/items?f=json&metadata_id=urn%3Awmo%3Amd%3Abr-inmet%3Aalerts&datetime=2026-08-26T16%3A45%3A13Z%2F2026-09-25T16%3A45%3A13Z&limit=100 (Caused by ConnectTimeoutError(<HTTPSConnection(host='wis2bra.inmet.gov.br', port=443) at 0x7faa27979fa0>, 'Connection to wis2bra.inmet.gov.br timed out. (connect timeout=10)'))"
+        "datetime": "2026-08-26T16:48:53Z/2026-09-25T16:48:53Z",
+        "http_status": 200,
+        "quantidade_features": 100,
+        "quantidade_data_alerta": 100,
+        "numberMatched": 224,
+        "erro": null
       },
       {
         "dias": 90,
-        "datetime": "2026-06-27T16:45:13Z/2026-09-25T16:45:13Z",
-        "http_status": null,
-        "quantidade_features": 0,
-        "quantidade_data_alerta": 0,
-        "numberMatched": null,
-        "erro": "HTTPSConnectionPool(host='wis2bra.inmet.gov.br', port=443): Max retries exceeded with url: /oapi/collections/messages/items?f=json&metadata_id=urn%3Awmo%3Amd%3Abr-inmet%3Aalerts&datetime=2026-06-27T16%3A45%3A13Z%2F2026-09-25T16%3A45%3A13Z&limit=100 (Caused by ConnectTimeoutError(<HTTPSConnection(host='wis2bra.inmet.gov.br', port=443) at 0x7faa2797a810>, 'Connection to wis2bra.inmet.gov.br timed out. (connect timeout=10)'))"
+        "datetime": "2026-06-27T16:48:53Z/2026-09-25T16:48:53Z",
+        "http_status": 200,
+        "quantidade_features": 100,
+        "quantidade_data_alerta": 100,
+        "numberMatched": 471,
+        "erro": null
       }
     ],
     "consultas_ordenacao": [
       {
         "sortby": "-datetime",
-        "http_status": null,
-        "quantidade_features": 0,
-        "primeiro_momento": null,
-        "erro": "HTTPSConnectionPool(host='wis2bra.inmet.gov.br', port=443): Max retries exceeded with url: /oapi/collections/messages/items?f=json&metadata_id=urn%3Awmo%3Amd%3Abr-inmet%3Aalerts&sortby=-datetime&limit=20 (Caused by ConnectTimeoutError(<HTTPSConnection(host='wis2bra.inmet.gov.br', port=443) at 0x7faa2797b110>, 'Connection to wis2bra.inmet.gov.br timed out. (connect timeout=10)'))"
+        "http_status": 200,
+        "quantidade_features": 20,
+        "primeiro_momento": "2026-09-25T12:30:55Z",
+        "erro": null
       },
       {
         "sortby": "-pubtime",
-        "http_status": null,
-        "quantidade_features": 0,
-        "primeiro_momento": null,
-        "erro": "HTTPSConnectionPool(host='wis2bra.inmet.gov.br', port=443): Max retries exceeded with url: /oapi/collections/messages/items?f=json&metadata_id=urn%3Awmo%3Amd%3Abr-inmet%3Aalerts&sortby=-pubtime&limit=20 (Caused by ConnectTimeoutError(<HTTPSConnection(host='wis2bra.inmet.gov.br', port=443) at 0x7faa2797bdd0>, 'Connection to wis2bra.inmet.gov.br timed out. (connect timeout=10)'))"
+        "http_status": 200,
+        "quantidade_features": 20,
+        "primeiro_momento": "2026-09-25T12:30:55Z",
+        "erro": null
       }
     ],
-    "mensagens_data_recentes": [],
-    "links_xml_recentes": [],
-    "xmls_testados": [],
-    "xml_recente_disponivel": false,
+    "mensagens_data_recentes": [
+      {
+        "id": "2497cbcc-44d9-4970-af90-fd5249d914b7",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55826_20260925",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-25T12:03:06Z",
+        "pubtime": "2026-09-25T12:30:55Z",
+        "momento_normalizado_utc": "2026-09-25T12:30:55Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55826_20260925.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "e0d8de36-aee6-4e56-babb-3704da2f2647",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55827_20260925",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-25T12:07:53Z",
+        "pubtime": "2026-09-25T12:30:55Z",
+        "momento_normalizado_utc": "2026-09-25T12:30:55Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55827_20260925.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "7eb4cc88-0267-4109-81e9-6fd1f002ffcb",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55828_20260925",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-25T12:13:40Z",
+        "pubtime": "2026-09-25T12:30:55Z",
+        "momento_normalizado_utc": "2026-09-25T12:30:55Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55828_20260925.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "96e4ce9b-2c4e-4067-8e60-add8c17a45a5",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55825_20260925",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-25T11:59:22Z",
+        "pubtime": "2026-09-25T12:01:00Z",
+        "momento_normalizado_utc": "2026-09-25T12:01:00Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55825_20260925.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "8fcd58e8-252a-4a80-bd87-3112a6cfa92a",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55822_20260925",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-25T11:50:28Z",
+        "pubtime": "2026-09-25T12:00:59Z",
+        "momento_normalizado_utc": "2026-09-25T12:00:59Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55822_20260925.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "2d2c9fc7-e719-4ba0-b0ff-7fa605a6041d",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55818_20260925",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-25T11:42:53Z",
+        "pubtime": "2026-09-25T12:00:59Z",
+        "momento_normalizado_utc": "2026-09-25T12:00:59Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55818_20260925.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "ab55273a-aa86-4628-8feb-790ce3b20640",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55819_20260925",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-25T11:46:50Z",
+        "pubtime": "2026-09-25T12:00:59Z",
+        "momento_normalizado_utc": "2026-09-25T12:00:59Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55819_20260925.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "6acad3e3-9606-4e27-b24f-6baf43f1b2c9",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55823_20260925",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-25T11:53:59Z",
+        "pubtime": "2026-09-25T12:00:59Z",
+        "momento_normalizado_utc": "2026-09-25T12:00:59Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55823_20260925.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "d390a06f-3c71-4d58-82bd-e8349b236d6d",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55824_20260925",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-25T11:56:57Z",
+        "pubtime": "2026-09-25T12:00:59Z",
+        "momento_normalizado_utc": "2026-09-25T12:00:59Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55824_20260925.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "33cc3fc7-dcce-4335-bcf1-864affebf735",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55817_20260924",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-24T13:22:20Z",
+        "pubtime": "2026-09-24T13:30:50Z",
+        "momento_normalizado_utc": "2026-09-24T13:30:50Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-24/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55817_20260924.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "4550ef45-4cec-41a5-896e-59be2ab6afc3",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55812_20260924",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-24T12:00:28Z",
+        "pubtime": "2026-09-24T12:30:54Z",
+        "momento_normalizado_utc": "2026-09-24T12:30:54Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-24/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55812_20260924.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "a5154a61-1f4a-4b0f-8242-e7fb5e2d84f5",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55814_20260924",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-24T12:05:43Z",
+        "pubtime": "2026-09-24T12:30:54Z",
+        "momento_normalizado_utc": "2026-09-24T12:30:54Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-24/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55814_20260924.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "a1bf2ee0-059d-4609-8ee1-8a136cb657ce",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55815_20260924",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-24T12:08:41Z",
+        "pubtime": "2026-09-24T12:30:54Z",
+        "momento_normalizado_utc": "2026-09-24T12:30:54Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-24/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55815_20260924.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "edbfcbdf-df3e-4cc3-8116-76877135ee2a",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55813_20260924",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-24T12:02:51Z",
+        "pubtime": "2026-09-24T12:30:54Z",
+        "momento_normalizado_utc": "2026-09-24T12:30:54Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-24/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55813_20260924.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "fc55da78-a181-46a4-8c2e-9189f30cf1d8",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55816_20260924",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-24T12:14:00Z",
+        "pubtime": "2026-09-24T12:30:54Z",
+        "momento_normalizado_utc": "2026-09-24T12:30:54Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-24/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55816_20260924.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "ac432209-c9b6-4b61-89d9-0839bb4968fb",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55810_20260923",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-23T18:36:54Z",
+        "pubtime": "2026-09-23T19:00:52Z",
+        "momento_normalizado_utc": "2026-09-23T19:00:52Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55810_20260923.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "baa1fb5a-f615-4551-a0a7-fb0d2609dad2",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55809_20260923",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-23T00:00:00Z",
+        "pubtime": "2026-09-23T19:00:52Z",
+        "momento_normalizado_utc": "2026-09-23T19:00:52Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55809_20260923.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "addcfb21-33cc-48b4-a75d-34d6a23991b8",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55807_20260923",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-23T12:35:30Z",
+        "pubtime": "2026-09-23T13:01:27Z",
+        "momento_normalizado_utc": "2026-09-23T13:01:27Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55807_20260923.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "264175f9-92e1-4ef8-a720-4e95d687c916",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55806_20260923",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-23T12:11:13Z",
+        "pubtime": "2026-09-23T12:33:29Z",
+        "momento_normalizado_utc": "2026-09-23T12:33:29Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55806_20260923.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "c2e94dc9-d748-4328-a588-6fbd95fffea6",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55805_20260923",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-23T12:01:35Z",
+        "pubtime": "2026-09-23T12:33:29Z",
+        "momento_normalizado_utc": "2026-09-23T12:33:29Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55805_20260923.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "edd7b50c-c5d3-409b-ba79-dae5239c4c2e",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55802_20260923",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-23T11:47:10Z",
+        "pubtime": "2026-09-23T12:00:59Z",
+        "momento_normalizado_utc": "2026-09-23T12:00:59Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55802_20260923.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "870c6f16-26ef-426e-a461-364678c96ffa",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55803_20260923",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-23T11:54:29Z",
+        "pubtime": "2026-09-23T12:00:59Z",
+        "momento_normalizado_utc": "2026-09-23T12:00:59Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55803_20260923.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "71b241a1-1d69-4e6e-bb91-e4c435d4afe8",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55801_20260922",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-22T13:12:02Z",
+        "pubtime": "2026-09-22T13:33:02Z",
+        "momento_normalizado_utc": "2026-09-22T13:33:02Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55801_20260922.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "49e36f5e-dc54-4349-b1f8-8c59868d6279",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55800_20260922",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-22T13:08:30Z",
+        "pubtime": "2026-09-22T13:33:01Z",
+        "momento_normalizado_utc": "2026-09-22T13:33:01Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55800_20260922.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "b988a463-9e60-4ccf-ad55-20c0d9fe2b04",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55799_20260922",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-22T12:03:19Z",
+        "pubtime": "2026-09-22T12:33:15Z",
+        "momento_normalizado_utc": "2026-09-22T12:33:15Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55799_20260922.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "170b41c7-dc42-46f8-9e88-b6836968f6c3",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55795_20260922",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-22T11:50:25Z",
+        "pubtime": "2026-09-22T12:00:50Z",
+        "momento_normalizado_utc": "2026-09-22T12:00:50Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55795_20260922.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "ef0b5de3-cf18-40db-947c-6b77b5625fff",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55794_20260922",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-22T00:00:00Z",
+        "pubtime": "2026-09-22T12:00:50Z",
+        "momento_normalizado_utc": "2026-09-22T12:00:50Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55794_20260922.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "f141b813-e5b7-4c7b-ae0c-df611e50a734",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55798_20260922",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-22T11:59:00Z",
+        "pubtime": "2026-09-22T12:00:50Z",
+        "momento_normalizado_utc": "2026-09-22T12:00:50Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55798_20260922.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "29cec4d3-1fbd-46f4-91fd-945dbc6f7b94",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55796_20260922",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-22T11:54:27Z",
+        "pubtime": "2026-09-22T12:00:50Z",
+        "momento_normalizado_utc": "2026-09-22T12:00:50Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55796_20260922.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "e7fbb257-3ada-41b6-bc65-43d2e86faf6e",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55786_20260921",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-09-21T12:40:33Z",
+        "pubtime": "2026-09-21T13:00:57Z",
+        "momento_normalizado_utc": "2026-09-21T13:00:57Z",
+        "links_xml": [
+          {
+            "href": "https://wis2bra.inmet.gov.br/data/2026-09-21/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55786_20260921.xml",
+            "rel": "canonical",
+            "type": "application/xml"
+          }
+        ]
+      }
+    ],
+    "links_xml_recentes": [
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55826_20260925.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55826_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:30:55Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55827_20260925.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55827_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:30:55Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55828_20260925.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55828_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:30:55Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55825_20260925.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55825_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:01:00Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55822_20260925.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55822_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:00:59Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55818_20260925.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55818_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:00:59Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55819_20260925.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55819_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:00:59Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55823_20260925.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55823_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:00:59Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55824_20260925.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55824_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:00:59Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-24/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55817_20260924.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55817_20260924",
+        "momento_normalizado_utc": "2026-09-24T13:30:50Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-24/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55812_20260924.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55812_20260924",
+        "momento_normalizado_utc": "2026-09-24T12:30:54Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-24/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55814_20260924.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55814_20260924",
+        "momento_normalizado_utc": "2026-09-24T12:30:54Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-24/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55815_20260924.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55815_20260924",
+        "momento_normalizado_utc": "2026-09-24T12:30:54Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-24/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55813_20260924.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55813_20260924",
+        "momento_normalizado_utc": "2026-09-24T12:30:54Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-24/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55816_20260924.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55816_20260924",
+        "momento_normalizado_utc": "2026-09-24T12:30:54Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55810_20260923.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55810_20260923",
+        "momento_normalizado_utc": "2026-09-23T19:00:52Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55809_20260923.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55809_20260923",
+        "momento_normalizado_utc": "2026-09-23T19:00:52Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55807_20260923.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55807_20260923",
+        "momento_normalizado_utc": "2026-09-23T13:01:27Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55806_20260923.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55806_20260923",
+        "momento_normalizado_utc": "2026-09-23T12:33:29Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55805_20260923.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55805_20260923",
+        "momento_normalizado_utc": "2026-09-23T12:33:29Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55802_20260923.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55802_20260923",
+        "momento_normalizado_utc": "2026-09-23T12:00:59Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-23/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55803_20260923.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55803_20260923",
+        "momento_normalizado_utc": "2026-09-23T12:00:59Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55801_20260922.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55801_20260922",
+        "momento_normalizado_utc": "2026-09-22T13:33:02Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55800_20260922.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55800_20260922",
+        "momento_normalizado_utc": "2026-09-22T13:33:01Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55799_20260922.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55799_20260922",
+        "momento_normalizado_utc": "2026-09-22T12:33:15Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55795_20260922.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55795_20260922",
+        "momento_normalizado_utc": "2026-09-22T12:00:50Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55794_20260922.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55794_20260922",
+        "momento_normalizado_utc": "2026-09-22T12:00:50Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55798_20260922.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55798_20260922",
+        "momento_normalizado_utc": "2026-09-22T12:00:50Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-22/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55796_20260922.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55796_20260922",
+        "momento_normalizado_utc": "2026-09-22T12:00:50Z"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-21/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55786_20260921.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55786_20260921",
+        "momento_normalizado_utc": "2026-09-21T13:00:57Z"
+      }
+    ],
+    "xmls_testados": [
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55826_20260925.xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55826_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:30:55Z",
+        "http_status": 200,
+        "content_type": "application/octet-stream",
+        "parece_xml_cap": true,
+        "erro": null
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55827_20260925.xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55827_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:30:55Z",
+        "http_status": 200,
+        "content_type": "application/octet-stream",
+        "parece_xml_cap": true,
+        "erro": null
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55828_20260925.xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55828_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:30:55Z",
+        "http_status": 200,
+        "content_type": "application/octet-stream",
+        "parece_xml_cap": true,
+        "erro": null
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55825_20260925.xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55825_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:01:00Z",
+        "http_status": 200,
+        "content_type": "application/octet-stream",
+        "parece_xml_cap": true,
+        "erro": null
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55822_20260925.xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55822_20260925",
+        "momento_normalizado_utc": "2026-09-25T12:00:59Z",
+        "http_status": 200,
+        "content_type": "application/octet-stream",
+        "parece_xml_cap": true,
+        "erro": null
+      }
+    ],
+    "xml_recente_disponivel": true,
     "uso_operacional_granizo": false,
-    "regra_seguranca": "Diagnostico de localizacao e disponibilidade de CAP recente. Ausencia de mensagem, erro HTTP ou XML indisponivel nao significa ausencia de alerta. Nenhum resultado deste bloco altera o card operacional de granizo."
+    "regra_seguranca": "Diagnostico de localizacao e disponibilidade de CAP recente. Ausencia de mensagem, erro HTTP ou XML indisponivel nao significa ausencia de alerta. Nenhum resultado deste bloco altera o card operacional de granizo.",
+    "observacao": "Foi localizado ao menos um recurso XML recente disponivel no WIS2/INMET. A proxima etapa pode decodificar CAP e validar area, vigencia e mencao explicita a granizo, ainda sem inferencias."
   },
   "diagnostico_conteudo_cap_inmet_156": {
-    "status": "sem_xml_recente_da_155",
+    "status": "cap_recente_decodificado",
     "versao": "#156",
     "fonte": "WIS2 Node oficial do INMET / CAP XML recente",
-    "xmls_analisados": 0,
-    "xmls_cap_validos": 0,
-    "alertas": [],
-    "estrutura_area_confirmada": false,
+    "xmls_analisados": 5,
+    "xmls_cap_validos": 5,
+    "alertas": [
+      {
+        "data_id": "br-inmet:alerts/INMET-ALERT-55826_20260925",
+        "url": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55826_20260925.xml",
+        "http_status": 200,
+        "raiz": "alert",
+        "identifier": "urn:oid:2.49.0.0.76.0.2026.28339.1",
+        "sender": "info.aviso@inmet.gov.br",
+        "sent": "2026-09-25T12:03:06-03:00",
+        "status_cap": "Actual",
+        "msgType": "Alert",
+        "scope": "Public",
+        "infos": [
+          {
+            "language": "pt-BR",
+            "category": [
+              "Met"
+            ],
+            "event": "Tempestade",
+            "urgency": "Future",
+            "severity": "Moderate",
+            "certainty": "Likely",
+            "effective": null,
+            "onset": "2026-09-27T00:00:00-03:00",
+            "expires": "2026-09-27T23:59:00-03:00",
+            "headline": "Aviso de Tempestade. Severidade Grau: Moderate",
+            "description": "INMET publica aviso iniciando em: 27/09/2026 00:00. Chuva entre 20 e 30 mm/h ou até 50 mm/dia, ventos intensos (40-60 km/h), e queda de granizo. Baixo risco de corte de energia elétrica, estragos em plantações, queda de galhos de árvores e de alagamentos.",
+            "instruction": "Em caso de rajadas de vento: (não se abrigue debaixo de árvores, pois há leve risco de queda e descargas elétricas e não estacione veículos próximos a torres de transmissão e placas de propaganda). Evite usar aparelhos eletrônicos ligados à tomada. Obtenha mais informações junto à Defesa Civil (telefone 199) e ao Corpo de Bombeiros (telefone 193).",
+            "areas": [
+              {
+                "areaDesc": "Aviso para as áreas: Serrana, Oeste Catarinense, Sudoeste Rio-grandense, Vale do Itajaí, Noroeste Rio-grandense, Grande Florianópolis, Centro Ocidental Rio-grandense, Centro Ocidental Paranaense, Metropolitana de Porto Alegre, Noroeste Paranaense, Sudeste Rio-grandense, Sudoeste Paranaense, Oeste Paranaense, Nordeste Rio-grandense, Sudeste Paranaense, Sul Catarinense, Centro Oriental Rio-grandense, Norte Catarinense, Centro-Sul Paranaense, Metropolitana de Curitiba",
+                "geocodes": [],
+                "polygons": [
+                  "-24.049586,-54.191893 -24.209967,-53.269041 -24.729808,-51.730955 -25.114956,-50.793456 -25.617798,-50.354003 -26.092233,-49.606933 -26.617134,-48.830565 -26.98314,-48.625488 -27.425978,-48.552245 -28.022294,-48.552245 -28.473814,-48.742674 -28.859302,-49.284668 -29.217809,-49.724121 -29.638727,-50.046386 -30.348993,-50.29541 -30.991392,-50.749511 -31.604554,-51.394043 -32.077305,-52.170408 -33.052329,-52.683105 -33.639542,-53.38623 -33.187247,-53.371582 -32.818797,-53.02002 -32.584653,-53.181151 -32.349895,-53.547363 -32.077305,-53.723145 -31.853672,-54.074707 -31.504718,-54.49951 -31.32975,-54.909668 -31.041597,-55.422361 -30.790316,-55.686033 -31.029047,-55.964355 -30.702213,-56.184082 -30.336355,-56.535645 -30.095911,-56.872557 -30.10858,-57.165526 -30.273136,-57.370605 -30.222533,-57.634277 -29.892975,-57.209472 -29.473117,-56.770019 -28.910595,-56.330566 -28.422309,-55.861815 -28.086913,-55.466307 -27.71158,-54.88037 -27.477961,-54.49951 -27.243846,-53.85498 -26.90481,-53.649901 -26.643316,-53.708494 -26.223681,-53.664549 -25.855253,-53.811035 -25.604593,-53.928221 -25.538541,-54.162598 -25.631003,-54.42627 -25.512111,-54.602051 -25.22099,-54.528808 -24.902609,-54.484862 -24.556766,-54.396972 -24.370147,-54.265136 -24.049586,-54.191893"
+                ]
+              }
+            ],
+            "joinville_identificada": false,
+            "metodos_identificacao_joinville": [],
+            "vigente_agora": false
+          }
+        ],
+        "menciona_granizo_ou_hail": true,
+        "joinville_identificada": false,
+        "metodo_identificacao_joinville": [],
+        "vigente_agora": false,
+        "candidato_granizo_joinville_vigente": false,
+        "erro": null
+      },
+      {
+        "data_id": "br-inmet:alerts/INMET-ALERT-55827_20260925",
+        "url": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55827_20260925.xml",
+        "http_status": 200,
+        "raiz": "alert",
+        "identifier": "urn:oid:2.49.0.0.76.0.2026.28340.1",
+        "sender": "info.aviso@inmet.gov.br",
+        "sent": "2026-09-25T12:07:53-03:00",
+        "status_cap": "Actual",
+        "msgType": "Alert",
+        "scope": "Public",
+        "infos": [
+          {
+            "language": "pt-BR",
+            "category": [
+              "Met"
+            ],
+            "event": "Tempestade",
+            "urgency": "Future",
+            "severity": "Severe",
+            "certainty": "Likely",
+            "effective": null,
+            "onset": "2026-09-27T00:00:00-03:00",
+            "expires": "2026-09-27T23:59:00-03:00",
+            "headline": "Aviso de Tempestade. Severidade Grau: Severe",
+            "description": "INMET publica aviso iniciando em: 27/09/2026 00:00. Chuva entre 30 e 60 mm/h ou 50 e 100 mm/dia, ventos intensos (60-100 km/h), e queda de granizo. Risco de corte de energia elétrica, estragos em plantações,  queda de árvores e de alagamentos.",
+            "instruction": "Em caso de rajadas de vento: (não se abrigue debaixo de árvores, pois há risco de queda e descargas elétricas e não estacione veículos próximos a torres de transmissão e placas de propaganda). Se possível, desligue aparelhos elétricos e quadro geral de energia. Obtenha mais informações junto à Defesa Civil (telefone 199) e ao Corpo de Bombeiros (telefone 193).",
+            "areas": [
+              {
+                "areaDesc": "Aviso para as áreas: Sudoeste Rio-grandense, Centro Ocidental Rio-grandense, Noroeste Rio-grandense, Metropolitana de Porto Alegre, Sudeste Rio-grandense, Nordeste Rio-grandense, Centro Oriental Rio-grandense",
+                "geocodes": [],
+                "polygons": [
+                  "-27.512839,-54.613037 -27.798215,-53.822021 -27.992361,-53.294678 -28.153882,-52.789307 -28.41825,-52.34253 -28.604845,-51.983642 -28.874499,-51.566162 -29.226562,-51.134034 -29.590153,-50.716553 -29.876277,-50.218506 -29.927058,-50.130615 -30.288122,-50.240479 -30.515481,-50.386963 -30.886947,-50.60669 -31.131705,-50.804444 -31.294529,-50.980225 -31.588149,-51.346435 -31.855972,-51.705323 -32.060985,-51.990967 -32.31506,-52.225341 -32.457278,-52.393799 -32.944058,-52.562256 -33.342574,-52.891846 -33.708825,-53.382568 -33.733187,-53.543701 -33.550308,-53.551026 -33.440394,-53.41919 -33.214021,-53.470459 -33.097548,-53.367919 -33.073008,-53.258056 -32.851836,-53.0896 -32.784145,-52.972412 -32.636278,-53.148193 -32.549909,-53.433837 -32.432561,-53.602295 -32.129222,-53.741455 -31.918145,-54.041748 -31.756408,-54.283447 -31.675432,-54.422607 -31.51327,-54.525146 -31.457071,-54.708252 -31.432082,-54.869385 -31.288272,-55.001221 -31.338317,-55.103759 -31.219414,-55.24292 -31.062735,-55.338135 -30.937205,-55.455322 -30.830375,-55.616456 -30.949766,-55.667725 -31.043916,-55.894775 -31.062735,-55.989991 -30.84295,-56.026611 -30.742308,-56.121827 -30.603754,-56.239014 -30.490244,-56.407471 -30.370284,-56.531982 -30.275475,-56.619873 -30.110922,-56.824952 -30.072909,-57.132569 -30.237526,-57.213135 -30.275475,-57.359619 -30.269151,-57.513428 -30.193233,-57.674561 -30.022203,-57.359619 -29.819118,-57.242432 -29.653806,-57.052002 -29.50097,-56.854248 -29.40533,-56.78833 -29.16264,-56.634521 -29.028274,-56.400146 -28.803943,-56.304932 -28.656261,-56.136474 -28.489067,-55.997314 -28.360275,-55.872802 -28.270027,-55.777588 -28.153882,-55.623779 -27.953559,-55.316162 -27.824121,-55.118408 -27.642648,-54.920654 -27.512839,-54.613037"
+                ]
+              }
+            ],
+            "joinville_identificada": false,
+            "metodos_identificacao_joinville": [],
+            "vigente_agora": false
+          }
+        ],
+        "menciona_granizo_ou_hail": true,
+        "joinville_identificada": false,
+        "metodo_identificacao_joinville": [],
+        "vigente_agora": false,
+        "candidato_granizo_joinville_vigente": false,
+        "erro": null
+      },
+      {
+        "data_id": "br-inmet:alerts/INMET-ALERT-55828_20260925",
+        "url": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55828_20260925.xml",
+        "http_status": 200,
+        "raiz": "alert",
+        "identifier": "urn:oid:2.49.0.0.76.0.2026.28341.1",
+        "sender": "info.aviso@inmet.gov.br",
+        "sent": "2026-09-25T12:13:40-03:00",
+        "status_cap": "Actual",
+        "msgType": "Alert",
+        "scope": "Public",
+        "infos": [
+          {
+            "language": "pt-BR",
+            "category": [
+              "Met"
+            ],
+            "event": "Tempestade",
+            "urgency": "Future",
+            "severity": "Moderate",
+            "certainty": "Likely",
+            "effective": null,
+            "onset": "2026-09-28T00:00:00-03:00",
+            "expires": "2026-09-28T23:59:00-03:00",
+            "headline": "Aviso de Tempestade. Severidade Grau: Moderate",
+            "description": "INMET publica aviso iniciando em: 28/09/2026 00:00. Chuva entre 20 e 30 mm/h ou até 50 mm/dia, ventos intensos (40-60 km/h), e queda de granizo. Baixo risco de corte de energia elétrica, estragos em plantações, queda de galhos de árvores e de alagamentos.",
+            "instruction": "Em caso de rajadas de vento: (não se abrigue debaixo de árvores, pois há leve risco de queda e descargas elétricas e não estacione veículos próximos a torres de transmissão e placas de propaganda). Evite usar aparelhos eletrônicos ligados à tomada. Obtenha mais informações junto à Defesa Civil (telefone 199) e ao Corpo de Bombeiros (telefone 193).",
+            "areas": [
+              {
+                "areaDesc": "Aviso para as áreas: Serrana, Oeste Catarinense, Sudoeste Rio-grandense, Vale do Itajaí, Noroeste Rio-grandense, Grande Florianópolis, Centro Ocidental Rio-grandense, Metropolitana de Curitiba, Centro Ocidental Paranaense, Metropolitana de Porto Alegre, Sudeste Rio-grandense, Sudoeste Paranaense, Oeste Paranaense, Nordeste Rio-grandense, Sudeste Paranaense, Norte Central Paranaense, Norte Catarinense, Sul Catarinense, Centro Oriental Rio-grandense, Centro-Sul Paranaense, Centro Oriental Paranaense",
+                "geocodes": [],
+                "polygons": [
+                  "-24.610036,-54.331054 -24.370147,-53.833008 -24.263382,-52.939451 -24.290082,-51.723633 -24.41016,-50.844727 -24.610036,-50.024413 -24.849465,-49.21875 -25.167985,-48.764647 -25.406331,-48.500975 -25.670607,-48.486327 -26.000132,-48.618163 -26.210543,-48.588865 -26.499239,-48.574218 -26.774138,-48.676756 -27.009237,-48.662108 -27.243846,-48.588865 -27.412979,-48.486327 -27.879994,-48.530273 -28.30633,-48.706054 -28.653886,-48.92578 -28.923413,-49.350586 -29.256146,-49.628905 -29.765932,-49.95117 -30.739982,-50.566404 -31.34226,-51.005858 -31.890982,-51.752928 -32.498235,-52.382812 -33.407576,-52.968749 -33.810064,-53.320312 -33.346431,-53.481445 -32.941786,-53.261719 -32.843409,-53.188476 -32.596991,-53.085938 -32.473528,-53.481445 -32.188917,-53.818358 -31.953132,-54.09668 -31.67936,-54.477537 -31.404776,-54.799805 -31.204574,-55.341796 -30.82805,-55.59082 -31.066687,-55.913085 -30.677025,-56.191404 -30.298429,-56.542967 -30.019859,-56.923827 -30.298429,-57.27539 -30.209879,-57.583007 -29.905672,-57.260742 -29.587798,-56.850584 -29.051513,-56.396483 -28.473814,-55.898438 -28.099833,-55.488279 -27.659707,-54.638671 -27.269883,-54.228516 -27.087495,-53.950194 -26.852559,-53.774412 -26.381224,-53.715819 -26.171119,-53.657227 -25.723393,-53.862303 -25.551755,-54.213865 -25.697003,-54.477537 -25.485675,-54.726562 -25.141473,-54.536133 -24.610036,-54.331054"
+                ]
+              }
+            ],
+            "joinville_identificada": true,
+            "metodos_identificacao_joinville": [
+              "polygon_contem_coordenada_publica_comasa"
+            ],
+            "vigente_agora": false
+          }
+        ],
+        "menciona_granizo_ou_hail": true,
+        "joinville_identificada": true,
+        "metodo_identificacao_joinville": [
+          "polygon_contem_coordenada_publica_comasa"
+        ],
+        "vigente_agora": false,
+        "candidato_granizo_joinville_vigente": false,
+        "erro": null
+      },
+      {
+        "data_id": "br-inmet:alerts/INMET-ALERT-55825_20260925",
+        "url": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55825_20260925.xml",
+        "http_status": 200,
+        "raiz": "alert",
+        "identifier": "urn:oid:2.49.0.0.76.0.2026.28338.1",
+        "sender": "info.aviso@inmet.gov.br",
+        "sent": "2026-09-25T11:59:22-03:00",
+        "status_cap": "Actual",
+        "msgType": "Alert",
+        "scope": "Public",
+        "infos": [
+          {
+            "language": "pt-BR",
+            "category": [
+              "Met"
+            ],
+            "event": "Baixa Umidade",
+            "urgency": "Future",
+            "severity": "Moderate",
+            "certainty": "Likely",
+            "effective": null,
+            "onset": "2026-09-26T10:00:00-03:00",
+            "expires": "2026-09-26T22:00:00-03:00",
+            "headline": "Aviso de Baixa Umidade. Severidade Grau: Moderate",
+            "description": "INMET publica aviso iniciando em: 26/09/2026 10:00. Umidade relativa do ar variando entre 30% e 20%. Baixo risco de incêndios florestais e à saúde.",
+            "instruction": "Beba bastante líquido.  Evite desgaste físico nas horas mais secas. Evite exposição ao sol nas horas mais quentes do dia. Obtenha mais informações junto à Defesa Civil (telefone 199) e ao Corpo de Bombeiros (telefone 193).",
+            "areas": [
+              {
+                "areaDesc": "Aviso para as áreas: Sul Cearense, Vale São-Franciscano da Bahia, Central Potiguar, Sudeste Piauiense, Sertões Cearenses, Oeste Potiguar, Sertão Pernambucano, São Francisco Pernambucano, Agreste Pernambucano, Centro-Norte Piauiense, Sertão Alagoano, Sertão Paraibano, Borborema, Agreste Paraibano, Sul Maranhense, Jaguaribe, Sudoeste Piauiense, Centro Norte Baiano, Extremo Oeste Baiano, Nordeste Baiano, Centro-Sul Cearense, Norte Cearense, Agreste Alagoano, Oriental do Tocantins, Leste Maranhense, Norte de Minas, Leste Alagoano, Centro Sul Baiano, Leste Goiano, Agreste Potiguar, Norte Goiano, Sertão Sergipano, Noroeste Cearense, Mata Pernambucana",
+                "geocodes": [],
+                "polygons": [
+                  "-6.726891,-43.901367 -6.042863,-43.359373 -5.40171,-43.007811 -4.964166,-42.583008 -4.701498,-42.114257 -4.540929,-41.586913 -4.394928,-41.000977 -4.336519,-40.327147 -4.278105,-40.078125 -4.292709,-39.711912 -4.351122,-39.096678 -4.61392,-38.525389 -4.876621,-38.129881 -5.153805,-37.58789 -5.547488,-36.958008 -5.955476,-36.416014 -6.523234,-36.210938 -7.453523,-35.830077 -8.164454,-35.81543 -8.439788,-35.961913 -9.495769,-36.254883 -9.972086,-36.899412 -10.188366,-37.690428 -10.577298,-39.111328 -11.066361,-40.561523 -11.468509,-41.821287 -12.19951,-42.524412 -12.542822,-42.905273 -14.181311,-44.047851 -14.62103,-44.692383 -15.003297,-45.74707 -14.64937,-46.215819 -14.010866,-46.611326 -12.985588,-46.845703 -12.213824,-46.933594 -11.59765,-46.816405 -10.936981,-46.596679 -10.390094,-46.420898 -9.683489,-46.083983 -8.7294,-45.893554 -7.743845,-45.351562 -7.177538,-44.750976 -6.726891,-43.901367"
+                ]
+              }
+            ],
+            "joinville_identificada": false,
+            "metodos_identificacao_joinville": [],
+            "vigente_agora": false
+          }
+        ],
+        "menciona_granizo_ou_hail": false,
+        "joinville_identificada": false,
+        "metodo_identificacao_joinville": [],
+        "vigente_agora": false,
+        "candidato_granizo_joinville_vigente": false,
+        "erro": null
+      },
+      {
+        "data_id": "br-inmet:alerts/INMET-ALERT-55822_20260925",
+        "url": "https://wis2bra.inmet.gov.br/data/2026-09-25/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55822_20260925.xml",
+        "http_status": 200,
+        "raiz": "alert",
+        "identifier": "urn:oid:2.49.0.0.76.0.2026.28335.1",
+        "sender": "info.aviso@inmet.gov.br",
+        "sent": "2026-09-25T11:50:28-03:00",
+        "status_cap": "Actual",
+        "msgType": "Alert",
+        "scope": "Public",
+        "infos": [
+          {
+            "language": "pt-BR",
+            "category": [
+              "Met"
+            ],
+            "event": "Baixa Umidade",
+            "urgency": "Future",
+            "severity": "Moderate",
+            "certainty": "Likely",
+            "effective": null,
+            "onset": "2026-09-25T10:00:00-03:00",
+            "expires": "2026-09-25T22:00:00-03:00",
+            "headline": "Aviso de Baixa Umidade. Severidade Grau: Moderate",
+            "description": "INMET publica aviso iniciando em: 25/09/2026 10:00. Umidade relativa do ar variando entre 30% e 20%. Baixo risco de incêndios florestais e à saúde.",
+            "instruction": "Beba bastante líquido.  Evite desgaste físico nas horas mais secas. Evite exposição ao sol nas horas mais quentes do dia. Obtenha mais informações junto à Defesa Civil (telefone 199) e ao Corpo de Bombeiros (telefone 193).",
+            "areas": [
+              {
+                "areaDesc": "Aviso para as áreas: Sul Cearense, Vale São-Franciscano da Bahia, Central Potiguar, Sudeste Piauiense, Sertões Cearenses, Oeste Potiguar, Nordeste Baiano, Sertão Pernambucano, São Francisco Pernambucano, Centro-Norte Piauiense, Sertão Alagoano, Sertão Paraibano, Agreste Pernambucano, Agreste Paraibano, Borborema, Leste Maranhense, Jaguaribe, Sudoeste Piauiense, Centro Norte Baiano, Centro-Sul Cearense, Norte Cearense, Agreste Potiguar, Centro Maranhense, Norte Piauiense, Sul Maranhense, Centro Sul Baiano, Agreste Alagoano, Sertão Sergipano, Noroeste Cearense, Extremo Oeste Baiano, Agreste Sergipano",
+                "geocodes": [],
+                "polygons": [
+                  "-9.053073,-44.750973 -10.668994,-44.370115 -11.559925,-43.959957 -11.904056,-42.99316 -12.133236,-41.645506 -11.96137,-39.799803 -11.244101,-38.657225 -10.582633,-37.778319 -9.71771,-37.075194 -8.908422,-36.606445 -7.894307,-35.991211 -7.13933,-35.727539 -6.237548,-35.81543 -5.684059,-36.459959 -5.217548,-37.631832 -4.04982,-39.418945 -3.874504,-40.239256 -3.932947,-41.733397 -4.108251,-42.055664 -4.400338,-43.315428 -5.042515,-44.25293 -5.888041,-45.102535 -7.052135,-45.336912 -9.053073,-44.750973"
+                ]
+              }
+            ],
+            "joinville_identificada": false,
+            "metodos_identificacao_joinville": [],
+            "vigente_agora": true
+          }
+        ],
+        "menciona_granizo_ou_hail": false,
+        "joinville_identificada": false,
+        "metodo_identificacao_joinville": [],
+        "vigente_agora": true,
+        "candidato_granizo_joinville_vigente": false,
+        "erro": null
+      }
+    ],
+    "estrutura_area_confirmada": true,
     "estrutura_geocode_confirmada": false,
-    "estrutura_polygon_confirmada": false,
-    "mencao_granizo_em_algum_cap": false,
-    "joinville_identificada_em_algum_cap": false,
-    "cap_vigente_em_algum_cap": false,
+    "estrutura_polygon_confirmada": true,
+    "mencao_granizo_em_algum_cap": true,
+    "joinville_identificada_em_algum_cap": true,
+    "cap_vigente_em_algum_cap": true,
     "candidato_granizo_joinville_vigente": false,
     "uso_operacional_granizo": false,
-    "regra_seguranca": "Diagnostico estrutural dos CAPs recentes. Somente mencao explicita a granizo/hail, vigencia temporal e cobertura documental de Joinville sao registradas. O bloco nao altera o card operacional de granizo."
+    "regra_seguranca": "Diagnostico estrutural dos CAPs recentes. Somente mencao explicita a granizo/hail, vigencia temporal e cobertura documental de Joinville sao registradas. O bloco nao altera o card operacional de granizo.",
+    "observacao": "CAPs recentes foram parseados e os campos de fenomeno, vigencia e area foram registrados. Mesmo um candidato que cumpra os testes permanece diagnostico nesta versao; o card operacional nao muda."
   },
   "granizo_operacional_inmet_157": {
-    "status": "indisponivel_cap_recente_nao_decodificado",
+    "status": "online_sem_conclusao_negativa",
     "versao": "#157",
     "fonte": "INMET / WIS2 / CAP",
     "tipo": "aviso_meteorologico_oficial_granizo",
@@ -20082,7 +22821,7 @@
     "cobertura_referencia_publica_comasa": null,
     "uso_operacional_granizo": true,
     "regra_seguranca": "Somente alerta positivo comprovado e publicado. Ausencia de candidato na amostra da #156, falha de fonte ou XML indisponivel permanece inconclusiva e nunca vira automaticamente 'sem alerta'.",
-    "observacao": "Aviso oficial indica possibilidade de granizo na area e no periodo; nao significa granizo observado ou caindo no Comasa."
+    "observacao": "Os CAPs inspecionados foram decodificados, mas a #156 avalia apenas uma amostra recente. Portanto, ausencia de candidato positivo nao autoriza publicar 'sem alerta de granizo'."
   },
   "emergencia": {
     "defesa_civil": "199",

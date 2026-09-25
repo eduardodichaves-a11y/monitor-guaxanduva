@@ -9680,6 +9680,265 @@ def construir_rede_pluviometrica_multifonte_165(chuva_cemaden,chuva_epagri):
     if resultado["quantidade_com_leitura_atual"]==0: resultado["status"]="inventario_multifonte_sem_dados_automaticos_disponiveis"
     return resultado
 
+# =========================================================
+# #166 - HISTÓRICO HIDROMETEOROLÓGICO DO RIO GUAXANDUVA
+# =========================================================
+# Esta camada NÃO mede o nível do Rio Guaxanduva. Ela preserva, com o
+# timestamp real de cada fonte, chuva horária observada e maré observada em
+# Joinville/Babitonga para permitir calibração temporal futura chuva x maré.
+# Ausência de dado permanece ausência; nunca é convertida em 0 mm.
+
+HISTORICO_GUAXANDUVA_166_ARQUIVO = "historico_guaxanduva_166.json"
+VERSAO_GUAXANDUVA_166 = "166-v0.2-historico-integrado"
+
+
+def _numero_finito_nao_negativo_166(valor):
+    if isinstance(valor, bool) or not isinstance(valor, (int, float)):
+        return None
+    valor = float(valor)
+    if not math.isfinite(valor) or valor < 0:
+        return None
+    return valor
+
+
+def _instante_iso_166(valor):
+    if not valor:
+        return None
+    try:
+        instante = datetime.fromisoformat(str(valor).replace("Z", "+00:00"))
+        if instante.tzinfo is None:
+            instante = instante.replace(tzinfo=FUSO)
+        return instante.astimezone(FUSO)
+    except Exception:
+        return None
+
+
+def _carregar_historico_guaxanduva_166():
+    try:
+        with open(HISTORICO_GUAXANDUVA_166_ARQUIVO, "r", encoding="utf-8") as arquivo:
+            payload = json.load(arquivo)
+        if not isinstance(payload, dict):
+            raise ValueError("histórico #166 não é objeto JSON")
+        registros = payload.get("registros")
+        if not isinstance(registros, list):
+            registros = []
+        return registros
+    except FileNotFoundError:
+        return []
+    except Exception:
+        # Falha de leitura não apaga nem inventa observações. O chamador
+        # registra o estado atual em nova estrutura, mantendo a segurança.
+        return []
+
+
+def _chave_registro_166(registro):
+    return (
+        str(registro.get("tipo") or ""),
+        str(registro.get("fonte") or ""),
+        str(registro.get("codigo_estacao") or ""),
+        str(registro.get("horario_medicao") or ""),
+    )
+
+
+def _deduplicar_registros_166(registros):
+    unicos = {}
+    for registro in registros:
+        if not isinstance(registro, dict):
+            continue
+        chave = _chave_registro_166(registro)
+        if not chave[0] or not chave[3]:
+            continue
+        unicos[chave] = registro
+    return sorted(
+        unicos.values(),
+        key=lambda r: (
+            str(r.get("horario_medicao") or ""),
+            str(r.get("tipo") or ""),
+            str(r.get("codigo_estacao") or ""),
+        ),
+    )
+
+
+def _novos_registros_chuva_epagri_166(chuva_epagri165):
+    novos = []
+    if not isinstance(chuva_epagri165, dict):
+        return novos
+    for estacao in chuva_epagri165.get("estacoes") or []:
+        if not isinstance(estacao, dict):
+            continue
+        valor = _numero_finito_nao_negativo_166(estacao.get("precipitacao_1h_mm"))
+        instante = _instante_iso_166(estacao.get("horario_medicao"))
+        if valor is None or instante is None:
+            continue
+        novos.append({
+            "tipo": "chuva_horaria_observada",
+            "fonte": "EPAGRI/CIRAM",
+            "codigo_estacao": str(estacao.get("codigo") or ""),
+            "nome_estacao": estacao.get("nome"),
+            "horario_medicao": instante.isoformat(),
+            "janela_h": 1,
+            "precipitacao_mm": round(valor, 3),
+            "equivale_medicao_no_comasa": False,
+        })
+    return novos
+
+
+def _novo_registro_mare_166(mare_observada160):
+    if not isinstance(mare_observada160, dict):
+        return []
+    nivel_cm = _numero_finito_nao_negativo_166(mare_observada160.get("nivel_cm"))
+    instante = _instante_iso_166(mare_observada160.get("horario"))
+    if nivel_cm is None or instante is None:
+        return []
+    return [{
+        "tipo": "mare_observada_jusante",
+        "fonte": "EPAGRI/CIRAM",
+        "codigo_estacao": "maregrafo_joinville_2913",
+        "nome_estacao": "Joinville / Babitonga",
+        "horario_medicao": instante.isoformat(),
+        "nivel_cm": round(nivel_cm, 2),
+        "nivel_m": round(nivel_cm / 100.0, 3),
+        "mare_astronomica_cm": mare_observada160.get("mare_astronomica_cm"),
+        "residual_cm": mare_observada160.get("residual_cm"),
+        "nmm_cm": mare_observada160.get("nmm_cm"),
+        "representa_nivel_rio_guaxanduva": False,
+        "uso": "condicao_de_jusante_para_calibracao_futura",
+    }]
+
+
+def _acumulado_horario_estacao_166(registros, codigo_estacao, horas):
+    serie = []
+    for registro in registros:
+        if registro.get("tipo") != "chuva_horaria_observada":
+            continue
+        if str(registro.get("codigo_estacao") or "") != str(codigo_estacao):
+            continue
+        valor = _numero_finito_nao_negativo_166(registro.get("precipitacao_mm"))
+        instante = _instante_iso_166(registro.get("horario_medicao"))
+        if valor is None or instante is None:
+            continue
+        serie.append((instante, valor))
+    if not serie:
+        return {
+            "disponivel": False,
+            "valor_mm": None,
+            "horas_necessarias": horas,
+            "horas_validas": 0,
+            "motivo": "sem_leituras_horarias",
+        }
+
+    # Uma medição por hora civil. O Actions pode rodar quatro vezes na mesma
+    # hora; a deduplicação por estação + timestamp impede contagem repetida.
+    por_hora = {}
+    for instante, valor in serie:
+        chave_hora = instante.replace(minute=0, second=0, microsecond=0)
+        anterior = por_hora.get(chave_hora)
+        if anterior is None or instante >= anterior[0]:
+            por_hora[chave_hora] = (instante, valor)
+
+    ultima_hora = max(por_hora)
+    esperadas = [ultima_hora - timedelta(hours=i) for i in range(horas)]
+    presentes = [h for h in esperadas if h in por_hora]
+    if len(presentes) != horas:
+        return {
+            "disponivel": False,
+            "valor_mm": None,
+            "horas_necessarias": horas,
+            "horas_validas": len(presentes),
+            "horario_final": por_hora[ultima_hora][0].isoformat(),
+            "motivo": "janela_horaria_incompleta",
+        }
+
+    total = sum(por_hora[h][1] for h in esperadas)
+    return {
+        "disponivel": True,
+        "valor_mm": round(total, 3),
+        "horas_necessarias": horas,
+        "horas_validas": horas,
+        "horario_final": por_hora[ultima_hora][0].isoformat(),
+        "motivo": None,
+    }
+
+
+def _resumo_chuva_166(registros, chuva_epagri165):
+    saida = []
+    estacoes = chuva_epagri165.get("estacoes") if isinstance(chuva_epagri165, dict) else []
+    for estacao in estacoes or []:
+        if not isinstance(estacao, dict):
+            continue
+        codigo = str(estacao.get("codigo") or "")
+        if not codigo:
+            continue
+        saida.append({
+            "codigo": codigo,
+            "nome": estacao.get("nome"),
+            "fonte": "EPAGRI/CIRAM",
+            "equivale_medicao_no_comasa": False,
+            "P1h": _acumulado_horario_estacao_166(registros, codigo, 1),
+            "P3h": _acumulado_horario_estacao_166(registros, codigo, 3),
+            "P6h": _acumulado_horario_estacao_166(registros, codigo, 6),
+            "P24h": _acumulado_horario_estacao_166(registros, codigo, 24),
+        })
+    return saida
+
+
+def atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160):
+    existentes = _carregar_historico_guaxanduva_166()
+    novos = []
+    novos.extend(_novos_registros_chuva_epagri_166(chuva_epagri165))
+    novos.extend(_novo_registro_mare_166(mare_observada160))
+    registros = _deduplicar_registros_166(existentes + novos)
+
+    chuvas = [r for r in registros if r.get("tipo") == "chuva_horaria_observada"]
+    mares = [r for r in registros if r.get("tipo") == "mare_observada_jusante"]
+    diagnostico = {
+        "versao": VERSAO_GUAXANDUVA_166,
+        "status": "historico_em_formacao",
+        "arquivo_historico": HISTORICO_GUAXANDUVA_166_ARQUIVO,
+        "gerado_em": agora().isoformat(),
+        "quantidade_registros": len(registros),
+        "quantidade_chuva_horaria": len(chuvas),
+        "quantidade_mare_observada": len(mares),
+        "chuva_por_estacao": _resumo_chuva_166(registros, chuva_epagri165),
+        "mare_jusante_mais_recente": mares[-1] if mares else None,
+        "rio": {
+            "nome": "Rio Guaxanduva",
+            "nivel_m": None,
+            "nivel_estimado_m": None,
+            "status": "sem_sensor_publico_confirmado",
+        },
+        "cota_fundo_modelo_v01": {
+            "cota_fundo_oficial_m": None,
+            "cota_fundo_estimada_m": 0.5,
+            "incerteza_cota_fundo_m": 0.9,
+            "confianca": "baixa",
+            "uso_no_calculo_operacional": False,
+            "observacao": "Hipotese experimental antiga preservada apenas como referencia de investigacao; nao representa cota oficial nem nivel observado do rio.",
+        },
+        "analise_lag_liberada": False,
+        "nivel_estimado_liberado": False,
+        "alerta_operacional_liberado": False,
+        "regras_seguranca": [
+            "Ausencia ou falha de leitura nunca e convertida em zero.",
+            "Pluviometros diferentes permanecem series independentes e nao sao somados entre si.",
+            "CEMADEN 24 h nao e tratado como chuva horaria.",
+            "Mare de Joinville/Babitonga e condicao de jusante e nao nivel do Rio Guaxanduva.",
+            "P3h, P6h e P24h so existem quando todas as horas da janela estao presentes.",
+            "Nenhum peso chuva x mare e aplicado antes de calibracao historica validada.",
+        ],
+    }
+
+    payload = {
+        "versao": VERSAO_GUAXANDUVA_166,
+        "atualizado_em": agora().isoformat(),
+        "politica_retencao": "sem_poda_automatica_nesta_fase_de_calibracao",
+        "registros": registros,
+    }
+    with open(HISTORICO_GUAXANDUVA_166_ARQUIVO, "w", encoding="utf-8") as arquivo:
+        json.dump(payload, arquivo, ensure_ascii=False, indent=2)
+    return diagnostico
+
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_epagri165 = buscar_chuva_epagri_165()
@@ -9691,6 +9950,7 @@ def main():
     mare_observada160 = buscar_mare_observada_joinville_160()
     criterio163 = calcular_criterio_hidrometeorologico_plancon_163(previsao, mare_observada160)
     mare_prevista164 = calcular_pico_mare_previsto_24h_164(previsao)
+    guaxanduva166 = atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160)
     dados = {
         "monitor":
             "Monitor Guaxanduva",
@@ -9745,6 +10005,9 @@ def main():
 
         "mare_prevista_24h_164":
             mare_prevista164,
+
+        "historico_hidrometeorologico_guaxanduva_166":
+            guaxanduva166,
  
         "rio": {
             "nome":

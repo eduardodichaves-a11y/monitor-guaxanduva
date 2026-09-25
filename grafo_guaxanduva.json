@@ -1,6 +1,6 @@
 {
-  "versao": "GXA-V0.4-HIDRAULICA-FISICA",
-  "gerado_em": "2026-09-25T11:13:41.013211-03:00",
+  "versao": "GXA-V0.5-HIDRAULICA-DECLIVIDADES",
+  "gerado_em": "2026-09-25T11:41:40.358144-03:00",
   "status": "grafo_hidrografico_integrado",
   "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
   "microbacia": "44-0",
@@ -17,7 +17,7 @@
     "incerteza_m": null,
     "confianca": "fisica_parcial_sem_calibracao_de_nivel",
     "metodo": "restricoes_geometricas_documentadas_mais_forcantes_observadas_sem_coeficientes_empiricos_arbitrarios",
-    "instante": "2026-09-25T11:13:42.808175-03:00"
+    "instante": "2026-09-25T11:41:42.432933-03:00"
   },
   "parametros_hidraulicos_documentados": {
     "bypass_montezuma_odilon": {
@@ -28,7 +28,25 @@
         2.5,
         3.0
       ],
-      "uso": "restricao_geometrica_do_modelo"
+      "trechos_declividade": [
+        {
+          "trecho": "A1",
+          "extensao_m": 17.0,
+          "declividade_m_m": 0.022
+        },
+        {
+          "trecho": "A2",
+          "extensao_m": 126.0,
+          "declividade_m_m": 0.0041
+        },
+        {
+          "trecho": "A3",
+          "extensao_m": 30.0,
+          "declividade_m_m": 0.002
+        }
+      ],
+      "sentido_escoamento_documentado_no_perfil": true,
+      "uso": "restricao_geometrica_e_declividade_documentada_do_modelo"
     },
     "estrutura_victor_konder_canoas": {
       "largura_aprox_m": 3.5,
@@ -127,11 +145,11 @@
       "fonte": "EPAGRI/CIRAM",
       "codigo_estacao": "maregrafo_joinville_2913",
       "nome_estacao": "Joinville / Babitonga",
-      "horario_medicao": "2026-09-25T10:30:00-03:00",
-      "nivel_cm": 73.9,
-      "nivel_m": 0.739,
-      "mare_astronomica_cm": 64.0,
-      "residual_cm": 9.9,
+      "horario_medicao": "2026-09-25T11:15:00-03:00",
+      "nivel_cm": 101.6,
+      "nivel_m": 1.016,
+      "mare_astronomica_cm": 95.0,
+      "residual_cm": 6.6,
       "nmm_cm": 103.1,
       "representa_nivel_rio_guaxanduva": false,
       "uso": "condicao_de_jusante_para_calibracao_futura"
@@ -9781,7 +9799,7 @@
     "erros": []
   },
   "propagacao_grafo": {
-    "versao": "GXA-V0.4-HIDRAULICA-FISICA",
+    "versao": "GXA-V0.5-HIDRAULICA-DECLIVIDADES",
     "status": "calculado_geometrico",
     "segmento_referencia": 30960,
     "grafo_direcionado": false,
@@ -10516,13 +10534,13 @@
     ]
   },
   "camada_matematica": {
-    "versao": "GXA-V0.4-HIDRAULICA-FISICA",
+    "versao": "GXA-V0.5-HIDRAULICA-DECLIVIDADES",
     "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
     "nivel_estimado_m": null,
     "incerteza_m": null,
     "confianca": "fisica_parcial_sem_calibracao_de_nivel",
     "metodo": "restricoes_geometricas_documentadas_mais_forcantes_observadas_sem_coeficientes_empiricos_arbitrarios",
-    "instante": "2026-09-25T11:13:42.808175-03:00",
+    "instante": "2026-09-25T11:41:42.432933-03:00",
     "uso_operacional": false,
     "alerta_operacional_liberado": false,
     "representa_medicao_instrumental": false,
@@ -10539,8 +10557,39 @@
         ],
         "classe_documentada": "PA-1",
         "tipo_documentado": "BDTC",
+        "fonte_documental": "Projeto executivo municipal 3999/21 - perfil longitudinal",
+        "declividades_documentadas": [
+          {
+            "trecho": "A1",
+            "extensao_m": 17.0,
+            "declividade_m_m": 0.022,
+            "fator_geometrico_manning_m_8_3": 0.272605,
+            "capacidade_vazao_m3_s": null,
+            "equacao_capacidade": "Q_m3_s = fator_geometrico_manning_m_8_3 / n_manning_s_m_1_3"
+          },
+          {
+            "trecho": "A2",
+            "extensao_m": 126.0,
+            "declividade_m_m": 0.0041,
+            "fator_geometrico_manning_m_8_3": 0.117683,
+            "capacidade_vazao_m3_s": null,
+            "equacao_capacidade": "Q_m3_s = fator_geometrico_manning_m_8_3 / n_manning_s_m_1_3"
+          },
+          {
+            "trecho": "A3",
+            "extensao_m": 30.0,
+            "declividade_m_m": 0.002,
+            "fator_geometrico_manning_m_8_3": 0.082194,
+            "capacidade_vazao_m3_s": null,
+            "equacao_capacidade": "Q_m3_s = fator_geometrico_manning_m_8_3 / n_manning_s_m_1_3"
+          }
+        ],
+        "extensao_trechos_soma_m": 173.0,
+        "raio_hidraulico_tubo_cheio_m": 0.375,
+        "sentido_escoamento_documentado_no_perfil": true,
+        "c2_definicao_documentada": "cota_da_tubulacao_na_geratriz_inferior",
         "capacidade_vazao_m3_s": null,
-        "motivo_capacidade_indisponivel": "declividade_hidraulica_e_rugosidade_nao_confirmadas_numericamente_no_conjunto_integrado"
+        "motivo_capacidade_indisponivel": "rugosidade_manning_documentada_ou_calibrada_ainda_ausente; fator_geometrico_de_Manning_publicado_sem_assumir_n"
       },
       "estrutura_victor_konder_canoas": {
         "largura_aprox_m": 3.5,
@@ -10552,14 +10601,17 @@
     },
     "parametros_necessarios_para_nivel_hidraulico": {
       "cota_invert_ou_fundo_em_datum_confirmado": false,
-      "declividade_hidraulica_numerica_confirmada": false,
+      "declividade_hidraulica_numerica_confirmada_bypass_3999_21": true,
       "rugosidade_manning_documentada_ou_calibrada": false,
       "areas_contribuintes_por_ramo_ou_subbacia": false,
-      "direcao_hidraulica_do_grafo_confirmada": false,
+      "direcao_hidraulica_bypass_3999_21_confirmada": true,
+      "direcao_hidraulica_do_grafo_completo_confirmada": false,
       "calibracao_com_nivel_observado_ou_referencia_visual": false
     },
     "regras": [
       "Nenhum coeficiente chuva-para-nivel e aplicado sem proveniencia ou calibracao.",
+      "As declividades A1=0,0220; A2=0,0041; A3=0,0020 m/m sao documentadas no perfil longitudinal 3999/21.",
+      "A capacidade do bypass nao e fechada sem n de Manning documentado ou calibrado; publica-se apenas Q=fator/n.",
       "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",
       "Escavacao de 2,5 a 3,0 m nao e convertida em cota absoluta do leito.",
       "A cota experimental antiga de 0,50 m nao e usada como datum hidraulico.",
@@ -10629,10 +10681,10 @@
         "regra": "estacoes_independentes_nao_somadas; maior_acumulado_valido_apenas_para_resumo_regional"
       },
       "mare_jusante": {
-        "nivel_m": 0.739,
+        "nivel_m": 1.016,
         "nmm_m": 1.031,
-        "anomalia_relativa_ao_nmm_m": -0.292,
-        "horario_medicao": "2026-09-25T10:30:00-03:00",
+        "anomalia_relativa_ao_nmm_m": -0.015,
+        "horario_medicao": "2026-09-25T11:15:00-03:00",
         "representa_nivel_rio_guaxanduva": false
       }
     }

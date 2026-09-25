@@ -9697,7 +9697,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.13-ESTADO-DECISAO-HDS5-CONTROLE-HIDRAULICO"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.14-MATRIZ-EVIDENCIAS-HDS5-CONTROLE-HIDRAULICO"
  
  
 def _gxa_haversine_m(a, b):
@@ -9970,7 +9970,7 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
     viagem ou sentido hidraulico ate existir suporte altimetrico/hidraulico.
     """
     resultado = {
-        "versao": "GXA-V0.13-ESTADO-DECISAO-HDS5-CONTROLE-HIDRAULICO",
+        "versao": "GXA-V0.14-MATRIZ-EVIDENCIAS-HDS5-CONTROLE-HIDRAULICO",
         "status": "indisponivel",
         "segmento_referencia": GUAXANDUVA_SEGMENTO_REFERENCIA,
         "grafo_direcionado": False,
@@ -10528,9 +10528,122 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         ],
     }
     controle_hidraulico_bueiro["estado_decisao_hds5"] = estado_decisao_hds5
+
+    # V0.14 - matriz auditavel de evidencias para fechamento dos gates HDS-5.
+    # Cada entrada faltante recebe criterio explicito de evidencia aceitavel.
+    # A matriz nao cria valores, nao presume equivalencias entre fontes e
+    # permanece fail-closed enquanto a entrada correspondente for None.
+    criterios_evidencia_hds5 = {
+        "geometria_entrada_inequivoca": {
+            "classe": "documental_ou_levantamento_de_campo_referenciado",
+            "evidencias_aceitaveis": [
+                "detalhe_executivo_ou_as_built_com_geometria_da_boca_de_entrada",
+                "levantamento_de_campo_dimensionado_e_referenciado",
+            ],
+            "nao_aceitar": ["classificacao_apenas_por_semelhanca_visual", "rotulo_ALA_sem_detalhe_geometrico"],
+        },
+        "cota_invert_final_A3_confirmada": {
+            "classe": "documental_topografica",
+            "evidencias_aceitaveis": [
+                "cota_explicita_em_projeto_ou_as_built_vinculada_ao_invert_final_A3",
+                "levantamento_topografico_com_datum_e_ponto_identificado",
+            ],
+            "nao_aceitar": ["cota_0_600_como_invert_sem_vinculo_documental", "profundidade_de_escavacao_como_cota_absoluta"],
+        },
+        "headwater_referenciado_ao_invert_entrada": {
+            "classe": "observacional_referenciada",
+            "evidencias_aceitaveis": [
+                "sensor_de_nivel_referenciado_ao_invert_de_entrada",
+                "medicao_de_campo_ou_referencia_visual_calibrada_ao_invert_de_entrada",
+            ],
+            "nao_aceitar": ["chuva_EPAGRI_convertida_em_HW", "nivel_sem_referencial_vertical"],
+        },
+        "tailwater_referenciado_ao_invert_saida": {
+            "classe": "observacional_referenciada",
+            "evidencias_aceitaveis": [
+                "sensor_de_nivel_referenciado_ao_invert_de_saida",
+                "medicao_de_campo_ou_referencia_visual_calibrada_ao_invert_de_saida",
+            ],
+            "nao_aceitar": ["mare_Babitonga_usada_diretamente_como_TW_local", "nivel_sem_referencial_vertical"],
+        },
+        "condicao_real_tubos_obstrucao_assoreamento": {
+            "classe": "inspecao_de_campo_documentada",
+            "evidencias_aceitaveis": [
+                "inspecao_visual_documentada_das_duas_linhas",
+                "levantamento_que_quantifique_obstrucao_assoreamento_ou_reducao_de_secao",
+            ],
+            "nao_aceitar": ["assumir_tubo_livre_pela_geometria_nominal_de_projeto"],
+        },
+        "coeficientes_inlet_control_hds5": {
+            "classe": "metodologica_documentada",
+            "evidencias_aceitaveis": [
+                "selecao_HDS5_compativel_com_geometria_de_entrada_inequivocamente_classificada",
+                "calibracao_local_documentada",
+            ],
+            "nao_aceitar": ["coeficiente_escolhido_antes_do_fechamento_da_geometria_de_entrada"],
+        },
+        "coeficiente_perda_entrada_ke": {
+            "classe": "metodologica_documentada_ou_calibrada",
+            "evidencias_aceitaveis": [
+                "valor_de_referencia_aplicavel_a_geometria_confirmada_com_fonte_identificada",
+                "calibracao_local_documentada",
+            ],
+            "nao_aceitar": ["valor_generico_sem_vinculo_com_a_geometria_confirmada"],
+        },
+        "coeficiente_perda_saida_ko": {
+            "classe": "metodologica_documentada_ou_calibrada",
+            "evidencias_aceitaveis": [
+                "valor_de_referencia_aplicavel_a_condicao_de_saida_confirmada_com_fonte_identificada",
+                "calibracao_local_documentada",
+            ],
+            "nao_aceitar": ["valor_generico_sem_vinculo_com_a_condicao_de_saida"],
+        },
+        "rugosidade_local_ou_calibrada": {
+            "classe": "observacional_calibrada_ou_documental_local",
+            "evidencias_aceitaveis": [
+                "rugosidade_documentada_para_a_obra_existente",
+                "calibracao_local_com_condicao_real_dos_tubos",
+            ],
+            "nao_aceitar": ["envelope_bibliografico_usado_como_calibracao_local"],
+        },
+    }
+
+    matriz_evidencias_hds5 = {}
+    for campo, criterio in criterios_evidencia_hds5.items():
+        valor_atual = entradas_hds5.get(campo)
+        matriz_evidencias_hds5[campo] = {
+            "satisfeito": valor_atual is not None,
+            "valor_atual": valor_atual,
+            "classe_evidencia_exigida": criterio["classe"],
+            "evidencias_aceitaveis": list(criterio["evidencias_aceitaveis"]),
+            "evidencias_nao_aceitaveis": list(criterio["nao_aceitar"]),
+            "regra": "satisfeito_somente_quando_a_entrada_correspondente_deixar_de_ser_None_com_proveniencia_registrada",
+        }
+
+    campos_evidencia_pendentes = [
+        campo for campo, estado in matriz_evidencias_hds5.items() if not estado["satisfeito"]
+    ]
+    auditoria_evidencias_hds5 = {
+        "versao": "GXA-V0.14-MATRIZ-EVIDENCIAS-HDS5-CONTROLE-HIDRAULICO",
+        "uso_operacional": False,
+        "politica": "fail_closed",
+        "quantidade_campos": len(matriz_evidencias_hds5),
+        "quantidade_satisfeitos": sum(1 for estado in matriz_evidencias_hds5.values() if estado["satisfeito"]),
+        "quantidade_pendentes": len(campos_evidencia_pendentes),
+        "campos_pendentes": campos_evidencia_pendentes,
+        "matriz": matriz_evidencias_hds5,
+        "proximo_gate_bloqueado": proximo_gate_bloqueado,
+        "evidencias_exigidas_para_proximo_gate": {
+            campo: matriz_evidencias_hds5[campo]
+            for campo in estado_decisao_hds5["proximo_gate_dependencias"]
+            if campo in matriz_evidencias_hds5
+        },
+        "regra": "a_matriz_define_o_que_pode_fechar_cada_entrada_sem_transformar_evidencia_indireta_em_valor_hidraulico",
+    }
+    controle_hidraulico_bueiro["auditoria_evidencias_hds5"] = auditoria_evidencias_hds5
  
     resultado = {
-        "versao": "GXA-V0.13-ESTADO-DECISAO-HDS5-CONTROLE-HIDRAULICO",
+        "versao": "GXA-V0.14-MATRIZ-EVIDENCIAS-HDS5-CONTROLE-HIDRAULICO",
         "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
         "nivel_estimado_m": None,
         "incerteza_m": None,
@@ -10616,6 +10729,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "gates_liberacao_hds5_integrados": True,
             "politica_liberacao_hds5_fail_closed": True,
             "estado_decisao_hds5_integrado": True,
+            "matriz_evidencias_hds5_integrada": True,
+            "quantidade_evidencias_hds5_pendentes": len(campos_evidencia_pendentes),
             "proximo_gate_hds5_bloqueado": proximo_gate_bloqueado,
             "controle_governante_hds5_determinavel": estado_decisao_hds5["controle_governante_determinavel"],
             "capacidade_definitiva_liberada": False,
@@ -10638,6 +10753,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "A V0.12 nao altera valores hidraulicos nem libera capacidade: apenas torna auditavel a decisao de bloqueio/liberacao de cada familia de calculo.",
             "A V0.13 consolida os gates HDS-5 em um estado de decisao deterministico e informa o primeiro bloqueio tecnico ainda aberto sem atribuir peso, risco ou valor hidraulico.",
             "A V0.13 mantem capacidade definitiva e nivel estimado bloqueados; o estado de decisao serve somente para rastreabilidade e fechamento ordenado das dependencias.",
+            "A V0.14 associa cada entrada HDS-5 ainda necessaria a classes de evidencia aceitaveis e nao aceitaveis, preservando a politica fail-closed.",
+            "A V0.14 nao transforma evidencia indireta em valor hidraulico: uma entrada somente e satisfeita quando deixa de ser None com proveniencia registrada.",
             "As declividades inferidas pelas cotas C2 de A1 e A2 sao usadas apenas como checagem de consistencia documental, nao como calibracao hidraulica.",
             "Nenhum coeficiente de entrada/saida HDS-5 e inferido apenas pela presenca das estruturas ALA-01/ALA-02 no desenho.",
             "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",

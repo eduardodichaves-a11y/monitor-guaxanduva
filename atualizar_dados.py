@@ -9697,7 +9697,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.10-MATRIZ-DADOS-HDS5-CONTROLE-HIDRAULICO"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.11-PLANO-FECHAMENTO-HDS5-CONTROLE-HIDRAULICO"
  
  
 def _gxa_haversine_m(a, b):
@@ -9970,7 +9970,7 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
     viagem ou sentido hidraulico ate existir suporte altimetrico/hidraulico.
     """
     resultado = {
-        "versao": "GXA-V0.10-MATRIZ-DADOS-HDS5-CONTROLE-HIDRAULICO",
+        "versao": "GXA-V0.11-PLANO-FECHAMENTO-HDS5-CONTROLE-HIDRAULICO",
         "status": "indisponivel",
         "segmento_referencia": GUAXANDUVA_SEGMENTO_REFERENCIA,
         "grafo_direcionado": False,
@@ -10290,9 +10290,90 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "capacidade_definitiva_m3_s": None,
     }
     controle_hidraulico_bueiro["prontidao_hds5"] = prontidao_hds5
+
+    # V0.11 - plano auditavel de fechamento dos dados HDS-5.
+    # Organiza os bloqueios da V0.10 por dependencia fisica e por forma de
+    # obtencao, sem preencher lacunas por hipotese e sem liberar calculos.
+    plano_fechamento_hds5 = {
+        "versao": "GXA-V0.11-PLANO-FECHAMENTO-HDS5-CONTROLE-HIDRAULICO",
+        "status": "aguardando_dados_documentais_e_observacionais",
+        "uso_operacional": False,
+        "objetivo": "fechar_as_entradas_minimas_para_calcular_inlet_control_outlet_control_e_submergencia_sem_coeficientes_presumidos",
+        "prioridade": [
+            {
+                "ordem": 1,
+                "grupo": "geometria_e_referencial_vertical",
+                "campos": [
+                    "geometria_entrada_inequivoca",
+                    "cota_invert_final_A3_confirmada",
+                ],
+                "forma_de_fechamento": "documentacao_executiva_as_built_levantamento_topografico_ou_medicao_de_campo_referenciada",
+                "motivo": "define_referenciais_e_classificacao_geometrica_antes_da_selecao_de_coeficientes",
+            },
+            {
+                "ordem": 2,
+                "grupo": "condicoes_hidraulicas_observadas",
+                "campos": [
+                    "headwater_referenciado_ao_invert_entrada",
+                    "tailwater_referenciado_ao_invert_saida",
+                    "condicao_real_tubos_obstrucao_assoreamento",
+                ],
+                "forma_de_fechamento": "medicao_de_campo_sensor_referencia_visual_calibrada_ou_inspecao_documentada",
+                "motivo": "HW_TW_e_condicao_real_nao_podem_ser_substituidos_por_chuva_mare_ou_zero",
+            },
+            {
+                "ordem": 3,
+                "grupo": "parametros_hidraulicos",
+                "campos": [
+                    "coeficientes_inlet_control_hds5",
+                    "coeficiente_perda_entrada_ke",
+                    "coeficiente_perda_saida_ko",
+                    "rugosidade_local_ou_calibrada",
+                ],
+                "forma_de_fechamento": "selecionar_somente_apos_classificacao_geometrica_inequivoca_e_ou_calibracao_local_documentada",
+                "motivo": "evita_escolha_de_coeficientes_por_semelhanca_visual_ou_conveniencia",
+            },
+        ],
+        "dependencias": {
+            "coeficientes_inlet_control_hds5": ["geometria_entrada_inequivoca"],
+            "coeficiente_perda_entrada_ke": ["geometria_entrada_inequivoca"],
+            "submergencia": [
+                "headwater_referenciado_ao_invert_entrada",
+                "tailwater_referenciado_ao_invert_saida",
+                "cota_invert_final_A3_confirmada",
+            ],
+            "controle_governante": ["inlet_control_calculado", "outlet_control_calculado"],
+            "capacidade_definitiva_m3_s": ["controle_governante_determinado"],
+        },
+        "estado_campos": {
+            chave: {
+                "disponivel": valor is not None,
+                "valor": valor,
+            }
+            for chave, valor in entradas_hds5.items()
+        },
+        "resumo": {
+            "total_entradas_controladas": len(entradas_hds5),
+            "total_disponiveis": sum(1 for valor in entradas_hds5.values() if valor is not None),
+            "total_faltantes": len(faltantes_hds5),
+            "inlet_control_pronto": prontidao_por_calculo_hds5["inlet_control"]["pronto"],
+            "outlet_control_pronto": prontidao_por_calculo_hds5["outlet_control"]["pronto"],
+            "submergencia_determinavel": prontidao_por_calculo_hds5["submergencia"]["pronto"],
+            "capacidade_definitiva_liberada": False,
+        },
+        "proxima_etapa_tecnica": "fechar_geometria_entrada_e_cota_invert_final_A3_antes_de_selecionar_coeficientes_HDS5",
+        "regras": [
+            "None_permanece_dado_ausente_e_nunca_e_convertido_em_zero",
+            "chuva_EPAGRI_nao_substitui_headwater_HW",
+            "mare_Joinville_Babitonga_nao_substitui_tailwater_TW_local_do_bueiro",
+            "ALA_01_ou_ALA_02_no_desenho_nao_bastam_para_selecionar_coeficientes_HDS5",
+            "capacidade_definitiva_permanece_nula_ate_o_controle_governante_ser_determinavel",
+        ],
+    }
+    controle_hidraulico_bueiro["plano_fechamento_hds5"] = plano_fechamento_hds5
  
     resultado = {
-        "versao": "GXA-V0.10-MATRIZ-DADOS-HDS5-CONTROLE-HIDRAULICO",
+        "versao": "GXA-V0.11-PLANO-FECHAMENTO-HDS5-CONTROLE-HIDRAULICO",
         "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
         "nivel_estimado_m": None,
         "incerteza_m": None,
@@ -10374,6 +10455,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "prontidao_hds5_calculada_explicitamente": True,
             "prontidao_hds5_separada_por_familia_de_calculo": True,
             "quantidade_campos_hds5_faltantes": len(faltantes_hds5),
+            "plano_fechamento_hds5_integrado": True,
+            "capacidade_definitiva_liberada": False,
         },
         "regras": [
             "Nenhum coeficiente chuva-para-nivel e aplicado sem proveniencia ou calibracao.",
@@ -10387,6 +10470,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "A metodologia FHWA HDS-5 (FHWA-HIF-12-026) foi integrada como estrutura de decisao; nenhuma equacao de controle e resolvida sem as entradas documentais exigidas.",
             "A V0.10 separa a prontidao HDS-5 por inlet control, outlet control e submergencia; ausencia de dado permanece None e nunca e convertida em zero ou coeficiente presumido.",
             "A V0.10 registra em bloco separado os dados geometricos ja documentados para evitar confundir geometria conhecida com entrada hidraulica ainda ausente.",
+            "A V0.11 organiza os campos faltantes em um plano de fechamento por dependencia fisica; a ordem e tecnica e nao atribui pesos ou coeficientes ao modelo.",
+            "A V0.11 mantem capacidade definitiva, controle governante, HW e TW nulos enquanto suas dependencias documentais e observacionais nao forem satisfeitas.",
             "As declividades inferidas pelas cotas C2 de A1 e A2 sao usadas apenas como checagem de consistencia documental, nao como calibracao hidraulica.",
             "Nenhum coeficiente de entrada/saida HDS-5 e inferido apenas pela presenca das estruturas ALA-01/ALA-02 no desenho.",
             "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",

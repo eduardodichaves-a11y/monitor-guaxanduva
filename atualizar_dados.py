@@ -9697,7 +9697,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.5-HIDRAULICA-DECLIVIDADES"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.6-ENVELOPE-HIDRAULICO-MANNING"
  
  
 def _gxa_haversine_m(a, b):
@@ -9965,12 +9965,12 @@ def _gxa_maior_chuva_valida(chuva_por_estacao, janela):
 def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
     """Calcula apenas metricas geometricas do componente conectado ao 30960.
  
-    V0.5 preserva a remocao de velocidade, atenuacao temporal e pesos sem calibracao. O grafo
+    V0.6 preserva a remocao de velocidade, atenuacao temporal e pesos sem calibracao. O grafo
     continua nao direcionado; portanto nenhuma distancia e tratada como tempo de
     viagem ou sentido hidraulico ate existir suporte altimetrico/hidraulico.
     """
     resultado = {
-        "versao": "GXA-V0.5-HIDRAULICA-DECLIVIDADES",
+        "versao": "GXA-V0.6-ENVELOPE-HIDRAULICO-MANNING",
         "status": "indisponivel",
         "segmento_referencia": GUAXANDUVA_SEGMENTO_REFERENCIA,
         "grafo_direcionado": False,
@@ -10048,12 +10048,14 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
  
  
 def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
-    """V0.5: camada fisica auditavel com declividades documentadas do bypass.
+    """V0.6: envelope hidraulico de referencia com Manning para o bypass.
  
     Mantem o nome da funcao por compatibilidade com a arquitetura existente.
     As declividades A1/A2/A3 do projeto 3999/21 entram na camada fisica.
-    O nivel absoluto permanece nulo enquanto faltarem datum/invert, rugosidade
-    documentada ou calibrada, areas contribuintes e calibracao observacional.
+    A faixa n=0,010-0,015 vem da literatura FHWA HEC-22 (2024) para tubos
+    de concreto e e usada somente como envelope de referencia, nao como
+    rugosidade local medida/calibrada. O nivel absoluto permanece nulo enquanto
+    faltarem datum/invert, areas contribuintes e calibracao observacional.
     """
     diametro_m = 1.50
     raio_m = diametro_m / 2.0
@@ -10061,6 +10063,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
     area_bueiro_duplo_m2 = 2.0 * area_um_tubo_m2
     area_victor_konder_m2 = 3.50 * 2.50
     raio_hidraulico_tubo_cheio_m = diametro_m / 4.0
+    manning_n_min_literatura = 0.010
+    manning_n_max_literatura = 0.015
     trechos_bypass = [
         {"trecho": "A1", "extensao_m": 17.0, "declividade_m_m": 0.0220},
         {"trecho": "A2", "extensao_m": 126.0, "declividade_m_m": 0.0041},
@@ -10075,11 +10079,18 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             * math.sqrt(trecho["declividade_m_m"]),
             6,
         )
+        fator_manning = trecho["fator_geometrico_manning_m_8_3"]
+        trecho["vazao_uniforme_referencia_m3_s"] = {
+            "min_com_n_0_015": round(fator_manning / manning_n_max_literatura, 3),
+            "max_com_n_0_010": round(fator_manning / manning_n_min_literatura, 3),
+            "natureza": "envelope_de_literatura_para_escoamento_uniforme_em_tubos_cheios",
+            "nao_representa_capacidade_definitiva_do_bueiro": True,
+        }
         trecho["capacidade_vazao_m3_s"] = None
         trecho["equacao_capacidade"] = "Q_m3_s = fator_geometrico_manning_m_8_3 / n_manning_s_m_1_3"
  
     resultado = {
-        "versao": "GXA-V0.5-HIDRAULICA-DECLIVIDADES",
+        "versao": "GXA-V0.6-ENVELOPE-HIDRAULICO-MANNING",
         "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
         "nivel_estimado_m": None,
         "incerteza_m": None,
@@ -10105,8 +10116,23 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
                 "raio_hidraulico_tubo_cheio_m": round(raio_hidraulico_tubo_cheio_m, 4),
                 "sentido_escoamento_documentado_no_perfil": True,
                 "c2_definicao_documentada": "cota_da_tubulacao_na_geratriz_inferior",
+                "manning_literatura_referencia": {
+                    "n_min": manning_n_min_literatura,
+                    "n_max": manning_n_max_literatura,
+                    "material": "tubo_de_concreto",
+                    "fonte": "FHWA HEC-22 Urban Drainage Design Manual, 4th ed., 2024, Table 4.4",
+                    "publicacao": "FHWA-HIF-24-006",
+                    "uso": "envelope_de_referencia_nao_calibrado_localmente",
+                    "observacao": "valores_menores_em_geral_correspondem_a_tubos_mais_lisos_bem_construidos_e_mantidos",
+                },
+                "manning_referencia_secundaria": {
+                    "n_min": 0.011,
+                    "n_max": 0.013,
+                    "fonte": "FHWA HDS-4 Introduction to Highway Hydraulics, 2008, Table B.3",
+                    "uso": "checagem_bibliografica_secundaria",
+                },
                 "capacidade_vazao_m3_s": None,
-                "motivo_capacidade_indisponivel": "rugosidade_manning_documentada_ou_calibrada_ainda_ausente; fator_geometrico_de_Manning_publicado_sem_assumir_n",
+                "motivo_capacidade_indisponivel": "envelope_Manning_de_literatura_calculado; capacidade_definitiva_exige_rugosidade_local_ou_calibrada_e_analise_de_controle_de_entrada_saida_e_submergencia",
             },
             "estrutura_victor_konder_canoas": {
                 "largura_aprox_m": 3.5,
@@ -10119,7 +10145,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "parametros_necessarios_para_nivel_hidraulico": {
             "cota_invert_ou_fundo_em_datum_confirmado": False,
             "declividade_hidraulica_numerica_confirmada_bypass_3999_21": True,
-            "rugosidade_manning_documentada_ou_calibrada": False,
+            "rugosidade_manning_literatura_para_tubo_concreto_disponivel": True,
+            "rugosidade_manning_documentada_no_projeto_ou_calibrada_localmente": False,
             "areas_contribuintes_por_ramo_ou_subbacia": False,
             "direcao_hidraulica_bypass_3999_21_confirmada": True,
             "direcao_hidraulica_do_grafo_completo_confirmada": False,
@@ -10128,7 +10155,9 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "regras": [
             "Nenhum coeficiente chuva-para-nivel e aplicado sem proveniencia ou calibracao.",
             "As declividades A1=0,0220; A2=0,0041; A3=0,0020 m/m sao documentadas no perfil longitudinal 3999/21.",
-            "A capacidade do bypass nao e fechada sem n de Manning documentado ou calibrado; publica-se apenas Q=fator/n.",
+            "A faixa n=0,010-0,015 e referencia bibliografica FHWA HEC-22 para tubo de concreto; nao e medicao nem calibracao local.",
+            "Publica-se um envelope de vazao uniforme Q=fator/n para os dois tubos cheios, sem chama-lo de capacidade definitiva do bueiro.",
+            "Capacidade definitiva exige verificacao de controle de entrada/saida, carga de montante, jusante/submergencia, perdas e condicao real dos tubos.",
             "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",
             "Escavacao de 2,5 a 3,0 m nao e convertida em cota absoluta do leito.",
             "A cota experimental antiga de 0,50 m nao e usada como datum hidraulico.",
@@ -10221,6 +10250,13 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
                     {"trecho": "A2", "extensao_m": 126.0, "declividade_m_m": 0.0041},
                     {"trecho": "A3", "extensao_m": 30.0, "declividade_m_m": 0.0020},
                 ],
+                "manning_literatura_tubo_concreto": {
+                    "n_min": 0.010,
+                    "n_max": 0.015,
+                    "fonte": "FHWA HEC-22 4th ed. 2024 Table 4.4",
+                    "publicacao": "FHWA-HIF-24-006",
+                    "uso": "envelope_de_referencia_nao_calibrado_localmente",
+                },
                 "sentido_escoamento_documentado_no_perfil": True,
                 "uso": "restricao_geometrica_e_declividade_documentada_do_modelo",
             },

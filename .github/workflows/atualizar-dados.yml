@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 # Impede duas execuções deste workflow de tentarem gravar
-# dados.json e historico_validacao.json ao mesmo tempo.
+# dados.json, historico_validacao.json e historico_guaxanduva_166.json ao mesmo tempo.
 concurrency:
   group: monitor-guaxanduva-atualizacao
   cancel-in-progress: false
@@ -62,9 +62,6 @@ jobs:
           LPTYA = "CbkYTPgEQbNLja"
           CHAVE_FIXA = "1A853d23"
 
-          # Os filtros abaixo são os valores do fluxo normal sem restrição
-          # específica de estado/tipo. O diagnóstico também tenta combinações
-          # observadas no próprio JavaScript do Agroconnect.
           FILTROS = [
               ("0", "todas"),
               ("42", "todas"),
@@ -93,15 +90,10 @@ jobs:
           })
 
           def chave_temporal(timestamp_ms):
-              # JS:
-              # keyy = new Date().getTime().toString()
-              # keyy = keyy.substring(0, keyy.length - 5)
               s = str(timestamp_ms)
               return s[:-5]
 
           def marcador_resposta(keyy):
-              # prrtyc():
-              # keyy[0] + "Cb" + keyy[1] + "kY" + ... + keyy[6] + "ja" + "7"
               partes = []
               pos = 0
               for i in range(0, len(LPTYA), 2):
@@ -131,7 +123,6 @@ jobs:
               chave = CHAVE_FIXA + keyy
               k = 0
 
-              # O JS usa Math.trunc(n/2).
               for i in range(math.trunc(n / 2)):
                   if k >= len(chave):
                       k = 0
@@ -150,10 +141,6 @@ jobs:
               return "".join(chars)
 
           def date_calculado(data_dd_mm_aaaa, estacao):
-              # Tradução literal da expressão de encod():
-              # pow(nhoras,3) * ano * (mes*12) * (30*dia)
-              # +
-              # pow(cultura,3) * len(produto) * (variavel+1) * (estacao+1)
               dia, mes, ano = [int(x) for x in data_dd_mm_aaaa.split("-")]
               parte1 = int(
                   math.pow(float(NHORAS), 3)
@@ -194,7 +181,7 @@ jobs:
               return params, keyy
 
           def parece_resposta_valida(decodificado, estacao):
-              limpo = decodificado.replace("\\n", "").strip()
+              limpo = decodificado.replace("\n", "").strip()
               if not limpo:
                   return False
               if ";;" not in limpo:
@@ -204,7 +191,7 @@ jobs:
           def mostrar_registros(decodificado, estacao):
               print("----- REGISTROS DECODIFICADOS -----")
               achados = 0
-              for registro in decodificado.replace("\\n", "").split(";;"):
+              for registro in decodificado.replace("\n", "").split(";;"):
                   registro = registro.strip()
                   if not registro:
                       continue
@@ -329,48 +316,46 @@ jobs:
                   + ("resposta decodificada contendo a estação" if ok
                      else "ainda sem confirmação")
               )
-
-          # O diagnóstico é deliberadamente não destrutivo.
-          # Não falha a Action caso a EPAGRI não responda, para que o backend
-          # operacional #165 continue executando normalmente.
           PY
 
           python /tmp/diagnostico_epagri.py
 
-      - name: Atualizar dados e histórico
+      - name: Atualizar dados e históricos
         run: python atualizar_dados.py
 
-      - name: Salvar dados e histórico atualizados
+      - name: Salvar dados e históricos atualizados
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add dados.json historico_validacao.json
+          git add dados.json historico_validacao.json historico_guaxanduva_166.json
 
           if git diff --cached --quiet; then
-            echo "Nenhuma alteração em dados.json ou historico_validacao.json."
+            echo "Nenhuma alteração nos dados ou históricos."
             exit 0
           fi
 
           cp dados.json /tmp/dados-monitor-guaxanduva.json
           cp historico_validacao.json /tmp/historico-validacao-monitor-guaxanduva.json
+          cp historico_guaxanduva_166.json /tmp/historico-guaxanduva-166.json
           git reset --hard HEAD
           git fetch origin main
           git reset --hard origin/main
           cp /tmp/dados-monitor-guaxanduva.json dados.json
           cp /tmp/historico-validacao-monitor-guaxanduva.json historico_validacao.json
-          git add dados.json historico_validacao.json
+          cp /tmp/historico-guaxanduva-166.json historico_guaxanduva_166.json
+          git add dados.json historico_validacao.json historico_guaxanduva_166.json
 
           if git diff --cached --quiet; then
-            echo "Os dados e o histórico mais recentes já estão publicados."
+            echo "Os dados e históricos mais recentes já estão publicados."
             exit 0
           fi
 
-          git commit -m "Atualiza dados e histórico do Monitor Guaxanduva"
+          git commit -m "Atualiza dados e históricos do Monitor Guaxanduva"
 
           for tentativa in 1 2 3; do
             if git push origin HEAD:main; then
-              echo "dados.json e historico_validacao.json publicados com sucesso."
+              echo "dados.json e históricos publicados com sucesso."
               exit 0
             fi
 
@@ -378,19 +363,21 @@ jobs:
 
             cp dados.json /tmp/dados-monitor-guaxanduva.json
             cp historico_validacao.json /tmp/historico-validacao-monitor-guaxanduva.json
+            cp historico_guaxanduva_166.json /tmp/historico-guaxanduva-166.json
             git fetch origin main
             git reset --hard origin/main
             cp /tmp/dados-monitor-guaxanduva.json dados.json
             cp /tmp/historico-validacao-monitor-guaxanduva.json historico_validacao.json
-            git add dados.json historico_validacao.json
+            cp /tmp/historico-guaxanduva-166.json historico_guaxanduva_166.json
+            git add dados.json historico_validacao.json historico_guaxanduva_166.json
 
             if git diff --cached --quiet; then
-              echo "Os dados e o histórico já foram publicados por outra execução."
+              echo "Os dados e históricos já foram publicados por outra execução."
               exit 0
             fi
 
-            git commit -m "Atualiza dados e histórico do Monitor Guaxanduva"
+            git commit -m "Atualiza dados e históricos do Monitor Guaxanduva"
           done
 
-          echo "Não foi possível publicar dados.json e historico_validacao.json após 3 tentativas."
+          echo "Não foi possível publicar os dados e históricos após 3 tentativas."
           exit 1

@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 # Impede duas execuções deste workflow de tentarem gravar
-# dados.json, historico_validacao.json e historico_guaxanduva_166.json ao mesmo tempo.
+# dados.json, historico_validacao.json, historico_guaxanduva_166.json e grafo_guaxanduva.json ao mesmo tempo.
 concurrency:
   group: monitor-guaxanduva-atualizacao
   cancel-in-progress: false
@@ -323,39 +323,41 @@ jobs:
       - name: Atualizar dados e históricos
         run: python atualizar_dados.py
 
-      - name: Salvar dados e históricos atualizados
+      - name: Salvar dados, históricos e grafo atualizados
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add dados.json historico_validacao.json historico_guaxanduva_166.json
+          git add dados.json historico_validacao.json historico_guaxanduva_166.json grafo_guaxanduva.json
 
           if git diff --cached --quiet; then
-            echo "Nenhuma alteração nos dados ou históricos."
+            echo "Nenhuma alteração nos dados, históricos ou grafo."
             exit 0
           fi
 
           cp dados.json /tmp/dados-monitor-guaxanduva.json
           cp historico_validacao.json /tmp/historico-validacao-monitor-guaxanduva.json
           cp historico_guaxanduva_166.json /tmp/historico-guaxanduva-166.json
+          cp grafo_guaxanduva.json /tmp/grafo-guaxanduva.json
           git reset --hard HEAD
           git fetch origin main
           git reset --hard origin/main
           cp /tmp/dados-monitor-guaxanduva.json dados.json
           cp /tmp/historico-validacao-monitor-guaxanduva.json historico_validacao.json
           cp /tmp/historico-guaxanduva-166.json historico_guaxanduva_166.json
-          git add dados.json historico_validacao.json historico_guaxanduva_166.json
+          cp /tmp/grafo-guaxanduva.json grafo_guaxanduva.json
+          git add dados.json historico_validacao.json historico_guaxanduva_166.json grafo_guaxanduva.json
 
           if git diff --cached --quiet; then
-            echo "Os dados e históricos mais recentes já estão publicados."
+            echo "Os dados, históricos e grafo mais recentes já estão publicados."
             exit 0
           fi
 
-          git commit -m "Atualiza dados e históricos do Monitor Guaxanduva"
+          git commit -m "Atualiza dados, históricos e grafo do Monitor Guaxanduva"
 
           for tentativa in 1 2 3; do
             if git push origin HEAD:main; then
-              echo "dados.json e históricos publicados com sucesso."
+              echo "dados.json, históricos e grafo publicados com sucesso."
               exit 0
             fi
 
@@ -364,20 +366,22 @@ jobs:
             cp dados.json /tmp/dados-monitor-guaxanduva.json
             cp historico_validacao.json /tmp/historico-validacao-monitor-guaxanduva.json
             cp historico_guaxanduva_166.json /tmp/historico-guaxanduva-166.json
+            cp grafo_guaxanduva.json /tmp/grafo-guaxanduva.json
             git fetch origin main
             git reset --hard origin/main
             cp /tmp/dados-monitor-guaxanduva.json dados.json
             cp /tmp/historico-validacao-monitor-guaxanduva.json historico_validacao.json
             cp /tmp/historico-guaxanduva-166.json historico_guaxanduva_166.json
-            git add dados.json historico_validacao.json historico_guaxanduva_166.json
+            cp /tmp/grafo-guaxanduva.json grafo_guaxanduva.json
+            git add dados.json historico_validacao.json historico_guaxanduva_166.json grafo_guaxanduva.json
 
             if git diff --cached --quiet; then
-              echo "Os dados e históricos já foram publicados por outra execução."
+              echo "Os dados, históricos e grafo já foram publicados por outra execução."
               exit 0
             fi
 
-            git commit -m "Atualiza dados e históricos do Monitor Guaxanduva"
+            git commit -m "Atualiza dados, históricos e grafo do Monitor Guaxanduva"
           done
 
-          echo "Não foi possível publicar os dados e históricos após 3 tentativas."
+          echo "Não foi possível publicar os dados, históricos e grafo após 3 tentativas."
           exit 1

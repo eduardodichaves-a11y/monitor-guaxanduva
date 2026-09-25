@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-09-25T14:41:01.008915-03:00",
+  "gerado_em": "2026-09-25T14:53:38.466544-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -143,7 +143,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-09-25T14:40:42.487924-03:00"
+    "coletado_em": "2026-09-25T14:53:21.561199-03:00"
   },
   "chuva_observada_epagri_165": {
     "status": "online",
@@ -163,7 +163,7 @@
         "longitude": -48.9708,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-25T14:00:00-03:00",
-        "idade_leitura_min": 40.7,
+        "idade_leitura_min": 53.4,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -179,7 +179,7 @@
         "longitude": -48.9889,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-25T14:00:00-03:00",
-        "idade_leitura_min": 40.7,
+        "idade_leitura_min": 53.4,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -348,7 +348,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-25T14:00:00-03:00",
-        "idade_leitura_min": 40.7,
+        "idade_leitura_min": 53.4,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -367,7 +367,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-25T14:00:00-03:00",
-        "idade_leitura_min": 40.7,
+        "idade_leitura_min": 53.4,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -561,8 +561,8 @@
     "endpoint": "https://resources.cemaden.gov.br/graficos/interativo/grafico_pcds.php?idpcd=6259",
     "http_status": 200,
     "content_type": "text/html; charset=UTF-8",
-    "bytes_resposta": 28935,
-    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-25 13h00 UTC','2026-09-25 14h00 UTC','2026-09-25 15h00 UTC','2026-09-25 16h00 UTC','2026-09-25 17h00 UTC'],'2026-09-25 ',[0,0,0,0,0],'Acumulada',[0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643','#4B8F",
+    "bytes_resposta": 28963,
+    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-25 13h00 UTC','2026-09-25 14h00 UTC','2026-09-25 15h00 UTC','2026-09-25 16h00 UTC','2026-09-25 17h00 UTC','2026-09-25 18h00 UTC'],'2026-09-25 ',[0,0,0,0,0,0],'Acumulada',[0,0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array",
     "referencias_encontradas": [
       {
         "referencia_bruta": "css/estilo_.css",
@@ -1029,7 +1029,7 @@
       "data_fonte": "25/09/2026",
       "hora_fonte": "17h"
     },
-    "idade_ultima_leitura_min": 41.2,
+    "idade_ultima_leitura_min": 53.8,
     "dados_frescos_diagnostico": true,
     "limite_frescor_diagnostico_min": 120,
     "acumulados_diagnosticos": {
@@ -1257,7 +1257,7 @@
     "24h_mm": 0.0,
     "horario_ultima_celula_utc": "2026-09-25T17:00:00+00:00",
     "horario_ultima_celula_local": "2026-09-25T14:00:00-03:00",
-    "idade_leitura_min": 41.3,
+    "idade_leitura_min": 53.9,
     "dados_frescos": true,
     "limite_frescor_min": 120,
     "granularidade": "horaria",
@@ -1293,7 +1293,7 @@
     "leitura_horaria_mm": 0.0,
     "horario_medicao_utc": "2026-09-25T17:00:00+00:00",
     "horario_medicao_local": "2026-09-25T14:00:00-03:00",
-    "idade_leitura_min": 41.3,
+    "idade_leitura_min": 53.9,
     "dados_frescos": true,
     "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
     "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
@@ -1452,7 +1452,7 @@
     "residual_cm": -2.8,
     "nmm_cm": 103.1,
     "horario": "2026-09-25T14:15:00-03:00",
-    "idade_min": 25.9,
+    "idade_min": 38.6,
     "frescor": "atual",
     "residual_aritmetica_validada": true,
     "uso_no_risco": false,
@@ -3326,7 +3326,7 @@
     "versao": "166-v0.2-historico-integrado",
     "status": "historico_em_formacao",
     "arquivo_historico": "historico_guaxanduva_166.json",
-    "gerado_em": "2026-09-25T14:40:58.639487-03:00",
+    "gerado_em": "2026-09-25T14:53:36.468710-03:00",
     "quantidade_registros": 70,
     "quantidade_chuva_horaria": 32,
     "quantidade_mare_observada": 38,
@@ -3450,7 +3450,7 @@
   },
   "modelo_computacional_guaxanduva_v01": {
     "versao": "GXA-V0.13-ESTADO-DECISAO-HDS5-CONTROLE-HIDRAULICO",
-    "gerado_em": "2026-09-25T14:40:58.641109-03:00",
+    "gerado_em": "2026-09-25T14:53:36.469974-03:00",
     "status": "grafo_hidrografico_integrado",
     "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
     "microbacia": "44-0",
@@ -3467,7 +3467,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "restricoes_geometricas_documentadas_mais_forcantes_observadas_sem_coeficientes_empiricos_arbitrarios",
-      "instante": "2026-09-25T14:41:00.997409-03:00"
+      "instante": "2026-09-25T14:53:38.457496-03:00"
     },
     "parametros_hidraulicos_documentados": {
       "bypass_montezuma_odilon": {
@@ -13997,7 +13997,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "restricoes_geometricas_documentadas_mais_forcantes_observadas_sem_coeficientes_empiricos_arbitrarios",
-      "instante": "2026-09-25T14:41:00.997409-03:00",
+      "instante": "2026-09-25T14:53:38.457496-03:00",
       "uso_operacional": false,
       "alerta_operacional_liberado": false,
       "representa_medicao_instrumental": false,
@@ -14734,12 +14734,12 @@
     "fonte": "Open-Meteo",
     "modelo": "Best Match",
     "atual": {
-      "horario": "2026-09-25T14:30",
-      "temperatura_c": 26.1,
+      "horario": "2026-09-25T14:45",
+      "temperatura_c": 25.8,
       "precipitacao_mm": 0.0,
-      "vento_kmh": 9.9,
+      "vento_kmh": 11.2,
       "direcao_graus": 46,
-      "rajada_kmh": 25.6
+      "rajada_kmh": 28.4
     },
     "proxima_hora": {
       "horario": "2026-09-25T15:00",
@@ -14917,7 +14917,7 @@
       "janela_inicio": "2026-09-25T15:00",
       "janela_fim_exclusivo": "2026-09-26T15:00:00-03:00",
       "mare_horario": "2026-09-25T14:15:00-03:00",
-      "mare_idade_min": 25.9
+      "mare_idade_min": 38.6
     },
     "criterios": {
       "mobilizacao_chuva_superior_20mm_24h": false,
@@ -14950,8 +14950,8 @@
     "quadros_png_validos": 7,
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
-    "horario_ultimo_quadro": "2026-09-25T14:30:00-03:00",
-    "idade_ultimo_quadro_min": 11.6,
+    "horario_ultimo_quadro": "2026-09-25T14:50:00-03:00",
+    "idade_ultimo_quadro_min": 4.2,
     "dados_frescos": true,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -15253,30 +15253,6 @@
       "quadros_avaliados": 7,
       "por_quadro": [
         {
-          "arquivo": "2026092516300000dBZ.cappi_top.png",
-          "classes_legenda_presentes": 1,
-          "classes_legenda_total": 16,
-          "rgb_correspondentes": [
-            [
-              255,
-              255,
-              0
-            ]
-          ]
-        },
-        {
-          "arquivo": "2026092516400000dBZ.cappi_top.png",
-          "classes_legenda_presentes": 1,
-          "classes_legenda_total": 16,
-          "rgb_correspondentes": [
-            [
-              255,
-              255,
-              0
-            ]
-          ]
-        },
-        {
           "arquivo": "2026092516500000dBZ.cappi_top.png",
           "classes_legenda_presentes": 2,
           "classes_legenda_total": 16,
@@ -15331,6 +15307,35 @@
         },
         {
           "arquivo": "2026092517300000dBZ.cappi_top.png",
+          "classes_legenda_presentes": 1,
+          "classes_legenda_total": 16,
+          "rgb_correspondentes": [
+            [
+              255,
+              255,
+              0
+            ]
+          ]
+        },
+        {
+          "arquivo": "2026092517400000dBZ.cappi_top.png",
+          "classes_legenda_presentes": 2,
+          "classes_legenda_total": 16,
+          "rgb_correspondentes": [
+            [
+              255,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              0
+            ]
+          ]
+        },
+        {
+          "arquivo": "2026092517500000dBZ.cappi_top.png",
           "classes_legenda_presentes": 1,
           "classes_legenda_total": 16,
           "rgb_correspondentes": [
@@ -15693,37 +15698,37 @@
         "classe_oficial": null
       },
       "candidato_legado_mais_proximo": {
-        "distancia_comasa_km": 26.481,
-        "pixel_x": 732,
-        "pixel_y": 138,
-        "indice_p": 3,
+        "distancia_comasa_km": 28.955,
+        "pixel_x": 756,
+        "pixel_y": 110,
+        "indice_p": 8,
         "rgb": [
-          170,
-          255,
-          0
+          55,
+          145,
+          255
         ],
         "alpha": 255,
         "rgb_pertence_legenda_oficial": false,
         "classe_oficial": null,
-        "latitude": -26.504973,
-        "longitude": -48.853291,
+        "latitude": -26.15201,
+        "longitude": -48.551264,
         "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
       },
       "eco_oficial_mais_proximo_no_quadro": {
-        "distancia_comasa_km": 329.382,
-        "pixel_x": 721,
-        "pixel_y": 354,
-        "indice_p": 12,
+        "distancia_comasa_km": 93.664,
+        "pixel_x": 800,
+        "pixel_y": 86,
+        "indice_p": 7,
         "rgb": [
           255,
           255,
           0
         ],
         "classe_oficial": 10,
-        "latitude": -29.227828,
-        "longitude": -48.991721
+        "latitude": -25.84947,
+        "longitude": -47.997547
       },
-      "diferenca_distancias_oficial_menos_legado_km": 302.901,
+      "diferenca_distancias_oficial_menos_legado_km": 64.709,
       "contagem_local_por_raio": {
         "2": {
           "legado": 0,
@@ -15771,46 +15776,6 @@
       "validacao_rgb": "compatibilidade_rgb_observada"
     },
     "serie_espacial": [
-      {
-        "horario_local": "2026-09-25T13:30:00-03:00",
-        "pixels_candidatos": 10,
-        "componentes": 0,
-        "eco_mais_proximo": {
-          "pixel_x": 676,
-          "pixel_y": 303,
-          "latitude": -28.58493,
-          "longitude": -49.55802,
-          "distancia_comasa_km": 267.78,
-          "direcao_graus": 195.8,
-          "direcao_cardinal": "S"
-        },
-        "pixels_por_raio": {
-          "ate_10_km": 0,
-          "ate_25_km": 0,
-          "ate_50_km": 0,
-          "ate_100_km": 0
-        }
-      },
-      {
-        "horario_local": "2026-09-25T13:40:00-03:00",
-        "pixels_candidatos": 10,
-        "componentes": 1,
-        "eco_mais_proximo": {
-          "pixel_x": 676,
-          "pixel_y": 303,
-          "latitude": -28.58493,
-          "longitude": -49.55802,
-          "distancia_comasa_km": 267.78,
-          "direcao_graus": 195.8,
-          "direcao_cardinal": "S"
-        },
-        "pixels_por_raio": {
-          "ate_10_km": 0,
-          "ate_25_km": 0,
-          "ate_50_km": 0,
-          "ate_100_km": 0
-        }
-      },
       {
         "horario_local": "2026-09-25T13:50:00-03:00",
         "pixels_candidatos": 9,
@@ -15910,6 +15875,46 @@
           "ate_50_km": 0,
           "ate_100_km": 0
         }
+      },
+      {
+        "horario_local": "2026-09-25T14:40:00-03:00",
+        "pixels_candidatos": 24,
+        "componentes": 2,
+        "eco_mais_proximo": {
+          "pixel_x": 696,
+          "pixel_y": 260,
+          "latitude": -28.04288,
+          "longitude": -49.30633,
+          "distancia_comasa_km": 203.16,
+          "direcao_graus": 193.9,
+          "direcao_cardinal": "S"
+        },
+        "pixels_por_raio": {
+          "ate_10_km": 0,
+          "ate_25_km": 0,
+          "ate_50_km": 0,
+          "ate_100_km": 0
+        }
+      },
+      {
+        "horario_local": "2026-09-25T14:50:00-03:00",
+        "pixels_candidatos": 15,
+        "componentes": 1,
+        "eco_mais_proximo": {
+          "pixel_x": 800,
+          "pixel_y": 86,
+          "latitude": -25.84947,
+          "longitude": -47.99755,
+          "distancia_comasa_km": 93.66,
+          "direcao_graus": 60.2,
+          "direcao_cardinal": "NE"
+        },
+        "pixels_por_raio": {
+          "ate_10_km": 0,
+          "ate_25_km": 0,
+          "ate_50_km": 0,
+          "ate_100_km": 2
+        }
       }
     ],
     "rastreamento_temporal": {
@@ -15929,31 +15934,11 @@
       },
       "diagnostico_por_par": [
         {
-          "de": "2026-09-25T13:30:00-03:00",
-          "para": "2026-09-25T13:40:00-03:00",
+          "de": "2026-09-25T13:50:00-03:00",
+          "para": "2026-09-25T14:00:00-03:00",
           "candidatos": 0,
           "casamentos_aceitos": 0,
           "metodo": "assinatura_sem_historico_inicial"
-        },
-        {
-          "de": "2026-09-25T13:40:00-03:00",
-          "para": "2026-09-25T13:50:00-03:00",
-          "trilhas_com_memoria": 0,
-          "candidatos_com_memoria": 0,
-          "casamentos_aceitos": 0,
-          "conflitos_rejeitados": 0,
-          "novas_trilhas_iniciadas": 1,
-          "metodo": "identidade_temporal_com_memoria"
-        },
-        {
-          "de": "2026-09-25T13:50:00-03:00",
-          "para": "2026-09-25T14:00:00-03:00",
-          "trilhas_com_memoria": 1,
-          "candidatos_com_memoria": 0,
-          "casamentos_aceitos": 0,
-          "conflitos_rejeitados": 0,
-          "novas_trilhas_iniciadas": 0,
-          "metodo": "identidade_temporal_com_memoria"
         },
         {
           "de": "2026-09-25T14:00:00-03:00",
@@ -15984,6 +15969,26 @@
           "conflitos_rejeitados": 0,
           "novas_trilhas_iniciadas": 0,
           "metodo": "identidade_temporal_com_memoria"
+        },
+        {
+          "de": "2026-09-25T14:30:00-03:00",
+          "para": "2026-09-25T14:40:00-03:00",
+          "trilhas_com_memoria": 0,
+          "candidatos_com_memoria": 0,
+          "casamentos_aceitos": 0,
+          "conflitos_rejeitados": 0,
+          "novas_trilhas_iniciadas": 0,
+          "metodo": "identidade_temporal_com_memoria"
+        },
+        {
+          "de": "2026-09-25T14:40:00-03:00",
+          "para": "2026-09-25T14:50:00-03:00",
+          "trilhas_com_memoria": 0,
+          "candidatos_com_memoria": 0,
+          "casamentos_aceitos": 0,
+          "conflitos_rejeitados": 0,
+          "novas_trilhas_iniciadas": 1,
+          "metodo": "identidade_temporal_com_memoria"
         }
       ],
       "quantidade_trilhas": 1,
@@ -15993,55 +15998,55 @@
           "id_trilha": 1,
           "transicoes": 1,
           "elegivel_para_analise": false,
-          "score_medio": 0.658,
-          "velocidade_media_kmh": 53.2,
+          "score_medio": 0.772,
+          "velocidade_media_kmh": 29.4,
           "similaridade_cores_media": 1.0,
-          "direcao_media_graus": 110.0,
-          "direcao_media_cardinal": "L",
+          "direcao_media_graus": 23.6,
+          "direcao_media_cardinal": "NE",
           "dispersao_direcao_media_graus": 0,
           "dispersao_direcao_max_graus": 0,
-          "tendencia_relativa_comasa": "afastando",
-          "passos_aproximando": 0,
-          "passos_afastando": 1,
+          "tendencia_relativa_comasa": "aproximando",
+          "passos_aproximando": 1,
+          "passos_afastando": 0,
           "passos_estaveis": 0,
-          "ultima_distancia_comasa_km": 341.07,
-          "ultima_direcao_movimento": "L",
+          "ultima_distancia_comasa_km": 310.28,
+          "ultima_direcao_movimento": "NE",
           "passos": [
             {
-              "de": "2026-09-25T13:40:00-03:00",
-              "para": "2026-09-25T13:50:00-03:00",
+              "de": "2026-09-25T14:40:00-03:00",
+              "para": "2026-09-25T14:50:00-03:00",
               "componente_anterior": 1,
               "componente_atual": 1,
-              "score": 0.658,
-              "deslocamento_centroide_km": 8.87,
-              "velocidade_estimada_kmh": 53.2,
-              "direcao_movimento_graus": 110.0,
-              "direcao_movimento_cardinal": "L",
-              "razao_tamanho": 0.75,
+              "score": 0.772,
+              "deslocamento_centroide_km": 4.89,
+              "velocidade_estimada_kmh": 29.4,
+              "direcao_movimento_graus": 23.6,
+              "direcao_movimento_cardinal": "NE",
+              "razao_tamanho": 1.0,
               "sobreposicao_caixas": 0.0,
               "similaridade_cores": 1.0,
               "diferenca_direcao_historica_graus": null,
               "coerencia_direcao": null,
-              "distancia_comasa_anterior_km": 338.23,
-              "distancia_comasa_atual_km": 341.07,
-              "variacao_distancia_comasa_km": 2.84,
-              "tendencia_relativa_comasa": "afastando",
+              "distancia_comasa_anterior_km": 314.7,
+              "distancia_comasa_atual_km": 310.28,
+              "variacao_distancia_comasa_km": -4.42,
+              "tendencia_relativa_comasa": "aproximando",
               "centroide_anterior": {
-                "pixel_x": 725.5,
-                "pixel_y": 360.5,
-                "latitude": -29.30977,
-                "longitude": -48.93509,
-                "distancia_comasa_km": 338.23,
-                "direcao_graus": 182.1,
+                "pixel_x": 742.0,
+                "pixel_y": 343.8,
+                "latitude": -29.09925,
+                "longitude": -48.72745,
+                "distancia_comasa_km": 314.7,
+                "direcao_graus": 178.5,
                 "direcao_cardinal": "S"
               },
               "centroide_atual": {
-                "pixel_x": 732.3,
-                "pixel_y": 362.7,
-                "latitude": -29.33708,
-                "longitude": -48.8491,
-                "distancia_comasa_km": 341.07,
-                "direcao_graus": 180.6,
+                "pixel_x": 743.6,
+                "pixel_y": 340.6,
+                "latitude": -29.05891,
+                "longitude": -48.70731,
+                "distancia_comasa_km": 310.28,
+                "direcao_graus": 178.2,
                 "direcao_cardinal": "S"
               }
             }
@@ -16105,31 +16110,11 @@
       },
       "diagnostico_por_par": [
         {
-          "de": "2026-09-25T13:30:00-03:00",
-          "para": "2026-09-25T13:40:00-03:00",
+          "de": "2026-09-25T13:50:00-03:00",
+          "para": "2026-09-25T14:00:00-03:00",
           "candidatos": 0,
           "casamentos_aceitos": 0,
           "metodo": "assinatura_sem_historico_inicial"
-        },
-        {
-          "de": "2026-09-25T13:40:00-03:00",
-          "para": "2026-09-25T13:50:00-03:00",
-          "trilhas_com_memoria": 0,
-          "candidatos_com_memoria": 0,
-          "casamentos_aceitos": 0,
-          "conflitos_rejeitados": 0,
-          "novas_trilhas_iniciadas": 1,
-          "metodo": "identidade_temporal_com_memoria"
-        },
-        {
-          "de": "2026-09-25T13:50:00-03:00",
-          "para": "2026-09-25T14:00:00-03:00",
-          "trilhas_com_memoria": 1,
-          "candidatos_com_memoria": 0,
-          "casamentos_aceitos": 0,
-          "conflitos_rejeitados": 0,
-          "novas_trilhas_iniciadas": 0,
-          "metodo": "identidade_temporal_com_memoria"
         },
         {
           "de": "2026-09-25T14:00:00-03:00",
@@ -16159,6 +16144,26 @@
           "casamentos_aceitos": 0,
           "conflitos_rejeitados": 0,
           "novas_trilhas_iniciadas": 0,
+          "metodo": "identidade_temporal_com_memoria"
+        },
+        {
+          "de": "2026-09-25T14:30:00-03:00",
+          "para": "2026-09-25T14:40:00-03:00",
+          "trilhas_com_memoria": 0,
+          "candidatos_com_memoria": 0,
+          "casamentos_aceitos": 0,
+          "conflitos_rejeitados": 0,
+          "novas_trilhas_iniciadas": 0,
+          "metodo": "identidade_temporal_com_memoria"
+        },
+        {
+          "de": "2026-09-25T14:40:00-03:00",
+          "para": "2026-09-25T14:50:00-03:00",
+          "trilhas_com_memoria": 0,
+          "candidatos_com_memoria": 0,
+          "casamentos_aceitos": 0,
+          "conflitos_rejeitados": 0,
+          "novas_trilhas_iniciadas": 1,
           "metodo": "identidade_temporal_com_memoria"
         }
       ],
@@ -16190,960 +16195,6 @@
       "eta": null
     },
     "quadros": [
-      {
-        "arquivo": "2026092516300000dBZ.cappi_top.png",
-        "horario_utc": "2026-09-25T16:30:00+00:00",
-        "horario_local": "2026-09-25T13:30:00-03:00",
-        "download": "ok",
-        "bytes": 4384,
-        "sha256": "86f6725abddef6fef9bbfcb59c7e65b3b99884ea786d450ecbaed75609508abb",
-        "largura_px": 920,
-        "altura_px": 719,
-        "modo_png_original": "P",
-        "diagnostico_paleta_png": {
-          "status": "online",
-          "modo_original": "P",
-          "largura_px": 920,
-          "altura_px": 719,
-          "total_pixels": 661480,
-          "pixels_transparentes": 658294,
-          "pixels_visiveis": 3186,
-          "pixels_cinza_nao_validado": 2318,
-          "pixels_candidatos_meteorologicos": 868,
-          "indices_usados": [
-            {
-              "indice_p": 0,
-              "rgb": [
-                0,
-                0,
-                0
-              ],
-              "alpha": 0,
-              "pixels": 658294,
-              "visivel": false,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": false
-            },
-            {
-              "indice_p": 1,
-              "rgb": [
-                55,
-                145,
-                255
-              ],
-              "alpha": 255,
-              "pixels": 45,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 2,
-              "rgb": [
-                0,
-                90,
-                255
-              ],
-              "alpha": 255,
-              "pixels": 23,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 3,
-              "rgb": [
-                128,
-                206,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 55,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 4,
-              "rgb": [
-                170,
-                255,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 23,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 5,
-              "rgb": [
-                110,
-                200,
-                255
-              ],
-              "alpha": 255,
-              "pixels": 215,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 6,
-              "rgb": [
-                200,
-                200,
-                200
-              ],
-              "alpha": 255,
-              "pixels": 2318,
-              "visivel": true,
-              "cinza_nao_validado": true,
-              "candidato_meteorologico": false
-            },
-            {
-              "indice_p": 7,
-              "rgb": [
-                165,
-                255,
-                255
-              ],
-              "alpha": 255,
-              "pixels": 428,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 8,
-              "rgb": [
-                43,
-                107,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 13,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 9,
-              "rgb": [
-                85,
-                156,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 25,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 10,
-              "rgb": [
-                0,
-                57,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 19,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 11,
-              "rgb": [
-                255,
-                255,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 10,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 12,
-              "rgb": [
-                255,
-                192,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 7,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 13,
-              "rgb": [
-                255,
-                128,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 5,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            }
-          ]
-        },
-        "analise_espacial": {
-          "status": "diagnostico_espacial_ativo",
-          "metodo": "componentes_conectados_8_vizinhos_rgb_oficial_#133",
-          "fonte_mascara": "somente_rgb_exato_da_legenda_oficial_radarsc",
-          "dbz_numerico_validado": false,
-          "eta_liberado": false,
-          "pixel_comasa": {
-            "x": 735,
-            "y": 119,
-            "latitude_aproximada": -26.27,
-            "longitude_aproximada": -48.81
-          },
-          "pixels_candidatos": 10,
-          "indices_candidatos": [
-            {
-              "indice_p": 11,
-              "rgb": [
-                255,
-                255,
-                0
-              ],
-              "classe_oficial": 10
-            }
-          ],
-          "eco_mais_proximo": {
-            "pixel_x": 676,
-            "pixel_y": 303,
-            "latitude": -28.58493,
-            "longitude": -49.55802,
-            "distancia_comasa_km": 267.78,
-            "direcao_graus": 195.8,
-            "direcao_cardinal": "S"
-          },
-          "pixels_por_raio": {
-            "ate_10_km": 0,
-            "ate_25_km": 0,
-            "ate_50_km": 0,
-            "ate_100_km": 0
-          },
-          "quantidade_componentes_3px_ou_mais": 0,
-          "maiores_componentes": [],
-          "componentes_mais_proximos_comasa": []
-        },
-        "eco_oficial_local_129": {
-          "status": "diagnostico_ativo",
-          "metodo": "pixels_rgb_exatos_legenda_oficial_#129",
-          "referencia": "Comasa - coordenada pública aproximada",
-          "raios_km": [
-            2,
-            5,
-            10,
-            25
-          ],
-          "classes_legenda_total": 16,
-          "dbz_numerico_validado": false,
-          "equivale_chuva_medida": false,
-          "eta_liberado": false,
-          "por_raio": {
-            "2": {
-              "pixels_classes_oficiais": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": []
-            },
-            "5": {
-              "pixels_classes_oficiais": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": []
-            },
-            "10": {
-              "pixels_classes_oficiais": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": []
-            },
-            "25": {
-              "pixels_classes_oficiais": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": []
-            }
-          },
-          "eco_oficial_mais_proximo": null,
-          "regra_seguranca": "Detecção significa pixel com RGB idêntico a uma classe da legenda oficial RadarSC. Não significa chuva medida no solo e não atribui dBZ enquanto a escala numérica não for validada."
-        },
-        "classificacao_qualitativa_local_130": {
-          "versao": "#130",
-          "referencia": "Comasa - coordenada pública aproximada",
-          "raios_km": [
-            2,
-            5,
-            10,
-            25
-          ],
-          "dbz_numerico_validado": false,
-          "equivale_chuva_medida": false,
-          "eta_liberado": false,
-          "status": "diagnostico_qualitativo_ativo",
-          "por_raio": {
-            "2": {
-              "pixels_oficiais_classificados": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": [],
-              "familias_cor": []
-            },
-            "5": {
-              "pixels_oficiais_classificados": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": [],
-              "familias_cor": []
-            },
-            "10": {
-              "pixels_oficiais_classificados": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": [],
-              "familias_cor": []
-            },
-            "25": {
-              "pixels_oficiais_classificados": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": [],
-              "familias_cor": []
-            }
-          },
-          "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
-        },
-        "auditoria_espacial_132": {
-          "versao": "#133",
-          "status": "auditoria_espacial_ativa",
-          "referencia": "Comasa - coordenada pública aproximada",
-          "coordenada_referencia": {
-            "latitude": -26.27,
-            "longitude": -48.81
-          },
-          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
-          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
-          "dbz_numerico_validado": false,
-          "equivale_chuva_medida": false,
-          "eta_liberado": false,
-          "transformacao_geografica": {
-            "pixel_comasa": {
-              "x": 735,
-              "y": 119
-            },
-            "coordenada_recalculada_do_pixel": {
-              "latitude": -26.265462,
-              "longitude": -48.815538
-            },
-            "erro_roundtrip_km": 0.748,
-            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
-          },
-          "pixel_exato_comasa": {
-            "indice_p": 0,
-            "rgb": [
-              0,
-              0,
-              0
-            ],
-            "alpha": 0,
-            "visivel": false,
-            "rgb_pertence_legenda_oficial": false,
-            "classe_oficial": null
-          },
-          "candidato_legado_mais_proximo": {
-            "distancia_comasa_km": 34.801,
-            "pixel_x": 708,
-            "pixel_y": 123,
-            "indice_p": 7,
-            "rgb": [
-              165,
-              255,
-              255
-            ],
-            "alpha": 255,
-            "rgb_pertence_legenda_oficial": false,
-            "classe_oficial": null,
-            "latitude": -26.315885,
-            "longitude": -49.155319,
-            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
-          },
-          "eco_oficial_mais_proximo_no_quadro": {
-            "distancia_comasa_km": 267.784,
-            "pixel_x": 676,
-            "pixel_y": 303,
-            "indice_p": 11,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "classe_oficial": 10,
-            "latitude": -28.584932,
-            "longitude": -49.558022
-          },
-          "diferenca_distancias_oficial_menos_legado_km": 232.983,
-          "contagem_local_por_raio": {
-            "2": {
-              "legado": 0,
-              "oficial": 0,
-              "legado_nao_oficial": 0
-            },
-            "5": {
-              "legado": 0,
-              "oficial": 0,
-              "legado_nao_oficial": 0
-            },
-            "10": {
-              "legado": 0,
-              "oficial": 0,
-              "legado_nao_oficial": 0
-            },
-            "25": {
-              "legado": 0,
-              "oficial": 0,
-              "legado_nao_oficial": 0
-            }
-          },
-          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
-          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
-        }
-      },
-      {
-        "arquivo": "2026092516400000dBZ.cappi_top.png",
-        "horario_utc": "2026-09-25T16:40:00+00:00",
-        "horario_local": "2026-09-25T13:40:00-03:00",
-        "download": "ok",
-        "bytes": 4658,
-        "sha256": "2cf67603a388a4b299d8923c48814fb533bba98e1121b521b1622bf9ee57ce55",
-        "largura_px": 920,
-        "altura_px": 719,
-        "modo_png_original": "P",
-        "diagnostico_paleta_png": {
-          "status": "online",
-          "modo_original": "P",
-          "largura_px": 920,
-          "altura_px": 719,
-          "total_pixels": 661480,
-          "pixels_transparentes": 658150,
-          "pixels_visiveis": 3330,
-          "pixels_cinza_nao_validado": 2501,
-          "pixels_candidatos_meteorologicos": 829,
-          "indices_usados": [
-            {
-              "indice_p": 0,
-              "rgb": [
-                0,
-                0,
-                0
-              ],
-              "alpha": 0,
-              "pixels": 658150,
-              "visivel": false,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": false
-            },
-            {
-              "indice_p": 1,
-              "rgb": [
-                0,
-                90,
-                255
-              ],
-              "alpha": 255,
-              "pixels": 15,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 2,
-              "rgb": [
-                55,
-                145,
-                255
-              ],
-              "alpha": 255,
-              "pixels": 37,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 3,
-              "rgb": [
-                170,
-                255,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 26,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 4,
-              "rgb": [
-                128,
-                206,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 31,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 5,
-              "rgb": [
-                165,
-                255,
-                255
-              ],
-              "alpha": 255,
-              "pixels": 415,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 6,
-              "rgb": [
-                110,
-                200,
-                255
-              ],
-              "alpha": 255,
-              "pixels": 220,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 7,
-              "rgb": [
-                200,
-                200,
-                200
-              ],
-              "alpha": 255,
-              "pixels": 2501,
-              "visivel": true,
-              "cinza_nao_validado": true,
-              "candidato_meteorologico": false
-            },
-            {
-              "indice_p": 8,
-              "rgb": [
-                255,
-                255,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 10,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 9,
-              "rgb": [
-                43,
-                107,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 19,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 10,
-              "rgb": [
-                85,
-                156,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 32,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 11,
-              "rgb": [
-                0,
-                57,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 13,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 12,
-              "rgb": [
-                255,
-                192,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 4,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 13,
-              "rgb": [
-                255,
-                64,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 2,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 14,
-              "rgb": [
-                190,
-                0,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 1,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 15,
-              "rgb": [
-                255,
-                128,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 4,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            }
-          ]
-        },
-        "analise_espacial": {
-          "status": "diagnostico_espacial_ativo",
-          "metodo": "componentes_conectados_8_vizinhos_rgb_oficial_#133",
-          "fonte_mascara": "somente_rgb_exato_da_legenda_oficial_radarsc",
-          "dbz_numerico_validado": false,
-          "eta_liberado": false,
-          "pixel_comasa": {
-            "x": 735,
-            "y": 119,
-            "latitude_aproximada": -26.27,
-            "longitude_aproximada": -48.81
-          },
-          "pixels_candidatos": 10,
-          "indices_candidatos": [
-            {
-              "indice_p": 8,
-              "rgb": [
-                255,
-                255,
-                0
-              ],
-              "classe_oficial": 10
-            }
-          ],
-          "eco_mais_proximo": {
-            "pixel_x": 676,
-            "pixel_y": 303,
-            "latitude": -28.58493,
-            "longitude": -49.55802,
-            "distancia_comasa_km": 267.78,
-            "direcao_graus": 195.8,
-            "direcao_cardinal": "S"
-          },
-          "pixels_por_raio": {
-            "ate_10_km": 0,
-            "ate_25_km": 0,
-            "ate_50_km": 0,
-            "ate_100_km": 0
-          },
-          "quantidade_componentes_3px_ou_mais": 1,
-          "maiores_componentes": [
-            {
-              "id_quadro": 1,
-              "pixels": 4,
-              "centroide": {
-                "pixel_x": 725.5,
-                "pixel_y": 360.5,
-                "latitude": -29.30977,
-                "longitude": -48.93509,
-                "distancia_comasa_km": 338.23,
-                "direcao_graus": 182.1,
-                "direcao_cardinal": "S"
-              },
-              "ponto_mais_proximo_comasa": {
-                "pixel_x": 725,
-                "pixel_y": 360,
-                "latitude": -29.30346,
-                "longitude": -48.94138,
-                "distancia_comasa_km": 337.55,
-                "direcao_graus": 182.2,
-                "direcao_cardinal": "S"
-              },
-              "caixa_pixels": {
-                "x_min": 724,
-                "x_max": 727,
-                "y_min": 360,
-                "y_max": 361
-              },
-              "cores": [
-                {
-                  "rgb": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "pixels": 4
-                }
-              ],
-              "dbz": null,
-              "classificacao": "candidato_a_area_de_eco"
-            }
-          ],
-          "componentes_mais_proximos_comasa": [
-            {
-              "id_quadro": 1,
-              "pixels": 4,
-              "centroide": {
-                "pixel_x": 725.5,
-                "pixel_y": 360.5,
-                "latitude": -29.30977,
-                "longitude": -48.93509,
-                "distancia_comasa_km": 338.23,
-                "direcao_graus": 182.1,
-                "direcao_cardinal": "S"
-              },
-              "ponto_mais_proximo_comasa": {
-                "pixel_x": 725,
-                "pixel_y": 360,
-                "latitude": -29.30346,
-                "longitude": -48.94138,
-                "distancia_comasa_km": 337.55,
-                "direcao_graus": 182.2,
-                "direcao_cardinal": "S"
-              },
-              "caixa_pixels": {
-                "x_min": 724,
-                "x_max": 727,
-                "y_min": 360,
-                "y_max": 361
-              },
-              "cores": [
-                {
-                  "rgb": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "pixels": 4
-                }
-              ],
-              "dbz": null,
-              "classificacao": "candidato_a_area_de_eco"
-            }
-          ]
-        },
-        "eco_oficial_local_129": {
-          "status": "diagnostico_ativo",
-          "metodo": "pixels_rgb_exatos_legenda_oficial_#129",
-          "referencia": "Comasa - coordenada pública aproximada",
-          "raios_km": [
-            2,
-            5,
-            10,
-            25
-          ],
-          "classes_legenda_total": 16,
-          "dbz_numerico_validado": false,
-          "equivale_chuva_medida": false,
-          "eta_liberado": false,
-          "por_raio": {
-            "2": {
-              "pixels_classes_oficiais": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": []
-            },
-            "5": {
-              "pixels_classes_oficiais": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": []
-            },
-            "10": {
-              "pixels_classes_oficiais": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": []
-            },
-            "25": {
-              "pixels_classes_oficiais": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": []
-            }
-          },
-          "eco_oficial_mais_proximo": null,
-          "regra_seguranca": "Detecção significa pixel com RGB idêntico a uma classe da legenda oficial RadarSC. Não significa chuva medida no solo e não atribui dBZ enquanto a escala numérica não for validada."
-        },
-        "classificacao_qualitativa_local_130": {
-          "versao": "#130",
-          "referencia": "Comasa - coordenada pública aproximada",
-          "raios_km": [
-            2,
-            5,
-            10,
-            25
-          ],
-          "dbz_numerico_validado": false,
-          "equivale_chuva_medida": false,
-          "eta_liberado": false,
-          "status": "diagnostico_qualitativo_ativo",
-          "por_raio": {
-            "2": {
-              "pixels_oficiais_classificados": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": [],
-              "familias_cor": []
-            },
-            "5": {
-              "pixels_oficiais_classificados": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": [],
-              "familias_cor": []
-            },
-            "10": {
-              "pixels_oficiais_classificados": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": [],
-              "familias_cor": []
-            },
-            "25": {
-              "pixels_oficiais_classificados": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": [],
-              "familias_cor": []
-            }
-          },
-          "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
-        },
-        "auditoria_espacial_132": {
-          "versao": "#133",
-          "status": "auditoria_espacial_ativa",
-          "referencia": "Comasa - coordenada pública aproximada",
-          "coordenada_referencia": {
-            "latitude": -26.27,
-            "longitude": -48.81
-          },
-          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
-          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
-          "dbz_numerico_validado": false,
-          "equivale_chuva_medida": false,
-          "eta_liberado": false,
-          "transformacao_geografica": {
-            "pixel_comasa": {
-              "x": 735,
-              "y": 119
-            },
-            "coordenada_recalculada_do_pixel": {
-              "latitude": -26.265462,
-              "longitude": -48.815538
-            },
-            "erro_roundtrip_km": 0.748,
-            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
-          },
-          "pixel_exato_comasa": {
-            "indice_p": 0,
-            "rgb": [
-              0,
-              0,
-              0
-            ],
-            "alpha": 0,
-            "visivel": false,
-            "rgb_pertence_legenda_oficial": false,
-            "classe_oficial": null
-          },
-          "candidato_legado_mais_proximo": {
-            "distancia_comasa_km": 15.92,
-            "pixel_x": 731,
-            "pixel_y": 130,
-            "indice_p": 1,
-            "rgb": [
-              0,
-              90,
-              255
-            ],
-            "alpha": 255,
-            "rgb_pertence_legenda_oficial": false,
-            "classe_oficial": null,
-            "latitude": -26.404126,
-            "longitude": -48.865876,
-            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
-          },
-          "eco_oficial_mais_proximo_no_quadro": {
-            "distancia_comasa_km": 267.784,
-            "pixel_x": 676,
-            "pixel_y": 303,
-            "indice_p": 8,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "classe_oficial": 10,
-            "latitude": -28.584932,
-            "longitude": -49.558022
-          },
-          "diferenca_distancias_oficial_menos_legado_km": 251.864,
-          "contagem_local_por_raio": {
-            "2": {
-              "legado": 0,
-              "oficial": 0,
-              "legado_nao_oficial": 0
-            },
-            "5": {
-              "legado": 0,
-              "oficial": 0,
-              "legado_nao_oficial": 0
-            },
-            "10": {
-              "legado": 0,
-              "oficial": 0,
-              "legado_nao_oficial": 0
-            },
-            "25": {
-              "legado": 1,
-              "oficial": 0,
-              "legado_nao_oficial": 1
-            }
-          },
-          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
-          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
-        }
-      },
       {
         "arquivo": "2026092516500000dBZ.cappi_top.png",
         "horario_utc": "2026-09-25T16:50:00+00:00",
@@ -19535,15 +18586,1179 @@
           "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
           "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
         }
+      },
+      {
+        "arquivo": "2026092517400000dBZ.cappi_top.png",
+        "horario_utc": "2026-09-25T17:40:00+00:00",
+        "horario_local": "2026-09-25T14:40:00-03:00",
+        "download": "ok",
+        "bytes": 4911,
+        "sha256": "55af441029a2d2b0c6f9da0b30ec6ce57780349a579d0876f5f927497f869b67",
+        "largura_px": 920,
+        "altura_px": 719,
+        "modo_png_original": "P",
+        "diagnostico_paleta_png": {
+          "status": "online",
+          "modo_original": "P",
+          "largura_px": 920,
+          "altura_px": 719,
+          "total_pixels": 661480,
+          "pixels_transparentes": 658062,
+          "pixels_visiveis": 3418,
+          "pixels_cinza_nao_validado": 2570,
+          "pixels_candidatos_meteorologicos": 848,
+          "indices_usados": [
+            {
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "pixels": 658062,
+              "visivel": false,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": false
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 24,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 19,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 46,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 44,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 223,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "pixels": 2570,
+              "visivel": true,
+              "cinza_nao_validado": true,
+              "candidato_meteorologico": false
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 377,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 5,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 23,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 15,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 36,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 12,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 17,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                190,
+                0,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 5,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 15,
+              "rgb": [
+                255,
+                64,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 1,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 16,
+              "rgb": [
+                255,
+                0,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 1,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            }
+          ]
+        },
+        "analise_espacial": {
+          "status": "diagnostico_espacial_ativo",
+          "metodo": "componentes_conectados_8_vizinhos_rgb_oficial_#133",
+          "fonte_mascara": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "eta_liberado": false,
+          "pixel_comasa": {
+            "x": 735,
+            "y": 119,
+            "latitude_aproximada": -26.27,
+            "longitude_aproximada": -48.81
+          },
+          "pixels_candidatos": 24,
+          "indices_candidatos": [
+            {
+              "indice_p": 9,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "classe_oficial": 10
+            },
+            {
+              "indice_p": 16,
+              "rgb": [
+                255,
+                0,
+                255
+              ],
+              "classe_oficial": 4
+            }
+          ],
+          "eco_mais_proximo": {
+            "pixel_x": 696,
+            "pixel_y": 260,
+            "latitude": -28.04288,
+            "longitude": -49.30633,
+            "distancia_comasa_km": 203.16,
+            "direcao_graus": 193.9,
+            "direcao_cardinal": "S"
+          },
+          "pixels_por_raio": {
+            "ate_10_km": 0,
+            "ate_25_km": 0,
+            "ate_50_km": 0,
+            "ate_100_km": 0
+          },
+          "quantidade_componentes_3px_ou_mais": 2,
+          "maiores_componentes": [
+            {
+              "id_quadro": 1,
+              "pixels": 5,
+              "centroide": {
+                "pixel_x": 742.0,
+                "pixel_y": 343.8,
+                "latitude": -29.09925,
+                "longitude": -48.72745,
+                "distancia_comasa_km": 314.7,
+                "direcao_graus": 178.5,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 741,
+                "pixel_y": 343,
+                "latitude": -29.08916,
+                "longitude": -48.74003,
+                "distancia_comasa_km": 313.55,
+                "direcao_graus": 178.8,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 740,
+                "x_max": 744,
+                "y_min": 343,
+                "y_max": 345
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 5
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            },
+            {
+              "id_quadro": 2,
+              "pixels": 4,
+              "centroide": {
+                "pixel_x": 737.5,
+                "pixel_y": 342.0,
+                "latitude": -29.07656,
+                "longitude": -48.78408,
+                "distancia_comasa_km": 312.09,
+                "direcao_graus": 179.5,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 736,
+                "pixel_y": 342,
+                "latitude": -29.07656,
+                "longitude": -48.80295,
+                "distancia_comasa_km": 312.08,
+                "direcao_graus": 179.9,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 736,
+                "x_max": 739,
+                "y_min": 342,
+                "y_max": 342
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 4
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            }
+          ],
+          "componentes_mais_proximos_comasa": [
+            {
+              "id_quadro": 2,
+              "pixels": 4,
+              "centroide": {
+                "pixel_x": 737.5,
+                "pixel_y": 342.0,
+                "latitude": -29.07656,
+                "longitude": -48.78408,
+                "distancia_comasa_km": 312.09,
+                "direcao_graus": 179.5,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 736,
+                "pixel_y": 342,
+                "latitude": -29.07656,
+                "longitude": -48.80295,
+                "distancia_comasa_km": 312.08,
+                "direcao_graus": 179.9,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 736,
+                "x_max": 739,
+                "y_min": 342,
+                "y_max": 342
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 4
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            },
+            {
+              "id_quadro": 1,
+              "pixels": 5,
+              "centroide": {
+                "pixel_x": 742.0,
+                "pixel_y": 343.8,
+                "latitude": -29.09925,
+                "longitude": -48.72745,
+                "distancia_comasa_km": 314.7,
+                "direcao_graus": 178.5,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 741,
+                "pixel_y": 343,
+                "latitude": -29.08916,
+                "longitude": -48.74003,
+                "distancia_comasa_km": 313.55,
+                "direcao_graus": 178.8,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 740,
+                "x_max": 744,
+                "y_min": 343,
+                "y_max": 345
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 5
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            }
+          ]
+        },
+        "eco_oficial_local_129": {
+          "status": "diagnostico_ativo",
+          "metodo": "pixels_rgb_exatos_legenda_oficial_#129",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "raios_km": [
+            2,
+            5,
+            10,
+            25
+          ],
+          "classes_legenda_total": 16,
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "por_raio": {
+            "2": {
+              "pixels_classes_oficiais": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": []
+            },
+            "5": {
+              "pixels_classes_oficiais": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": []
+            },
+            "10": {
+              "pixels_classes_oficiais": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": []
+            },
+            "25": {
+              "pixels_classes_oficiais": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": []
+            }
+          },
+          "eco_oficial_mais_proximo": null,
+          "regra_seguranca": "Detecção significa pixel com RGB idêntico a uma classe da legenda oficial RadarSC. Não significa chuva medida no solo e não atribui dBZ enquanto a escala numérica não for validada."
+        },
+        "classificacao_qualitativa_local_130": {
+          "versao": "#130",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "raios_km": [
+            2,
+            5,
+            10,
+            25
+          ],
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "status": "diagnostico_qualitativo_ativo",
+          "por_raio": {
+            "2": {
+              "pixels_oficiais_classificados": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": [],
+              "familias_cor": []
+            },
+            "5": {
+              "pixels_oficiais_classificados": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": [],
+              "familias_cor": []
+            },
+            "10": {
+              "pixels_oficiais_classificados": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": [],
+              "familias_cor": []
+            },
+            "25": {
+              "pixels_oficiais_classificados": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": [],
+              "familias_cor": []
+            }
+          },
+          "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+        },
+        "auditoria_espacial_132": {
+          "versao": "#133",
+          "status": "auditoria_espacial_ativa",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "coordenada_referencia": {
+            "latitude": -26.27,
+            "longitude": -48.81
+          },
+          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
+          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "transformacao_geografica": {
+            "pixel_comasa": {
+              "x": 735,
+              "y": 119
+            },
+            "coordenada_recalculada_do_pixel": {
+              "latitude": -26.265462,
+              "longitude": -48.815538
+            },
+            "erro_roundtrip_km": 0.748,
+            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
+          },
+          "pixel_exato_comasa": {
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null
+          },
+          "candidato_legado_mais_proximo": {
+            "distancia_comasa_km": 10.372,
+            "pixel_x": 729,
+            "pixel_y": 124,
+            "indice_p": 1,
+            "rgb": [
+              0,
+              90,
+              255
+            ],
+            "alpha": 255,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null,
+            "latitude": -26.328491,
+            "longitude": -48.891045,
+            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
+          },
+          "eco_oficial_mais_proximo_no_quadro": {
+            "distancia_comasa_km": 203.159,
+            "pixel_x": 696,
+            "pixel_y": 260,
+            "indice_p": 9,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "classe_oficial": 10,
+            "latitude": -28.042882,
+            "longitude": -49.306332
+          },
+          "diferenca_distancias_oficial_menos_legado_km": 192.787,
+          "contagem_local_por_raio": {
+            "2": {
+              "legado": 0,
+              "oficial": 0,
+              "legado_nao_oficial": 0
+            },
+            "5": {
+              "legado": 0,
+              "oficial": 0,
+              "legado_nao_oficial": 0
+            },
+            "10": {
+              "legado": 0,
+              "oficial": 0,
+              "legado_nao_oficial": 0
+            },
+            "25": {
+              "legado": 3,
+              "oficial": 0,
+              "legado_nao_oficial": 3
+            }
+          },
+          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
+          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
+        }
+      },
+      {
+        "arquivo": "2026092517500000dBZ.cappi_top.png",
+        "horario_utc": "2026-09-25T17:50:00+00:00",
+        "horario_local": "2026-09-25T14:50:00-03:00",
+        "download": "ok",
+        "bytes": 4757,
+        "sha256": "cae8a2a1841e856b46d52b362329b8ceeb505d00218b572fb1509bfd3eb97df8",
+        "largura_px": 920,
+        "altura_px": 719,
+        "modo_png_original": "P",
+        "diagnostico_paleta_png": {
+          "status": "online",
+          "modo_original": "P",
+          "largura_px": 920,
+          "altura_px": 719,
+          "total_pixels": 661480,
+          "pixels_transparentes": 658326,
+          "pixels_visiveis": 3154,
+          "pixels_cinza_nao_validado": 2307,
+          "pixels_candidatos_meteorologicos": 847,
+          "indices_usados": [
+            {
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "pixels": 658326,
+              "visivel": false,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": false
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 44,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 43,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 22,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 32,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 18,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 13,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 15,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 36,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "pixels": 2307,
+              "visivel": true,
+              "cinza_nao_validado": true,
+              "candidato_meteorologico": false
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 230,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 363,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 19,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 10,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                190,
+                0,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 1,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 15,
+              "rgb": [
+                255,
+                64,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 1,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            }
+          ]
+        },
+        "analise_espacial": {
+          "status": "diagnostico_espacial_ativo",
+          "metodo": "componentes_conectados_8_vizinhos_rgb_oficial_#133",
+          "fonte_mascara": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "eta_liberado": false,
+          "pixel_comasa": {
+            "x": 735,
+            "y": 119,
+            "latitude_aproximada": -26.27,
+            "longitude_aproximada": -48.81
+          },
+          "pixels_candidatos": 15,
+          "indices_candidatos": [
+            {
+              "indice_p": 7,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "classe_oficial": 10
+            }
+          ],
+          "eco_mais_proximo": {
+            "pixel_x": 800,
+            "pixel_y": 86,
+            "latitude": -25.84947,
+            "longitude": -47.99755,
+            "distancia_comasa_km": 93.66,
+            "direcao_graus": 60.2,
+            "direcao_cardinal": "NE"
+          },
+          "pixels_por_raio": {
+            "ate_10_km": 0,
+            "ate_25_km": 0,
+            "ate_50_km": 0,
+            "ate_100_km": 2
+          },
+          "quantidade_componentes_3px_ou_mais": 1,
+          "maiores_componentes": [
+            {
+              "id_quadro": 1,
+              "pixels": 5,
+              "centroide": {
+                "pixel_x": 743.6,
+                "pixel_y": 340.6,
+                "latitude": -29.05891,
+                "longitude": -48.70731,
+                "distancia_comasa_km": 310.28,
+                "direcao_graus": 178.2,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 744,
+                "pixel_y": 340,
+                "latitude": -29.05135,
+                "longitude": -48.70228,
+                "distancia_comasa_km": 309.45,
+                "direcao_graus": 178.1,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 742,
+                "x_max": 745,
+                "y_min": 340,
+                "y_max": 341
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 5
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            }
+          ],
+          "componentes_mais_proximos_comasa": [
+            {
+              "id_quadro": 1,
+              "pixels": 5,
+              "centroide": {
+                "pixel_x": 743.6,
+                "pixel_y": 340.6,
+                "latitude": -29.05891,
+                "longitude": -48.70731,
+                "distancia_comasa_km": 310.28,
+                "direcao_graus": 178.2,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 744,
+                "pixel_y": 340,
+                "latitude": -29.05135,
+                "longitude": -48.70228,
+                "distancia_comasa_km": 309.45,
+                "direcao_graus": 178.1,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 742,
+                "x_max": 745,
+                "y_min": 340,
+                "y_max": 341
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 5
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            }
+          ]
+        },
+        "eco_oficial_local_129": {
+          "status": "diagnostico_ativo",
+          "metodo": "pixels_rgb_exatos_legenda_oficial_#129",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "raios_km": [
+            2,
+            5,
+            10,
+            25
+          ],
+          "classes_legenda_total": 16,
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "por_raio": {
+            "2": {
+              "pixels_classes_oficiais": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": []
+            },
+            "5": {
+              "pixels_classes_oficiais": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": []
+            },
+            "10": {
+              "pixels_classes_oficiais": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": []
+            },
+            "25": {
+              "pixels_classes_oficiais": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": []
+            }
+          },
+          "eco_oficial_mais_proximo": null,
+          "regra_seguranca": "Detecção significa pixel com RGB idêntico a uma classe da legenda oficial RadarSC. Não significa chuva medida no solo e não atribui dBZ enquanto a escala numérica não for validada."
+        },
+        "classificacao_qualitativa_local_130": {
+          "versao": "#130",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "raios_km": [
+            2,
+            5,
+            10,
+            25
+          ],
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "status": "diagnostico_qualitativo_ativo",
+          "por_raio": {
+            "2": {
+              "pixels_oficiais_classificados": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": [],
+              "familias_cor": []
+            },
+            "5": {
+              "pixels_oficiais_classificados": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": [],
+              "familias_cor": []
+            },
+            "10": {
+              "pixels_oficiais_classificados": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": [],
+              "familias_cor": []
+            },
+            "25": {
+              "pixels_oficiais_classificados": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": [],
+              "familias_cor": []
+            }
+          },
+          "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+        },
+        "auditoria_espacial_132": {
+          "versao": "#133",
+          "status": "auditoria_espacial_ativa",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "coordenada_referencia": {
+            "latitude": -26.27,
+            "longitude": -48.81
+          },
+          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
+          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "transformacao_geografica": {
+            "pixel_comasa": {
+              "x": 735,
+              "y": 119
+            },
+            "coordenada_recalculada_do_pixel": {
+              "latitude": -26.265462,
+              "longitude": -48.815538
+            },
+            "erro_roundtrip_km": 0.748,
+            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
+          },
+          "pixel_exato_comasa": {
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null
+          },
+          "candidato_legado_mais_proximo": {
+            "distancia_comasa_km": 28.955,
+            "pixel_x": 756,
+            "pixel_y": 110,
+            "indice_p": 8,
+            "rgb": [
+              55,
+              145,
+              255
+            ],
+            "alpha": 255,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null,
+            "latitude": -26.15201,
+            "longitude": -48.551264,
+            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
+          },
+          "eco_oficial_mais_proximo_no_quadro": {
+            "distancia_comasa_km": 93.664,
+            "pixel_x": 800,
+            "pixel_y": 86,
+            "indice_p": 7,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "classe_oficial": 10,
+            "latitude": -25.84947,
+            "longitude": -47.997547
+          },
+          "diferenca_distancias_oficial_menos_legado_km": 64.709,
+          "contagem_local_por_raio": {
+            "2": {
+              "legado": 0,
+              "oficial": 0,
+              "legado_nao_oficial": 0
+            },
+            "5": {
+              "legado": 0,
+              "oficial": 0,
+              "legado_nao_oficial": 0
+            },
+            "10": {
+              "legado": 0,
+              "oficial": 0,
+              "legado_nao_oficial": 0
+            },
+            "25": {
+              "legado": 0,
+              "oficial": 0,
+              "legado_nao_oficial": 0
+            }
+          },
+          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
+          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
+        }
       }
     ],
     "ultimo_quadro": {
-      "arquivo": "2026092517300000dBZ.cappi_top.png",
-      "horario_utc": "2026-09-25T17:30:00+00:00",
-      "horario_local": "2026-09-25T14:30:00-03:00",
+      "arquivo": "2026092517500000dBZ.cappi_top.png",
+      "horario_utc": "2026-09-25T17:50:00+00:00",
+      "horario_local": "2026-09-25T14:50:00-03:00",
       "download": "ok",
-      "bytes": 4433,
-      "sha256": "d87b45062837f3388ceb7ef2686d6664e99e71a4ab697c902febc8d9b1a82d4b",
+      "bytes": 4757,
+      "sha256": "cae8a2a1841e856b46d52b362329b8ceeb505d00218b572fb1509bfd3eb97df8",
       "largura_px": 920,
       "altura_px": 719,
       "modo_png_original": "P",
@@ -19553,10 +19768,10 @@
         "largura_px": 920,
         "altura_px": 719,
         "total_pixels": 661480,
-        "pixels_transparentes": 658133,
-        "pixels_visiveis": 3347,
-        "pixels_cinza_nao_validado": 2539,
-        "pixels_candidatos_meteorologicos": 808,
+        "pixels_transparentes": 658326,
+        "pixels_visiveis": 3154,
+        "pixels_cinza_nao_validado": 2307,
+        "pixels_candidatos_meteorologicos": 847,
         "indices_usados": [
           {
             "indice_p": 0,
@@ -19566,7 +19781,7 @@
               0
             ],
             "alpha": 0,
-            "pixels": 658133,
+            "pixels": 658326,
             "visivel": false,
             "cinza_nao_validado": false,
             "candidato_meteorologico": false
@@ -19574,12 +19789,12 @@
           {
             "indice_p": 1,
             "rgb": [
-              110,
-              200,
-              255
+              170,
+              255,
+              0
             ],
             "alpha": 255,
-            "pixels": 261,
+            "pixels": 44,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -19592,7 +19807,7 @@
               0
             ],
             "alpha": 255,
-            "pixels": 35,
+            "pixels": 43,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -19600,12 +19815,12 @@
           {
             "indice_p": 3,
             "rgb": [
-              170,
-              255,
-              0
+              0,
+              90,
+              255
             ],
             "alpha": 255,
-            "pixels": 21,
+            "pixels": 22,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -19613,12 +19828,12 @@
           {
             "indice_p": 4,
             "rgb": [
-              0,
-              90,
-              255
+              85,
+              156,
+              0
             ],
             "alpha": 255,
-            "pixels": 14,
+            "pixels": 32,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -19626,25 +19841,25 @@
           {
             "indice_p": 5,
             "rgb": [
-              200,
-              200,
-              200
+              0,
+              57,
+              0
             ],
             "alpha": 255,
-            "pixels": 2539,
+            "pixels": 18,
             "visivel": true,
-            "cinza_nao_validado": true,
-            "candidato_meteorologico": false
+            "cinza_nao_validado": false,
+            "candidato_meteorologico": true
           },
           {
             "indice_p": 6,
             "rgb": [
-              165,
-              255,
-              255
+              43,
+              107,
+              0
             ],
             "alpha": 255,
-            "pixels": 358,
+            "pixels": 13,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -19652,12 +19867,12 @@
           {
             "indice_p": 7,
             "rgb": [
-              55,
-              145,
-              255
+              255,
+              255,
+              0
             ],
             "alpha": 255,
-            "pixels": 45,
+            "pixels": 15,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -19665,12 +19880,12 @@
           {
             "indice_p": 8,
             "rgb": [
-              255,
-              192,
-              0
+              55,
+              145,
+              255
             ],
             "alpha": 255,
-            "pixels": 8,
+            "pixels": 36,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -19678,8 +19893,47 @@
           {
             "indice_p": 9,
             "rgb": [
-              43,
-              107,
+              200,
+              200,
+              200
+            ],
+            "alpha": 255,
+            "pixels": 2307,
+            "visivel": true,
+            "cinza_nao_validado": true,
+            "candidato_meteorologico": false
+          },
+          {
+            "indice_p": 10,
+            "rgb": [
+              110,
+              200,
+              255
+            ],
+            "alpha": 255,
+            "pixels": 230,
+            "visivel": true,
+            "cinza_nao_validado": false,
+            "candidato_meteorologico": true
+          },
+          {
+            "indice_p": 11,
+            "rgb": [
+              165,
+              255,
+              255
+            ],
+            "alpha": 255,
+            "pixels": 363,
+            "visivel": true,
+            "cinza_nao_validado": false,
+            "candidato_meteorologico": true
+          },
+          {
+            "indice_p": 12,
+            "rgb": [
+              255,
+              192,
               0
             ],
             "alpha": 255,
@@ -19689,10 +19943,10 @@
             "candidato_meteorologico": true
           },
           {
-            "indice_p": 10,
+            "indice_p": 13,
             "rgb": [
-              0,
-              57,
+              255,
+              128,
               0
             ],
             "alpha": 255,
@@ -19702,53 +19956,27 @@
             "candidato_meteorologico": true
           },
           {
-            "indice_p": 11,
+            "indice_p": 14,
             "rgb": [
-              85,
-              156,
+              190,
+              0,
               0
             ],
             "alpha": 255,
-            "pixels": 26,
+            "pixels": 1,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
           },
           {
-            "indice_p": 12,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "alpha": 255,
-            "pixels": 5,
-            "visivel": true,
-            "cinza_nao_validado": false,
-            "candidato_meteorologico": true
-          },
-          {
-            "indice_p": 13,
+            "indice_p": 15,
             "rgb": [
               255,
               64,
               0
             ],
             "alpha": 255,
-            "pixels": 3,
-            "visivel": true,
-            "cinza_nao_validado": false,
-            "candidato_meteorologico": true
-          },
-          {
-            "indice_p": 14,
-            "rgb": [
-              255,
-              128,
-              0
-            ],
-            "alpha": 255,
-            "pixels": 3,
+            "pixels": 1,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -19767,10 +19995,10 @@
           "latitude_aproximada": -26.27,
           "longitude_aproximada": -48.81
         },
-        "pixels_candidatos": 5,
+        "pixels_candidatos": 15,
         "indices_candidatos": [
           {
-            "indice_p": 12,
+            "indice_p": 7,
             "rgb": [
               255,
               255,
@@ -19780,23 +20008,105 @@
           }
         ],
         "eco_mais_proximo": {
-          "pixel_x": 721,
-          "pixel_y": 354,
-          "latitude": -29.22783,
-          "longitude": -48.99172,
-          "distancia_comasa_km": 329.38,
-          "direcao_graus": 183.1,
-          "direcao_cardinal": "S"
+          "pixel_x": 800,
+          "pixel_y": 86,
+          "latitude": -25.84947,
+          "longitude": -47.99755,
+          "distancia_comasa_km": 93.66,
+          "direcao_graus": 60.2,
+          "direcao_cardinal": "NE"
         },
         "pixels_por_raio": {
           "ate_10_km": 0,
           "ate_25_km": 0,
           "ate_50_km": 0,
-          "ate_100_km": 0
+          "ate_100_km": 2
         },
-        "quantidade_componentes_3px_ou_mais": 0,
-        "maiores_componentes": [],
-        "componentes_mais_proximos_comasa": []
+        "quantidade_componentes_3px_ou_mais": 1,
+        "maiores_componentes": [
+          {
+            "id_quadro": 1,
+            "pixels": 5,
+            "centroide": {
+              "pixel_x": 743.6,
+              "pixel_y": 340.6,
+              "latitude": -29.05891,
+              "longitude": -48.70731,
+              "distancia_comasa_km": 310.28,
+              "direcao_graus": 178.2,
+              "direcao_cardinal": "S"
+            },
+            "ponto_mais_proximo_comasa": {
+              "pixel_x": 744,
+              "pixel_y": 340,
+              "latitude": -29.05135,
+              "longitude": -48.70228,
+              "distancia_comasa_km": 309.45,
+              "direcao_graus": 178.1,
+              "direcao_cardinal": "S"
+            },
+            "caixa_pixels": {
+              "x_min": 742,
+              "x_max": 745,
+              "y_min": 340,
+              "y_max": 341
+            },
+            "cores": [
+              {
+                "rgb": [
+                  255,
+                  255,
+                  0
+                ],
+                "pixels": 5
+              }
+            ],
+            "dbz": null,
+            "classificacao": "candidato_a_area_de_eco"
+          }
+        ],
+        "componentes_mais_proximos_comasa": [
+          {
+            "id_quadro": 1,
+            "pixels": 5,
+            "centroide": {
+              "pixel_x": 743.6,
+              "pixel_y": 340.6,
+              "latitude": -29.05891,
+              "longitude": -48.70731,
+              "distancia_comasa_km": 310.28,
+              "direcao_graus": 178.2,
+              "direcao_cardinal": "S"
+            },
+            "ponto_mais_proximo_comasa": {
+              "pixel_x": 744,
+              "pixel_y": 340,
+              "latitude": -29.05135,
+              "longitude": -48.70228,
+              "distancia_comasa_km": 309.45,
+              "direcao_graus": 178.1,
+              "direcao_cardinal": "S"
+            },
+            "caixa_pixels": {
+              "x_min": 742,
+              "x_max": 745,
+              "y_min": 340,
+              "y_max": 341
+            },
+            "cores": [
+              {
+                "rgb": [
+                  255,
+                  255,
+                  0
+                ],
+                "pixels": 5
+              }
+            ],
+            "dbz": null,
+            "classificacao": "candidato_a_area_de_eco"
+          }
+        ]
       },
       "eco_oficial_local_129": {
         "status": "diagnostico_ativo",
@@ -19916,37 +20226,37 @@
           "classe_oficial": null
         },
         "candidato_legado_mais_proximo": {
-          "distancia_comasa_km": 26.481,
-          "pixel_x": 732,
-          "pixel_y": 138,
-          "indice_p": 3,
+          "distancia_comasa_km": 28.955,
+          "pixel_x": 756,
+          "pixel_y": 110,
+          "indice_p": 8,
           "rgb": [
-            170,
-            255,
-            0
+            55,
+            145,
+            255
           ],
           "alpha": 255,
           "rgb_pertence_legenda_oficial": false,
           "classe_oficial": null,
-          "latitude": -26.504973,
-          "longitude": -48.853291,
+          "latitude": -26.15201,
+          "longitude": -48.551264,
           "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
         },
         "eco_oficial_mais_proximo_no_quadro": {
-          "distancia_comasa_km": 329.382,
-          "pixel_x": 721,
-          "pixel_y": 354,
-          "indice_p": 12,
+          "distancia_comasa_km": 93.664,
+          "pixel_x": 800,
+          "pixel_y": 86,
+          "indice_p": 7,
           "rgb": [
             255,
             255,
             0
           ],
           "classe_oficial": 10,
-          "latitude": -29.227828,
-          "longitude": -48.991721
+          "latitude": -25.84947,
+          "longitude": -47.997547
         },
-        "diferenca_distancias_oficial_menos_legado_km": 302.901,
+        "diferenca_distancias_oficial_menos_legado_km": 64.709,
         "contagem_local_por_raio": {
           "2": {
             "legado": 0,
@@ -19988,10 +20298,10 @@
           "latitude_aproximada": -26.27,
           "longitude_aproximada": -48.81
         },
-        "pixels_candidatos": 5,
+        "pixels_candidatos": 15,
         "indices_candidatos": [
           {
-            "indice_p": 12,
+            "indice_p": 7,
             "rgb": [
               255,
               255,
@@ -20001,23 +20311,105 @@
           }
         ],
         "eco_mais_proximo": {
-          "pixel_x": 721,
-          "pixel_y": 354,
-          "latitude": -29.22783,
-          "longitude": -48.99172,
-          "distancia_comasa_km": 329.38,
-          "direcao_graus": 183.1,
-          "direcao_cardinal": "S"
+          "pixel_x": 800,
+          "pixel_y": 86,
+          "latitude": -25.84947,
+          "longitude": -47.99755,
+          "distancia_comasa_km": 93.66,
+          "direcao_graus": 60.2,
+          "direcao_cardinal": "NE"
         },
         "pixels_por_raio": {
           "ate_10_km": 0,
           "ate_25_km": 0,
           "ate_50_km": 0,
-          "ate_100_km": 0
+          "ate_100_km": 2
         },
-        "quantidade_componentes_3px_ou_mais": 0,
-        "maiores_componentes": [],
-        "componentes_mais_proximos_comasa": []
+        "quantidade_componentes_3px_ou_mais": 1,
+        "maiores_componentes": [
+          {
+            "id_quadro": 1,
+            "pixels": 5,
+            "centroide": {
+              "pixel_x": 743.6,
+              "pixel_y": 340.6,
+              "latitude": -29.05891,
+              "longitude": -48.70731,
+              "distancia_comasa_km": 310.28,
+              "direcao_graus": 178.2,
+              "direcao_cardinal": "S"
+            },
+            "ponto_mais_proximo_comasa": {
+              "pixel_x": 744,
+              "pixel_y": 340,
+              "latitude": -29.05135,
+              "longitude": -48.70228,
+              "distancia_comasa_km": 309.45,
+              "direcao_graus": 178.1,
+              "direcao_cardinal": "S"
+            },
+            "caixa_pixels": {
+              "x_min": 742,
+              "x_max": 745,
+              "y_min": 340,
+              "y_max": 341
+            },
+            "cores": [
+              {
+                "rgb": [
+                  255,
+                  255,
+                  0
+                ],
+                "pixels": 5
+              }
+            ],
+            "dbz": null,
+            "classificacao": "candidato_a_area_de_eco"
+          }
+        ],
+        "componentes_mais_proximos_comasa": [
+          {
+            "id_quadro": 1,
+            "pixels": 5,
+            "centroide": {
+              "pixel_x": 743.6,
+              "pixel_y": 340.6,
+              "latitude": -29.05891,
+              "longitude": -48.70731,
+              "distancia_comasa_km": 310.28,
+              "direcao_graus": 178.2,
+              "direcao_cardinal": "S"
+            },
+            "ponto_mais_proximo_comasa": {
+              "pixel_x": 744,
+              "pixel_y": 340,
+              "latitude": -29.05135,
+              "longitude": -48.70228,
+              "distancia_comasa_km": 309.45,
+              "direcao_graus": 178.1,
+              "direcao_cardinal": "S"
+            },
+            "caixa_pixels": {
+              "x_min": 742,
+              "x_max": 745,
+              "y_min": 340,
+              "y_max": 341
+            },
+            "cores": [
+              {
+                "rgb": [
+                  255,
+                  255,
+                  0
+                ],
+                "pixels": 5
+              }
+            ],
+            "dbz": null,
+            "classificacao": "candidato_a_area_de_eco"
+          }
+        ]
       }
     },
     "analise_movimento": {
@@ -21833,7 +22225,7 @@
     "consultas_temporais": [
       {
         "dias": 2,
-        "datetime": "2026-09-23T17:40:43Z/2026-09-25T17:40:43Z",
+        "datetime": "2026-09-23T17:53:22Z/2026-09-25T17:53:22Z",
         "http_status": 200,
         "quantidade_features": 17,
         "quantidade_data_alerta": 17,
@@ -21842,7 +22234,7 @@
       },
       {
         "dias": 7,
-        "datetime": "2026-09-18T17:40:43Z/2026-09-25T17:40:43Z",
+        "datetime": "2026-09-18T17:53:22Z/2026-09-25T17:53:22Z",
         "http_status": 200,
         "quantidade_features": 50,
         "quantidade_data_alerta": 50,
@@ -21851,7 +22243,7 @@
       },
       {
         "dias": 30,
-        "datetime": "2026-08-26T17:40:43Z/2026-09-25T17:40:43Z",
+        "datetime": "2026-08-26T17:53:22Z/2026-09-25T17:53:22Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,
@@ -21860,7 +22252,7 @@
       },
       {
         "dias": 90,
-        "datetime": "2026-06-27T17:40:43Z/2026-09-25T17:40:43Z",
+        "datetime": "2026-06-27T17:53:22Z/2026-09-25T17:53:22Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,

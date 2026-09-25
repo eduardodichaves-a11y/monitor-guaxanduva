@@ -475,7 +475,7 @@ async function carregar(){
    $("guax166Estado").innerHTML='<span class="erro">🔴 #166 INDISPONÍVEL</span> • nenhum valor ausente é interpretado como zero';
   }
 
-  const gxar=gxa.resumo||{},gxap=gxa.ponto_referencia_topologia||{},gxario=gxa.rio||{},gxah=gxa.parametros_hidraulicos_documentados||{};
+  const gxar=gxa.resumo||{},gxap=gxa.ponto_referencia_topologia||{},gxario=gxa.rio||{},gxah=gxa.parametros_hidraulicos_documentados||{},gxageom=(gxa.camada_matematica&&gxa.camada_matematica.geometria_hidraulica_documentada)||{};
    $("gxaSegmentos").textContent=gxar.segmentos_microbacia==null?"--":String(gxar.segmentos_microbacia);
    $("gxaComponente").textContent=gxar.segmentos_componente_30960==null?"--":String(gxar.segmentos_componente_30960);
    $("gxaNos").textContent=gxar.nos_endpoints==null?"--":String(gxar.nos_endpoints);
@@ -492,7 +492,7 @@ async function carregar(){
    const by=gxah.bypass_montezuma_odilon||{},vk=gxah.estrutura_victor_konder_canoas||{},cf=gxah.cota_fundo_experimental_v01||{};
    $("gxaHidraulica").innerHTML='<b>📐 Restrições hidráulicas documentadas/experimentais</b><br><small>'+'By-pass Montezuma/Odilon: <b>'+(by.extensao_aprox_m==null?'--':f(by.extensao_aprox_m,0)+' m')+'</b> • '+(by.quantidade_tubos??'--')+' tubos Ø '+(by.diametro_nominal_m==null?'--':f(by.diametro_nominal_m,2)+' m')+'<br>'+'Estrutura Victor Konder/Canoas: <b>'+(vk.largura_aprox_m==null?'--':f(vk.largura_aprox_m,2)+' m')+' × '+(vk.altura_aprox_m==null?'--':f(vk.altura_aprox_m,2)+' m')+'</b><br>'+'Cota de fundo experimental (camada histórica do modelo): <b>'+(cf.estimada_m==null?'--':f(cf.estimada_m,2)+' m')+'</b> • incerteza '+(cf.incerteza_m==null?'--':'± '+f(cf.incerteza_m,2)+' m')+' • confiança '+nomeFamilia(cf.confianca)+'.</small>';
 
-   const hds=by.controle_hidraulico_hds5||{},gatesH=hds.gates_liberacao_hds5||{},resG=gatesH.resumo||{},decH=hds.estado_decisao_hds5||{},audE=hds.auditoria_evidencias_hds5||{},aud15=hds.auditoria_final_v015||{};
+   const byHds=gxageom.bypass_montezuma_odilon||{},hds=byHds.controle_hidraulico_hds5||{},gatesH=hds.gates_liberacao_hds5||{},resG=gatesH.resumo||{},decH=hds.estado_decisao_hds5||{},audE=hds.auditoria_evidencias_hds5||{},aud15=hds.auditoria_final_v015||{};
    $("hds15Auditoria").textContent=aud15.estado?nomeFamilia(aud15.estado):"--";
    $("hds15Gates").textContent=resG.quantidade_gates==null?"--":String(resG.quantidade_satisfeitos??0)+" de "+String(resG.quantidade_gates);
    $("hds15Pendencias").textContent=audE.quantidade_pendentes==null?"--":String(audE.quantidade_pendentes);

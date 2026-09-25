@@ -44,7 +44,7 @@ MARE = (
     "ciram_arquivos/oceano/tabuamare/csv/"
     "Tabua_Mare_Joinville.csv"
 )
-
+ 
 # #160 - Marégrafo observado oficial EPAGRI/CIRAM para Joinville.
 # Esta série é de maré em Joinville/Babitonga e NÃO mede o Rio Guaxanduva.
 MAREGRAFO_JOINVILLE = (
@@ -430,7 +430,7 @@ def buscar_previsao():
         # de precipitacao ja recebida do Open-Meteo.
         # Nao alimenta classificacao automatica de risco nesta etapa.
         # =========================================================
-
+ 
         previsao_24h = {
             "status": "indisponivel",
             "fonte": "Open-Meteo",
@@ -451,19 +451,19 @@ def buscar_previsao():
                 "classificacao automatica de risco."
             ),
         }
-
+ 
         tempos_horarios = horario.get("time", [])
         precipitacoes_horarias = horario.get("precipitation", [])
-
+ 
         if indice is not None:
             fim_indice = indice + 24
             tempos_janela = tempos_horarios[indice:fim_indice]
             precipitacoes_janela = precipitacoes_horarias[indice:fim_indice]
-
+ 
             if tempos_janela:
                 previsao_24h["inicio"] = tempos_janela[0]
                 previsao_24h["fim"] = tempos_janela[-1]
-
+ 
                 try:
                     fim_exclusivo = (
                         datetime
@@ -476,13 +476,13 @@ def buscar_previsao():
                     )
                 except Exception:
                     pass
-
+ 
             valores_validos = []
             serie_completa = (
                 len(tempos_janela) == 24
                 and len(precipitacoes_janela) == 24
             )
-
+ 
             if serie_completa:
                 for valor in precipitacoes_janela:
                     try:
@@ -495,9 +495,9 @@ def buscar_previsao():
                     except Exception:
                         valores_validos = []
                         break
-
+ 
             previsao_24h["horas_validas"] = len(valores_validos)
-
+ 
             if serie_completa and len(valores_validos) == 24:
                 previsao_24h["status"] = "online_completo"
                 previsao_24h["precipitacao_acumulada_mm"] = round(
@@ -512,7 +512,7 @@ def buscar_previsao():
                     "validos consecutivos. Ausencia de dados nao e "
                     "interpretada como 0 mm."
                 )
-
+ 
         dias = []
  
         for i, data in enumerate(
@@ -668,7 +668,7 @@ def buscar_previsao():
  
             "proximas_24h":
                 previsao_24h,
-
+ 
             "proximos_7_dias":
                 dias,
         }
@@ -815,7 +815,7 @@ def buscar_mare():
 # =========================================================
 # #160 - MARÉ OBSERVADA • JOINVILLE / BABITONGA • EPAGRI/CIRAM
 # =========================================================
-
+ 
 def _numero_maregrafo_160(valor):
     """Converte números do DataTable; 'null' textual e nulo viram None."""
     if valor is None:
@@ -827,8 +827,8 @@ def _numero_maregrafo_160(valor):
         return float(texto.replace(",", "."))
     except Exception:
         return None
-
-
+ 
+ 
 def _momento_maregrafo_160(rotulo, referencia):
     """Interpreta DD/MM HH:MM escolhendo o ano mais próximo da coleta."""
     texto = str(rotulo or "").strip()
@@ -847,11 +847,11 @@ def _momento_maregrafo_160(rotulo, referencia):
     if not candidatos:
         raise ValueError("Data/hora inválida no marégrafo: " + texto)
     return min(candidatos, key=lambda dt: abs((dt - referencia).total_seconds()))
-
-
+ 
+ 
 def buscar_mare_observada_joinville_160():
     """Lê o último valor observado não nulo do marégrafo oficial de Joinville.
-
+ 
     A página oficial da EPAGRI/CIRAM associa este endpoint ao gráfico de
     Joinville e define a unidade vertical como cm. O bloco permanece separado
     do Rio Guaxanduva: não é sensor fluvial e não altera o risco operacional.
@@ -878,13 +878,13 @@ def buscar_mare_observada_joinville_160():
             "Rio Guaxanduva e não entra automaticamente no painel de risco."
         ),
     }
-
+ 
     try:
         resposta = get(MAREGRAFO_JOINVILLE)
         payload = resposta.json()
         colunas = payload.get("cols") or []
         linhas = payload.get("rows") or []
-
+ 
         rotulos = [str(c.get("label") or "").strip() for c in colunas]
         esperados = [
             "Topping",
@@ -899,7 +899,7 @@ def buscar_mare_observada_joinville_160():
         resultado["estrutura_validada"] = rotulos[:7] == esperados
         if not resultado["estrutura_validada"]:
             raise ValueError("Estrutura inesperada no DataTable do marégrafo")
-
+ 
         atual = agora()
         observacoes = []
         for linha in linhas:
@@ -921,15 +921,15 @@ def buscar_mare_observada_joinville_160():
                 "residual_cm": _numero_maregrafo_160(valores[3]),
                 "nmm_cm": _numero_maregrafo_160(valores[6]),
             })
-
+ 
         if not observacoes:
             raise ValueError("Nenhuma observação de maré não nula encontrada")
-
+ 
         # Não seleciona um ponto futuro como observação atual por erro de relógio/dado.
         passadas = [o for o in observacoes if o["momento"] <= atual + timedelta(minutes=5)]
         ultimo = max(passadas or observacoes, key=lambda o: o["momento"])
         idade_min = max(0.0, (atual - ultimo["momento"]).total_seconds() / 60.0)
-
+ 
         astronomica = ultimo["mare_astronomica_cm"]
         residual = ultimo["residual_cm"]
         validacao = None
@@ -938,7 +938,7 @@ def buscar_mare_observada_joinville_160():
             calculado = ultimo["nivel_cm"] - astronomica
             erro_residual = abs(calculado - residual)
             validacao = erro_residual <= 0.2
-
+ 
         # A série observada é de 15 min. Até 90 min é apresentada como atual;
         # acima disso o valor permanece disponível, mas explicitamente atrasado.
         if idade_min <= 90:
@@ -947,7 +947,7 @@ def buscar_mare_observada_joinville_160():
         else:
             status = "observado_atrasado"
             frescor = "atrasado"
-
+ 
         resultado.update({
             "status": status,
             "nivel_cm": round(ultimo["nivel_cm"], 2),
@@ -963,12 +963,12 @@ def buscar_mare_observada_joinville_160():
             "quantidade_observacoes_validas": len(observacoes),
         })
         return resultado
-
+ 
     except Exception as e:
         resultado["erro"] = str(e)
         return resultado
-
-
+ 
+ 
 # =========================================================
 # #128 - INVESTIGAÇÃO DOCUMENTAL DO RADARSC
 # =========================================================
@@ -9349,11 +9349,11 @@ def diagnosticar_conteudo_cap_inmet_156(diag155=None):
     return resultado
  
  
-
-
+ 
+ 
 def granizo_operacional_inmet_157(diag156=None):
     """#157 - Publica somente alerta positivo de granizo validado pelo CAP INMET.
-
+ 
     Regra conservadora: um candidato ativo precisa reunir, no mesmo CAP,
     menção explícita a granizo/hail, cobertura da referência pública de
     Joinville/Comasa, vigência temporal, status Actual, scope Public e
@@ -9379,20 +9379,20 @@ def granizo_operacional_inmet_157(diag156=None):
             "nao significa granizo observado ou caindo no Comasa."
         ),
     }
-
+ 
     if not isinstance(diag156, dict):
         resultado["status"] = "indisponivel_sem_diagnostico_156"
         return resultado
-
+ 
     if diag156.get("status") != "cap_recente_decodificado":
         resultado["status"] = "indisponivel_cap_recente_nao_decodificado"
         return resultado
-
+ 
     alertas = diag156.get("alertas")
     if not isinstance(alertas, list):
         resultado["status"] = "indisponivel_lista_alertas_invalida"
         return resultado
-
+ 
     candidatos = []
     for alerta in alertas:
         if not isinstance(alerta, dict):
@@ -9405,7 +9405,7 @@ def granizo_operacional_inmet_157(diag156=None):
             continue
         if str(alerta.get("msgType") or "").lower() in {"cancel", "error"}:
             continue
-
+ 
         infos_validas = []
         for info in alerta.get("infos") or []:
             if not isinstance(info, dict):
@@ -9419,10 +9419,10 @@ def granizo_operacional_inmet_157(diag156=None):
             if "granizo" not in texto and re.search(r"\bhail\b", texto) is None:
                 continue
             infos_validas.append(info)
-
+ 
         if infos_validas:
             candidatos.append((alerta, infos_validas))
-
+ 
     if not candidatos:
         resultado["status"] = "online_sem_conclusao_negativa"
         resultado["ativo"] = None
@@ -9433,7 +9433,7 @@ def granizo_operacional_inmet_157(diag156=None):
             "autoriza publicar 'sem alerta de granizo'."
         )
         return resultado
-
+ 
     # Havendo mais de um candidato, prioriza o CAP enviado mais recentemente.
     def momento_enviado(item):
         alerta = item[0]
@@ -9444,10 +9444,10 @@ def granizo_operacional_inmet_157(diag156=None):
             return dt.astimezone(UTC)
         except Exception:
             return datetime(1970, 1, 1, tzinfo=UTC)
-
+ 
     alerta, infos = sorted(candidatos, key=momento_enviado, reverse=True)[0]
     info = infos[0]
-
+ 
     resultado["status"] = "alerta_ativo_confirmado"
     resultado["ativo"] = True
     resultado["cobertura_referencia_publica_comasa"] = True
@@ -9472,13 +9472,13 @@ def granizo_operacional_inmet_157(diag156=None):
         "url_xml": alerta.get("url"),
     }
     return resultado
-
+ 
 # =========================================================
 # #163 - CRITERIO HIDROMETEOROLOGICO CALCULADO • PLANCON
 # Diagnostico independente do acionamento oficial da Defesa Civil.
 # Usa a previsao movel #162 e a mare observada EPAGRI/CIRAM #160.
 # =========================================================
-
+ 
 def calcular_criterio_hidrometeorologico_plancon_163(previsao, mare_observada):
     resultado = {
         "status": "inconclusivo", "versao": "#163",
@@ -9519,14 +9519,14 @@ def calcular_criterio_hidrometeorologico_plancon_163(previsao, mare_observada):
     elif mobilizacao_chuva: resultado["classificacao_calculada"] = "sinal_pluviometrico_mobilizacao"
     else: resultado["classificacao_calculada"] = "sem_gatilho_superior_identificado"
     return resultado
-
-
+ 
+ 
 # =========================================================
 # #164 - PICO DE MARE PREVISTO • PROXIMAS 24 HORAS
 # Mesma janela temporal da #162; fonte EPAGRI/CIRAM.
 # Diagnostico independente: nao altera os gatilhos da #163.
 # =========================================================
-
+ 
 def calcular_pico_mare_previsto_24h_164(previsao):
     resultado = {
         "status": "inconclusivo", "versao": "#164", "fonte": "EPAGRI/CIRAM",
@@ -9588,7 +9588,7 @@ def calcular_pico_mare_previsto_24h_164(previsao):
         resultado["status"], resultado["erro"] = "indisponivel_fonte_mare", str(e)
         resultado["observacao"] = "Falha ao obter ou interpretar a tabua de mare EPAGRI/CIRAM. A #164 permanece inconclusiva e nao substitui ausencia por zero."
         return resultado
-
+ 
 # =========================================================
 # #165 - EPAGRI/CIRAM • AGROCONNECT • PRECIPITACAO HORARIA
 # Variavel 271 = Precipitacao Total (mm), produto horario, grupo 4, nhoras 1.
@@ -9599,17 +9599,17 @@ EPAGRI_AGROCONNECT_BUSCA = EPAGRI_AGROCONNECT + "busca.jsp"
 EPAGRI_CHAVE_FIXA = "1A853d23"
 EPAGRI_LPTYA = "CbkYTPgEQbNLja"
 EPAGRI_ESTACOES_CHUVA = [(2382, "Joinville - Pirabeiraba"), (1051, "Joinville - Vila Nova")]
-
+ 
 def _epagri_keyy_165(timestamp_ms):
     return str(timestamp_ms)[:-5]
-
+ 
 def _epagri_marcador_165(keyy):
     partes=[]; pos=0
     for i in range(0,len(EPAGRI_LPTYA),2):
         if pos>=len(keyy): raise ValueError("keyy EPAGRI curto demais")
         partes.extend((keyy[pos],EPAGRI_LPTYA[i:i+2])); pos+=1
     partes.append(str(pos)); return "".join(partes)
-
+ 
 def _epagri_ack3uk_165(texto,keyy):
     marcador=_epagri_marcador_165(keyy); indice=texto.find(marcador)
     if indice<0: raise ValueError("marcador EPAGRI prrtyc nao encontrado")
@@ -9619,15 +9619,15 @@ def _epagri_ack3uk_165(texto,keyy):
         esquerda=ord(chars[i]); direita=ord(chars[n-1-i]); ck=ord(chave[k])
         chars[i]=chr(direita^ck); chars[n-1-i]=chr(esquerda^ck); k+=1
     return "".join(chars)
-
+ 
 def _epagri_date_165(data_dd_mm_aaaa,estacao):
     dia,mes,ano=[int(x) for x in data_dd_mm_aaaa.split("-")]
     return f"{int(ano*(mes*12)*(30*dia))}0"
-
+ 
 def _epagri_instante_165(texto):
     try: return datetime.strptime(str(texto).strip(),"%d/%m/%Y %H:%M").replace(tzinfo=FUSO)
     except Exception: return None
-
+ 
 def buscar_chuva_epagri_165():
     resultado={"status":"indisponivel","fonte":"EPAGRI/CIRAM","tipo":"precipitacao_horaria_observada","variavel":271,"produto":"horario","grupo":4,"janela_h":1,"estacoes":[],"regra_seguranca":"Cada leitura pertence a sua propria estacao. Zero retornado no campo de precipitacao e preservado como zero; falha, ausencia ou valor invalido permanece null e nunca e convertido em zero."}
     sessao=requests.Session(); sessao.headers.update({"User-Agent":"Mozilla/5.0 Monitor-Guaxanduva/1.0","Accept":"*/*","Referer":EPAGRI_AGROCONNECT,"Origin":"https://ciram.epagri.sc.gov.br","X-Requested-With":"XMLHttpRequest"})
@@ -9661,7 +9661,7 @@ def buscar_chuva_epagri_165():
     if len(frescas)==len(EPAGRI_ESTACOES_CHUVA): resultado["status"]="online"
     elif disponiveis: resultado["status"]="parcial_ou_atrasado"
     return resultado
-
+ 
 def construir_rede_pluviometrica_multifonte_165(chuva_cemaden,chuva_epagri):
     resultado={"status":"inventario_multifonte_com_dados_parciais","versao":"#165","tipo":"rede_pluviometrica_multifonte_joinville","municipio":"Joinville/SC","referencia":"Comasa - coordenada publica aproximada","coordenada_referencia":{"latitude":LAT,"longitude":LON},"estacoes":[],"fontes":[],"quantidade_estacoes":0,"quantidade_com_leitura_atual":0,"quantidade_sem_leitura_automatica_integrada":0,"uso_no_risco":False,"classificacao_risco_automatica":False,"regra_seguranca":"Cada pluviometro representa seu proprio ponto. Leituras de estacoes diferentes nao sao somadas, promediadas nem tratadas como medicao no Comasa. Ausencia, falha ou valor nulo nunca e convertido em 0 mm.","observacao":"CEMADEN e EPAGRI/CIRAM possuem aquisicao automatica integrada. A chuva EPAGRI e horaria e nao e convertida artificialmente em acumulado de 24 horas. ANA/SNIRH e Rede Municipal/Defesa Civil permanecem inventariadas sem telemetria atual integrada."}
     estacoes_cemaden=chuva_cemaden.get("estacoes_joinville_ativas",[]) if isinstance(chuva_cemaden,dict) else []
@@ -9679,7 +9679,7 @@ def construir_rede_pluviometrica_multifonte_165(chuva_cemaden,chuva_epagri):
     resultado["quantidade_estacoes"]=len(resultado["estacoes"]); resultado["quantidade_com_leitura_atual"]=sum(1 for e in resultado["estacoes"] if e.get("leitura_atual_disponivel") is True); resultado["quantidade_sem_leitura_automatica_integrada"]=sum(1 for e in resultado["estacoes"] if e.get("aquisicao_automatica_integrada") is not True)
     if resultado["quantidade_com_leitura_atual"]==0: resultado["status"]="inventario_multifonte_sem_dados_automaticos_disponiveis"
     return resultado
-
+ 
 # =========================================================
 # GUAXANDUVA-MODEL V0.1 - GRAFO HIDROGRAFICO COMPUTACIONAL
 # =========================================================
@@ -9687,7 +9687,7 @@ def construir_rede_pluviometrica_multifonte_165(chuva_cemaden,chuva_epagri):
 # nenhuma das camadas existentes. O grafo e inicialmente nao direcionado:
 # a ordem dos vertices de uma LineString nao prova o sentido hidraulico.
 # O ponto de referencia e publico/tecnico e nao identifica residencia.
-
+ 
 SIMGeo_GUAXANDUVA_LAYER_44 = (
     "https://geo.joinville.sc.gov.br/server/rest/services/SEPUR/"
     "meio_ambiente_simgeo_v4_/MapServer/44/query"
@@ -9697,9 +9697,9 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.2-MATEMATICO"
-
-
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.3-GRAFO-DINAMICO"
+ 
+ 
 def _gxa_haversine_m(a, b):
     lon1, lat1 = a
     lon2, lat2 = b
@@ -9710,15 +9710,15 @@ def _gxa_haversine_m(a, b):
     dl = math.radians(lon2 - lon1)
     h = math.sin(dp / 2.0) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2.0) ** 2
     return 2.0 * r * math.asin(min(1.0, math.sqrt(h)))
-
-
+ 
+ 
 def _gxa_xy_local(p, lat_ref):
     lon, lat = p
     x = math.radians(lon) * 6371008.8 * math.cos(math.radians(lat_ref))
     y = math.radians(lat) * 6371008.8
     return x, y
-
-
+ 
+ 
 def _gxa_distancia_ponto_segmento_m(p, a, b):
     lat_ref = (p[1] + a[1] + b[1]) / 3.0
     px, py = _gxa_xy_local(p, lat_ref)
@@ -9735,8 +9735,8 @@ def _gxa_distancia_ponto_segmento_m(p, a, b):
     lon_q = math.degrees(qx / (6371008.8 * math.cos(math.radians(lat_ref))))
     lat_q = math.degrees(qy / 6371008.8)
     return d, (lon_q, lat_q)
-
-
+ 
+ 
 def _gxa_distancia_ponto_linha_m(p, coords):
     melhor = (float("inf"), None, None)
     for i in range(len(coords) - 1):
@@ -9744,8 +9744,8 @@ def _gxa_distancia_ponto_linha_m(p, coords):
         if d < melhor[0]:
             melhor = (d, q, i)
     return melhor
-
-
+ 
+ 
 def _gxa_normalizar_feature(feature):
     geom = feature.get("geometry") or {}
     props = feature.get("properties") or {}
@@ -9780,8 +9780,8 @@ def _gxa_normalizar_feature(feature):
         "geometria": [[p[0], p[1]] for p in coords],
         "_coords": coords,
     }
-
-
+ 
+ 
 def _gxa_baixar_geojson():
     params = {
         "where": f"num_microb='{GUAXANDUVA_MICROBACIA}'",
@@ -9795,8 +9795,8 @@ def _gxa_baixar_geojson():
     if not isinstance(dados, dict) or dados.get("type") != "FeatureCollection":
         raise ValueError("SIMGeo camada 44 nao retornou FeatureCollection valida")
     return dados
-
-
+ 
+ 
 def _gxa_criar_cluster(clusters, ponto, oid, extremidade):
     melhor_id, melhor_dist = None, float("inf")
     for cid, c in clusters.items():
@@ -9819,8 +9819,8 @@ def _gxa_criar_cluster(clusters, ponto, oid, extremidade):
         "incidencias": [{"objectid": oid, "extremidade": extremidade}],
     }
     return cid
-
-
+ 
+ 
 def _gxa_construir_topologia(segmentos):
     clusters = {}
     endpoints = {}
@@ -9829,12 +9829,12 @@ def _gxa_construir_topologia(segmentos):
         na = _gxa_criar_cluster(clusters, s["_coords"][0], oid, "inicio")
         nb = _gxa_criar_cluster(clusters, s["_coords"][-1], oid, "fim")
         endpoints[oid] = [na, nb]
-
+ 
     por_no = defaultdict(set)
     for oid, nos in endpoints.items():
         for no in nos:
             por_no[no].add(oid)
-
+ 
     adj = defaultdict(set)
     for conjunto in por_no.values():
         lista = sorted(conjunto)
@@ -9842,7 +9842,7 @@ def _gxa_construir_topologia(segmentos):
             for b in lista[i + 1:]:
                 adj[a].add(b)
                 adj[b].add(a)
-
+ 
     ligacoes_interiores = []
     vistos = set()
     for s in segmentos:
@@ -9875,12 +9875,12 @@ def _gxa_construir_topologia(segmentos):
                 })
                 adj[oid].add(oid_alvo)
                 adj[oid_alvo].add(oid)
-
+ 
     for s in segmentos:
         adj[s["objectid"]]
     return clusters, endpoints, por_no, adj, ligacoes_interiores
-
-
+ 
+ 
 def _gxa_componente(adj, raiz):
     if raiz not in adj:
         return set()
@@ -9893,16 +9893,16 @@ def _gxa_componente(adj, raiz):
         visitados.add(atual)
         fila.extend(v for v in adj[atual] if v not in visitados)
     return visitados
-
-
+ 
+ 
 def _gxa_classificar_no(grau):
     if grau <= 1:
         return "extremidade"
     if grau == 2:
         return "passagem"
     return "juncao"
-
-
+ 
+ 
 def _gxa_validar(segmentos_saida, nos_saida):
     erros = []
     segmentos = {s["objectid"]: s for s in segmentos_saida}
@@ -9917,9 +9917,9 @@ def _gxa_validar(segmentos_saida, nos_saida):
             if no not in ids_nos:
                 erros.append(f"{oid}: no inexistente {no}")
     return erros
-
-
-
+ 
+ 
+ 
 # =========================================================
 # GUAXANDUVA-MODEL V0.2 - CAMADA MATEMATICA EXPERIMENTAL
 # =========================================================
@@ -9930,15 +9930,15 @@ def _gxa_validar(segmentos_saida, nos_saida):
 # com incerteza ampla, para futura calibracao por eventos e/ou imagem/sensor.
 # Estacoes de chuva nunca sao somadas entre si: usa-se o maior acumulado
 # valido entre as estacoes como forçante conservadora regional.
-
-
+ 
+ 
 def _gxa_numero_finito(valor):
     if isinstance(valor, bool) or not isinstance(valor, (int, float)):
         return None
     valor = float(valor)
     return valor if math.isfinite(valor) else None
-
-
+ 
+ 
 def _gxa_maior_chuva_valida(chuva_por_estacao, janela):
     candidatos = []
     fontes = []
@@ -9960,17 +9960,123 @@ def _gxa_maior_chuva_valida(chuva_por_estacao, janela):
     if not candidatos:
         return None, fontes
     return max(candidatos), fontes
-
-
-def _gxa_calcular_nivel_experimental_v02(guaxanduva166):
-    """Calcula nivel experimental, nunca nivel observado/instrumental."""
+ 
+ 
+def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
+    """Transforma o grafo nao direcionado em infraestrutura de propagacao experimental.
+ 
+    Nao infere montante/jusante. Calcula distancia hidrografica aproximada entre centros
+    de segmentos a partir do 30960 e uma atenuacao temporal transparente. Cada segmento
+    conectado participa do fator agregado proporcionalmente ao seu comprimento.
+    """
     resultado = {
-        "versao": "GXA-V0.2-MATEMATICO",
+        "versao": "GXA-V0.3-GRAFO-DINAMICO",
+        "status": "indisponivel",
+        "segmento_referencia": GUAXANDUVA_SEGMENTO_REFERENCIA,
+        "grafo_direcionado": False,
+        "velocidade_referencia_m_s": 0.35,
+        "velocidades_sensibilidade_m_s": [0.15, 0.35, 0.70],
+        "janela_resposta_referencia_h": 3.0,
+        "metodo": "dijkstra_em_grafo_de_segmentos_com_custo_meia_soma_dos_comprimentos_e_atenuacao_exponencial_temporal",
+        "uso_operacional": False,
+        "observacao": "A ordem das LineStrings nao define fluxo. Distancias e tempos sao de conectividade, nao sentido hidraulico confirmado.",
+    }
+    if not isinstance(segmentos_saida, list) or not segmentos_saida:
+        resultado["motivo"] = "segmentos_indisponiveis"
+        return resultado
+ 
+    por_id = {s.get("objectid"): s for s in segmentos_saida if isinstance(s, dict) and isinstance(s.get("objectid"), int)}
+    ids = set(componente or []) & set(por_id)
+    if GUAXANDUVA_SEGMENTO_REFERENCIA not in ids:
+        resultado["motivo"] = "segmento_referencia_fora_do_componente"
+        return resultado
+ 
+    def comprimento(oid):
+        valor = _gxa_numero_finito(por_id[oid].get("comprimento_m"))
+        if valor is not None and valor > 0:
+            return valor
+        geom = por_id[oid].get("geometria") or []
+        total = 0.0
+        for i in range(len(geom) - 1):
+            try:
+                total += _gxa_haversine_m(tuple(geom[i]), tuple(geom[i + 1]))
+            except Exception:
+                pass
+        return total if total > 0 else 1.0
+ 
+    import heapq
+    dist = {GUAXANDUVA_SEGMENTO_REFERENCIA: 0.0}
+    fila = [(0.0, GUAXANDUVA_SEGMENTO_REFERENCIA)]
+    while fila:
+        d_atual, oid = heapq.heappop(fila)
+        if d_atual > dist.get(oid, float("inf")):
+            continue
+        for vizinho in por_id[oid].get("conectado_a") or []:
+            if vizinho not in ids:
+                continue
+            custo = 0.5 * comprimento(oid) + 0.5 * comprimento(vizinho)
+            novo = d_atual + custo
+            if novo < dist.get(vizinho, float("inf")):
+                dist[vizinho] = novo
+                heapq.heappush(fila, (novo, vizinho))
+ 
+    total_comp = sum(comprimento(oid) for oid in ids)
+    tau_s = 3.0 * 3600.0
+ 
+    def fator_para_velocidade(v):
+        if total_comp <= 0:
+            return None
+        soma = 0.0
+        for oid in ids:
+            d = dist.get(oid)
+            if d is None:
+                continue
+            tempo_s = d / v
+            peso_temporal = math.exp(-tempo_s / tau_s)
+            soma += comprimento(oid) * peso_temporal
+        return max(0.0, min(1.0, soma / total_comp))
+ 
+    fator_ref = fator_para_velocidade(0.35)
+    detalhes = []
+    for oid in sorted(ids):
+        d = dist.get(oid)
+        if d is None:
+            continue
+        detalhes.append({
+            "objectid": oid,
+            "comprimento_m": round(comprimento(oid), 3),
+            "distancia_hidrografica_aprox_ao_30960_m": round(d, 3),
+            "tempo_propagacao_ref_min": round((d / 0.35) / 60.0, 2),
+            "peso_temporal_ref": round(math.exp(-((d / 0.35) / tau_s)), 6),
+            "conexoes_no_componente": sum(1 for v in (por_id[oid].get("conectado_a") or []) if v in ids),
+        })
+ 
+    resultado.update({
+        "status": "calculado_experimental",
+        "motivo": None,
+        "segmentos_participantes": len(detalhes),
+        "comprimento_total_componente_m": round(total_comp, 3),
+        "distancia_maxima_hidrografica_aprox_m": round(max(dist.values()) if dist else 0.0, 3),
+        "fator_propagacao_grafo": round(fator_ref, 6) if fator_ref is not None else None,
+        "sensibilidade": {
+            "v_0_15_m_s": round(fator_para_velocidade(0.15), 6),
+            "v_0_35_m_s": round(fator_ref, 6) if fator_ref is not None else None,
+            "v_0_70_m_s": round(fator_para_velocidade(0.70), 6),
+        },
+        "segmentos": detalhes,
+    })
+    return resultado
+ 
+ 
+def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
+    """Calcula nivel experimental; nunca nivel observado/instrumental."""
+    resultado = {
+        "versao": "GXA-V0.3-GRAFO-DINAMICO",
         "status": "indisponivel",
         "nivel_estimado_m": None,
         "incerteza_m": None,
         "confianca": "experimental_baixa",
-        "metodo": "modelo_semiempirico_chuva_remanso_com_restricoes_hidraulicas",
+        "metodo": "modelo_semiempirico_chuva_grafo_remanso_com_restricoes_hidraulicas",
         "instante": agora().isoformat(),
         "uso_operacional": False,
         "alerta_operacional_liberado": False,
@@ -9984,11 +10090,15 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166):
             "coef_remanso_anomalia_mare": 0.35,
             "limite_resposta_chuva_m": 1.20,
             "incerteza_base_m": 0.90,
+            "velocidade_propagacao_referencia_m_s": 0.35,
+            "janela_atenuacao_grafo_h": 3.0,
         },
         "regras": [
             "Pluviometros nao sao somados; usa-se o maior acumulado valido por janela.",
             "Mare de Joinville/Babitonga e usada somente como condicao de jusante.",
             "A anomalia de mare e calculada em relacao ao NMM da propria serie; nao se assume equivalencia de datum com o fundo do Guaxanduva.",
+            "O grafo e nao direcionado; portanto a propagacao representa conectividade hidrografica, nao sentido de fluxo confirmado.",
+            "Cada segmento do componente conectado ao 30960 participa do fator de propagacao conforme comprimento e distancia hidrografica aproximada.",
             "Nivel observado permanece nulo sem sensor publico confirmado.",
             "Resultado experimental nao libera alerta operacional.",
         ],
@@ -9996,50 +10106,53 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166):
     if not isinstance(guaxanduva166, dict):
         resultado["motivo"] = "historico_166_indisponivel"
         return resultado
-
+ 
     chuvas = guaxanduva166.get("chuva_por_estacao") or []
     p1, f1 = _gxa_maior_chuva_valida(chuvas, "P1h")
     p3, f3 = _gxa_maior_chuva_valida(chuvas, "P3h")
     p6, f6 = _gxa_maior_chuva_valida(chuvas, "P6h")
     p24, f24 = _gxa_maior_chuva_valida(chuvas, "P24h")
-
-    # P3 e a primeira janela temporal minima para o V0.2. P6/P24 entram
-    # somente quando completas; ausencia permanece ausencia e nao vira zero.
+ 
     if p3 is None:
         resultado["motivo"] = "P3h_ainda_indisponivel"
         resultado["forcantes"] = {"P1h_mm": p1, "P3h_mm": None, "P6h_mm": p6, "P24h_mm": p24}
         return resultado
-
+ 
     mare = guaxanduva166.get("mare_jusante_mais_recente") or {}
     nivel_mare = _gxa_numero_finito(mare.get("nivel_m"))
     nmm_cm = _gxa_numero_finito(mare.get("nmm_cm"))
     if nivel_mare is None or nmm_cm is None:
         resultado["motivo"] = "mare_jusante_ou_nmm_indisponivel"
         return resultado
-
+ 
+    fator_grafo = None
+    if isinstance(propagacao_grafo, dict) and propagacao_grafo.get("status") == "calculado_experimental":
+        fator_grafo = _gxa_numero_finito(propagacao_grafo.get("fator_propagacao_grafo"))
+    if fator_grafo is None or not (0.0 <= fator_grafo <= 1.0):
+        resultado["motivo"] = "propagacao_grafo_indisponivel"
+        return resultado
+ 
     nmm_m = nmm_cm / 100.0
     anomalia_mare_m = nivel_mare - nmm_m
     anomalia_positiva_m = max(0.0, anomalia_mare_m)
-
     p6_inc = max(0.0, p6 - p3) if p6 is not None else 0.0
     referencia_p6 = p6 if p6 is not None else p3
     p24_inc = max(0.0, p24 - referencia_p6) if p24 is not None else 0.0
-
-    resposta_chuva_m = min(
-        1.20,
-        0.008 * p3
-        + 0.004 * p6_inc
-        + 0.0015 * p24_inc,
-    )
+ 
+    resposta_chuva_bruta_m = min(1.20, 0.008 * p3 + 0.004 * p6_inc + 0.0015 * p24_inc)
+    resposta_chuva_m = resposta_chuva_bruta_m * fator_grafo
     resposta_remanso_m = 0.35 * anomalia_positiva_m
     lamina_estimada_m = max(0.0, 0.35 + resposta_chuva_m + resposta_remanso_m)
     nivel_estimado_m = 0.50 + lamina_estimada_m
-
-    # A incerteza inicial incorpora a incerteza da cota de fundo (0,90 m),
-    # ausencia de P6/P24 e falta de calibracao instrumental direta.
+ 
     penalidade_janelas = (0.12 if p6 is None else 0.0) + (0.18 if p24 is None else 0.0)
-    incerteza_m = 0.90 + penalidade_janelas + 0.20 * resposta_chuva_m + 0.15 * resposta_remanso_m
-
+    sens = propagacao_grafo.get("sensibilidade") or {}
+    vals_sens = [_gxa_numero_finito(v) for v in sens.values()]
+    vals_sens = [v for v in vals_sens if v is not None]
+    amplitude_grafo = (max(vals_sens) - min(vals_sens)) if vals_sens else 0.0
+    penalidade_grafo = min(0.25, 0.50 * amplitude_grafo)
+    incerteza_m = 0.90 + penalidade_janelas + penalidade_grafo + 0.20 * resposta_chuva_m + 0.15 * resposta_remanso_m
+ 
     resultado.update({
         "status": "calculado_experimental",
         "nivel_estimado_m": round(nivel_estimado_m, 3),
@@ -10047,28 +10160,30 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166):
         "lamina_estimada_sobre_fundo_m": round(lamina_estimada_m, 3),
         "componentes_m": {
             "lamina_base": 0.35,
-            "resposta_chuva": round(resposta_chuva_m, 3),
+            "resposta_chuva_bruta_sem_grafo": round(resposta_chuva_bruta_m, 3),
+            "fator_propagacao_grafo": round(fator_grafo, 6),
+            "resposta_chuva_apos_grafo": round(resposta_chuva_m, 3),
             "resposta_remanso_jusante": round(resposta_remanso_m, 3),
         },
+        "grafo": {
+            "segmentos_participantes": propagacao_grafo.get("segmentos_participantes"),
+            "comprimento_total_componente_m": propagacao_grafo.get("comprimento_total_componente_m"),
+            "distancia_maxima_hidrografica_aprox_m": propagacao_grafo.get("distancia_maxima_hidrografica_aprox_m"),
+            "fator_propagacao": round(fator_grafo, 6),
+            "sensibilidade_velocidade": sens,
+            "penalidade_incerteza_m": round(penalidade_grafo, 3),
+        },
         "forcantes": {
-            "P1h_mm": p1,
-            "P3h_mm": p3,
-            "P6h_mm": p6,
-            "P24h_mm": p24,
-            "fontes_P1h": f1,
-            "fontes_P3h": f3,
-            "fontes_P6h": f6,
-            "fontes_P24h": f24,
-            "mare_jusante_m": round(nivel_mare, 3),
-            "nmm_m": round(nmm_m, 3),
-            "anomalia_mare_m": round(anomalia_mare_m, 3),
-            "horario_mare": mare.get("horario_medicao"),
+            "P1h_mm": p1, "P3h_mm": p3, "P6h_mm": p6, "P24h_mm": p24,
+            "fontes_P1h": f1, "fontes_P3h": f3, "fontes_P6h": f6, "fontes_P24h": f24,
+            "mare_jusante_m": round(nivel_mare, 3), "nmm_m": round(nmm_m, 3),
+            "anomalia_mare_m": round(anomalia_mare_m, 3), "horario_mare": mare.get("horario_medicao"),
         },
         "motivo": None,
     })
     return resultado
-
-
+ 
+ 
 def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
     base = {
         "versao": GUAXANDUVA_MODELO_VERSAO,
@@ -10129,18 +10244,18 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
                 segmentos.append(s)
         if not segmentos:
             raise ValueError("nenhum segmento valido retornado pelo SIMGeo")
-
+ 
         clusters, endpoints, por_no, adj, ligacoes = _gxa_construir_topologia(segmentos)
         componente = _gxa_componente(adj, GUAXANDUVA_SEGMENTO_REFERENCIA)
         if not componente:
             raise ValueError("segmento 30960 nao localizado na topologia retornada")
-
+ 
         melhor = None
         for s in segmentos:
             d, q, indice = _gxa_distancia_ponto_linha_m(GUAXANDUVA_PONTO_REFERENCIA, s["_coords"])
             if melhor is None or d < melhor["distancia_m"]:
                 melhor = {"objectid": s["objectid"], "distancia_m": d, "projecao": q, "indice": indice}
-
+ 
         nos_saida = []
         for cid, c in sorted(clusters.items()):
             incidentes = sorted(por_no.get(cid, set()))
@@ -10152,7 +10267,7 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
                 "classe": _gxa_classificar_no(len(incidentes)),
                 "incidencias": c["incidencias"],
             })
-
+ 
         segmentos_saida = []
         for s in sorted(segmentos, key=lambda x: x["objectid"]):
             oid = s["objectid"]
@@ -10170,7 +10285,7 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
                 "pertence_componente_30960": oid in componente,
                 "geometria": s["geometria"],
             })
-
+ 
         erros = _gxa_validar(segmentos_saida, nos_saida)
         base.update({
             "status": "grafo_hidrografico_integrado" if not erros else "grafo_com_inconsistencias",
@@ -10198,23 +10313,25 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
                 "erros": erros,
             },
         })
-
-        camada_matematica = _gxa_calcular_nivel_experimental_v02(guaxanduva166)
+ 
+        propagacao_grafo = _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente)
+        base["propagacao_grafo"] = propagacao_grafo
+        camada_matematica = _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo)
         base["camada_matematica"] = camada_matematica
         base["rio"]["nivel_estimado_m"] = camada_matematica.get("nivel_estimado_m")
         base["rio"]["incerteza_m"] = camada_matematica.get("incerteza_m")
         base["rio"]["confianca"] = camada_matematica.get("confianca")
         base["rio"]["metodo"] = camada_matematica.get("metodo")
         base["rio"]["instante"] = camada_matematica.get("instante")
-
+ 
         with open(GUAXANDUVA_GRAFO_ARQUIVO, "w", encoding="utf-8") as arquivo:
             json.dump(base, arquivo, ensure_ascii=False, indent=2)
     except Exception as exc:
         base["erro"] = str(exc)
         base["status"] = "indisponivel_sem_interromper_monitor"
     return base
-
-
+ 
+ 
 # =========================================================
 # #166 - HISTÓRICO HIDROMETEOROLÓGICO DO RIO GUAXANDUVA
 # =========================================================
@@ -10222,11 +10339,11 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
 # timestamp real de cada fonte, chuva horária observada e maré observada em
 # Joinville/Babitonga para permitir calibração temporal futura chuva x maré.
 # Ausência de dado permanece ausência; nunca é convertida em 0 mm.
-
+ 
 HISTORICO_GUAXANDUVA_166_ARQUIVO = "historico_guaxanduva_166.json"
 VERSAO_GUAXANDUVA_166 = "166-v0.2-historico-integrado"
-
-
+ 
+ 
 def _numero_finito_nao_negativo_166(valor):
     if isinstance(valor, bool) or not isinstance(valor, (int, float)):
         return None
@@ -10234,8 +10351,8 @@ def _numero_finito_nao_negativo_166(valor):
     if not math.isfinite(valor) or valor < 0:
         return None
     return valor
-
-
+ 
+ 
 def _instante_iso_166(valor):
     if not valor:
         return None
@@ -10246,8 +10363,8 @@ def _instante_iso_166(valor):
         return instante.astimezone(FUSO)
     except Exception:
         return None
-
-
+ 
+ 
 def _carregar_historico_guaxanduva_166():
     try:
         with open(HISTORICO_GUAXANDUVA_166_ARQUIVO, "r", encoding="utf-8") as arquivo:
@@ -10264,8 +10381,8 @@ def _carregar_historico_guaxanduva_166():
         # Falha de leitura não apaga nem inventa observações. O chamador
         # registra o estado atual em nova estrutura, mantendo a segurança.
         return []
-
-
+ 
+ 
 def _chave_registro_166(registro):
     return (
         str(registro.get("tipo") or ""),
@@ -10273,8 +10390,8 @@ def _chave_registro_166(registro):
         str(registro.get("codigo_estacao") or ""),
         str(registro.get("horario_medicao") or ""),
     )
-
-
+ 
+ 
 def _deduplicar_registros_166(registros):
     unicos = {}
     for registro in registros:
@@ -10292,8 +10409,8 @@ def _deduplicar_registros_166(registros):
             str(r.get("codigo_estacao") or ""),
         ),
     )
-
-
+ 
+ 
 def _novos_registros_chuva_epagri_166(chuva_epagri165):
     novos = []
     if not isinstance(chuva_epagri165, dict):
@@ -10316,8 +10433,8 @@ def _novos_registros_chuva_epagri_166(chuva_epagri165):
             "equivale_medicao_no_comasa": False,
         })
     return novos
-
-
+ 
+ 
 def _novo_registro_mare_166(mare_observada160):
     if not isinstance(mare_observada160, dict):
         return []
@@ -10339,8 +10456,8 @@ def _novo_registro_mare_166(mare_observada160):
         "representa_nivel_rio_guaxanduva": False,
         "uso": "condicao_de_jusante_para_calibracao_futura",
     }]
-
-
+ 
+ 
 def _acumulado_horario_estacao_166(registros, codigo_estacao, horas):
     serie = []
     for registro in registros:
@@ -10361,7 +10478,7 @@ def _acumulado_horario_estacao_166(registros, codigo_estacao, horas):
             "horas_validas": 0,
             "motivo": "sem_leituras_horarias",
         }
-
+ 
     # Uma medição por hora civil. O Actions pode rodar quatro vezes na mesma
     # hora; a deduplicação por estação + timestamp impede contagem repetida.
     por_hora = {}
@@ -10370,7 +10487,7 @@ def _acumulado_horario_estacao_166(registros, codigo_estacao, horas):
         anterior = por_hora.get(chave_hora)
         if anterior is None or instante >= anterior[0]:
             por_hora[chave_hora] = (instante, valor)
-
+ 
     ultima_hora = max(por_hora)
     esperadas = [ultima_hora - timedelta(hours=i) for i in range(horas)]
     presentes = [h for h in esperadas if h in por_hora]
@@ -10383,7 +10500,7 @@ def _acumulado_horario_estacao_166(registros, codigo_estacao, horas):
             "horario_final": por_hora[ultima_hora][0].isoformat(),
             "motivo": "janela_horaria_incompleta",
         }
-
+ 
     total = sum(por_hora[h][1] for h in esperadas)
     return {
         "disponivel": True,
@@ -10393,8 +10510,8 @@ def _acumulado_horario_estacao_166(registros, codigo_estacao, horas):
         "horario_final": por_hora[ultima_hora][0].isoformat(),
         "motivo": None,
     }
-
-
+ 
+ 
 def _resumo_chuva_166(registros, chuva_epagri165):
     saida = []
     estacoes = chuva_epagri165.get("estacoes") if isinstance(chuva_epagri165, dict) else []
@@ -10415,15 +10532,15 @@ def _resumo_chuva_166(registros, chuva_epagri165):
             "P24h": _acumulado_horario_estacao_166(registros, codigo, 24),
         })
     return saida
-
-
+ 
+ 
 def atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160):
     existentes = _carregar_historico_guaxanduva_166()
     novos = []
     novos.extend(_novos_registros_chuva_epagri_166(chuva_epagri165))
     novos.extend(_novo_registro_mare_166(mare_observada160))
     registros = _deduplicar_registros_166(existentes + novos)
-
+ 
     chuvas = [r for r in registros if r.get("tipo") == "chuva_horaria_observada"]
     mares = [r for r in registros if r.get("tipo") == "mare_observada_jusante"]
     diagnostico = {
@@ -10462,7 +10579,7 @@ def atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160):
             "A camada historica #166 nao aplica pesos chuva x mare; coeficientes experimentais, quando existentes, pertencem exclusivamente ao GUAXANDUVA-MODEL e permanecem nao operacionais.",
         ],
     }
-
+ 
     payload = {
         "versao": VERSAO_GUAXANDUVA_166,
         "atualizado_em": agora().isoformat(),
@@ -10472,8 +10589,8 @@ def atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160):
     with open(HISTORICO_GUAXANDUVA_166_ARQUIVO, "w", encoding="utf-8") as arquivo:
         json.dump(payload, arquivo, ensure_ascii=False, indent=2)
     return diagnostico
-
-
+ 
+ 
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_epagri165 = buscar_chuva_epagri_165()
@@ -10499,10 +10616,10 @@ def main():
  
         "chuva":
             chuva_cemaden,
-
+ 
         "chuva_observada_epagri_165":
             chuva_epagri165,
-
+ 
         "rede_pluviometrica_multifonte_165":
             rede165,
  
@@ -10535,16 +10652,16 @@ def main():
  
         "mare":
             buscar_mare(),
-
+ 
         "mare_observada_joinville_160":
             mare_observada160,
-
+ 
         "mare_prevista_24h_164":
             mare_prevista164,
-
+ 
         "historico_hidrometeorologico_guaxanduva_166":
             guaxanduva166,
-
+ 
         "modelo_computacional_guaxanduva_v01":
             modelo_guaxanduva_v01,
  
@@ -10561,7 +10678,7 @@ def main():
  
         "previsao":
             previsao,
-
+ 
         "criterio_hidrometeorologico_plancon_163":
             criterio163,
  
@@ -10584,7 +10701,7 @@ def main():
         "diagnostico_cap_recente_inmet_155": diag155,
  
         "diagnostico_conteudo_cap_inmet_156": diag156,
-
+ 
         "granizo_operacional_inmet_157": granizo157,
  
         "emergencia": {

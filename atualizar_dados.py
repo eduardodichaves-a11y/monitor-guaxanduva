@@ -9697,7 +9697,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.8-CONTROLE-HIDRAULICO-BUEIRO"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.9-PRONTIDAO-HDS5-CONTROLE-HIDRAULICO"
  
  
 def _gxa_haversine_m(a, b):
@@ -9970,7 +9970,7 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
     viagem ou sentido hidraulico ate existir suporte altimetrico/hidraulico.
     """
     resultado = {
-        "versao": "GXA-V0.8-CONTROLE-HIDRAULICO-BUEIRO",
+        "versao": "GXA-V0.9-PRONTIDAO-HDS5-CONTROLE-HIDRAULICO",
         "status": "indisponivel",
         "segmento_referencia": GUAXANDUVA_SEGMENTO_REFERENCIA,
         "grafo_direcionado": False,
@@ -10048,7 +10048,7 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
  
  
 def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
-    """V0.8: geometria vertical C2 + triagem de controle hidraulico do bypass.
+    """V0.9: prontidao HDS-5 + geometria vertical C2 do bypass.
  
     Mantem o nome da funcao por compatibilidade com a arquitetura existente.
     As declividades A1/A2/A3 do projeto 3999/21 entram na camada fisica.
@@ -10079,6 +10079,31 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         cota_c2_a3_inicio_m - (0.0020 * 30.0), 3
     )
     cota_estrutura_saida_ala02_m = 0.600
+    declividade_c2_a1_inferida = (cota_c2_a1_m - cota_c2_a2_m) / 17.0
+    declividade_c2_a2_inferida = (cota_c2_a2_m - cota_c2_a3_inicio_m) / 126.0
+    declividade_0909_0600_em_30m = (cota_c2_a3_inicio_m - cota_estrutura_saida_ala02_m) / 30.0
+    consistencia_geometrica_c2 = {
+        "A1": {
+            "declividade_documentada_m_m": 0.0220,
+            "declividade_inferida_pelas_cotas_m_m": round(declividade_c2_a1_inferida, 7),
+            "diferenca_absoluta_m_m": round(abs(0.0220 - declividade_c2_a1_inferida), 7),
+            "diferenca_relativa_percentual": round(abs(0.0220 - declividade_c2_a1_inferida) / 0.0220 * 100.0, 2),
+            "uso": "checagem_de_consistencia_documental_nao_calibracao",
+        },
+        "A2": {
+            "declividade_documentada_m_m": 0.0041,
+            "declividade_inferida_pelas_cotas_m_m": round(declividade_c2_a2_inferida, 7),
+            "diferenca_absoluta_m_m": round(abs(0.0041 - declividade_c2_a2_inferida), 7),
+            "diferenca_relativa_percentual": round(abs(0.0041 - declividade_c2_a2_inferida) / 0.0041 * 100.0, 2),
+            "uso": "checagem_de_consistencia_documental_nao_calibracao",
+        },
+        "A3_teste_0_909_para_0_600": {
+            "declividade_documentada_m_m": 0.0020,
+            "declividade_se_0_600_fosse_invert_final_A3_m_m": round(declividade_0909_0600_em_30m, 7),
+            "compativel_com_declividade_documentada": False,
+            "regra": "nao_usar_0_600_como_invert_final_A3_sem_confirmacao_documental_adicional",
+        },
+    }
     trechos_bypass = [
         {
             "trecho": "A1",
@@ -10125,7 +10150,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         trecho["capacidade_vazao_m3_s"] = None
         trecho["equacao_capacidade"] = "Q_m3_s = fator_geometrico_manning_m_8_3 / n_manning_s_m_1_3"
 
-    # V0.8 - estrutura de decisao para controle de entrada/saida segundo FHWA HDS-5.
+    # V0.9 - estrutura de decisao e prontidao para controle de entrada/saida segundo FHWA HDS-5.
     # Nao executa as equacoes de inlet/outlet control enquanto faltarem dados de
     # carga de montante, tailwater/submergencia e geometria/coficientes da entrada.
     # Assim, nenhum coeficiente de entrada e presumido a partir apenas do termo ALA.
@@ -10173,11 +10198,54 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "condicao_real_dos_tubos_obstrucao_assoreamento": False,
         },
         "criterio_liberacao": "calcular_controle_de_entrada_e_controle_de_saida_separadamente_e_comparar_somente_quando_as_entradas_exigidas_estiverem_documentadas",
-        "observacao": "A V0.8 nao converte o envelope Manning de tubo cheio em capacidade definitiva e nao inventa coeficientes HDS-5.",
+        "observacao": "A V0.9 nao converte o envelope Manning de tubo cheio em capacidade definitiva e nao inventa coeficientes HDS-5.",
     }
+
+    entradas_hds5 = {
+        "headwater_referenciado_ao_invert_entrada": None,
+        "tailwater_referenciado_ao_invert_saida": None,
+        "geometria_entrada_inequivoca": None,
+        "coeficientes_inlet_control_hds5": None,
+        "coeficiente_perda_entrada_ke": None,
+        "coeficiente_perda_saida_ko": None,
+        "rugosidade_local_ou_calibrada": None,
+        "cota_invert_final_A3_confirmada": None,
+        "condicao_real_tubos_obstrucao_assoreamento": None,
+    }
+    faltantes_hds5 = [chave for chave, valor in entradas_hds5.items() if valor is None]
+    prontidao_hds5 = {
+        "fonte_primaria": "FHWA HDS-5 Hydraulic Design of Highway Culverts, Third Edition",
+        "publicacao": "FHWA-HIF-12-026",
+        "url_oficial": "https://www.fhwa.dot.gov/engineering/hydraulics/pubs/12026/hif12026.pdf",
+        "headwater_hw_definicao": "profundidade_da_linha_de_energia_a_montante_medida_a_partir_do_invert_de_entrada",
+        "tailwater_tw_definicao": "profundidade_da_agua_a_jusante_medida_a_partir_do_invert_de_saida",
+        "inlet_control": {
+            "entradas_suficientes": False,
+            "resultado_m": None,
+            "motivo": "coeficientes_dependem_da_geometria_de_entrada_e_HW_nao_esta_documentado",
+        },
+        "outlet_control": {
+            "entradas_suficientes": False,
+            "resultado_m": None,
+            "motivo": "TW_perdas_e_condicao_de_saida_nao_estao_documentados",
+        },
+        "submergencia": {
+            "determinavel": False,
+            "resultado": None,
+            "motivo": "HW_e_TW_referenciados_aos_inverts_ainda_indisponiveis",
+        },
+        "entradas": entradas_hds5,
+        "campos_faltantes": faltantes_hds5,
+        "quantidade_campos_faltantes": len(faltantes_hds5),
+        "pronto_para_calculo": len(faltantes_hds5) == 0,
+        "regra_liberacao": "somente_resolver_HDS5_quando_todas_as_entradas_necessarias_ao_regime_analisado_estiverem_documentadas",
+        "controle_governante": None,
+        "capacidade_definitiva_m3_s": None,
+    }
+    controle_hidraulico_bueiro["prontidao_hds5"] = prontidao_hds5
  
     resultado = {
-        "versao": "GXA-V0.8-CONTROLE-HIDRAULICO-BUEIRO",
+        "versao": "GXA-V0.9-PRONTIDAO-HDS5-CONTROLE-HIDRAULICO",
         "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
         "nivel_estimado_m": None,
         "incerteza_m": None,
@@ -10212,6 +10280,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
                     "cota_0_600_e_invert_final_a3": False,
                     "regra": "0.600_m_permanece_separada_da_geratriz_inferior_final_A3; nao_forcar_como_invert_sem_confirmacao_documental",
                     "uso_para_nivel_do_rio": False,
+                    "checagem_consistencia": consistencia_geometrica_c2,
                 },
                 "manning_literatura_referencia": {
                     "n_min": manning_n_min_literatura,
@@ -10255,6 +10324,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "estrutura_metodologica_controle_entrada_saida_hds5_integrada": True,
             "controle_entrada_hds5_calculavel_com_dados_atuais": False,
             "controle_saida_hds5_calculavel_com_dados_atuais": False,
+            "prontidao_hds5_calculada_explicitamente": True,
+            "quantidade_campos_hds5_faltantes": len(faltantes_hds5),
         },
         "regras": [
             "Nenhum coeficiente chuva-para-nivel e aplicado sem proveniencia ou calibracao.",
@@ -10266,6 +10337,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "Publica-se um envelope de vazao uniforme Q=fator/n para os dois tubos cheios, sem chama-lo de capacidade definitiva do bueiro.",
             "Capacidade definitiva exige verificacao de controle de entrada/saida, carga de montante, jusante/submergencia, perdas e condicao real dos tubos.",
             "A metodologia FHWA HDS-5 (FHWA-HIF-12-026) foi integrada como estrutura de decisao; nenhuma equacao de controle e resolvida sem as entradas documentais exigidas.",
+            "A V0.9 explicita a prontidao HDS-5 e lista cada entrada faltante; ausencia de dado permanece None e nunca e convertida em zero ou coeficiente presumido.",
+            "As declividades inferidas pelas cotas C2 de A1 e A2 sao usadas apenas como checagem de consistencia documental, nao como calibracao hidraulica.",
             "Nenhum coeficiente de entrada/saida HDS-5 e inferido apenas pela presenca das estruturas ALA-01/ALA-02 no desenho.",
             "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",
             "Escavacao de 2,5 a 3,0 m nao e convertida em cota absoluta do leito.",

@@ -228,6 +228,24 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="box"><small><b>Regra de segurança:</b> P1h, P3h, P6h e P24h são calculados separadamente para cada estação e somente quando todas as horas necessárias estão presentes. A maré de Joinville/Babitonga é condição de jusante e não representa o nível do Rio Guaxanduva. Enquanto a calibração não estiver validada, o Monitor mantém o nível estimado e o alerta operacional bloqueados.</small></div>
 </section>
 
+<section class="card">
+<div class="local">🧮 GUAXANDUVA-MODEL V0.1 • GRAFO HIDROGRÁFICO • EXPERIMENTAL</div>
+<h2>Estrutura computacional do Rio Guaxanduva</h2>
+<div class="sub">Prefeitura de Joinville / SIMGeo • camada 44 • microbacia 44-0 • segmento de referência 30960</div>
+<div class="radar-grid">
+<div class="radar-item">🌊 Segmentos da microbacia<b id="gxaSegmentos">--</b></div>
+<div class="radar-item">🔗 Segmentos conectados ao 30960<b id="gxaComponente">--</b></div>
+<div class="radar-item">📍 Nós hidrográficos<b id="gxaNos">--</b></div>
+<div class="radar-item">🧩 Junções ≥ grau 3<b id="gxaJuncoes">--</b></div>
+<div class="radar-item">↔️ Ligações extremidade/interior<b id="gxaLigacoes">--</b></div>
+<div class="radar-item">🎯 Referência no segmento 30960?<b id="gxaReferencia">--</b></div>
+</div>
+<div id="gxaEstado" class="box aviso">Carregando GUAXANDUVA-MODEL V0.1...</div>
+<div id="gxaNivel" class="box"><b>🌊 Nível do Rio Guaxanduva</b><br><small>Carregando estado do modelo...</small></div>
+<div id="gxaHidraulica" class="box"><small>Carregando restrições hidráulicas documentadas...</small></div>
+<div class="box"><small><b>Regra de segurança:</b> o grafo representa a estrutura hidrográfica computacional. Nível observado permanece indisponível sem sensor público confirmado. Qualquer nível calculado pelo modelo deve aparecer explicitamente como ESTIMADO/EXPERIMENTAL, com incerteza e confiança; não é medição instrumental e não libera alerta operacional automaticamente.</small></div>
+</section>
+
 <section class="card"><div class="local">🏞️ RIO GUAXANDUVA • INDISPONÍVEL</div><h2>Nível do rio</h2><div class="valor" id="rio">--</div><div id="rs" class="box aviso">Verificando sensor...</div><small>Sem sensor público confirmado, o Monitor não estima o nível do rio.</small></section>
 <section class="card"><div class="local">📐 ALTITUDE DO TERRENO • ESTIMATIVA CARTOGRÁFICA</div><h2>Rua Itapoá • Comasa</h2><div class="valor">≈ 5 m</div><div class="sub">acima do nível do mar</div><div class="box"><b>Fonte:</b> Prefeitura de Joinville / SIMGeo<br><small>ESTIMATIVA. Cota aproximada do terreno. Não representa nível de inundação nem nível atual do rio.</small></div></section>
 
@@ -298,7 +316,7 @@ async function carregarHistorico(){
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
-  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{};
+  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
 
@@ -440,7 +458,24 @@ async function carregar(){
    $("guax166Estado").innerHTML='<span class="erro">🔴 #166 INDISPONÍVEL</span> • nenhum valor ausente é interpretado como zero';
   }
 
-  $("rio").textContent=q.nivel_m==null?"SEM SENSOR":f(q.nivel_m,2)+" m";
+  const gxar=gxa.resumo||{},gxap=gxa.ponto_referencia_topologia||{},gxario=gxa.rio||{},gxah=gxa.parametros_hidraulicos_documentados||{};
+   $("gxaSegmentos").textContent=gxar.segmentos_microbacia==null?"--":String(gxar.segmentos_microbacia);
+   $("gxaComponente").textContent=gxar.segmentos_componente_30960==null?"--":String(gxar.segmentos_componente_30960);
+   $("gxaNos").textContent=gxar.nos_endpoints==null?"--":String(gxar.nos_endpoints);
+   $("gxaJuncoes").textContent=gxar.juncoes_grau_3_ou_mais==null?"--":String(gxar.juncoes_grau_3_ou_mais);
+   $("gxaLigacoes").textContent=gxar.ligacoes_endpoint_interior==null?"--":String(gxar.ligacoes_endpoint_interior);
+   $("gxaReferencia").textContent=gxap.coincide_com_30960===true?"SIM":(gxap.segmento_mais_proximo==null?"--":"NÃO");
+   if(gxa.status==="grafo_hidrografico_integrado"){$("gxaEstado").innerHTML='<span class="ok">🟢 GRAFO HIDROGRÁFICO INTEGRADO</span> • topologia computacional ativa • referência 30960 '+(gxap.coincide_com_30960===true?'confirmada':'a verificar')}
+   else if(gxa.status){$("gxaEstado").innerHTML='<span class="aviso">🧪 MODELO EXPERIMENTAL</span> • estado: '+nomeFamilia(gxa.status)}
+   else{$("gxaEstado").innerHTML='<span class="erro">🔴 GUAXANDUVA-MODEL V0.1 INDISPONÍVEL</span>'}
+   const nivelObs=gxario.nivel_observado_m,nivelEst=gxario.nivel_estimado_m,inc=gxario.incerteza_m;
+   if(nivelObs!=null){$("gxaNivel").innerHTML='<b>🌊 Nível observado: '+f(nivelObs,3)+' m</b><br><small>Somente apresentado como observado quando houver medição instrumental confirmada.</small>'}
+   else if(nivelEst!=null){$("gxaNivel").innerHTML='<b>🧪 Nível ESTIMADO/EXPERIMENTAL: '+f(nivelEst,3)+' m</b><br><small>Incerteza: '+(inc==null?'--':'± '+f(inc,3)+' m')+' • confiança: '+nomeFamilia(gxario.confianca)+' • não é leitura de sensor.</small>'}
+   else{$("gxaNivel").innerHTML='<b>⚪ Nível observado: SEM SENSOR</b><br><small>Nível estimado do modelo ainda não calculado • confiança atual: '+nomeFamilia(gxario.confianca)+'.</small>'}
+   const by=gxah.bypass_montezuma_odilon||{},vk=gxah.estrutura_victor_konder_canoas||{},cf=gxah.cota_fundo_experimental_v01||{};
+   $("gxaHidraulica").innerHTML='<b>📐 Restrições hidráulicas documentadas/experimentais</b><br><small>'+'By-pass Montezuma/Odilon: <b>'+(by.extensao_aprox_m==null?'--':f(by.extensao_aprox_m,0)+' m')+'</b> • '+(by.quantidade_tubos??'--')+' tubos Ø '+(by.diametro_nominal_m==null?'--':f(by.diametro_nominal_m,2)+' m')+'<br>'+'Estrutura Victor Konder/Canoas: <b>'+(vk.largura_aprox_m==null?'--':f(vk.largura_aprox_m,2)+' m')+' × '+(vk.altura_aprox_m==null?'--':f(vk.altura_aprox_m,2)+' m')+'</b><br>'+'Cota de fundo experimental V0.1: <b>'+(cf.estimada_m==null?'--':f(cf.estimada_m,2)+' m')+'</b> • incerteza '+(cf.incerteza_m==null?'--':'± '+f(cf.incerteza_m,2)+' m')+' • confiança '+nomeFamilia(cf.confianca)+'.</small>';
+
+   $("rio").textContent=q.nivel_m==null?"SEM SENSOR":f(q.nivel_m,2)+" m";
   $("rs").textContent=q.nivel_m==null?"⚪ INDISPONÍVEL • sem sensor público confirmado para o Rio Guaxanduva":"🟢 OBSERVADO • nível automático recebido";
 
   const re=rh.entradas||{},rc=rh.criterios||{};

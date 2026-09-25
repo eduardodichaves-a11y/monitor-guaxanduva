@@ -7,7 +7,7 @@ import statistics
 import time
 import re
 from urllib.parse import urljoin
-from collections import Counter, deque
+from collections import Counter, defaultdict, deque
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
  

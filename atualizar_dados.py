@@ -9697,7 +9697,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.3-GRAFO-DINAMICO"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.4-HIDRAULICA-FISICA"
  
  
 def _gxa_haversine_m(a, b):
@@ -9963,34 +9963,31 @@ def _gxa_maior_chuva_valida(chuva_por_estacao, janela):
  
  
 def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
-    """Transforma o grafo nao direcionado em infraestrutura de propagacao experimental.
- 
-    Nao infere montante/jusante. Calcula distancia hidrografica aproximada entre centros
-    de segmentos a partir do 30960 e uma atenuacao temporal transparente. Cada segmento
-    conectado participa do fator agregado proporcionalmente ao seu comprimento.
+    """Calcula apenas metricas geometricas do componente conectado ao 30960.
+
+    V0.4 remove velocidade, atenuacao temporal e pesos sem calibracao. O grafo
+    continua nao direcionado; portanto nenhuma distancia e tratada como tempo de
+    viagem ou sentido hidraulico ate existir suporte altimetrico/hidraulico.
     """
     resultado = {
-        "versao": "GXA-V0.3-GRAFO-DINAMICO",
+        "versao": "GXA-V0.4-HIDRAULICA-FISICA",
         "status": "indisponivel",
         "segmento_referencia": GUAXANDUVA_SEGMENTO_REFERENCIA,
         "grafo_direcionado": False,
-        "velocidade_referencia_m_s": 0.35,
-        "velocidades_sensibilidade_m_s": [0.15, 0.35, 0.70],
-        "janela_resposta_referencia_h": 3.0,
-        "metodo": "dijkstra_em_grafo_de_segmentos_com_custo_meia_soma_dos_comprimentos_e_atenuacao_exponencial_temporal",
+        "metodo": "dijkstra_geometrico_em_grafo_de_segmentos_sem_velocidade_ou_atenuacao_arbitraria",
         "uso_operacional": False,
-        "observacao": "A ordem das LineStrings nao define fluxo. Distancias e tempos sao de conectividade, nao sentido hidraulico confirmado.",
+        "observacao": "Distancias representam conectividade geometrica. Nao representam tempo de propagacao nem sentido de fluxo confirmado.",
     }
     if not isinstance(segmentos_saida, list) or not segmentos_saida:
         resultado["motivo"] = "segmentos_indisponiveis"
         return resultado
- 
+
     por_id = {s.get("objectid"): s for s in segmentos_saida if isinstance(s, dict) and isinstance(s.get("objectid"), int)}
     ids = set(componente or []) & set(por_id)
     if GUAXANDUVA_SEGMENTO_REFERENCIA not in ids:
         resultado["motivo"] = "segmento_referencia_fora_do_componente"
         return resultado
- 
+
     def comprimento(oid):
         valor = _gxa_numero_finito(por_id[oid].get("comprimento_m"))
         if valor is not None and valor > 0:
@@ -10003,7 +10000,7 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
             except Exception:
                 pass
         return total if total > 0 else 1.0
- 
+
     import heapq
     dist = {GUAXANDUVA_SEGMENTO_REFERENCIA: 0.0}
     fila = [(0.0, GUAXANDUVA_SEGMENTO_REFERENCIA)]
@@ -10019,24 +10016,8 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
             if novo < dist.get(vizinho, float("inf")):
                 dist[vizinho] = novo
                 heapq.heappush(fila, (novo, vizinho))
- 
+
     total_comp = sum(comprimento(oid) for oid in ids)
-    tau_s = 3.0 * 3600.0
- 
-    def fator_para_velocidade(v):
-        if total_comp <= 0:
-            return None
-        soma = 0.0
-        for oid in ids:
-            d = dist.get(oid)
-            if d is None:
-                continue
-            tempo_s = d / v
-            peso_temporal = math.exp(-tempo_s / tau_s)
-            soma += comprimento(oid) * peso_temporal
-        return max(0.0, min(1.0, soma / total_comp))
- 
-    fator_ref = fator_para_velocidade(0.35)
     detalhes = []
     for oid in sorted(ids):
         d = dist.get(oid)
@@ -10045,145 +10026,143 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
         detalhes.append({
             "objectid": oid,
             "comprimento_m": round(comprimento(oid), 3),
-            "distancia_hidrografica_aprox_ao_30960_m": round(d, 3),
-            "tempo_propagacao_ref_min": round((d / 0.35) / 60.0, 2),
-            "peso_temporal_ref": round(math.exp(-((d / 0.35) / tau_s)), 6),
+            "distancia_geometrica_aprox_ao_30960_m": round(d, 3),
             "conexoes_no_componente": sum(1 for v in (por_id[oid].get("conectado_a") or []) if v in ids),
         })
- 
+
     resultado.update({
-        "status": "calculado_experimental",
+        "status": "calculado_geometrico",
         "motivo": None,
         "segmentos_participantes": len(detalhes),
         "comprimento_total_componente_m": round(total_comp, 3),
-        "distancia_maxima_hidrografica_aprox_m": round(max(dist.values()) if dist else 0.0, 3),
-        "fator_propagacao_grafo": round(fator_ref, 6) if fator_ref is not None else None,
-        "sensibilidade": {
-            "v_0_15_m_s": round(fator_para_velocidade(0.15), 6),
-            "v_0_35_m_s": round(fator_ref, 6) if fator_ref is not None else None,
-            "v_0_70_m_s": round(fator_para_velocidade(0.70), 6),
-        },
+        "distancia_maxima_geometrica_aprox_m": round(max(dist.values()) if dist else 0.0, 3),
         "segmentos": detalhes,
+        "parametros_arbitrarios_removidos": [
+            "velocidade_referencia_m_s",
+            "velocidades_sensibilidade_m_s",
+            "janela_resposta_referencia_h",
+            "fator_propagacao_grafo",
+        ],
     })
     return resultado
- 
- 
+
+
 def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
-    """Calcula nivel experimental; nunca nivel observado/instrumental."""
+    """V0.4: camada fisica auditavel sem fabricar nivel absoluto do rio.
+
+    Mantem o nome da funcao por compatibilidade com a arquitetura existente.
+    O nivel estimado permanece nulo ate que declividade/invert, rugosidade ou
+    calibracao observacional permitam fechar uma equacao hidraulica defensavel.
+    """
+    diametro_m = 1.50
+    raio_m = diametro_m / 2.0
+    area_um_tubo_m2 = math.pi * raio_m * raio_m
+    area_bueiro_duplo_m2 = 2.0 * area_um_tubo_m2
+    area_victor_konder_m2 = 3.50 * 2.50
+
     resultado = {
-        "versao": "GXA-V0.3-GRAFO-DINAMICO",
-        "status": "indisponivel",
+        "versao": "GXA-V0.4-HIDRAULICA-FISICA",
+        "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
         "nivel_estimado_m": None,
         "incerteza_m": None,
-        "confianca": "experimental_baixa",
-        "metodo": "modelo_semiempirico_chuva_grafo_remanso_com_restricoes_hidraulicas",
+        "confianca": "fisica_parcial_sem_calibracao_de_nivel",
+        "metodo": "restricoes_geometricas_documentadas_mais_forcantes_observadas_sem_coeficientes_empiricos_arbitrarios",
         "instante": agora().isoformat(),
         "uso_operacional": False,
         "alerta_operacional_liberado": False,
         "representa_medicao_instrumental": False,
-        "parametros": {
-            "cota_fundo_experimental_m": 0.50,
-            "lamina_base_experimental_m": 0.35,
-            "coef_chuva_p3_m_por_mm": 0.008,
-            "coef_chuva_incremental_p6_m_por_mm": 0.004,
-            "coef_chuva_incremental_p24_m_por_mm": 0.0015,
-            "coef_remanso_anomalia_mare": 0.35,
-            "limite_resposta_chuva_m": 1.20,
-            "incerteza_base_m": 0.90,
-            "velocidade_propagacao_referencia_m_s": 0.35,
-            "janela_atenuacao_grafo_h": 3.0,
+        "geometria_hidraulica_documentada": {
+            "bypass_montezuma_odilon": {
+                "quantidade_tubos": 2,
+                "diametro_nominal_m": diametro_m,
+                "extensao_aprox_m": 173.0,
+                "area_secao_um_tubo_m2": round(area_um_tubo_m2, 4),
+                "area_secao_total_geometrica_m2": round(area_bueiro_duplo_m2, 4),
+                "escavacao_media_m": [2.5, 3.0],
+                "classe_documentada": "PA-1",
+                "tipo_documentado": "BDTC",
+                "capacidade_vazao_m3_s": None,
+                "motivo_capacidade_indisponivel": "declividade_hidraulica_e_rugosidade_nao_confirmadas_numericamente_no_conjunto_integrado",
+            },
+            "estrutura_victor_konder_canoas": {
+                "largura_aprox_m": 3.5,
+                "altura_aprox_m": 2.5,
+                "area_secao_retangular_geometrica_aprox_m2": round(area_victor_konder_m2, 4),
+                "capacidade_vazao_m3_s": None,
+                "motivo_capacidade_indisponivel": "declividade_rugosidade_e_condicao_de_escoamento_nao_confirmadas",
+            },
+        },
+        "parametros_necessarios_para_nivel_hidraulico": {
+            "cota_invert_ou_fundo_em_datum_confirmado": False,
+            "declividade_hidraulica_numerica_confirmada": False,
+            "rugosidade_manning_documentada_ou_calibrada": False,
+            "areas_contribuintes_por_ramo_ou_subbacia": False,
+            "direcao_hidraulica_do_grafo_confirmada": False,
+            "calibracao_com_nivel_observado_ou_referencia_visual": False,
         },
         "regras": [
-            "Pluviometros nao sao somados; usa-se o maior acumulado valido por janela.",
-            "Mare de Joinville/Babitonga e usada somente como condicao de jusante.",
-            "A anomalia de mare e calculada em relacao ao NMM da propria serie; nao se assume equivalencia de datum com o fundo do Guaxanduva.",
-            "O grafo e nao direcionado; portanto a propagacao representa conectividade hidrografica, nao sentido de fluxo confirmado.",
-            "Cada segmento do componente conectado ao 30960 participa do fator de propagacao conforme comprimento e distancia hidrografica aproximada.",
-            "Nivel observado permanece nulo sem sensor publico confirmado.",
-            "Resultado experimental nao libera alerta operacional.",
+            "Nenhum coeficiente chuva-para-nivel e aplicado sem proveniencia ou calibracao.",
+            "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",
+            "Escavacao de 2,5 a 3,0 m nao e convertida em cota absoluta do leito.",
+            "A cota experimental antiga de 0,50 m nao e usada como datum hidraulico.",
+            "Mare de Joinville/Babitonga permanece somente condicao observada de jusante.",
+            "Nivel observado e nivel estimado permanecem nulos enquanto a equacao fisica nao puder ser fechada.",
+        ],
+        "parametros_arbitrarios_v03_desativados": [
+            "cota_fundo_experimental_m=0.50 como cota absoluta",
+            "lamina_base_experimental_m=0.35",
+            "coef_chuva_p3_m_por_mm=0.008",
+            "coef_chuva_incremental_p6_m_por_mm=0.004",
+            "coef_chuva_incremental_p24_m_por_mm=0.0015",
+            "coef_remanso_anomalia_mare=0.35",
+            "velocidade_propagacao_referencia_m_s=0.35",
+            "janela_atenuacao_grafo_h=3.0",
         ],
     }
+
+    if isinstance(propagacao_grafo, dict):
+        resultado["grafo"] = {
+            "status": propagacao_grafo.get("status"),
+            "segmentos_participantes": propagacao_grafo.get("segmentos_participantes"),
+            "comprimento_total_componente_m": propagacao_grafo.get("comprimento_total_componente_m"),
+            "distancia_maxima_geometrica_aprox_m": propagacao_grafo.get("distancia_maxima_geometrica_aprox_m"),
+            "grafo_direcionado": propagacao_grafo.get("grafo_direcionado"),
+        }
+
     if not isinstance(guaxanduva166, dict):
-        resultado["motivo"] = "historico_166_indisponivel"
+        resultado["forcantes"] = {"status": "historico_166_indisponivel"}
         return resultado
- 
+
     chuvas = guaxanduva166.get("chuva_por_estacao") or []
     p1, f1 = _gxa_maior_chuva_valida(chuvas, "P1h")
     p3, f3 = _gxa_maior_chuva_valida(chuvas, "P3h")
     p6, f6 = _gxa_maior_chuva_valida(chuvas, "P6h")
     p24, f24 = _gxa_maior_chuva_valida(chuvas, "P24h")
- 
-    if p3 is None:
-        resultado["motivo"] = "P3h_ainda_indisponivel"
-        resultado["forcantes"] = {"P1h_mm": p1, "P3h_mm": None, "P6h_mm": p6, "P24h_mm": p24}
-        return resultado
- 
+
     mare = guaxanduva166.get("mare_jusante_mais_recente") or {}
     nivel_mare = _gxa_numero_finito(mare.get("nivel_m"))
     nmm_cm = _gxa_numero_finito(mare.get("nmm_cm"))
-    if nivel_mare is None or nmm_cm is None:
-        resultado["motivo"] = "mare_jusante_ou_nmm_indisponivel"
-        return resultado
- 
-    fator_grafo = None
-    if isinstance(propagacao_grafo, dict) and propagacao_grafo.get("status") == "calculado_experimental":
-        fator_grafo = _gxa_numero_finito(propagacao_grafo.get("fator_propagacao_grafo"))
-    if fator_grafo is None or not (0.0 <= fator_grafo <= 1.0):
-        resultado["motivo"] = "propagacao_grafo_indisponivel"
-        return resultado
- 
-    nmm_m = nmm_cm / 100.0
-    anomalia_mare_m = nivel_mare - nmm_m
-    anomalia_positiva_m = max(0.0, anomalia_mare_m)
-    p6_inc = max(0.0, p6 - p3) if p6 is not None else 0.0
-    referencia_p6 = p6 if p6 is not None else p3
-    p24_inc = max(0.0, p24 - referencia_p6) if p24 is not None else 0.0
- 
-    resposta_chuva_bruta_m = min(1.20, 0.008 * p3 + 0.004 * p6_inc + 0.0015 * p24_inc)
-    resposta_chuva_m = resposta_chuva_bruta_m * fator_grafo
-    resposta_remanso_m = 0.35 * anomalia_positiva_m
-    lamina_estimada_m = max(0.0, 0.35 + resposta_chuva_m + resposta_remanso_m)
-    nivel_estimado_m = 0.50 + lamina_estimada_m
- 
-    penalidade_janelas = (0.12 if p6 is None else 0.0) + (0.18 if p24 is None else 0.0)
-    sens = propagacao_grafo.get("sensibilidade") or {}
-    vals_sens = [_gxa_numero_finito(v) for v in sens.values()]
-    vals_sens = [v for v in vals_sens if v is not None]
-    amplitude_grafo = (max(vals_sens) - min(vals_sens)) if vals_sens else 0.0
-    penalidade_grafo = min(0.25, 0.50 * amplitude_grafo)
-    incerteza_m = 0.90 + penalidade_janelas + penalidade_grafo + 0.20 * resposta_chuva_m + 0.15 * resposta_remanso_m
- 
-    resultado.update({
-        "status": "calculado_experimental",
-        "nivel_estimado_m": round(nivel_estimado_m, 3),
-        "incerteza_m": round(incerteza_m, 3),
-        "lamina_estimada_sobre_fundo_m": round(lamina_estimada_m, 3),
-        "componentes_m": {
-            "lamina_base": 0.35,
-            "resposta_chuva_bruta_sem_grafo": round(resposta_chuva_bruta_m, 3),
-            "fator_propagacao_grafo": round(fator_grafo, 6),
-            "resposta_chuva_apos_grafo": round(resposta_chuva_m, 3),
-            "resposta_remanso_jusante": round(resposta_remanso_m, 3),
-        },
-        "grafo": {
-            "segmentos_participantes": propagacao_grafo.get("segmentos_participantes"),
-            "comprimento_total_componente_m": propagacao_grafo.get("comprimento_total_componente_m"),
-            "distancia_maxima_hidrografica_aprox_m": propagacao_grafo.get("distancia_maxima_hidrografica_aprox_m"),
-            "fator_propagacao": round(fator_grafo, 6),
-            "sensibilidade_velocidade": sens,
-            "penalidade_incerteza_m": round(penalidade_grafo, 3),
-        },
-        "forcantes": {
+    anomalia_mare_m = None
+    if nivel_mare is not None and nmm_cm is not None:
+        anomalia_mare_m = nivel_mare - (nmm_cm / 100.0)
+
+    resultado["forcantes"] = {
+        "chuva": {
             "P1h_mm": p1, "P3h_mm": p3, "P6h_mm": p6, "P24h_mm": p24,
             "fontes_P1h": f1, "fontes_P3h": f3, "fontes_P6h": f6, "fontes_P24h": f24,
-            "mare_jusante_m": round(nivel_mare, 3), "nmm_m": round(nmm_m, 3),
-            "anomalia_mare_m": round(anomalia_mare_m, 3), "horario_mare": mare.get("horario_medicao"),
+            "regra": "estacoes_independentes_nao_somadas; maior_acumulado_valido_apenas_para_resumo_regional",
         },
-        "motivo": None,
-    })
+        "mare_jusante": {
+            "nivel_m": round(nivel_mare, 3) if nivel_mare is not None else None,
+            "nmm_m": round(nmm_cm / 100.0, 3) if nmm_cm is not None else None,
+            "anomalia_relativa_ao_nmm_m": round(anomalia_mare_m, 3) if anomalia_mare_m is not None else None,
+            "horario_medicao": mare.get("horario_medicao"),
+            "representa_nivel_rio_guaxanduva": False,
+        },
+    }
     return resultado
- 
- 
+
+
 def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
     base = {
         "versao": GUAXANDUVA_MODELO_VERSAO,

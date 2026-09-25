@@ -9697,7 +9697,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.4-HIDRAULICA-FISICA"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.5-HIDRAULICA-DECLIVIDADES"
  
  
 def _gxa_haversine_m(a, b):
@@ -9964,13 +9964,13 @@ def _gxa_maior_chuva_valida(chuva_por_estacao, janela):
  
 def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
     """Calcula apenas metricas geometricas do componente conectado ao 30960.
-
-    V0.4 remove velocidade, atenuacao temporal e pesos sem calibracao. O grafo
+ 
+    V0.5 preserva a remocao de velocidade, atenuacao temporal e pesos sem calibracao. O grafo
     continua nao direcionado; portanto nenhuma distancia e tratada como tempo de
     viagem ou sentido hidraulico ate existir suporte altimetrico/hidraulico.
     """
     resultado = {
-        "versao": "GXA-V0.4-HIDRAULICA-FISICA",
+        "versao": "GXA-V0.5-HIDRAULICA-DECLIVIDADES",
         "status": "indisponivel",
         "segmento_referencia": GUAXANDUVA_SEGMENTO_REFERENCIA,
         "grafo_direcionado": False,
@@ -9981,13 +9981,13 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
     if not isinstance(segmentos_saida, list) or not segmentos_saida:
         resultado["motivo"] = "segmentos_indisponiveis"
         return resultado
-
+ 
     por_id = {s.get("objectid"): s for s in segmentos_saida if isinstance(s, dict) and isinstance(s.get("objectid"), int)}
     ids = set(componente or []) & set(por_id)
     if GUAXANDUVA_SEGMENTO_REFERENCIA not in ids:
         resultado["motivo"] = "segmento_referencia_fora_do_componente"
         return resultado
-
+ 
     def comprimento(oid):
         valor = _gxa_numero_finito(por_id[oid].get("comprimento_m"))
         if valor is not None and valor > 0:
@@ -10000,7 +10000,7 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
             except Exception:
                 pass
         return total if total > 0 else 1.0
-
+ 
     import heapq
     dist = {GUAXANDUVA_SEGMENTO_REFERENCIA: 0.0}
     fila = [(0.0, GUAXANDUVA_SEGMENTO_REFERENCIA)]
@@ -10016,7 +10016,7 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
             if novo < dist.get(vizinho, float("inf")):
                 dist[vizinho] = novo
                 heapq.heappush(fila, (novo, vizinho))
-
+ 
     total_comp = sum(comprimento(oid) for oid in ids)
     detalhes = []
     for oid in sorted(ids):
@@ -10029,7 +10029,7 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
             "distancia_geometrica_aprox_ao_30960_m": round(d, 3),
             "conexoes_no_componente": sum(1 for v in (por_id[oid].get("conectado_a") or []) if v in ids),
         })
-
+ 
     resultado.update({
         "status": "calculado_geometrico",
         "motivo": None,
@@ -10045,23 +10045,41 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
         ],
     })
     return resultado
-
-
+ 
+ 
 def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
-    """V0.4: camada fisica auditavel sem fabricar nivel absoluto do rio.
-
+    """V0.5: camada fisica auditavel com declividades documentadas do bypass.
+ 
     Mantem o nome da funcao por compatibilidade com a arquitetura existente.
-    O nivel estimado permanece nulo ate que declividade/invert, rugosidade ou
-    calibracao observacional permitam fechar uma equacao hidraulica defensavel.
+    As declividades A1/A2/A3 do projeto 3999/21 entram na camada fisica.
+    O nivel absoluto permanece nulo enquanto faltarem datum/invert, rugosidade
+    documentada ou calibrada, areas contribuintes e calibracao observacional.
     """
     diametro_m = 1.50
     raio_m = diametro_m / 2.0
     area_um_tubo_m2 = math.pi * raio_m * raio_m
     area_bueiro_duplo_m2 = 2.0 * area_um_tubo_m2
     area_victor_konder_m2 = 3.50 * 2.50
-
+    raio_hidraulico_tubo_cheio_m = diametro_m / 4.0
+    trechos_bypass = [
+        {"trecho": "A1", "extensao_m": 17.0, "declividade_m_m": 0.0220},
+        {"trecho": "A2", "extensao_m": 126.0, "declividade_m_m": 0.0041},
+        {"trecho": "A3", "extensao_m": 30.0, "declividade_m_m": 0.0020},
+    ]
+    for trecho in trechos_bypass:
+        # Fator geometrico de Manning para os DOIS tubos cheios: Q = fator / n.
+        # Nao escolhemos n sem fonte documental/calibracao.
+        trecho["fator_geometrico_manning_m_8_3"] = round(
+            area_bueiro_duplo_m2
+            * (raio_hidraulico_tubo_cheio_m ** (2.0 / 3.0))
+            * math.sqrt(trecho["declividade_m_m"]),
+            6,
+        )
+        trecho["capacidade_vazao_m3_s"] = None
+        trecho["equacao_capacidade"] = "Q_m3_s = fator_geometrico_manning_m_8_3 / n_manning_s_m_1_3"
+ 
     resultado = {
-        "versao": "GXA-V0.4-HIDRAULICA-FISICA",
+        "versao": "GXA-V0.5-HIDRAULICA-DECLIVIDADES",
         "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
         "nivel_estimado_m": None,
         "incerteza_m": None,
@@ -10081,8 +10099,14 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
                 "escavacao_media_m": [2.5, 3.0],
                 "classe_documentada": "PA-1",
                 "tipo_documentado": "BDTC",
+                "fonte_documental": "Projeto executivo municipal 3999/21 - perfil longitudinal",
+                "declividades_documentadas": trechos_bypass,
+                "extensao_trechos_soma_m": round(sum(t["extensao_m"] for t in trechos_bypass), 3),
+                "raio_hidraulico_tubo_cheio_m": round(raio_hidraulico_tubo_cheio_m, 4),
+                "sentido_escoamento_documentado_no_perfil": True,
+                "c2_definicao_documentada": "cota_da_tubulacao_na_geratriz_inferior",
                 "capacidade_vazao_m3_s": None,
-                "motivo_capacidade_indisponivel": "declividade_hidraulica_e_rugosidade_nao_confirmadas_numericamente_no_conjunto_integrado",
+                "motivo_capacidade_indisponivel": "rugosidade_manning_documentada_ou_calibrada_ainda_ausente; fator_geometrico_de_Manning_publicado_sem_assumir_n",
             },
             "estrutura_victor_konder_canoas": {
                 "largura_aprox_m": 3.5,
@@ -10094,14 +10118,17 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         },
         "parametros_necessarios_para_nivel_hidraulico": {
             "cota_invert_ou_fundo_em_datum_confirmado": False,
-            "declividade_hidraulica_numerica_confirmada": False,
+            "declividade_hidraulica_numerica_confirmada_bypass_3999_21": True,
             "rugosidade_manning_documentada_ou_calibrada": False,
             "areas_contribuintes_por_ramo_ou_subbacia": False,
-            "direcao_hidraulica_do_grafo_confirmada": False,
+            "direcao_hidraulica_bypass_3999_21_confirmada": True,
+            "direcao_hidraulica_do_grafo_completo_confirmada": False,
             "calibracao_com_nivel_observado_ou_referencia_visual": False,
         },
         "regras": [
             "Nenhum coeficiente chuva-para-nivel e aplicado sem proveniencia ou calibracao.",
+            "As declividades A1=0,0220; A2=0,0041; A3=0,0020 m/m sao documentadas no perfil longitudinal 3999/21.",
+            "A capacidade do bypass nao e fechada sem n de Manning documentado ou calibrado; publica-se apenas Q=fator/n.",
             "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",
             "Escavacao de 2,5 a 3,0 m nao e convertida em cota absoluta do leito.",
             "A cota experimental antiga de 0,50 m nao e usada como datum hidraulico.",
@@ -10119,7 +10146,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "janela_atenuacao_grafo_h=3.0",
         ],
     }
-
+ 
     if isinstance(propagacao_grafo, dict):
         resultado["grafo"] = {
             "status": propagacao_grafo.get("status"),
@@ -10128,24 +10155,24 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "distancia_maxima_geometrica_aprox_m": propagacao_grafo.get("distancia_maxima_geometrica_aprox_m"),
             "grafo_direcionado": propagacao_grafo.get("grafo_direcionado"),
         }
-
+ 
     if not isinstance(guaxanduva166, dict):
         resultado["forcantes"] = {"status": "historico_166_indisponivel"}
         return resultado
-
+ 
     chuvas = guaxanduva166.get("chuva_por_estacao") or []
     p1, f1 = _gxa_maior_chuva_valida(chuvas, "P1h")
     p3, f3 = _gxa_maior_chuva_valida(chuvas, "P3h")
     p6, f6 = _gxa_maior_chuva_valida(chuvas, "P6h")
     p24, f24 = _gxa_maior_chuva_valida(chuvas, "P24h")
-
+ 
     mare = guaxanduva166.get("mare_jusante_mais_recente") or {}
     nivel_mare = _gxa_numero_finito(mare.get("nivel_m"))
     nmm_cm = _gxa_numero_finito(mare.get("nmm_cm"))
     anomalia_mare_m = None
     if nivel_mare is not None and nmm_cm is not None:
         anomalia_mare_m = nivel_mare - (nmm_cm / 100.0)
-
+ 
     resultado["forcantes"] = {
         "chuva": {
             "P1h_mm": p1, "P3h_mm": p3, "P6h_mm": p6, "P24h_mm": p24,
@@ -10161,8 +10188,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         },
     }
     return resultado
-
-
+ 
+ 
 def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
     base = {
         "versao": GUAXANDUVA_MODELO_VERSAO,
@@ -10189,7 +10216,13 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
                 "quantidade_tubos": 2,
                 "diametro_nominal_m": 1.5,
                 "escavacao_media_m": [2.5, 3.0],
-                "uso": "restricao_geometrica_do_modelo",
+                "trechos_declividade": [
+                    {"trecho": "A1", "extensao_m": 17.0, "declividade_m_m": 0.0220},
+                    {"trecho": "A2", "extensao_m": 126.0, "declividade_m_m": 0.0041},
+                    {"trecho": "A3", "extensao_m": 30.0, "declividade_m_m": 0.0020},
+                ],
+                "sentido_escoamento_documentado_no_perfil": True,
+                "uso": "restricao_geometrica_e_declividade_documentada_do_modelo",
             },
             "estrutura_victor_konder_canoas": {
                 "largura_aprox_m": 3.5,

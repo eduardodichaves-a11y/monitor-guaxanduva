@@ -9697,7 +9697,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.6-ENVELOPE-HIDRAULICO-MANNING"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.7-GEOMETRIA-VERTICAL-COTAS-C2"
  
  
 def _gxa_haversine_m(a, b):
@@ -9970,7 +9970,7 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
     viagem ou sentido hidraulico ate existir suporte altimetrico/hidraulico.
     """
     resultado = {
-        "versao": "GXA-V0.6-ENVELOPE-HIDRAULICO-MANNING",
+        "versao": "GXA-V0.7-GEOMETRIA-VERTICAL-COTAS-C2",
         "status": "indisponivel",
         "segmento_referencia": GUAXANDUVA_SEGMENTO_REFERENCIA,
         "grafo_direcionado": False,
@@ -10048,14 +10048,16 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
  
  
 def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
-    """V0.6: envelope hidraulico de referencia com Manning para o bypass.
+    """V0.7: geometria vertical C2 documentada + envelope Manning do bypass.
  
     Mantem o nome da funcao por compatibilidade com a arquitetura existente.
     As declividades A1/A2/A3 do projeto 3999/21 entram na camada fisica.
     A faixa n=0,010-0,015 vem da literatura FHWA HEC-22 (2024) para tubos
     de concreto e e usada somente como envelope de referencia, nao como
-    rugosidade local medida/calibrada. O nivel absoluto permanece nulo enquanto
-    faltarem datum/invert, areas contribuintes e calibracao observacional.
+    rugosidade local medida/calibrada. As cotas C2 do perfil 3999/21 sao
+    registradas separando leituras documentais de valores derivados pela
+    declividade. O nivel do rio permanece nulo enquanto faltarem vinculacao
+    altimetrica completa, areas contribuintes e calibracao observacional.
     """
     diametro_m = 1.50
     raio_m = diametro_m / 2.0
@@ -10065,10 +10067,44 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
     raio_hidraulico_tubo_cheio_m = diametro_m / 4.0
     manning_n_min_literatura = 0.010
     manning_n_max_literatura = 0.015
+    # Geometria vertical do perfil longitudinal 3999/21.
+    # As cotas 1,800 / 1,431 / 0,909 m sao leituras documentais C2 do perfil.
+    # A cota 0,849 m e DERIVADA de 0,909 - (0,0020 * 30), nao lida diretamente.
+    # A cota 0,600 m aparece junto a estrutura de saida/ALA-02 e fica separada:
+    # ela NAO e usada como invert final de A3, pois isso contrariaria i=0,0020.
+    cota_c2_a1_m = 1.800
+    cota_c2_a2_m = 1.431
+    cota_c2_a3_inicio_m = 0.909
+    cota_c2_a3_fim_derivada_m = round(
+        cota_c2_a3_inicio_m - (0.0020 * 30.0), 3
+    )
+    cota_estrutura_saida_ala02_m = 0.600
     trechos_bypass = [
-        {"trecho": "A1", "extensao_m": 17.0, "declividade_m_m": 0.0220},
-        {"trecho": "A2", "extensao_m": 126.0, "declividade_m_m": 0.0041},
-        {"trecho": "A3", "extensao_m": 30.0, "declividade_m_m": 0.0020},
+        {
+            "trecho": "A1",
+            "extensao_m": 17.0,
+            "declividade_m_m": 0.0220,
+            "cota_c2_montante_m": cota_c2_a1_m,
+            "cota_c2_jusante_documental_m": cota_c2_a2_m,
+            "natureza_cota_jusante": "leitura_documental_do_perfil",
+        },
+        {
+            "trecho": "A2",
+            "extensao_m": 126.0,
+            "declividade_m_m": 0.0041,
+            "cota_c2_montante_m": cota_c2_a2_m,
+            "cota_c2_jusante_documental_m": cota_c2_a3_inicio_m,
+            "natureza_cota_jusante": "leitura_documental_do_perfil",
+        },
+        {
+            "trecho": "A3",
+            "extensao_m": 30.0,
+            "declividade_m_m": 0.0020,
+            "cota_c2_montante_m": cota_c2_a3_inicio_m,
+            "cota_c2_jusante_documental_m": None,
+            "cota_c2_jusante_derivada_m": cota_c2_a3_fim_derivada_m,
+            "natureza_cota_jusante": "derivada_de_cota_montante_declividade_e_extensao_documentadas",
+        },
     ]
     for trecho in trechos_bypass:
         # Fator geometrico de Manning para os DOIS tubos cheios: Q = fator / n.
@@ -10090,7 +10126,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         trecho["equacao_capacidade"] = "Q_m3_s = fator_geometrico_manning_m_8_3 / n_manning_s_m_1_3"
  
     resultado = {
-        "versao": "GXA-V0.6-ENVELOPE-HIDRAULICO-MANNING",
+        "versao": "GXA-V0.7-GEOMETRIA-VERTICAL-COTAS-C2",
         "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
         "nivel_estimado_m": None,
         "incerteza_m": None,
@@ -10116,6 +10152,16 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
                 "raio_hidraulico_tubo_cheio_m": round(raio_hidraulico_tubo_cheio_m, 4),
                 "sentido_escoamento_documentado_no_perfil": True,
                 "c2_definicao_documentada": "cota_da_tubulacao_na_geratriz_inferior",
+                "geometria_vertical_c2": {
+                    "fonte": "Projeto executivo municipal 3999/21 - perfil longitudinal",
+                    "cotas_documentais_m": [1.800, 1.431, 0.909],
+                    "a3_cota_jusante_derivada_m": cota_c2_a3_fim_derivada_m,
+                    "a3_derivacao": "0.909 - (0.0020 * 30.0) = 0.849 m",
+                    "cota_estrutura_saida_ala02_m": cota_estrutura_saida_ala02_m,
+                    "cota_0_600_e_invert_final_a3": False,
+                    "regra": "0.600_m_permanece_separada_da_geratriz_inferior_final_A3; nao_forcar_como_invert_sem_confirmacao_documental",
+                    "uso_para_nivel_do_rio": False,
+                },
                 "manning_literatura_referencia": {
                     "n_min": manning_n_min_literatura,
                     "n_max": manning_n_max_literatura,
@@ -10143,7 +10189,10 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             },
         },
         "parametros_necessarios_para_nivel_hidraulico": {
-            "cota_invert_ou_fundo_em_datum_confirmado": False,
+            "cotas_c2_do_bypass_documentadas_no_perfil": True,
+            "cota_c2_final_a3_derivada_matematicamente": True,
+            "cota_estrutura_saida_0_600_confirmada_como_invert_final_a3": False,
+            "cota_invert_ou_fundo_do_rio_em_datum_confirmado": False,
             "declividade_hidraulica_numerica_confirmada_bypass_3999_21": True,
             "rugosidade_manning_literatura_para_tubo_concreto_disponivel": True,
             "rugosidade_manning_documentada_no_projeto_ou_calibrada_localmente": False,
@@ -10155,6 +10204,9 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "regras": [
             "Nenhum coeficiente chuva-para-nivel e aplicado sem proveniencia ou calibracao.",
             "As declividades A1=0,0220; A2=0,0041; A3=0,0020 m/m sao documentadas no perfil longitudinal 3999/21.",
+            "As cotas C2 1,800; 1,431; 0,909 m sao registradas como leituras documentais do perfil longitudinal 3999/21.",
+            "A cota C2 de jusante de A3 = 0,849 m e derivada de 0,909 - (0,0020 x 30), e nao apresentada como leitura direta do desenho.",
+            "A cota 0,600 m junto a estrutura de saida/ALA-02 nao e usada como invert final de A3 sem confirmacao documental adicional.",
             "A faixa n=0,010-0,015 e referencia bibliografica FHWA HEC-22 para tubo de concreto; nao e medicao nem calibracao local.",
             "Publica-se um envelope de vazao uniforme Q=fator/n para os dois tubos cheios, sem chama-lo de capacidade definitiva do bueiro.",
             "Capacidade definitiva exige verificacao de controle de entrada/saida, carga de montante, jusante/submergencia, perdas e condicao real dos tubos.",

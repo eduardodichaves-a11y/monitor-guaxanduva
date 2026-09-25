@@ -1,6 +1,6 @@
 {
-  "versao": "GXA-V0.1",
-  "gerado_em": "2026-09-25T02:25:48.510606-03:00",
+  "versao": "GXA-V0.2-MATEMATICO",
+  "gerado_em": "2026-09-25T02:37:55.758957-03:00",
   "status": "grafo_hidrografico_integrado",
   "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
   "microbacia": "44-0",
@@ -13,9 +13,11 @@
   "rio": {
     "nome": "Rio Guaxanduva",
     "nivel_observado_m": null,
-    "nivel_estimado_m": null,
-    "incerteza_m": null,
-    "confianca": "experimental"
+    "nivel_estimado_m": 1.179,
+    "incerteza_m": 1.249,
+    "confianca": "experimental_baixa",
+    "metodo": "modelo_semiempirico_chuva_remanso_com_restricoes_hidraulicas",
+    "instante": "2026-09-25T02:38:02.595389-03:00"
   },
   "parametros_hidraulicos_documentados": {
     "bypass_montezuma_odilon": {
@@ -125,11 +127,11 @@
       "fonte": "EPAGRI/CIRAM",
       "codigo_estacao": "maregrafo_joinville_2913",
       "nome_estacao": "Joinville / Babitonga",
-      "horario_medicao": "2026-09-25T02:00:00-03:00",
-      "nivel_cm": 193.8,
-      "nivel_m": 1.938,
-      "mare_astronomica_cm": 174.0,
-      "residual_cm": 19.8,
+      "horario_medicao": "2026-09-25T02:15:00-03:00",
+      "nivel_cm": 197.2,
+      "nivel_m": 1.972,
+      "mare_astronomica_cm": 178.0,
+      "residual_cm": 19.2,
       "nmm_cm": 103.1,
       "representa_nivel_rio_guaxanduva": false,
       "uso": "condicao_de_jusante_para_calibracao_futura"
@@ -9777,5 +9779,77 @@
   "validacao": {
     "adjacencia_simetrica_e_referencias_validas": true,
     "erros": []
+  },
+  "camada_matematica": {
+    "versao": "GXA-V0.2-MATEMATICO",
+    "status": "calculado_experimental",
+    "nivel_estimado_m": 1.179,
+    "incerteza_m": 1.249,
+    "confianca": "experimental_baixa",
+    "metodo": "modelo_semiempirico_chuva_remanso_com_restricoes_hidraulicas",
+    "instante": "2026-09-25T02:38:02.595389-03:00",
+    "uso_operacional": false,
+    "alerta_operacional_liberado": false,
+    "representa_medicao_instrumental": false,
+    "parametros": {
+      "cota_fundo_experimental_m": 0.5,
+      "lamina_base_experimental_m": 0.35,
+      "coef_chuva_p3_m_por_mm": 0.008,
+      "coef_chuva_incremental_p6_m_por_mm": 0.004,
+      "coef_chuva_incremental_p24_m_por_mm": 0.0015,
+      "coef_remanso_anomalia_mare": 0.35,
+      "limite_resposta_chuva_m": 1.2,
+      "incerteza_base_m": 0.9
+    },
+    "regras": [
+      "Pluviometros nao sao somados; usa-se o maior acumulado valido por janela.",
+      "Mare de Joinville/Babitonga e usada somente como condicao de jusante.",
+      "A anomalia de mare e calculada em relacao ao NMM da propria serie; nao se assume equivalencia de datum com o fundo do Guaxanduva.",
+      "Nivel observado permanece nulo sem sensor publico confirmado.",
+      "Resultado experimental nao libera alerta operacional."
+    ],
+    "lamina_estimada_sobre_fundo_m": 0.679,
+    "componentes_m": {
+      "lamina_base": 0.35,
+      "resposta_chuva": 0.0,
+      "resposta_remanso_jusante": 0.329
+    },
+    "forcantes": {
+      "P1h_mm": 0.0,
+      "P3h_mm": 0.0,
+      "P6h_mm": null,
+      "P24h_mm": null,
+      "fontes_P1h": [
+        {
+          "codigo": "2382",
+          "nome": "Joinville - Pirabeiraba",
+          "valor_mm": 0.0
+        },
+        {
+          "codigo": "1051",
+          "nome": "Joinville - Vila Nova",
+          "valor_mm": 0.0
+        }
+      ],
+      "fontes_P3h": [
+        {
+          "codigo": "2382",
+          "nome": "Joinville - Pirabeiraba",
+          "valor_mm": 0.0
+        },
+        {
+          "codigo": "1051",
+          "nome": "Joinville - Vila Nova",
+          "valor_mm": 0.0
+        }
+      ],
+      "fontes_P6h": [],
+      "fontes_P24h": [],
+      "mare_jusante_m": 1.972,
+      "nmm_m": 1.031,
+      "anomalia_mare_m": 0.941,
+      "horario_mare": "2026-09-25T02:15:00-03:00"
+    },
+    "motivo": null
   }
 }

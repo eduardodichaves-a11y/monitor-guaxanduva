@@ -9697,7 +9697,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.11-PLANO-FECHAMENTO-HDS5-CONTROLE-HIDRAULICO"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.12-GATES-LIBERACAO-HDS5-CONTROLE-HIDRAULICO"
  
  
 def _gxa_haversine_m(a, b):
@@ -9970,7 +9970,7 @@ def _gxa_calcular_propagacao_grafo_v03(segmentos_saida, componente):
     viagem ou sentido hidraulico ate existir suporte altimetrico/hidraulico.
     """
     resultado = {
-        "versao": "GXA-V0.11-PLANO-FECHAMENTO-HDS5-CONTROLE-HIDRAULICO",
+        "versao": "GXA-V0.12-GATES-LIBERACAO-HDS5-CONTROLE-HIDRAULICO",
         "status": "indisponivel",
         "segmento_referencia": GUAXANDUVA_SEGMENTO_REFERENCIA,
         "grafo_direcionado": False,
@@ -10371,9 +10371,96 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         ],
     }
     controle_hidraulico_bueiro["plano_fechamento_hds5"] = plano_fechamento_hds5
+
+    # V0.12 - gates auditaveis de liberacao HDS-5.
+    # A camada transforma as dependencias ja explicitadas em portas booleanas
+    # estritas. Nenhuma porta satisfeita por inferencia, zero substituto ou
+    # simples existencia de dado bibliografico libera capacidade operacional.
+    gates_liberacao_hds5 = {
+        "versao": "GXA-V0.12-GATES-LIBERACAO-HDS5-CONTROLE-HIDRAULICO",
+        "uso_operacional": False,
+        "politica": "fail_closed",
+        "regra_geral": "qualquer_dependencia_ausente_mantem_o_calculo_bloqueado",
+        "gates": {
+            "G1_geometria_entrada": {
+                "satisfeito": entradas_hds5.get("geometria_entrada_inequivoca") is not None,
+                "dependencias": ["geometria_entrada_inequivoca"],
+                "libera": ["selecao_coeficientes_inlet_control_hds5", "selecao_ke"],
+            },
+            "G2_referencial_vertical_saida": {
+                "satisfeito": entradas_hds5.get("cota_invert_final_A3_confirmada") is not None,
+                "dependencias": ["cota_invert_final_A3_confirmada"],
+                "libera": ["referenciamento_TW_ao_invert_saida"],
+            },
+            "G3_hw_observado_referenciado": {
+                "satisfeito": entradas_hds5.get("headwater_referenciado_ao_invert_entrada") is not None,
+                "dependencias": ["headwater_referenciado_ao_invert_entrada"],
+                "libera": ["avaliacao_inlet_control_quando_demais_dependencias_estiverem_satisfeitas"],
+            },
+            "G4_tw_observado_referenciado": {
+                "satisfeito": (
+                    entradas_hds5.get("tailwater_referenciado_ao_invert_saida") is not None
+                    and entradas_hds5.get("cota_invert_final_A3_confirmada") is not None
+                ),
+                "dependencias": ["tailwater_referenciado_ao_invert_saida", "cota_invert_final_A3_confirmada"],
+                "libera": ["avaliacao_submergencia_quando_demais_dependencias_estiverem_satisfeitas"],
+            },
+            "G5_condicao_real_tubos": {
+                "satisfeito": entradas_hds5.get("condicao_real_tubos_obstrucao_assoreamento") is not None,
+                "dependencias": ["condicao_real_tubos_obstrucao_assoreamento"],
+                "libera": ["uso_da_geometria_nominal_em_calculo_hidraulico"],
+            },
+            "G6_parametros_inlet_control": {
+                "satisfeito": (
+                    entradas_hds5.get("geometria_entrada_inequivoca") is not None
+                    and entradas_hds5.get("coeficientes_inlet_control_hds5") is not None
+                ),
+                "dependencias": ["geometria_entrada_inequivoca", "coeficientes_inlet_control_hds5"],
+                "libera": ["parametrizacao_inlet_control"],
+            },
+            "G7_parametros_outlet_control": {
+                "satisfeito": all(
+                    entradas_hds5.get(chave) is not None
+                    for chave in [
+                        "coeficiente_perda_entrada_ke",
+                        "coeficiente_perda_saida_ko",
+                        "rugosidade_local_ou_calibrada",
+                    ]
+                ),
+                "dependencias": [
+                    "coeficiente_perda_entrada_ke",
+                    "coeficiente_perda_saida_ko",
+                    "rugosidade_local_ou_calibrada",
+                ],
+                "libera": ["parametrizacao_outlet_control"],
+            },
+        },
+    }
+
+    gates = gates_liberacao_hds5["gates"]
+    gates_liberacao_hds5["resumo"] = {
+        "quantidade_gates": len(gates),
+        "quantidade_satisfeitos": sum(1 for gate in gates.values() if gate["satisfeito"]),
+        "quantidade_bloqueados": sum(1 for gate in gates.values() if not gate["satisfeito"]),
+        "gates_bloqueados": [nome for nome, gate in gates.items() if not gate["satisfeito"]],
+        "inlet_control_liberado": prontidao_por_calculo_hds5["inlet_control"]["pronto"],
+        "outlet_control_liberado": prontidao_por_calculo_hds5["outlet_control"]["pronto"],
+        "submergencia_liberada": prontidao_por_calculo_hds5["submergencia"]["pronto"],
+        "controle_governante_liberado": False,
+        "capacidade_definitiva_liberada": False,
+    }
+    gates_liberacao_hds5["proibicoes_explicitas"] = [
+        "nao_converter_None_em_zero",
+        "nao_usar_chuva_como_HW",
+        "nao_usar_mare_Babitonga_como_TW_local",
+        "nao_selecionar_coeficientes_por_semelhanca_visual",
+        "nao_publicar_controle_governante_sem_inlet_e_outlet_calculados",
+        "nao_publicar_capacidade_definitiva_sem_controle_governante_determinado",
+    ]
+    controle_hidraulico_bueiro["gates_liberacao_hds5"] = gates_liberacao_hds5
  
     resultado = {
-        "versao": "GXA-V0.11-PLANO-FECHAMENTO-HDS5-CONTROLE-HIDRAULICO",
+        "versao": "GXA-V0.12-GATES-LIBERACAO-HDS5-CONTROLE-HIDRAULICO",
         "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
         "nivel_estimado_m": None,
         "incerteza_m": None,
@@ -10456,6 +10543,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "prontidao_hds5_separada_por_familia_de_calculo": True,
             "quantidade_campos_hds5_faltantes": len(faltantes_hds5),
             "plano_fechamento_hds5_integrado": True,
+            "gates_liberacao_hds5_integrados": True,
+            "politica_liberacao_hds5_fail_closed": True,
             "capacidade_definitiva_liberada": False,
         },
         "regras": [
@@ -10472,6 +10561,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "A V0.10 registra em bloco separado os dados geometricos ja documentados para evitar confundir geometria conhecida com entrada hidraulica ainda ausente.",
             "A V0.11 organiza os campos faltantes em um plano de fechamento por dependencia fisica; a ordem e tecnica e nao atribui pesos ou coeficientes ao modelo.",
             "A V0.11 mantem capacidade definitiva, controle governante, HW e TW nulos enquanto suas dependencias documentais e observacionais nao forem satisfeitas.",
+            "A V0.12 converte as dependencias HDS-5 em gates booleanos fail-closed; qualquer dependencia ausente mantem o calculo correspondente bloqueado.",
+            "A V0.12 nao altera valores hidraulicos nem libera capacidade: apenas torna auditavel a decisao de bloqueio/liberacao de cada familia de calculo.",
             "As declividades inferidas pelas cotas C2 de A1 e A2 sao usadas apenas como checagem de consistencia documental, nao como calibracao hidraulica.",
             "Nenhum coeficiente de entrada/saida HDS-5 e inferido apenas pela presenca das estruturas ALA-01/ALA-02 no desenho.",
             "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",

@@ -9681,6 +9681,383 @@ def construir_rede_pluviometrica_multifonte_165(chuva_cemaden,chuva_epagri):
     return resultado
 
 # =========================================================
+# GUAXANDUVA-MODEL V0.1 - GRAFO HIDROGRAFICO COMPUTACIONAL
+# =========================================================
+# Integra a hidrografia oficial do SIMGeo ao PY principal sem substituir
+# nenhuma das camadas existentes. O grafo e inicialmente nao direcionado:
+# a ordem dos vertices de uma LineString nao prova o sentido hidraulico.
+# O ponto de referencia e publico/tecnico e nao identifica residencia.
+
+SIMGeo_GUAXANDUVA_LAYER_44 = (
+    "https://geo.joinville.sc.gov.br/server/rest/services/SEPUR/"
+    "meio_ambiente_simgeo_v4_/MapServer/44/query"
+)
+GUAXANDUVA_MICROBACIA = "44-0"
+GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
+GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
+GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
+GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.1"
+
+
+def _gxa_haversine_m(a, b):
+    lon1, lat1 = a
+    lon2, lat2 = b
+    r = 6371008.8
+    p1 = math.radians(lat1)
+    p2 = math.radians(lat2)
+    dp = math.radians(lat2 - lat1)
+    dl = math.radians(lon2 - lon1)
+    h = math.sin(dp / 2.0) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2.0) ** 2
+    return 2.0 * r * math.asin(min(1.0, math.sqrt(h)))
+
+
+def _gxa_xy_local(p, lat_ref):
+    lon, lat = p
+    x = math.radians(lon) * 6371008.8 * math.cos(math.radians(lat_ref))
+    y = math.radians(lat) * 6371008.8
+    return x, y
+
+
+def _gxa_distancia_ponto_segmento_m(p, a, b):
+    lat_ref = (p[1] + a[1] + b[1]) / 3.0
+    px, py = _gxa_xy_local(p, lat_ref)
+    ax, ay = _gxa_xy_local(a, lat_ref)
+    bx, by = _gxa_xy_local(b, lat_ref)
+    vx, vy = bx - ax, by - ay
+    wx, wy = px - ax, py - ay
+    vv = vx * vx + vy * vy
+    if vv == 0:
+        return math.hypot(px - ax, py - ay), a
+    t = max(0.0, min(1.0, (wx * vx + wy * vy) / vv))
+    qx, qy = ax + t * vx, ay + t * vy
+    d = math.hypot(px - qx, py - qy)
+    lon_q = math.degrees(qx / (6371008.8 * math.cos(math.radians(lat_ref))))
+    lat_q = math.degrees(qy / 6371008.8)
+    return d, (lon_q, lat_q)
+
+
+def _gxa_distancia_ponto_linha_m(p, coords):
+    melhor = (float("inf"), None, None)
+    for i in range(len(coords) - 1):
+        d, q = _gxa_distancia_ponto_segmento_m(p, coords[i], coords[i + 1])
+        if d < melhor[0]:
+            melhor = (d, q, i)
+    return melhor
+
+
+def _gxa_normalizar_feature(feature):
+    geom = feature.get("geometry") or {}
+    props = feature.get("properties") or {}
+    if geom.get("type") != "LineString":
+        return None
+    coords = geom.get("coordinates") or []
+    if len(coords) < 2:
+        return None
+    try:
+        coords = [(float(p[0]), float(p[1])) for p in coords]
+    except Exception:
+        return None
+    oid = props.get("objectid", feature.get("id"))
+    try:
+        oid = int(oid)
+    except Exception:
+        return None
+    comprimento = props.get("st_length(shape)")
+    try:
+        comprimento = float(comprimento) if comprimento is not None else None
+    except Exception:
+        comprimento = None
+    return {
+        "objectid": oid,
+        "nome_rio": props.get("nome_rio"),
+        "tipo": props.get("nova_class"),
+        "auc": props.get("auc"),
+        "contribuicao": props.get("contribuic"),
+        "drenagem": props.get("drenagem"),
+        "microbacia": props.get("num_microb"),
+        "comprimento_m": comprimento,
+        "geometria": [[p[0], p[1]] for p in coords],
+        "_coords": coords,
+    }
+
+
+def _gxa_baixar_geojson():
+    params = {
+        "where": f"num_microb='{GUAXANDUVA_MICROBACIA}'",
+        "outFields": "*",
+        "returnGeometry": "true",
+        "outSR": "4326",
+        "f": "geojson",
+    }
+    resposta = get(SIMGeo_GUAXANDUVA_LAYER_44, params=params)
+    dados = resposta.json()
+    if not isinstance(dados, dict) or dados.get("type") != "FeatureCollection":
+        raise ValueError("SIMGeo camada 44 nao retornou FeatureCollection valida")
+    return dados
+
+
+def _gxa_criar_cluster(clusters, ponto, oid, extremidade):
+    melhor_id, melhor_dist = None, float("inf")
+    for cid, c in clusters.items():
+        d = _gxa_haversine_m(ponto, c["centro"])
+        if d < melhor_dist:
+            melhor_id, melhor_dist = cid, d
+    if melhor_id is not None and melhor_dist <= GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M:
+        c = clusters[melhor_id]
+        c["pontos"].append(ponto)
+        c["incidencias"].append({"objectid": oid, "extremidade": extremidade})
+        c["centro"] = (
+            sum(p[0] for p in c["pontos"]) / len(c["pontos"]),
+            sum(p[1] for p in c["pontos"]) / len(c["pontos"]),
+        )
+        return melhor_id
+    cid = f"GXA-N{len(clusters) + 1:04d}"
+    clusters[cid] = {
+        "centro": ponto,
+        "pontos": [ponto],
+        "incidencias": [{"objectid": oid, "extremidade": extremidade}],
+    }
+    return cid
+
+
+def _gxa_construir_topologia(segmentos):
+    clusters = {}
+    endpoints = {}
+    for s in sorted(segmentos, key=lambda x: x["objectid"]):
+        oid = s["objectid"]
+        na = _gxa_criar_cluster(clusters, s["_coords"][0], oid, "inicio")
+        nb = _gxa_criar_cluster(clusters, s["_coords"][-1], oid, "fim")
+        endpoints[oid] = [na, nb]
+
+    por_no = defaultdict(set)
+    for oid, nos in endpoints.items():
+        for no in nos:
+            por_no[no].add(oid)
+
+    adj = defaultdict(set)
+    for conjunto in por_no.values():
+        lista = sorted(conjunto)
+        for i, a in enumerate(lista):
+            for b in lista[i + 1:]:
+                adj[a].add(b)
+                adj[b].add(a)
+
+    ligacoes_interiores = []
+    vistos = set()
+    for s in segmentos:
+        oid = s["objectid"]
+        for extremidade, p in (("inicio", s["_coords"][0]), ("fim", s["_coords"][-1])):
+            no_origem = endpoints[oid][0 if extremidade == "inicio" else 1]
+            for alvo in segmentos:
+                oid_alvo = alvo["objectid"]
+                if oid_alvo == oid or no_origem in endpoints[oid_alvo]:
+                    continue
+                d, q, indice = _gxa_distancia_ponto_linha_m(p, alvo["_coords"])
+                if d > GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M:
+                    continue
+                if min(
+                    _gxa_haversine_m(q, alvo["_coords"][0]),
+                    _gxa_haversine_m(q, alvo["_coords"][-1]),
+                ) <= GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M:
+                    continue
+                chave = tuple(sorted((oid, oid_alvo))) + (no_origem,)
+                if chave in vistos:
+                    continue
+                vistos.add(chave)
+                ligacoes_interiores.append({
+                    "no_endpoint": no_origem,
+                    "segmento_endpoint": oid,
+                    "segmento_interceptado": oid_alvo,
+                    "distancia_m": round(d, 3),
+                    "coordenada_intersecao_aprox": [q[0], q[1]],
+                    "indice_aresta_interceptada": indice,
+                })
+                adj[oid].add(oid_alvo)
+                adj[oid_alvo].add(oid)
+
+    for s in segmentos:
+        adj[s["objectid"]]
+    return clusters, endpoints, por_no, adj, ligacoes_interiores
+
+
+def _gxa_componente(adj, raiz):
+    if raiz not in adj:
+        return set()
+    visitados = set()
+    fila = deque([raiz])
+    while fila:
+        atual = fila.popleft()
+        if atual in visitados:
+            continue
+        visitados.add(atual)
+        fila.extend(v for v in adj[atual] if v not in visitados)
+    return visitados
+
+
+def _gxa_classificar_no(grau):
+    if grau <= 1:
+        return "extremidade"
+    if grau == 2:
+        return "passagem"
+    return "juncao"
+
+
+def _gxa_validar(segmentos_saida, nos_saida):
+    erros = []
+    segmentos = {s["objectid"]: s for s in segmentos_saida}
+    ids_nos = {n["id"] for n in nos_saida}
+    for oid, s in segmentos.items():
+        for vizinho in s["conectado_a"]:
+            if vizinho not in segmentos:
+                erros.append(f"{oid}: referencia inexistente {vizinho}")
+            elif oid not in segmentos[vizinho]["conectado_a"]:
+                erros.append(f"{oid}<->{vizinho}: adjacencia nao simetrica")
+        for no in s["nos_extremidade"]:
+            if no not in ids_nos:
+                erros.append(f"{oid}: no inexistente {no}")
+    return erros
+
+
+def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
+    base = {
+        "versao": GUAXANDUVA_MODELO_VERSAO,
+        "gerado_em": agora().isoformat(),
+        "status": "indisponivel",
+        "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
+        "microbacia": GUAXANDUVA_MICROBACIA,
+        "segmento_referencia": GUAXANDUVA_SEGMENTO_REFERENCIA,
+        "ponto_referencia": {
+            "longitude": GUAXANDUVA_PONTO_REFERENCIA[0],
+            "latitude": GUAXANDUVA_PONTO_REFERENCIA[1],
+            "uso": "ponto_tecnico_publico_do_modelo",
+        },
+        "rio": {
+            "nome": "Rio Guaxanduva",
+            "nivel_observado_m": None,
+            "nivel_estimado_m": None,
+            "incerteza_m": None,
+            "confianca": "experimental",
+        },
+        "parametros_hidraulicos_documentados": {
+            "bypass_montezuma_odilon": {
+                "extensao_aprox_m": 173.0,
+                "quantidade_tubos": 2,
+                "diametro_nominal_m": 1.5,
+                "escavacao_media_m": [2.5, 3.0],
+                "uso": "restricao_geometrica_do_modelo",
+            },
+            "estrutura_victor_konder_canoas": {
+                "largura_aprox_m": 3.5,
+                "altura_aprox_m": 2.5,
+                "uso": "restricao_geometrica_do_modelo",
+            },
+            "cota_fundo_experimental_v01": {
+                "estimada_m": 0.5,
+                "incerteza_m": 0.9,
+                "confianca": "baixa",
+                "uso_operacional": False,
+            },
+        },
+        "forcantes": {
+            "historico_166_integrado": isinstance(guaxanduva166, dict),
+            "chuva_por_estacao": (guaxanduva166 or {}).get("chuva_por_estacao") if isinstance(guaxanduva166, dict) else None,
+            "mare_jusante": (guaxanduva166 or {}).get("mare_jusante_mais_recente") if isinstance(guaxanduva166, dict) else None,
+            "mare_representa_nivel_do_rio": False,
+        },
+        "alerta_operacional_liberado": False,
+    }
+    try:
+        geojson = _gxa_baixar_geojson()
+        segmentos = []
+        descartados = []
+        for feature in geojson.get("features", []):
+            s = _gxa_normalizar_feature(feature)
+            if s is None:
+                descartados.append(feature.get("id"))
+            else:
+                segmentos.append(s)
+        if not segmentos:
+            raise ValueError("nenhum segmento valido retornado pelo SIMGeo")
+
+        clusters, endpoints, por_no, adj, ligacoes = _gxa_construir_topologia(segmentos)
+        componente = _gxa_componente(adj, GUAXANDUVA_SEGMENTO_REFERENCIA)
+        if not componente:
+            raise ValueError("segmento 30960 nao localizado na topologia retornada")
+
+        melhor = None
+        for s in segmentos:
+            d, q, indice = _gxa_distancia_ponto_linha_m(GUAXANDUVA_PONTO_REFERENCIA, s["_coords"])
+            if melhor is None or d < melhor["distancia_m"]:
+                melhor = {"objectid": s["objectid"], "distancia_m": d, "projecao": q, "indice": indice}
+
+        nos_saida = []
+        for cid, c in sorted(clusters.items()):
+            incidentes = sorted(por_no.get(cid, set()))
+            nos_saida.append({
+                "id": cid,
+                "coordenada": [c["centro"][0], c["centro"][1]],
+                "segmentos": incidentes,
+                "grau_topologico": len(incidentes),
+                "classe": _gxa_classificar_no(len(incidentes)),
+                "incidencias": c["incidencias"],
+            })
+
+        segmentos_saida = []
+        for s in sorted(segmentos, key=lambda x: x["objectid"]):
+            oid = s["objectid"]
+            segmentos_saida.append({
+                "objectid": oid,
+                "nome_rio": s["nome_rio"],
+                "tipo": s["tipo"],
+                "comprimento_m": s["comprimento_m"],
+                "auc": s["auc"],
+                "contribuicao": s["contribuicao"],
+                "drenagem": s["drenagem"],
+                "microbacia": s["microbacia"],
+                "nos_extremidade": endpoints[oid],
+                "conectado_a": sorted(adj[oid]),
+                "pertence_componente_30960": oid in componente,
+                "geometria": s["geometria"],
+            })
+
+        erros = _gxa_validar(segmentos_saida, nos_saida)
+        base.update({
+            "status": "grafo_hidrografico_integrado" if not erros else "grafo_com_inconsistencias",
+            "crs_geometria": "EPSG:4326",
+            "tolerancia_topologica_m": GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M,
+            "resumo": {
+                "segmentos_microbacia": len(segmentos_saida),
+                "nos_endpoints": len(nos_saida),
+                "ligacoes_endpoint_interior": len(ligacoes),
+                "segmentos_componente_30960": len(componente),
+                "juncoes_grau_3_ou_mais": sum(1 for n in nos_saida if n["grau_topologico"] >= 3),
+                "features_descartadas": descartados,
+            },
+            "ponto_referencia_topologia": {
+                "segmento_mais_proximo": melhor["objectid"],
+                "distancia_ao_eixo_m": round(melhor["distancia_m"], 3),
+                "projecao_no_eixo": [melhor["projecao"][0], melhor["projecao"][1]],
+                "coincide_com_30960": melhor["objectid"] == GUAXANDUVA_SEGMENTO_REFERENCIA and melhor["distancia_m"] <= GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M,
+            },
+            "nos": nos_saida,
+            "ligacoes_endpoint_interior": ligacoes,
+            "segmentos": segmentos_saida,
+            "validacao": {
+                "adjacencia_simetrica_e_referencias_validas": not erros,
+                "erros": erros,
+            },
+        })
+
+        with open(GUAXANDUVA_GRAFO_ARQUIVO, "w", encoding="utf-8") as arquivo:
+            json.dump(base, arquivo, ensure_ascii=False, indent=2)
+    except Exception as exc:
+        base["erro"] = str(exc)
+        base["status"] = "indisponivel_sem_interromper_monitor"
+    return base
+
+
+# =========================================================
 # #166 - HISTÓRICO HIDROMETEOROLÓGICO DO RIO GUAXANDUVA
 # =========================================================
 # Esta camada NÃO mede o nível do Rio Guaxanduva. Ela preserva, com o
@@ -9951,6 +10328,7 @@ def main():
     criterio163 = calcular_criterio_hidrometeorologico_plancon_163(previsao, mare_observada160)
     mare_prevista164 = calcular_pico_mare_previsto_24h_164(previsao)
     guaxanduva166 = atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160)
+    modelo_guaxanduva_v01 = construir_modelo_computacional_guaxanduva_v01(guaxanduva166)
     dados = {
         "monitor":
             "Monitor Guaxanduva",
@@ -10008,6 +10386,9 @@ def main():
 
         "historico_hidrometeorologico_guaxanduva_166":
             guaxanduva166,
+
+        "modelo_computacional_guaxanduva_v01":
+            modelo_guaxanduva_v01,
  
         "rio": {
             "nome":

@@ -1,6 +1,6 @@
 {
-  "versao": "GXA-V0.5-HIDRAULICA-DECLIVIDADES",
-  "gerado_em": "2026-09-25T11:54:35.369570-03:00",
+  "versao": "GXA-V0.6-ENVELOPE-HIDRAULICO-MANNING",
+  "gerado_em": "2026-09-25T11:56:21.807911-03:00",
   "status": "grafo_hidrografico_integrado",
   "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
   "microbacia": "44-0",
@@ -17,7 +17,7 @@
     "incerteza_m": null,
     "confianca": "fisica_parcial_sem_calibracao_de_nivel",
     "metodo": "restricoes_geometricas_documentadas_mais_forcantes_observadas_sem_coeficientes_empiricos_arbitrarios",
-    "instante": "2026-09-25T11:54:37.569337-03:00"
+    "instante": "2026-09-25T11:56:23.830276-03:00"
   },
   "parametros_hidraulicos_documentados": {
     "bypass_montezuma_odilon": {
@@ -45,6 +45,13 @@
           "declividade_m_m": 0.002
         }
       ],
+      "manning_literatura_tubo_concreto": {
+        "n_min": 0.01,
+        "n_max": 0.015,
+        "fonte": "FHWA HEC-22 4th ed. 2024 Table 4.4",
+        "publicacao": "FHWA-HIF-24-006",
+        "uso": "envelope_de_referencia_nao_calibrado_localmente"
+      },
       "sentido_escoamento_documentado_no_perfil": true,
       "uso": "restricao_geometrica_e_declividade_documentada_do_modelo"
     },
@@ -9799,7 +9806,7 @@
     "erros": []
   },
   "propagacao_grafo": {
-    "versao": "GXA-V0.5-HIDRAULICA-DECLIVIDADES",
+    "versao": "GXA-V0.6-ENVELOPE-HIDRAULICO-MANNING",
     "status": "calculado_geometrico",
     "segmento_referencia": 30960,
     "grafo_direcionado": false,
@@ -10534,13 +10541,13 @@
     ]
   },
   "camada_matematica": {
-    "versao": "GXA-V0.5-HIDRAULICA-DECLIVIDADES",
+    "versao": "GXA-V0.6-ENVELOPE-HIDRAULICO-MANNING",
     "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
     "nivel_estimado_m": null,
     "incerteza_m": null,
     "confianca": "fisica_parcial_sem_calibracao_de_nivel",
     "metodo": "restricoes_geometricas_documentadas_mais_forcantes_observadas_sem_coeficientes_empiricos_arbitrarios",
-    "instante": "2026-09-25T11:54:37.569337-03:00",
+    "instante": "2026-09-25T11:56:23.830276-03:00",
     "uso_operacional": false,
     "alerta_operacional_liberado": false,
     "representa_medicao_instrumental": false,
@@ -10564,6 +10571,12 @@
             "extensao_m": 17.0,
             "declividade_m_m": 0.022,
             "fator_geometrico_manning_m_8_3": 0.272605,
+            "vazao_uniforme_referencia_m3_s": {
+              "min_com_n_0_015": 18.174,
+              "max_com_n_0_010": 27.26,
+              "natureza": "envelope_de_literatura_para_escoamento_uniforme_em_tubos_cheios",
+              "nao_representa_capacidade_definitiva_do_bueiro": true
+            },
             "capacidade_vazao_m3_s": null,
             "equacao_capacidade": "Q_m3_s = fator_geometrico_manning_m_8_3 / n_manning_s_m_1_3"
           },
@@ -10572,6 +10585,12 @@
             "extensao_m": 126.0,
             "declividade_m_m": 0.0041,
             "fator_geometrico_manning_m_8_3": 0.117683,
+            "vazao_uniforme_referencia_m3_s": {
+              "min_com_n_0_015": 7.846,
+              "max_com_n_0_010": 11.768,
+              "natureza": "envelope_de_literatura_para_escoamento_uniforme_em_tubos_cheios",
+              "nao_representa_capacidade_definitiva_do_bueiro": true
+            },
             "capacidade_vazao_m3_s": null,
             "equacao_capacidade": "Q_m3_s = fator_geometrico_manning_m_8_3 / n_manning_s_m_1_3"
           },
@@ -10580,6 +10599,12 @@
             "extensao_m": 30.0,
             "declividade_m_m": 0.002,
             "fator_geometrico_manning_m_8_3": 0.082194,
+            "vazao_uniforme_referencia_m3_s": {
+              "min_com_n_0_015": 5.48,
+              "max_com_n_0_010": 8.219,
+              "natureza": "envelope_de_literatura_para_escoamento_uniforme_em_tubos_cheios",
+              "nao_representa_capacidade_definitiva_do_bueiro": true
+            },
             "capacidade_vazao_m3_s": null,
             "equacao_capacidade": "Q_m3_s = fator_geometrico_manning_m_8_3 / n_manning_s_m_1_3"
           }
@@ -10588,8 +10613,23 @@
         "raio_hidraulico_tubo_cheio_m": 0.375,
         "sentido_escoamento_documentado_no_perfil": true,
         "c2_definicao_documentada": "cota_da_tubulacao_na_geratriz_inferior",
+        "manning_literatura_referencia": {
+          "n_min": 0.01,
+          "n_max": 0.015,
+          "material": "tubo_de_concreto",
+          "fonte": "FHWA HEC-22 Urban Drainage Design Manual, 4th ed., 2024, Table 4.4",
+          "publicacao": "FHWA-HIF-24-006",
+          "uso": "envelope_de_referencia_nao_calibrado_localmente",
+          "observacao": "valores_menores_em_geral_correspondem_a_tubos_mais_lisos_bem_construidos_e_mantidos"
+        },
+        "manning_referencia_secundaria": {
+          "n_min": 0.011,
+          "n_max": 0.013,
+          "fonte": "FHWA HDS-4 Introduction to Highway Hydraulics, 2008, Table B.3",
+          "uso": "checagem_bibliografica_secundaria"
+        },
         "capacidade_vazao_m3_s": null,
-        "motivo_capacidade_indisponivel": "rugosidade_manning_documentada_ou_calibrada_ainda_ausente; fator_geometrico_de_Manning_publicado_sem_assumir_n"
+        "motivo_capacidade_indisponivel": "envelope_Manning_de_literatura_calculado; capacidade_definitiva_exige_rugosidade_local_ou_calibrada_e_analise_de_controle_de_entrada_saida_e_submergencia"
       },
       "estrutura_victor_konder_canoas": {
         "largura_aprox_m": 3.5,
@@ -10602,7 +10642,8 @@
     "parametros_necessarios_para_nivel_hidraulico": {
       "cota_invert_ou_fundo_em_datum_confirmado": false,
       "declividade_hidraulica_numerica_confirmada_bypass_3999_21": true,
-      "rugosidade_manning_documentada_ou_calibrada": false,
+      "rugosidade_manning_literatura_para_tubo_concreto_disponivel": true,
+      "rugosidade_manning_documentada_no_projeto_ou_calibrada_localmente": false,
       "areas_contribuintes_por_ramo_ou_subbacia": false,
       "direcao_hidraulica_bypass_3999_21_confirmada": true,
       "direcao_hidraulica_do_grafo_completo_confirmada": false,
@@ -10611,7 +10652,9 @@
     "regras": [
       "Nenhum coeficiente chuva-para-nivel e aplicado sem proveniencia ou calibracao.",
       "As declividades A1=0,0220; A2=0,0041; A3=0,0020 m/m sao documentadas no perfil longitudinal 3999/21.",
-      "A capacidade do bypass nao e fechada sem n de Manning documentado ou calibrado; publica-se apenas Q=fator/n.",
+      "A faixa n=0,010-0,015 e referencia bibliografica FHWA HEC-22 para tubo de concreto; nao e medicao nem calibracao local.",
+      "Publica-se um envelope de vazao uniforme Q=fator/n para os dois tubos cheios, sem chama-lo de capacidade definitiva do bueiro.",
+      "Capacidade definitiva exige verificacao de controle de entrada/saida, carga de montante, jusante/submergencia, perdas e condicao real dos tubos.",
       "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",
       "Escavacao de 2,5 a 3,0 m nao e convertida em cota absoluta do leito.",
       "A cota experimental antiga de 0,50 m nao e usada como datum hidraulico.",

@@ -10376,16 +10376,67 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "observacao": "A V0.9 nao converte o envelope Manning de tubo cheio em capacidade definitiva e nao inventa coeficientes HDS-5.",
     }
 
+    # V0.16 - premissas documentais adotadas para o modelo hidraulico.
+    # A geometria oficial de projeto e aceita como base computacional, sem
+    # afirmar verificacao as-built. A classificacao groove-end e uma decisao
+    # de modelagem fundamentada nas especificacoes ponta-e-bolsa / macho-e-femea.
+    geometria_entrada_modelo_v016 = {
+        "classificacao_hds5": "groove_end_with_headwall",
+        "tipo": "boca_dupla_BDTC",
+        "quantidade_tubos": 2,
+        "diametro_nominal_m": diametro_m,
+        "esconsidade_graus": 0.0,
+        "alas": "retas",
+        "material": "concreto_armado",
+        "classe": "PA-1",
+        "encaixe_planilha_analitica": "ponta_e_bolsa",
+        "encaixe_memorial": "macho_e_femea",
+        "natureza": "premissa_hidraulica_documental_do_modelo",
+        "verificacao_as_built": False,
+        "fontes": [
+            "Projeto executivo municipal SEI 0015703146 / 3999-21",
+            "Memorial descritivo SEI 0015703159-2023",
+            "Planilha orcamentaria analitica SEI 0015466640-2023",
+            "FHWA HDS-5 FHWA-HIF-12-026",
+        ],
+    }
+    coeficientes_inlet_v016 = {
+        "configuracao": "circular_concrete_groove_end_with_headwall",
+        "K": 0.0018,
+        "M": 2.5,
+        "c": 0.0292,
+        "Y": 0.74,
+        "fonte": "FHWA HDS-5 3rd ed. 2012, Appendix A - inlet control constants",
+        "natureza": "coeficientes_metodologicos_para_premissa_documental_do_modelo",
+    }
+    manning_n_modelo_v016 = 0.012
+    ke_modelo_v016 = 0.20
+    ko_modelo_v016 = 1.00
+
     entradas_hds5 = {
         "headwater_referenciado_ao_invert_entrada": None,
         "tailwater_referenciado_ao_invert_saida": None,
-        "geometria_entrada_inequivoca": None,
-        "coeficientes_inlet_control_hds5": None,
-        "coeficiente_perda_entrada_ke": None,
-        "coeficiente_perda_saida_ko": None,
-        "rugosidade_local_ou_calibrada": None,
-        "cota_invert_final_A3_confirmada": None,
-        "condicao_real_tubos_obstrucao_assoreamento": None,
+        "geometria_entrada_inequivoca": geometria_entrada_modelo_v016,
+        "coeficientes_inlet_control_hds5": coeficientes_inlet_v016,
+        "coeficiente_perda_entrada_ke": ke_modelo_v016,
+        "coeficiente_perda_saida_ko": ko_modelo_v016,
+        "rugosidade_local_ou_calibrada": {
+            "n_manning_modelo": manning_n_modelo_v016,
+            "natureza": "valor_central_de_modelagem_dentro_das_faixas_FHWA_documentadas",
+            "faixa_sensibilidade": [manning_n_min_literatura, manning_n_max_literatura],
+            "calibracao_local": False,
+        },
+        "cota_invert_final_A3_confirmada": {
+            "valor_m": cota_c2_a3_fim_derivada_m,
+            "natureza": "derivada_documental_aceita_como_entrada_do_modelo",
+            "derivacao": "0.909 - (0.0020 * 30.0)",
+            "verificacao_as_built": False,
+        },
+        "condicao_real_tubos_obstrucao_assoreamento": {
+            "condicao_adotada": "secao_nominal_de_projeto_sem_reducao_aplicada",
+            "natureza": "premissa_de_modelagem_na_ausencia_de_quantificacao_de_obstrucao",
+            "inspecao_de_campo": False,
+        },
     }
     # V0.10 - matriz auditavel de prontidao: separa o que ja esta documentado
     # do que ainda impede cada familia de calculo HDS-5. A geometria conhecida
@@ -10535,6 +10586,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "outlet_control_pronto": prontidao_por_calculo_hds5["outlet_control"]["pronto"],
             "submergencia_determinavel": prontidao_por_calculo_hds5["submergencia"]["pronto"],
             "capacidade_definitiva_liberada": False,
+            "resultado_hidraulico_modelado_referencia_liberado": True,
+            "vazao_modelada_referencia_m3_s": round(vazao_modelada_central_v016, 3),
         },
         "proxima_etapa_tecnica": "fechar_geometria_entrada_e_cota_invert_final_A3_antes_de_selecionar_coeficientes_HDS5",
         "regras": [
@@ -10869,14 +10922,95 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         ],
     }
     controle_hidraulico_bueiro["auditoria_final_v015"] = auditoria_final_v015
+
+    # V0.16 - resultados modelados e politica documental.
+    # Mantem HW/TW observados como None, mas deixa de bloquear resultados que
+    # dependem apenas da geometria oficial e de premissas metodologicas declaradas.
+    trecho_critico_modelo_v016 = min(
+        trechos_bypass,
+        key=lambda t: t["fator_geometrico_manning_m_8_3"],
+    )
+    fator_critico_v016 = trecho_critico_modelo_v016["fator_geometrico_manning_m_8_3"]
+    vazao_modelada_central_v016 = fator_critico_v016 / manning_n_modelo_v016
+    vazao_modelada_min_v016 = fator_critico_v016 / manning_n_max_literatura
+    vazao_modelada_max_v016 = fator_critico_v016 / manning_n_min_literatura
+    velocidade_modelada_central_v016 = vazao_modelada_central_v016 / area_bueiro_duplo_m2
+
+    politica_modelagem_documental_v016 = {
+        "versao": "GXA-V0.16-RESULTADOS-HIDRAULICOS-DOCUMENTAIS",
+        "regra": "documentos_oficiais_de_projeto_sao_aceitos_como_geometria_efetiva_do_modelo_com_proveniencia_explicita",
+        "nao_afirma": "verificacao_as_built_ou_medicao_instrumental",
+        "classificacao_entrada_adotada": "groove_end_with_headwall",
+        "criterio_classificacao": "coerencia_entre_ponta_e_bolsa_macho_e_femea_boca_dupla_alas_retas_e_metodologia_HDS5",
+        "manning_n_central": manning_n_modelo_v016,
+        "manning_n_sensibilidade": [manning_n_min_literatura, manning_n_max_literatura],
+        "Ke": ke_modelo_v016,
+        "Ko": ko_modelo_v016,
+    }
+    resultados_hidraulicos_modelados_v016 = {
+        "publicacao_liberada": True,
+        "natureza": "resultado_modelado_de_referencia_nao_instrumental",
+        "trecho_governante_uniforme": trecho_critico_modelo_v016["trecho"],
+        "vazao_central_m3_s": round(vazao_modelada_central_v016, 3),
+        "vazao_sensibilidade_min_m3_s": round(vazao_modelada_min_v016, 3),
+        "vazao_sensibilidade_max_m3_s": round(vazao_modelada_max_v016, 3),
+        "velocidade_media_central_tubos_cheios_m_s": round(velocidade_modelada_central_v016, 3),
+        "area_total_dois_tubos_m2": round(area_bueiro_duplo_m2, 4),
+        "n_central": manning_n_modelo_v016,
+        "n_faixa": [manning_n_min_literatura, manning_n_max_literatura],
+        "cota_invert_final_A3_modelo_m": cota_c2_a3_fim_derivada_m,
+        "classificacao_entrada_hds5": "groove_end_with_headwall",
+        "Ke": ke_modelo_v016,
+        "Ko": ko_modelo_v016,
+        "observacao": "vazao_de_referencia_por_Manning_para_dois_tubos_cheios; HW_TW_e_nivel_do_rio_continuam_separados_ate_haver_forcante_referenciada",
+    }
+    controle_hidraulico_bueiro["politica_modelagem_documental_v016"] = politica_modelagem_documental_v016
+    controle_hidraulico_bueiro["resultados_hidraulicos_modelados_v016"] = resultados_hidraulicos_modelados_v016
+    controle_hidraulico_bueiro["status"] = "resultados_modelados_documentais_publicaveis_HW_TW_observados_ainda_indisponiveis"
+    controle_hidraulico_bueiro["vazao_capacidade_modelada_referencia_m3_s"] = round(vazao_modelada_central_v016, 3)
+    controle_hidraulico_bueiro["vazao_capacidade_modelada_faixa_m3_s"] = [round(vazao_modelada_min_v016, 3), round(vazao_modelada_max_v016, 3)]
+    controle_hidraulico_bueiro["inlet_control"]["coeficientes_hds5_selecionados"] = True
+    controle_hidraulico_bueiro["inlet_control"]["motivo"] = "geometria_documental_classificada_como_groove_end_with_headwall; falta_HW_apenas_para_resolver_headwater_especifico"
+    controle_hidraulico_bueiro["outlet_control"]["coeficiente_perda_entrada_ke"] = ke_modelo_v016
+    controle_hidraulico_bueiro["outlet_control"]["coeficiente_perda_saida_ko"] = ko_modelo_v016
+    controle_hidraulico_bueiro["outlet_control"]["motivo"] = "parametros_metodologicos_definidos; falta_TW_para_resolver_condicao_hidraulica_especifica"
+
+    # Recalcula o resumo dos gates apos a incorporacao documental V0.16.
+    gates_liberacao_hds5["resumo"] = {
+        "quantidade_gates": len(gates),
+        "quantidade_satisfeitos": sum(1 for gate in gates.values() if gate["satisfeito"]),
+        "quantidade_bloqueados": sum(1 for gate in gates.values() if not gate["satisfeito"]),
+        "gates_bloqueados": [nome for nome, gate in gates.items() if not gate["satisfeito"]],
+        "inlet_control_liberado": prontidao_por_calculo_hds5["inlet_control"]["pronto"],
+        "outlet_control_liberado": prontidao_por_calculo_hds5["outlet_control"]["pronto"],
+        "submergencia_liberada": prontidao_por_calculo_hds5["submergencia"]["pronto"],
+        "controle_governante_liberado": False,
+        "capacidade_definitiva_liberada": False,
+        "resultado_modelado_referencia_liberado": True,
+        "vazao_modelada_referencia_m3_s": round(vazao_modelada_central_v016, 3),
+    }
+
+    auditoria_v016 = {
+        "versao": "GXA-V0.16-RESULTADOS-HIDRAULICOS-DOCUMENTAIS",
+        "estado": "consistente_resultados_modelados_liberados",
+        "gates_satisfeitos": gates_liberacao_hds5["resumo"]["quantidade_satisfeitos"],
+        "gates_bloqueados": gates_liberacao_hds5["resumo"]["quantidade_bloqueados"],
+        "gates_bloqueados_lista": gates_liberacao_hds5["resumo"]["gates_bloqueados"],
+        "resultado_modelado_referencia_liberado": True,
+        "nivel_observado_continua_sem_sensor": True,
+        "HW_observado_disponivel": False,
+        "TW_local_observado_disponivel": False,
+        "regra": "resultado_modelado_pode_ser_publicado_sem_ser_rotulado_como_medicao_observada_ou_capacidade_definitiva_calibrada",
+    }
+    controle_hidraulico_bueiro["auditoria_v016"] = auditoria_v016
  
     resultado = {
-        "versao": "GXA-V0.15-CONSOLIDACAO-AUDITORIA-FINAL-HDS5",
-        "status": "restricoes_fisicas_integradas_nivel_absoluto_ainda_indisponivel",
+        "versao": "GXA-V0.16-RESULTADOS-HIDRAULICOS-DOCUMENTAIS",
+        "status": "resultados_hidraulicos_modelados_publicados_nivel_observado_sem_sensor",
         "nivel_estimado_m": None,
         "incerteza_m": None,
         "confianca": "fisica_parcial_sem_calibracao_de_nivel",
-        "metodo": "restricoes_geometricas_documentadas_mais_forcantes_observadas_sem_coeficientes_empiricos_arbitrarios",
+        "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
         "instante": agora().isoformat(),
         "uso_operacional": False,
         "alerta_operacional_liberado": False,
@@ -10923,8 +11057,11 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
                     "fonte": "FHWA HDS-4 Introduction to Highway Hydraulics, 2008, Table B.3",
                     "uso": "checagem_bibliografica_secundaria",
                 },
-                "capacidade_vazao_m3_s": None,
-                "motivo_capacidade_indisponivel": "envelope_Manning_de_literatura_calculado; capacidade_definitiva_exige_rugosidade_local_ou_calibrada_e_analise_de_controle_de_entrada_saida_e_submergencia",
+                "capacidade_vazao_m3_s": round(vazao_modelada_central_v016, 3),
+                "capacidade_vazao_faixa_sensibilidade_m3_s": [round(vazao_modelada_min_v016, 3), round(vazao_modelada_max_v016, 3)],
+                "natureza_capacidade": "vazao_modelada_de_referencia_para_dois_tubos_cheios_no_trecho_governante_uniforme",
+                "velocidade_media_modelada_m_s": round(velocidade_modelada_central_v016, 3),
+                "politica_modelagem_documental_v016": politica_modelagem_documental_v016,
                 "controle_hidraulico_hds5": controle_hidraulico_bueiro,
             },
             "estrutura_victor_konder_canoas": {
@@ -10939,17 +11076,19 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "cotas_c2_do_bypass_documentadas_no_perfil": True,
             "cota_c2_final_a3_derivada_matematicamente": True,
             "cota_estrutura_saida_0_600_confirmada_como_invert_final_a3": False,
+            "cota_invert_final_a3_modelo_derivada_documental_m": cota_c2_a3_fim_derivada_m,
             "cota_invert_ou_fundo_do_rio_em_datum_confirmado": False,
             "declividade_hidraulica_numerica_confirmada_bypass_3999_21": True,
             "rugosidade_manning_literatura_para_tubo_concreto_disponivel": True,
             "rugosidade_manning_documentada_no_projeto_ou_calibrada_localmente": False,
+            "rugosidade_manning_central_adotada_no_modelo": manning_n_modelo_v016,
             "areas_contribuintes_por_ramo_ou_subbacia": False,
             "direcao_hidraulica_bypass_3999_21_confirmada": True,
             "direcao_hidraulica_do_grafo_completo_confirmada": False,
             "calibracao_com_nivel_observado_ou_referencia_visual": False,
             "estrutura_metodologica_controle_entrada_saida_hds5_integrada": True,
-            "controle_entrada_hds5_calculavel_com_dados_atuais": False,
-            "controle_saida_hds5_calculavel_com_dados_atuais": False,
+            "controle_entrada_hds5_calculavel_com_dados_atuais": prontidao_por_calculo_hds5["inlet_control"]["pronto"],
+            "controle_saida_hds5_calculavel_com_dados_atuais": prontidao_por_calculo_hds5["outlet_control"]["pronto"],
             "prontidao_hds5_calculada_explicitamente": True,
             "prontidao_hds5_separada_por_familia_de_calculo": True,
             "quantidade_campos_hds5_faltantes": len(faltantes_hds5),
@@ -10987,7 +11126,10 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "A V0.14 associa cada entrada HDS-5 ainda necessaria a classes de evidencia aceitaveis e nao aceitaveis, preservando a politica fail-closed.",
             "A V0.14 nao transforma evidencia indireta em valor hidraulico: uma entrada somente e satisfeita quando deixa de ser None com proveniencia registrada.",
             "A V0.15 consolida e audita os invariantes das camadas HDS-5 V0.10 a V0.14 sem alterar valores hidraulicos nem preencher entradas ausentes.",
-            "A V0.15 encerra o ciclo planejado do nucleo PY mantendo nivel estimado, capacidade definitiva e publicacao hidraulica bloqueados enquanto os gates nao forem satisfeitos.",
+            "A V0.15 encerrou o ciclo fail-closed anterior; a V0.16 incorpora evidencias documentais oficiais e passa a publicar resultados modelados de referencia com proveniencia explicita.",
+            "Na V0.16, ponta-e-bolsa/macho-e-femea com boca dupla e alas retas e classificado como groove-end with headwall para fins do modelo HDS-5.",
+            "Na V0.16, Ke=0,20 e Ko=1,00 sao parametros metodologicos FHWA adotados; n=0,012 e o valor central de modelagem dentro do envelope bibliografico 0,010-0,015.",
+            "A vazao modelada de referencia e publicada separadamente de capacidade definitiva calibrada, HW/TW observados e nivel instrumental.",
             "As declividades inferidas pelas cotas C2 de A1 e A2 sao usadas apenas como checagem de consistencia documental, nao como calibracao hidraulica.",
             "Nenhum coeficiente de entrada/saida HDS-5 e inferido apenas pela presenca das estruturas ALA-01/ALA-02 no desenho.",
             "Nenhuma velocidade de propagacao e presumida sem suporte fisico.",

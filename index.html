@@ -220,16 +220,16 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="radar-item">📚 Registros históricos<b id="guax166Registros">--</b></div>
 <div class="radar-item">🌧️ Leituras horárias de chuva<b id="guax166ChuvaQtd">--</b></div>
 <div class="radar-item">🌊 Leituras de maré observada<b id="guax166MareQtd">--</b></div>
-<div class="radar-item">🧮 Nível estimado liberado?<b id="guax166NivelLiberado">NÃO</b></div>
+<div class="radar-item">🧮 Modelo inferencial V0.17?<b id="guax166NivelLiberado">--</b></div>
 </div>
 <div id="guax166Estado" class="box aviso">Carregando histórico #166...</div>
 <div id="guax166Estacoes" class="box"><small>Carregando janelas pluviométricas...</small></div>
 <div id="guax166Mare" class="box"><small>Carregando condição de jusante...</small></div>
-<div class="box"><small><b>Regra de segurança:</b> P1h, P3h, P6h e P24h são calculados separadamente para cada estação e somente quando todas as horas necessárias estão presentes. A maré de Joinville/Babitonga é condição de jusante e não representa o nível do Rio Guaxanduva. Enquanto a calibração não estiver validada, o Monitor mantém o nível estimado e o alerta operacional bloqueados.</small></div>
+<div class="box"><small><b>Regra de segurança:</b> P1h, P3h, P6h e P24h são calculados separadamente para cada estação e somente quando todas as horas necessárias estão presentes. A maré de Joinville/Babitonga é condição de jusante e não representa o nível do Rio Guaxanduva. O histórico alimenta a calibração do modelo inferencial. Ausência de sensor não impede cenários matemáticos, mas nenhum estado inferido é rotulado como medição instrumental nem libera alerta operacional automaticamente.</small></div>
 </section>
 
 <section class="card">
-<div class="local">🧮 GUAXANDUVA-MODEL V0.15 • NÚCLEO HIDRÁULICO • AUDITADO</div>
+<div class="local">🧮 GUAXANDUVA-MODEL V0.17 • INFERÊNCIA HIDRÁULICA • AUDITADO</div>
 <h2>Estrutura computacional do Rio Guaxanduva</h2>
 <div class="sub">Prefeitura de Joinville / SIMGeo • camada 44 • microbacia 44-0 • segmento de referência 30960</div>
 <div class="radar-grid">
@@ -240,10 +240,10 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="radar-item">↔️ Ligações extremidade/interior<b id="gxaLigacoes">--</b></div>
 <div class="radar-item">🎯 Referência no segmento 30960?<b id="gxaReferencia">--</b></div>
 </div>
-<div id="gxaEstado" class="box aviso">Carregando GUAXANDUVA-MODEL V0.15...</div>
+<div id="gxaEstado" class="box aviso">Carregando GUAXANDUVA-MODEL V0.17...</div>
 <div id="gxaNivel" class="box"><b>🌊 Nível do Rio Guaxanduva</b><br><small>Carregando estado do modelo...</small></div>
 <div id="gxaHidraulica" class="box"><small>Carregando restrições hidráulicas documentadas...</small></div>
-<div class="box"><small><b>Regra de segurança:</b> o grafo representa a estrutura hidrográfica computacional. Nível observado permanece indisponível sem sensor público confirmado. Qualquer nível calculado pelo modelo deve aparecer explicitamente como ESTIMADO/EXPERIMENTAL, com incerteza e confiança; não é medição instrumental e não libera alerta operacional automaticamente.</small></div>
+<div class="box"><small><b>Regra de segurança:</b> o grafo representa a estrutura hidrográfica computacional. Nível observado permanece indisponível sem sensor público confirmado. HW, TW local e condição efetiva dos tubos podem ser inferidos por cenários matemáticos com incerteza explícita. Nenhum resultado modelado é apresentado como medição instrumental e nenhum cenário libera alerta operacional automaticamente.</small></div>
 </section>
 
 <section class="card">
@@ -265,23 +265,23 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 </section>
 
 <section class="card">
-<div class="local">⚙️ CONTROLE HIDRÁULICO • FHWA HDS-5 • V0.15 FINAL</div>
-<h2>Auditoria e liberação dos cálculos</h2>
-<div class="sub">By-pass Montezuma/Odilon • política fail-closed • nenhum dado ausente é convertido em zero</div>
+<div class="local">⚙️ CONTROLE HIDRÁULICO • FHWA HDS-5 • V0.17 INFERENCIAL</div>
+<h2>Auditoria, resultados e cenários hidráulicos</h2>
+<div class="sub">By-pass Montezuma/Odilon • HDS-5 + Manning • estados inferidos por cenários • nenhum dado ausente é convertido em zero</div>
 <div class="radar-grid">
-<div class="radar-item">🛡️ Auditoria V0.15<b id="hds15Auditoria">--</b></div>
-<div class="radar-item">🚧 Gates satisfeitos<b id="hds15Gates">--</b></div>
-<div class="radar-item">📋 Evidências pendentes<b id="hds15Pendencias">--</b></div>
-<div class="radar-item">➡️ Próximo gate bloqueado<b id="hds15ProximoGate">--</b></div>
-<div class="radar-item">🌊 Nível estimado liberado?<b id="hds15Nivel">NÃO</b></div>
-<div class="radar-item">💧 Capacidade definitiva liberada?<b id="hds15Capacidade">NÃO</b></div>
+<div class="radar-item">🛡️ Auditoria hidráulica<b id="hds15Auditoria">--</b></div>
+<div class="radar-item">💧 Vazão central modelada<b id="hds15Gates">--</b></div>
+<div class="radar-item">↔️ Envelope Manning<b id="hds15Pendencias">--</b></div>
+<div class="radar-item">🌊 Cenários dos tubos<b id="hds15ProximoGate">--</b></div>
+<div class="radar-item">🧮 HW/TW inferenciais<b id="hds15Nivel">--</b></div>
+<div class="radar-item">🛡️ Uso operacional?<b id="hds15Capacidade">NÃO</b></div>
 </div>
-<div id="hds15Estado" class="box aviso">Carregando auditoria hidráulica V0.15...</div>
-<div id="hds15Evidencias" class="box"><small>Carregando evidências exigidas para o próximo gate...</small></div>
-<div class="box"><small><b>Regra de segurança:</b> chuva observada não é HW; a maré de Joinville/Babitonga não é TW local; coeficientes HDS-5 não são inferidos por semelhança visual. Enquanto os gates necessários permanecerem bloqueados, nível estimado, controle governante e capacidade definitiva não são publicados.</small></div>
+<div id="hds15Estado" class="box aviso">Carregando auditoria hidráulica V0.17...</div>
+<div id="hds15Evidencias" class="box"><small>Carregando cenários hidráulicos inferenciais...</small></div>
+<div class="box"><small><b>Regra de segurança:</b> chuva observada não é HW e a maré de Joinville/Babitonga não é TW local absoluto. A V0.17 usa geometria documental, HDS-5/Manning e cenários de seção efetiva para inferência. Resultados permanecem MODELADOS, com incerteza explícita, e não equivalem a sensor nem a capacidade definitiva calibrada.</small></div>
 </section>
 
-<section class="card"><div class="local">🏞️ RIO GUAXANDUVA • INDISPONÍVEL</div><h2>Nível do rio</h2><div class="valor" id="rio">--</div><div id="rs" class="box aviso">Verificando sensor...</div><small>Sem sensor público confirmado, o Monitor não estima o nível do rio.</small></section>
+<section class="card"><div class="local">🏞️ RIO GUAXANDUVA • MODELO V0.17</div><h2>Estado hidráulico do rio</h2><div class="valor" id="rio">--</div><div id="rs" class="box aviso">Carregando modelo inferencial...</div><small>Sem sensor público confirmado para nível local. O Monitor trabalha com estados e cenários MODELADOS; não apresenta inferência como medição observada.</small></section>
 <section class="card"><div class="local">📐 ALTITUDE DO TERRENO • ESTIMATIVA CARTOGRÁFICA</div><h2>Rua Itapoá • Comasa</h2><div class="valor">≈ 5 m</div><div class="sub">acima do nível do mar</div><div class="box"><b>Fonte:</b> Prefeitura de Joinville / SIMGeo<br><small>ESTIMATIVA. Cota aproximada do terreno. Não representa nível de inundação nem nível atual do rio.</small></div></section>
 
 <section class="card">
@@ -290,7 +290,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="medida"><div class="medida-sigla">📡 DETECTADO POR RADAR</div><b>Identificado em imagem de radar</b><div class="medida-exemplo">Não equivale a milímetros medidos por pluviômetro.</div></div>
 <div class="medida"><div class="medida-sigla">🌦️ PREVISTO</div><b>Calculado por modelo</b><div class="medida-exemplo">É uma estimativa futura e pode divergir do que está ocorrendo no local.</div></div>
 <div class="medida"><div class="medida-sigla">⚪ INDISPONÍVEL</div><b>Sem dado confiável</b><div class="medida-exemplo">Não significa condição normal ou valor zero.</div></div>
-<div class="medida"><div class="medida-sigla">🧪 EXPERIMENTAL</div><b>Ainda em validação</b><div class="medida-exemplo">Não deve ser usado sozinho para decisão operacional.</div></div>
+<div class="medida"><div class="medida-sigla">🧮 MODELADO / INFERIDO</div><b>Calculado matematicamente a partir de dados documentados e forcantes disponíveis</b><div class="medida-exemplo">Ex.: vazão de referência, HW/TW inferenciais e cenários de obstrução. Não é leitura de sensor e carrega incerteza.</div></div><div class="medida"><div class="medida-sigla">🧪 EXPERIMENTAL</div><b>Ainda em validação</b><div class="medida-exemplo">Não deve ser usado sozinho para decisão operacional.</div></div>
 </section>
 
 <section class="card">
@@ -480,13 +480,13 @@ async function carregar(){
   $("guax166Registros").textContent=h166.quantidade_registros==null?"--":String(h166.quantidade_registros);
   $("guax166ChuvaQtd").textContent=h166.quantidade_chuva_horaria==null?"--":String(h166.quantidade_chuva_horaria);
   $("guax166MareQtd").textContent=h166.quantidade_mare_observada==null?"--":String(h166.quantidade_mare_observada);
-  $("guax166NivelLiberado").textContent=h166.nivel_estimado_liberado===true?"SIM":"NÃO";
+  $("guax166NivelLiberado").textContent=(gxa.inferencia_estados_hidraulicos_v017||(gxa.camada_matematica||{}).inferencia_estados_hidraulicos_v017)?"ATIVO":"--";
   const est166=Array.isArray(h166.chuva_por_estacao)?h166.chuva_por_estacao:[];
   $("guax166Estacoes").innerHTML=est166.length?'<b>🌧️ Janelas observadas por estação</b><br><small>'+est166.map(e=>{const janela=(rot,obj)=>{const x=obj||{};return rot+': <b>'+(x.disponivel===true&&x.valor_mm!=null?f(x.valor_mm,2)+' mm':'INDISPONÍVEL')+'</b>'};return '<div class="estacao-linha"><div><b>'+String(e.nome||e.codigo||"Estação")+'</b><div class="estacao-meta">'+String(e.fonte||"fonte não informada")+' • '+(e.equivale_medicao_no_comasa===true?'medição no Comasa':'não equivale a medição no Comasa')+'</div></div><div class="estacao-mm">'+janela('P1h',e.P1h)+'<br>'+janela('P3h',e.P3h)+'<br>'+janela('P6h',e.P6h)+'<br>'+janela('P24h',e.P24h)+'</div></div>'}).join('')+'</small>':'<small>Histórico #166 ainda sem série horária suficiente.</small>';
   const mj166=h166.mare_jusante_mais_recente||{};
   $("guax166Mare").innerHTML=mj166.horario_medicao?'<b>🌊 Condição de jusante mais recente</b><br><small>'+dataHoraBR(mj166.horario_medicao)+' • nível observado no marégrafo: <b>'+(mj166.nivel_m==null?'--':f(mj166.nivel_m,3)+' m')+'</b><br>Joinville/Babitonga • não representa nível do Rio Guaxanduva.</small>':'<small>Maré observada de jusante ainda indisponível no histórico #166.</small>';
   if(h166.status==="historico_em_formacao"){
-   $("guax166Estado").innerHTML='<span class="aviso">🧪 #166 ATIVO • HISTÓRICO EM FORMAÇÃO</span> • calibração e nível estimado continuam bloqueados';
+   $("guax166Estado").innerHTML='<span class="aviso">🧪 #166 ATIVO • HISTÓRICO EM FORMAÇÃO</span> • série usada na calibração progressiva do modelo V0.17';
   }else if(h166.versao){
    $("guax166Estado").innerHTML='<span class="aviso">🧪 #166 RECEBIDA</span> • estado: '+nomeFamilia(h166.status);
   }else{
@@ -509,43 +509,16 @@ async function carregar(){
    $("tmEstado").innerHTML='<span class="erro">🔴 TABELA-MESTRA NÃO RECEBIDA</span> • nenhum valor ausente é interpretado como zero';
   }
 
-  const gxar=gxa.resumo||{},gxap=gxa.ponto_referencia_topologia||{},gxario=gxa.rio||{},gxah=gxa.parametros_hidraulicos_documentados||{},gxageom=(gxa.camada_matematica&&gxa.camada_matematica.geometria_hidraulica_documentada)||{};
-   $("gxaSegmentos").textContent=gxar.segmentos_microbacia==null?"--":String(gxar.segmentos_microbacia);
-   $("gxaComponente").textContent=gxar.segmentos_componente_30960==null?"--":String(gxar.segmentos_componente_30960);
-   $("gxaNos").textContent=gxar.nos_endpoints==null?"--":String(gxar.nos_endpoints);
-   $("gxaJuncoes").textContent=gxar.juncoes_grau_3_ou_mais==null?"--":String(gxar.juncoes_grau_3_ou_mais);
-   $("gxaLigacoes").textContent=gxar.ligacoes_endpoint_interior==null?"--":String(gxar.ligacoes_endpoint_interior);
-   $("gxaReferencia").textContent=gxap.coincide_com_30960===true?"SIM":(gxap.segmento_mais_proximo==null?"--":"NÃO");
-   if(gxa.status==="grafo_hidrografico_integrado"){$("gxaEstado").innerHTML='<span class="ok">🟢 GRAFO HIDROGRÁFICO INTEGRADO</span> • topologia computacional ativa • referência 30960 '+(gxap.coincide_com_30960===true?'confirmada':'a verificar')}
-   else if(gxa.status){$("gxaEstado").innerHTML='<span class="aviso">🧪 MODELO EXPERIMENTAL</span> • estado: '+nomeFamilia(gxa.status)}
-   else{$("gxaEstado").innerHTML='<span class="erro">🔴 GUAXANDUVA-MODEL V0.15 INDISPONÍVEL</span>'}
-   const nivelObs=gxario.nivel_observado_m,nivelEst=gxario.nivel_estimado_m,inc=gxario.incerteza_m;
-   if(nivelObs!=null){$("gxaNivel").innerHTML='<b>🌊 Nível observado: '+f(nivelObs,3)+' m</b><br><small>Somente apresentado como observado quando houver medição instrumental confirmada.</small>'}
-   else if(nivelEst!=null){$("gxaNivel").innerHTML='<b>🧪 Nível ESTIMADO/EXPERIMENTAL: '+f(nivelEst,3)+' m</b><br><small>Incerteza: '+(inc==null?'--':'± '+f(inc,3)+' m')+' • confiança: '+nomeFamilia(gxario.confianca)+' • não é leitura de sensor.</small>'}
-   else{$("gxaNivel").innerHTML='<b>⚪ Nível observado: SEM SENSOR</b><br><small>Nível estimado do modelo ainda não calculado • confiança atual: '+nomeFamilia(gxario.confianca)+'.</small>'}
-   const by=gxah.bypass_montezuma_odilon||{},vk=gxah.estrutura_victor_konder_canoas||{},cf=gxah.cota_fundo_experimental_v01||{};
-   $("gxaHidraulica").innerHTML='<b>📐 Restrições hidráulicas documentadas/experimentais</b><br><small>'+'By-pass Montezuma/Odilon: <b>'+(by.extensao_aprox_m==null?'--':f(by.extensao_aprox_m,0)+' m')+'</b> • '+(by.quantidade_tubos??'--')+' tubos Ø '+(by.diametro_nominal_m==null?'--':f(by.diametro_nominal_m,2)+' m')+'<br>'+'Estrutura Victor Konder/Canoas: <b>'+(vk.largura_aprox_m==null?'--':f(vk.largura_aprox_m,2)+' m')+' × '+(vk.altura_aprox_m==null?'--':f(vk.altura_aprox_m,2)+' m')+'</b><br>'+'Cota de fundo experimental (camada histórica do modelo): <b>'+(cf.estimada_m==null?'--':f(cf.estimada_m,2)+' m')+'</b> • incerteza '+(cf.incerteza_m==null?'--':'± '+f(cf.incerteza_m,2)+' m')+' • confiança '+nomeFamilia(cf.confianca)+'.</small>';
-
-   const byHds=gxageom.bypass_montezuma_odilon||{},hds=byHds.controle_hidraulico_hds5||{},gatesH=hds.gates_liberacao_hds5||{},resG=gatesH.resumo||{},decH=hds.estado_decisao_hds5||{},audE=hds.auditoria_evidencias_hds5||{},aud15=hds.auditoria_final_v015||{};
-   $("hds15Auditoria").textContent=aud15.estado?nomeFamilia(aud15.estado):"--";
-   $("hds15Gates").textContent=resG.quantidade_gates==null?"--":String(resG.quantidade_satisfeitos??0)+" de "+String(resG.quantidade_gates);
-   $("hds15Pendencias").textContent=audE.quantidade_pendentes==null?"--":String(audE.quantidade_pendentes);
-   $("hds15ProximoGate").textContent=decH.proximo_gate_bloqueado?nomeFamilia(decH.proximo_gate_bloqueado):"NENHUM";
-   $("hds15Nivel").textContent=decH.nivel_estimado_liberado===true?"SIM":"NÃO";
-   $("hds15Capacidade").textContent=decH.capacidade_definitiva_liberada===true?"SIM":"NÃO";
-   if(aud15.estado==="consistente"&&aud15.quantidade_falhos===0){
-    $("hds15Estado").innerHTML='<span class="ok">🟢 AUDITORIA V0.15 CONSISTENTE</span> • '+String(aud15.quantidade_aprovados??"--")+' de '+String(aud15.quantidade_invariantes??"--")+' invariantes aprovados • publicação hidráulica continua '+(aud15.publicacao_hidraulica_liberada===true?'LIBERADA':'BLOQUEADA');
-   }else if(aud15.versao){
-    $("hds15Estado").innerHTML='<span class="erro">🔴 AUDITORIA V0.15 BLOQUEADA</span> • invariantes falhos: '+String(aud15.quantidade_falhos??"--");
-   }else{
-    $("hds15Estado").innerHTML='<span class="aviso">⚪ AUDITORIA V0.15 INDISPONÍVEL</span> • dados hidráulicos não são liberados por ausência deste bloco';
-   }
-   const proxDeps=Array.isArray(decH.proximo_gate_dependencias)?decH.proximo_gate_dependencias:[];
-   const matriz=audE.matriz||{};
-   $("hds15Evidencias").innerHTML=proxDeps.length?'<b>📋 Evidência necessária para fechar o próximo gate</b><br><small>'+proxDeps.map(campo=>{const x=matriz[campo]||{};const aceitas=Array.isArray(x.evidencias_aceitaveis)?x.evidencias_aceitaveis:[];return '<b>'+nomeFamilia(campo)+'</b><br>Classe exigida: '+nomeFamilia(x.classe_evidencia_exigida)+'<br>Aceitável: '+(aceitas.length?aceitas.map(nomeFamilia).join(' • '):'--')}).join('<br><br>')+'</small>':'<small>Nenhuma dependência do próximo gate foi informada. Isso não libera cálculo automaticamente; prevalece a auditoria fail-closed.</small>';
-
-   $("rio").textContent=q.nivel_m==null?"SEM SENSOR":f(q.nivel_m,2)+" m";
-  $("rs").textContent=q.nivel_m==null?"⚪ INDISPONÍVEL • sem sensor público confirmado para o Rio Guaxanduva":"🟢 OBSERVADO • nível automático recebido";
+  const camada=gxa.camada_matematica||{},gxar=gxa.resumo||{},gxap=gxa.ponto_referencia_topologia||{},gxario=gxa.rio||{},gxah=gxa.parametros_hidraulicos_documentados||{},gxageom=camada.geometria_hidraulica_documentada||{},inf17=gxa.inferencia_estados_hidraulicos_v017||camada.inferencia_estados_hidraulicos_v017||{};
+  $("gxaSegmentos").textContent=gxar.segmentos_microbacia==null?"--":String(gxar.segmentos_microbacia); $("gxaComponente").textContent=gxar.segmentos_componente_30960==null?"--":String(gxar.segmentos_componente_30960); $("gxaNos").textContent=gxar.nos_endpoints==null?"--":String(gxar.nos_endpoints); $("gxaJuncoes").textContent=gxar.juncoes_grau_3_ou_mais==null?"--":String(gxar.juncoes_grau_3_ou_mais); $("gxaLigacoes").textContent=gxar.ligacoes_endpoint_interior==null?"--":String(gxar.ligacoes_endpoint_interior); $("gxaReferencia").textContent=gxap.coincide_com_30960===true?"SIM":(gxap.segmento_mais_proximo==null?"--":"NÃO");
+  const v17=String(gxa.versao||camada.versao||"").includes("V0.17"); if(v17&&gxa.status_modelo_hidraulico){$("gxaEstado").innerHTML='<span class="ok">🟢 GUAXANDUVA-MODEL V0.17 ATIVO</span> • '+nomeFamilia(gxa.status_modelo_hidraulico)+' • grafo: '+nomeFamilia(gxa.status)}else if(gxa.status){$("gxaEstado").innerHTML='<span class="aviso">🧪 MODELO RECEBIDO</span> • '+nomeFamilia(gxa.status)}else{$("gxaEstado").innerHTML='<span class="erro">🔴 GUAXANDUVA-MODEL INDISPONÍVEL</span>'}
+  const nivelObs=gxario.nivel_observado_m,nivelEst=gxario.nivel_estimado_m,inc=gxario.incerteza_m; if(nivelObs!=null){$("gxaNivel").innerHTML='<b>🌊 Nível observado: '+f(nivelObs,3)+' m</b><br><small>Medição instrumental confirmada.</small>'}else if(nivelEst!=null){$("gxaNivel").innerHTML='<b>🧮 Nível MODELADO: '+f(nivelEst,3)+' m</b><br><small>Incerteza: '+(inc==null?'--':'± '+f(inc,3)+' m')+' • não é leitura de sensor.</small>'}else if(inf17.status){$("gxaNivel").innerHTML='<b>🧮 ESTADOS HIDRÁULICOS INFERENCIAIS ATIVOS</b><br><small>HW e TW absolutos ainda não fechados; são estados inferíveis por cenários matemáticos e nunca rotulados como observados.</small>'}else{$("gxaNivel").innerHTML='<b>⚪ Nível observado: SEM SENSOR</b><br><small>Camada inferencial indisponível nesta coleta.</small>'}
+  const by=gxah.bypass_montezuma_odilon||{},vk=gxah.estrutura_victor_konder_canoas||{},byHds=(gxageom.bypass_montezuma_odilon||{}),hds=byHds.controle_hidraulico_hds5||{},res16=hds.resultados_hidraulicos_modelados_v016||{},aud16=hds.auditoria_v016||{},cen=((inf17.condicao_tubos||{}).cenarios)||[];
+  $("gxaHidraulica").innerHTML='<b>📐 Geometria documental + resultados modelados</b><br><small>By-pass: <b>'+(by.extensao_aprox_m==null?'--':f(by.extensao_aprox_m,0)+' m')+'</b> • '+(by.quantidade_tubos??'--')+' tubos Ø '+(by.diametro_nominal_m==null?'--':f(by.diametro_nominal_m,2)+' m')+'<br>Victor Konder/Canoas: <b>'+(vk.largura_aprox_m==null?'--':f(vk.largura_aprox_m,2)+' m')+' × '+(vk.altura_aprox_m==null?'--':f(vk.altura_aprox_m,2)+' m')+'</b><br>Vazão central: <b>'+(res16.vazao_central_m3_s==null?'--':f(res16.vazao_central_m3_s,3)+' m³/s')+'</b> • envelope '+(res16.vazao_sensibilidade_min_m3_s==null?'--':f(res16.vazao_sensibilidade_min_m3_s,3))+'–'+(res16.vazao_sensibilidade_max_m3_s==null?'--':f(res16.vazao_sensibilidade_max_m3_s,3))+' m³/s • velocidade '+(res16.velocidade_media_central_tubos_cheios_m_s==null?'--':f(res16.velocidade_media_central_tubos_cheios_m_s,3)+' m/s')+'.</small>';
+  $("hds15Auditoria").textContent=aud16.estado?nomeFamilia(aud16.estado):(v17?"V0.17 ATIVA":"--"); $("hds15Gates").textContent=res16.vazao_central_m3_s==null?"--":f(res16.vazao_central_m3_s,3)+" m³/s"; $("hds15Pendencias").textContent=(res16.vazao_sensibilidade_min_m3_s==null||res16.vazao_sensibilidade_max_m3_s==null)?"--":f(res16.vazao_sensibilidade_min_m3_s,3)+"–"+f(res16.vazao_sensibilidade_max_m3_s,3)+" m³/s"; $("hds15ProximoGate").textContent=cen.length?String(cen.length)+" CENÁRIOS":"--"; $("hds15Nivel").textContent=inf17.status?"ATIVOS":"--"; $("hds15Capacidade").textContent=(camada.uso_operacional===true||gxa.alerta_operacional_liberado===true)?"SIM":"NÃO";
+  if(v17&&res16.publicacao_liberada===true){$("hds15Estado").innerHTML='<span class="ok">🟢 V0.17 • RESULTADOS MODELADOS PUBLICADOS</span> • referência hidráulica liberada • não instrumental • uso operacional NÃO LIBERADO'}else{$("hds15Estado").innerHTML='<span class="aviso">⚪ RESULTADOS HIDRÁULICOS AINDA NÃO DISPONÍVEIS</span>'}
+  $("hds15Evidencias").innerHTML=cen.length?'<b>🧮 Cenários de seção efetiva dos dois tubos</b><br><small>'+cen.map(x=>'<b>'+nomeFamilia(x.cenario)+'</b> • obstrução assumida '+Math.round(Number(x.fracao_obstrucao_assumida||0)*100)+'% • área '+f(x.area_efetiva_m2,4)+' m² • Q '+f(x.vazao_referencia_ajustada_m3_s,3)+' m³/s • MODELADO').join('<br>')+'<br><br>HW/TW absolutos permanecem sem medição local; a V0.17 os trata como estados inferíveis por cenários.</small>':'<small>Cenários inferenciais V0.17 não recebidos.</small>';
+  if(q.nivel_m!=null){$("rio").textContent=f(q.nivel_m,2)+" m";$("rs").innerHTML='<span class="ok">🟢 OBSERVADO • nível automático recebido</span>'}else if(inf17.status){$("rio").textContent="MODELO ATIVO";$("rs").innerHTML='<span class="ok">🧮 V0.17 INFERENCIAL ATIVA</span> • sem sensor local de nível • estados avaliados por cenários • não é medição instrumental'}else{$("rio").textContent="SEM SENSOR";$("rs").innerHTML='<span class="aviso">⚪ Sem sensor público confirmado e sem camada inferencial disponível</span>'}
 
   const re=rh.entradas||{},rc=rh.criterios||{};
   $("riscoChuva24").textContent=re.chuva_prevista_24h_mm==null?"--":f(re.chuva_prevista_24h_mm,2)+" mm";

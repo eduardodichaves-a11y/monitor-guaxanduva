@@ -1,6 +1,6 @@
 {
-  "versao": "GXA-V0.15-CONSOLIDACAO-AUDITORIA-FINAL-HDS5",
-  "gerado_em": "2026-09-26T20:08:58.199131-03:00",
+  "versao": "GXA-V0.17-ESTADOS-HIDRAULICOS-INFERENCIA-CENARIOS",
+  "gerado_em": "2026-09-26T20:14:30.624921-03:00",
   "status": "grafo_hidrografico_integrado",
   "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
   "microbacia": "44-0",
@@ -17,7 +17,7 @@
     "incerteza_m": null,
     "confianca": "fisica_parcial_sem_calibracao_de_nivel",
     "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-    "instante": "2026-09-26T20:09:00.590088-03:00"
+    "instante": "2026-09-26T20:14:32.836072-03:00"
   },
   "parametros_hidraulicos_documentados": {
     "bypass_montezuma_odilon": {
@@ -10547,7 +10547,7 @@
     "incerteza_m": null,
     "confianca": "fisica_parcial_sem_calibracao_de_nivel",
     "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-    "instante": "2026-09-26T20:09:00.590088-03:00",
+    "instante": "2026-09-26T20:14:32.836072-03:00",
     "uso_operacional": false,
     "alerta_operacional_liberado": false,
     "representa_medicao_instrumental": false,
@@ -11731,5 +11731,79 @@
         "representa_nivel_rio_guaxanduva": false
       }
     }
+  },
+  "status_modelo_hidraulico": "resultados_modelados_com_inferencia_de_estados_sem_sensor_local",
+  "inferencia_estados_hidraulicos_v017": {
+    "versao": "GXA-V0.17-ESTADOS-HIDRAULICOS-INFERENCIA-CENARIOS",
+    "status": "modelo_inferencial_ativo_sem_instrumentacao_local",
+    "filosofia": "HW_TW_e_secao_efetiva_sao_variaveis_de_estado_modeladas_com_incerteza_e_nunca_rotuladas_como_observadas",
+    "TW": {
+      "observado_local": false,
+      "forcante_jusante_disponivel": true,
+      "mare_joinville_babitonga_observada_m": 0.114,
+      "TW_local_absoluto_m": null,
+      "regra": "mare_e_forcante_de_jusante; sem_compatibilidade_de_datum_nao_e_convertida_diretamente_em_TW_local_absoluto",
+      "modelo_previsto": "funcao_de_transferencia_com_atraso_tau_amortecimento_km_e_componente_fluvial_calibrados_pela_serie_visual"
+    },
+    "HW": {
+      "observado_local": false,
+      "HW_absoluto_m": null,
+      "regra": "resolver_por_continuidade_mais_HDS5_Manning_para_cada_cenario_de_TW_vazao_e_secao_efetiva",
+      "estado": "inferivel_por_cenarios_sem_ser_medicao"
+    },
+    "condicao_tubos": {
+      "inspecao_as_built_atual": false,
+      "cenarios": [
+        {
+          "cenario": "livre",
+          "fracao_obstrucao_assumida": 0.0,
+          "area_efetiva_m2": 3.5343,
+          "vazao_referencia_ajustada_m3_s": 6.849,
+          "velocidade_media_m_s": 1.938,
+          "perda_local_Ke_Ko_m": 0.23,
+          "natureza": "cenario_inferencial_nao_observado"
+        },
+        {
+          "cenario": "moderada",
+          "fracao_obstrucao_assumida": 0.15,
+          "area_efetiva_m2": 3.0041,
+          "vazao_referencia_ajustada_m3_s": 5.822,
+          "velocidade_media_m_s": 1.938,
+          "perda_local_Ke_Ko_m": 0.23,
+          "natureza": "cenario_inferencial_nao_observado"
+        },
+        {
+          "cenario": "severa",
+          "fracao_obstrucao_assumida": 0.3,
+          "area_efetiva_m2": 2.474,
+          "vazao_referencia_ajustada_m3_s": 4.795,
+          "velocidade_media_m_s": 1.938,
+          "perda_local_Ke_Ko_m": 0.23,
+          "natureza": "cenario_inferencial_nao_observado"
+        }
+      ],
+      "regra": "usar_envelope_de_cenarios_ate_calibracao_visual_ou_inspecao; nao_escolher_um_cenario_como_fato"
+    },
+    "calibracao_visual": {
+      "estacao_primaria": "Portao Costuraria",
+      "estacao_secundaria": "Muro Costuraria",
+      "data_serie_base": "2026-09-26",
+      "horarios_portao": [
+        "07:00",
+        "08:00",
+        "09:10",
+        "15:30",
+        "16:30",
+        "17:00"
+      ],
+      "horarios_muro": [
+        "08:06",
+        "10:03",
+        "16:32",
+        "17:31"
+      ],
+      "uso": "ajustar_atraso_amortecimento_e_evolucao_relativa_da_lamina_sem_inventar_cota_absoluta"
+    },
+    "regra_publicacao": "publicar_resultados_como_MODELADOS_e_com_cenario_incerteza; nunca_como_nivel_observado"
   }
 }

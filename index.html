@@ -247,6 +247,24 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 </section>
 
 <section class="card">
+<div class="local">🗺️ BASE MODELADA DA BACIA • TABELA-MESTRA</div>
+<h2>Áreas contribuintes modeladas do Guaxanduva</h2>
+<div class="sub">MDT + hidrografia oficial de Joinville • integração vetorial/raster • não é delimitação hidrológica oficial municipal</div>
+<div class="radar-grid">
+<div class="radar-item">🌊 Segmentos modelados<b id="tmSegmentos">--</b></div>
+<div class="radar-item">🗺️ Área contribuinte modelada<b id="tmArea">--</b></div>
+<div class="radar-item">🎯 Saída topológica (outlet)<b id="tmOutlet">--</b></div>
+<div class="radar-item">🔄 Área acumulada no outlet<b id="tmOutletArea">--</b></div>
+<div class="radar-item">⚠️ Pixels com barreira &gt; 1 m<b id="tmGt1">--</b></div>
+<div class="radar-item">⚠️ Pixels com barreira &gt; 2 m<b id="tmGt2">--</b></div>
+<div class="radar-item">🔎 Segmentos com incerteza<b id="tmIncerteza">--</b></div>
+<div class="radar-item">🛡️ Validação da base<b id="tmValida">--</b></div>
+</div>
+<div id="tmEstado" class="box aviso">Carregando Tabela-Mestra...</div>
+<div class="box"><small><b>Regra de segurança:</b> esta base representa áreas contribuintes <b>modeladas</b> a partir do MDT e da hidrografia oficial. Não é uma delimitação hidrológica oficial da Prefeitura. Falha, ausência ou inconsistência do CSV mantém a base indisponível; nunca é convertida em zero.</small></div>
+</section>
+
+<section class="card">
 <div class="local">⚙️ CONTROLE HIDRÁULICO • FHWA HDS-5 • V0.15 FINAL</div>
 <h2>Auditoria e liberação dos cálculos</h2>
 <div class="sub">By-pass Montezuma/Odilon • política fail-closed • nenhum dado ausente é convertido em zero</div>
@@ -333,7 +351,7 @@ async function carregarHistorico(){
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
-  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{};
+  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
 
@@ -473,6 +491,22 @@ async function carregar(){
    $("guax166Estado").innerHTML='<span class="aviso">🧪 #166 RECEBIDA</span> • estado: '+nomeFamilia(h166.status);
   }else{
    $("guax166Estado").innerHTML='<span class="erro">🔴 #166 INDISPONÍVEL</span> • nenhum valor ausente é interpretado como zero';
+  }
+
+  $("tmSegmentos").textContent=tm.segmentos==null?"--":String(tm.segmentos);
+  $("tmArea").textContent=tm.area_modelada_ha==null?"--":f(tm.area_modelada_ha,2)+" ha";
+  $("tmOutlet").textContent=tm.outlet_segmento==null?"--":"SEGMENTO "+String(tm.outlet_segmento);
+  $("tmOutletArea").textContent=tm.outlet_area_acumulada_ha==null?"--":f(tm.outlet_area_acumulada_ha,2)+" ha";
+  $("tmGt1").textContent=tm.flags_pixels_gt1==null?"--":String(tm.flags_pixels_gt1);
+  $("tmGt2").textContent=tm.flags_pixels_gt2==null?"--":String(tm.flags_pixels_gt2);
+  $("tmIncerteza").textContent=tm.segmentos_com_incerteza==null?"--":String(tm.segmentos_com_incerteza);
+  $("tmValida").textContent=tm.valida===true?"VALIDADA":(tm.valida===false?"NÃO VALIDADA":"--");
+  if(tm.valida===true&&tm.status==="BASE_MODELADA_VALIDADA"){
+   $("tmEstado").innerHTML='<span class="ok">🟢 BASE MODELADA VALIDADA</span> • fechamento interno conferido pelo backend • natureza: MODELADA/NÃO OFICIAL';
+  }else if(tm.status){
+   $("tmEstado").innerHTML='<span class="erro">🔴 BASE MODELADA INDISPONÍVEL</span> • '+nomeFamilia(tm.status)+(tm.erro?'<br><small>'+String(tm.erro)+'</small>':'');
+  }else{
+   $("tmEstado").innerHTML='<span class="erro">🔴 TABELA-MESTRA NÃO RECEBIDA</span> • nenhum valor ausente é interpretado como zero';
   }
 
   const gxar=gxa.resumo||{},gxap=gxa.ponto_referencia_topologia||{},gxario=gxa.rio||{},gxah=gxa.parametros_hidraulicos_documentados||{},gxageom=(gxa.camada_matematica&&gxa.camada_matematica.geometria_hidraulica_documentada)||{};

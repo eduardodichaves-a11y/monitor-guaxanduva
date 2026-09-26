@@ -9698,7 +9698,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.15-CONSOLIDACAO-AUDITORIA-FINAL-HDS5"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.17-ESTADOS-HIDRAULICOS-INFERENCIA-CENARIOS"
 
 
 # =========================================================
@@ -11399,6 +11399,14 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
         base["propagacao_grafo"] = propagacao_grafo
         camada_matematica = _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo)
         base["camada_matematica"] = camada_matematica
+        # V0.17: sincroniza a identidade externa do GUAXANDUVA-MODEL com o
+        # núcleo hidráulico efetivamente executado. O status topológico do
+        # grafo permanece separado em base["status"].
+        base["versao"] = camada_matematica.get("versao") or GUAXANDUVA_MODELO_VERSAO
+        base["status_modelo_hidraulico"] = camada_matematica.get("status")
+        base["inferencia_estados_hidraulicos_v017"] = camada_matematica.get(
+            "inferencia_estados_hidraulicos_v017"
+        )
         base["rio"]["nivel_estimado_m"] = camada_matematica.get("nivel_estimado_m")
         base["rio"]["incerteza_m"] = camada_matematica.get("incerteza_m")
         base["rio"]["confianca"] = camada_matematica.get("confianca")

@@ -1,4 +1,5 @@
 import io
+import csv
 import base64
 import json
 import math
@@ -9698,6 +9699,180 @@ GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
 GUAXANDUVA_MODELO_VERSAO = "GXA-V0.15-CONSOLIDACAO-AUDITORIA-FINAL-HDS5"
+
+
+# =========================================================
+# TABELA-MESTRA GUAXANDUVA - BASE MODELADA ESTATICA
+# =========================================================
+# Esta camada le o CSV consolidado produzido pela auditoria espacial.
+# Ela NAO altera o GUAXANDUVA-MODEL V0.15, NAO reescreve o CSV e
+# NAO transforma area modelada em delimitacao hidrologica oficial.
+# Em qualquer falha, opera em modo fail-closed: ausencia/erro != zero.
+
+TABELA_MESTRA_GUAXANDUVA_ARQUIVO = "TABELA_MESTRA_GUAXANDUVA.csv"
+TABELA_MESTRA_SEGMENTOS_ESPERADOS = 119
+TABELA_MESTRA_OUTLET = 392
+TABELA_MESTRA_AREA_RASTER_HA = 544.26
+TABELA_MESTRA_TOLERANCIA_AREA_HA = 0.01
+
+
+def _tabela_mestra_float_ou_none(valor):
+    if valor is None:
+        return None
+    texto = str(valor).strip().replace(",", ".")
+    if not texto:
+        return None
+    numero = float(texto)
+    if not math.isfinite(numero):
+        raise ValueError("valor numerico nao finito")
+    return numero
+
+
+def _tabela_mestra_int_obrigatorio(valor, campo):
+    numero = _tabela_mestra_float_ou_none(valor)
+    if numero is None or not float(numero).is_integer():
+        raise ValueError(f"{campo} deve ser inteiro")
+    return int(numero)
+
+
+def carregar_tabela_mestra_guaxanduva():
+    diagnostico = {
+        "versao": "tabela-mestra-v1.0",
+        "status": "BASE_MODELADA_INDISPONIVEL",
+        "valida": False,
+        "arquivo": TABELA_MESTRA_GUAXANDUVA_ARQUIVO,
+        "metodo": "hibrido_vetor_raster_MDT_hidrografia_oficial",
+        "natureza": "modelada_nao_oficial",
+        "segmentos": None,
+        "area_modelada_ha": None,
+        "outlet_segmento": None,
+        "outlet_area_acumulada_ha": None,
+        "flags_pixels_gt1": None,
+        "flags_pixels_gt2": None,
+        "segmentos_com_incerteza": None,
+        "erro": None,
+        "observacoes": [
+            "Areas derivadas do MDT e da hidrografia oficial de Joinville.",
+            "Nao constitui delimitacao hidrologica oficial municipal.",
+            "O CSV e base estatica de leitura e nao deve ser reescrito pelo workflow.",
+            "Ausencia, erro de leitura ou falha de validacao nunca e convertido em zero.",
+        ],
+    }
+
+    colunas_obrigatorias = {
+        "segment",
+        "local_ha",
+        "acc_ha",
+        "successor",
+        "nome_rio",
+        "nova_class",
+        "flag_pixels_gt1",
+        "flag_pixels_gt2",
+        "uncertainty_flag",
+    }
+
+    try:
+        with open(
+            TABELA_MESTRA_GUAXANDUVA_ARQUIVO,
+            "r",
+            encoding="utf-8-sig",
+            newline="",
+        ) as arquivo:
+            leitor = csv.DictReader(arquivo)
+            cabecalho = set(leitor.fieldnames or [])
+            faltantes = sorted(colunas_obrigatorias - cabecalho)
+            if faltantes:
+                raise ValueError(
+                    "colunas obrigatorias ausentes: " + ", ".join(faltantes)
+                )
+            linhas = list(leitor)
+
+        if len(linhas) != TABELA_MESTRA_SEGMENTOS_ESPERADOS:
+            raise ValueError(
+                f"quantidade de segmentos invalida: {len(linhas)}; "
+                f"esperado {TABELA_MESTRA_SEGMENTOS_ESPERADOS}"
+            )
+
+        segmentos = set()
+        soma_local_ha = 0.0
+        outlet = None
+        total_gt1 = 0
+        total_gt2 = 0
+        segmentos_com_incerteza = 0
+
+        for linha in linhas:
+            segmento = _tabela_mestra_int_obrigatorio(
+                linha.get("segment"),
+                "segment",
+            )
+            if segmento in segmentos:
+                raise ValueError(f"segmento duplicado: {segmento}")
+            segmentos.add(segmento)
+
+            local_ha = _tabela_mestra_float_ou_none(linha.get("local_ha"))
+            acc_ha = _tabela_mestra_float_ou_none(linha.get("acc_ha"))
+            if local_ha is None or local_ha < 0:
+                raise ValueError(f"local_ha invalido no segmento {segmento}")
+            if acc_ha is None or acc_ha < 0:
+                raise ValueError(f"acc_ha invalido no segmento {segmento}")
+
+            gt1 = _tabela_mestra_int_obrigatorio(
+                linha.get("flag_pixels_gt1"),
+                "flag_pixels_gt1",
+            )
+            gt2 = _tabela_mestra_int_obrigatorio(
+                linha.get("flag_pixels_gt2"),
+                "flag_pixels_gt2",
+            )
+            if gt1 < 0 or gt2 < 0 or gt2 > gt1:
+                raise ValueError(
+                    f"flags de auditoria invalidas no segmento {segmento}"
+                )
+
+            soma_local_ha += local_ha
+            total_gt1 += gt1
+            total_gt2 += gt2
+
+            if str(linha.get("uncertainty_flag") or "").strip():
+                segmentos_com_incerteza += 1
+
+            if segmento == TABELA_MESTRA_OUTLET:
+                outlet = {"segmento": segmento, "acc_ha": acc_ha}
+
+        if outlet is None:
+            raise ValueError(
+                f"outlet {TABELA_MESTRA_OUTLET} ausente da tabela"
+            )
+
+        if abs(soma_local_ha - TABELA_MESTRA_AREA_RASTER_HA) > TABELA_MESTRA_TOLERANCIA_AREA_HA:
+            raise ValueError(
+                f"fechamento local invalido: {soma_local_ha:.6f} ha; "
+                f"esperado {TABELA_MESTRA_AREA_RASTER_HA:.2f} ha"
+            )
+
+        if abs(outlet["acc_ha"] - TABELA_MESTRA_AREA_RASTER_HA) > TABELA_MESTRA_TOLERANCIA_AREA_HA:
+            raise ValueError(
+                f"area acumulada do outlet invalida: {outlet['acc_ha']:.6f} ha; "
+                f"esperado {TABELA_MESTRA_AREA_RASTER_HA:.2f} ha"
+            )
+
+        diagnostico.update({
+            "status": "BASE_MODELADA_VALIDADA",
+            "valida": True,
+            "segmentos": len(linhas),
+            "area_modelada_ha": round(soma_local_ha, 6),
+            "outlet_segmento": outlet["segmento"],
+            "outlet_area_acumulada_ha": round(outlet["acc_ha"], 6),
+            "flags_pixels_gt1": total_gt1,
+            "flags_pixels_gt2": total_gt2,
+            "segmentos_com_incerteza": segmentos_com_incerteza,
+        })
+
+    except Exception as exc:
+        diagnostico["status"] = "BASE_MODELADA_INVALIDA"
+        diagnostico["erro"] = f"{type(exc).__name__}: {exc}"
+
+    return diagnostico
  
  
 def _gxa_haversine_m(a, b):
@@ -11309,6 +11484,7 @@ def main():
     mare_prevista164 = calcular_pico_mare_previsto_24h_164(previsao)
     guaxanduva166 = atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160)
     modelo_guaxanduva_v01 = construir_modelo_computacional_guaxanduva_v01(guaxanduva166)
+    tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
     dados = {
         "monitor":
             "Monitor Guaxanduva",
@@ -11369,6 +11545,9 @@ def main():
  
         "modelo_computacional_guaxanduva_v01":
             modelo_guaxanduva_v01,
+
+        "tabela_mestra_guaxanduva":
+            tabela_mestra_guaxanduva,
  
         "rio": {
             "nome":

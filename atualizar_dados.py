@@ -10586,10 +10586,10 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "outlet_control_pronto": prontidao_por_calculo_hds5["outlet_control"]["pronto"],
             "submergencia_determinavel": prontidao_por_calculo_hds5["submergencia"]["pronto"],
             "capacidade_definitiva_liberada": False,
-            "resultado_hidraulico_modelado_referencia_liberado": True,
-            "vazao_modelada_referencia_m3_s": round(vazao_modelada_central_v016, 3),
+            "resultado_hidraulico_modelado_referencia_liberado": False,
+            "vazao_modelada_referencia_m3_s": None,
         },
-        "proxima_etapa_tecnica": "fechar_geometria_entrada_e_cota_invert_final_A3_antes_de_selecionar_coeficientes_HDS5",
+        "proxima_etapa_tecnica": "historico_v011_superado_pela_modelagem_documental_v016_e_pela_inferencia_de_estados_v017",
         "regras": [
             "None_permanece_dado_ausente_e_nunca_e_convertido_em_zero",
             "chuva_EPAGRI_nao_substitui_headwater_HW",
@@ -10936,6 +10936,64 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
     vazao_modelada_max_v016 = fator_critico_v016 / manning_n_min_literatura
     velocidade_modelada_central_v016 = vazao_modelada_central_v016 / area_bueiro_duplo_m2
 
+    # V0.17 - camada inferencial para estados que nao terao instrumentacao local.
+    # HW, TW e condicao efetiva dos tubos deixam de ser gates impossiveis.
+    # Sao tratados por cenarios matematicos transparentes, sem rotulo de medicao.
+    g_m_s2 = 9.80665
+    cenarios_obstrucao_v017 = []
+    for nome_cenario, fracao_obstrucao in (("livre", 0.00), ("moderada", 0.15), ("severa", 0.30)):
+        area_efetiva = area_bueiro_duplo_m2 * (1.0 - fracao_obstrucao)
+        # Aproximacao de triagem: a vazao de referencia e reduzida na mesma
+        # proporcao da area efetiva. Nao substitui geometria parcial detalhada.
+        q_efetiva = vazao_modelada_central_v016 * (1.0 - fracao_obstrucao)
+        velocidade_efetiva = q_efetiva / area_efetiva if area_efetiva > 0 else None
+        perda_local = ((ke_modelo_v016 + ko_modelo_v016) * velocidade_efetiva ** 2 / (2.0 * g_m_s2)) if velocidade_efetiva is not None else None
+        cenarios_obstrucao_v017.append({
+            "cenario": nome_cenario,
+            "fracao_obstrucao_assumida": fracao_obstrucao,
+            "area_efetiva_m2": round(area_efetiva, 4),
+            "vazao_referencia_ajustada_m3_s": round(q_efetiva, 3),
+            "velocidade_media_m_s": round(velocidade_efetiva, 3) if velocidade_efetiva is not None else None,
+            "perda_local_Ke_Ko_m": round(perda_local, 3) if perda_local is not None else None,
+            "natureza": "cenario_inferencial_nao_observado",
+        })
+
+    mare_jusante_v017 = (guaxanduva166 or {}).get("mare_jusante_mais_recente") or {}
+    mare_observada_m_v017 = mare_jusante_v017.get("nivel_m")
+    inferencia_estados_v017 = {
+        "versao": "GXA-V0.17-ESTADOS-HIDRAULICOS-INFERENCIA-CENARIOS",
+        "status": "modelo_inferencial_ativo_sem_instrumentacao_local",
+        "filosofia": "HW_TW_e_secao_efetiva_sao_variaveis_de_estado_modeladas_com_incerteza_e_nunca_rotuladas_como_observadas",
+        "TW": {
+            "observado_local": False,
+            "forcante_jusante_disponivel": mare_observada_m_v017 is not None,
+            "mare_joinville_babitonga_observada_m": mare_observada_m_v017,
+            "TW_local_absoluto_m": None,
+            "regra": "mare_e_forcante_de_jusante; sem_compatibilidade_de_datum_nao_e_convertida_diretamente_em_TW_local_absoluto",
+            "modelo_previsto": "funcao_de_transferencia_com_atraso_tau_amortecimento_km_e_componente_fluvial_calibrados_pela_serie_visual",
+        },
+        "HW": {
+            "observado_local": False,
+            "HW_absoluto_m": None,
+            "regra": "resolver_por_continuidade_mais_HDS5_Manning_para_cada_cenario_de_TW_vazao_e_secao_efetiva",
+            "estado": "inferivel_por_cenarios_sem_ser_medicao",
+        },
+        "condicao_tubos": {
+            "inspecao_as_built_atual": False,
+            "cenarios": cenarios_obstrucao_v017,
+            "regra": "usar_envelope_de_cenarios_ate_calibracao_visual_ou_inspecao; nao_escolher_um_cenario_como_fato",
+        },
+        "calibracao_visual": {
+            "estacao_primaria": "Portao Costuraria",
+            "estacao_secundaria": "Muro Costuraria",
+            "data_serie_base": "2026-09-26",
+            "horarios_portao": ["07:00", "08:00", "09:10", "15:30", "16:30", "17:00"],
+            "horarios_muro": ["08:06", "10:03", "16:32", "17:31"],
+            "uso": "ajustar_atraso_amortecimento_e_evolucao_relativa_da_lamina_sem_inventar_cota_absoluta",
+        },
+        "regra_publicacao": "publicar_resultados_como_MODELADOS_e_com_cenario_incerteza; nunca_como_nivel_observado",
+    }
+
     politica_modelagem_documental_v016 = {
         "versao": "GXA-V0.16-RESULTADOS-HIDRAULICOS-DOCUMENTAIS",
         "regra": "documentos_oficiais_de_projeto_sao_aceitos_como_geometria_efetiva_do_modelo_com_proveniencia_explicita",
@@ -11005,8 +11063,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
     controle_hidraulico_bueiro["auditoria_v016"] = auditoria_v016
  
     resultado = {
-        "versao": "GXA-V0.16-RESULTADOS-HIDRAULICOS-DOCUMENTAIS",
-        "status": "resultados_hidraulicos_modelados_publicados_nivel_observado_sem_sensor",
+        "versao": "GXA-V0.17-ESTADOS-HIDRAULICOS-INFERENCIA-CENARIOS",
+        "status": "resultados_modelados_com_inferencia_de_estados_sem_sensor_local",
         "nivel_estimado_m": None,
         "incerteza_m": None,
         "confianca": "fisica_parcial_sem_calibracao_de_nivel",
@@ -11015,6 +11073,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "uso_operacional": False,
         "alerta_operacional_liberado": False,
         "representa_medicao_instrumental": False,
+        "inferencia_estados_hidraulicos_v017": inferencia_estados_v017,
         "geometria_hidraulica_documentada": {
             "bypass_montezuma_odilon": {
                 "quantidade_tubos": 2,

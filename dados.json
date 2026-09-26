@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-09-25T23:39:38.702205-03:00",
+  "gerado_em": "2026-09-25T23:52:27.933188-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -143,7 +143,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-09-25T23:39:11.308165-03:00"
+    "coletado_em": "2026-09-25T23:52:07.390488-03:00"
   },
   "chuva_observada_epagri_165": {
     "status": "online",
@@ -163,7 +163,7 @@
         "longitude": -48.9708,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-25T23:00:00-03:00",
-        "idade_leitura_min": 39.2,
+        "idade_leitura_min": 52.1,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -179,7 +179,7 @@
         "longitude": -48.9889,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-25T23:00:00-03:00",
-        "idade_leitura_min": 39.2,
+        "idade_leitura_min": 52.1,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -348,7 +348,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-25T23:00:00-03:00",
-        "idade_leitura_min": 39.2,
+        "idade_leitura_min": 52.1,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -367,7 +367,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-25T23:00:00-03:00",
-        "idade_leitura_min": 39.2,
+        "idade_leitura_min": 52.1,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -561,8 +561,8 @@
     "endpoint": "https://resources.cemaden.gov.br/graficos/interativo/grafico_pcds.php?idpcd=6259",
     "http_status": 200,
     "content_type": "text/html; charset=UTF-8",
-    "bytes_resposta": 28944,
-    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-25 22h00 UTC','2026-09-25 23h00 UTC','2026-09-26 00h00 UTC','2026-09-26 01h00 UTC','2026-09-26 02h00 UTC'],'2026-09-25 ',[0,0,null,null,null],'Acumulada',[0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA464",
+    "bytes_resposta": 28975,
+    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-25 22h00 UTC','2026-09-25 23h00 UTC','2026-09-26 00h00 UTC','2026-09-26 01h00 UTC','2026-09-26 02h00 UTC','2026-09-26 03h00 UTC'],'2026-09-25 ',[0,0,null,null,null,null],'Acumulada',[0,0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor",
     "referencias_encontradas": [
       {
         "referencia_bruta": "css/estilo_.css",
@@ -1029,7 +1029,7 @@
       "data_fonte": "26/09/2026",
       "hora_fonte": "2h"
     },
-    "idade_ultima_leitura_min": 39.9,
+    "idade_ultima_leitura_min": 52.6,
     "dados_frescos_diagnostico": true,
     "limite_frescor_diagnostico_min": 120,
     "acumulados_diagnosticos": {
@@ -1257,7 +1257,7 @@
     "24h_mm": 0.0,
     "horario_ultima_celula_utc": "2026-09-26T02:00:00+00:00",
     "horario_ultima_celula_local": "2026-09-25T23:00:00-03:00",
-    "idade_leitura_min": 39.9,
+    "idade_leitura_min": 52.7,
     "dados_frescos": true,
     "limite_frescor_min": 120,
     "granularidade": "horaria",
@@ -1293,7 +1293,7 @@
     "leitura_horaria_mm": 0.0,
     "horario_medicao_utc": "2026-09-26T02:00:00+00:00",
     "horario_medicao_local": "2026-09-25T23:00:00-03:00",
-    "idade_leitura_min": 40.0,
+    "idade_leitura_min": 52.8,
     "dados_frescos": true,
     "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
     "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
@@ -1443,13 +1443,13 @@
     "local": "Joinville / Babitonga",
     "unidade": "cm",
     "url_fonte": "https://ciram.epagri.sc.gov.br/graficos/getDataMare11_2913.php",
-    "nivel_cm": 87.4,
-    "nivel_m": 0.874,
-    "mare_astronomica_cm": 96.0,
-    "residual_cm": -8.6,
+    "nivel_cm": 89.8,
+    "nivel_m": 0.898,
+    "mare_astronomica_cm": 100.0,
+    "residual_cm": -10.2,
     "nmm_cm": 103.1,
-    "horario": "2026-09-25T23:15:00-03:00",
-    "idade_min": 24.5,
+    "horario": "2026-09-25T23:30:00-03:00",
+    "idade_min": 22.3,
     "frescor": "atual",
     "residual_aritmetica_validada": true,
     "uso_no_risco": false,
@@ -1465,7 +1465,7 @@
     ],
     "estrutura_validada": true,
     "erro_residual_cm": 0.0,
-    "quantidade_observacoes_validas": 190
+    "quantidade_observacoes_validas": 191
   },
   "mare_prevista_24h_164": {
     "status": "online_completo",
@@ -3323,10 +3323,10 @@
     "versao": "166-v0.2-historico-integrado",
     "status": "historico_em_formacao",
     "arquivo_historico": "historico_guaxanduva_166.json",
-    "gerado_em": "2026-09-25T23:39:30.750794-03:00",
-    "quantidade_registros": 113,
+    "gerado_em": "2026-09-25T23:52:20.989287-03:00",
+    "quantidade_registros": 114,
     "quantidade_chuva_horaria": 50,
-    "quantidade_mare_observada": 63,
+    "quantidade_mare_observada": 64,
     "chuva_por_estacao": [
       {
         "codigo": "2382",
@@ -3410,11 +3410,11 @@
       "fonte": "EPAGRI/CIRAM",
       "codigo_estacao": "maregrafo_joinville_2913",
       "nome_estacao": "Joinville / Babitonga",
-      "horario_medicao": "2026-09-25T23:15:00-03:00",
-      "nivel_cm": 87.4,
-      "nivel_m": 0.874,
-      "mare_astronomica_cm": 96.0,
-      "residual_cm": -8.6,
+      "horario_medicao": "2026-09-25T23:30:00-03:00",
+      "nivel_cm": 89.8,
+      "nivel_m": 0.898,
+      "mare_astronomica_cm": 100.0,
+      "residual_cm": -10.2,
       "nmm_cm": 103.1,
       "representa_nivel_rio_guaxanduva": false,
       "uso": "condicao_de_jusante_para_calibracao_futura"
@@ -3447,7 +3447,7 @@
   },
   "modelo_computacional_guaxanduva_v01": {
     "versao": "GXA-V0.15-CONSOLIDACAO-AUDITORIA-FINAL-HDS5",
-    "gerado_em": "2026-09-25T23:39:30.753103-03:00",
+    "gerado_em": "2026-09-25T23:52:20.991642-03:00",
     "status": "grafo_hidrografico_integrado",
     "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
     "microbacia": "44-0",
@@ -3464,7 +3464,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "restricoes_geometricas_documentadas_mais_forcantes_observadas_sem_coeficientes_empiricos_arbitrarios",
-      "instante": "2026-09-25T23:39:38.690184-03:00"
+      "instante": "2026-09-25T23:52:27.921156-03:00"
     },
     "parametros_hidraulicos_documentados": {
       "bypass_montezuma_odilon": {
@@ -3599,11 +3599,11 @@
         "fonte": "EPAGRI/CIRAM",
         "codigo_estacao": "maregrafo_joinville_2913",
         "nome_estacao": "Joinville / Babitonga",
-        "horario_medicao": "2026-09-25T23:15:00-03:00",
-        "nivel_cm": 87.4,
-        "nivel_m": 0.874,
-        "mare_astronomica_cm": 96.0,
-        "residual_cm": -8.6,
+        "horario_medicao": "2026-09-25T23:30:00-03:00",
+        "nivel_cm": 89.8,
+        "nivel_m": 0.898,
+        "mare_astronomica_cm": 100.0,
+        "residual_cm": -10.2,
         "nmm_cm": 103.1,
         "representa_nivel_rio_guaxanduva": false,
         "uso": "condicao_de_jusante_para_calibracao_futura"
@@ -13994,7 +13994,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "restricoes_geometricas_documentadas_mais_forcantes_observadas_sem_coeficientes_empiricos_arbitrarios",
-      "instante": "2026-09-25T23:39:38.690184-03:00",
+      "instante": "2026-09-25T23:52:27.921156-03:00",
       "uso_operacional": false,
       "alerta_operacional_liberado": false,
       "representa_medicao_instrumental": false,
@@ -14925,10 +14925,10 @@
           "regra": "estacoes_independentes_nao_somadas; maior_acumulado_valido_apenas_para_resumo_regional"
         },
         "mare_jusante": {
-          "nivel_m": 0.874,
+          "nivel_m": 0.898,
           "nmm_m": 1.031,
-          "anomalia_relativa_ao_nmm_m": -0.157,
-          "horario_medicao": "2026-09-25T23:15:00-03:00",
+          "anomalia_relativa_ao_nmm_m": -0.133,
+          "horario_medicao": "2026-09-25T23:30:00-03:00",
           "representa_nivel_rio_guaxanduva": false
         }
       }
@@ -14944,11 +14944,11 @@
     "fonte": "Open-Meteo",
     "modelo": "Best Match",
     "atual": {
-      "horario": "2026-09-25T23:30",
-      "temperatura_c": 17.7,
+      "horario": "2026-09-25T23:45",
+      "temperatura_c": 17.8,
       "precipitacao_mm": 0.0,
-      "vento_kmh": 3.8,
-      "direcao_graus": 5,
+      "vento_kmh": 3.2,
+      "direcao_graus": 360,
       "rajada_kmh": 9.4
     },
     "proxima_hora": {
@@ -15121,13 +15121,13 @@
     "entradas": {
       "chuva_prevista_24h_mm": 0.0,
       "chuva_24h_integra": true,
-      "mare_observada_m": 0.874,
+      "mare_observada_m": 0.898,
       "mare_observada_fresca": true,
       "mare_fonte": "EPAGRI/CIRAM",
       "janela_inicio": "2026-09-26T00:00",
       "janela_fim_exclusivo": "2026-09-27T00:00:00-03:00",
-      "mare_horario": "2026-09-25T23:15:00-03:00",
-      "mare_idade_min": 24.5
+      "mare_horario": "2026-09-25T23:30:00-03:00",
+      "mare_idade_min": 22.3
     },
     "criterios": {
       "mobilizacao_chuva_superior_20mm_24h": false,
@@ -15161,7 +15161,7 @@
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
     "horario_ultimo_quadro": "2026-09-25T20:50:00-03:00",
-    "idade_ultimo_quadro_min": 170.3,
+    "idade_ultimo_quadro_min": 183.1,
     "dados_frescos": false,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -22506,7 +22506,7 @@
     "consultas_temporais": [
       {
         "dias": 2,
-        "datetime": "2026-09-24T02:39:12Z/2026-09-26T02:39:12Z",
+        "datetime": "2026-09-24T02:52:08Z/2026-09-26T02:52:08Z",
         "http_status": 200,
         "quantidade_features": 15,
         "quantidade_data_alerta": 15,
@@ -22515,7 +22515,7 @@
       },
       {
         "dias": 7,
-        "datetime": "2026-09-19T02:39:12Z/2026-09-26T02:39:12Z",
+        "datetime": "2026-09-19T02:52:08Z/2026-09-26T02:52:08Z",
         "http_status": 200,
         "quantidade_features": 50,
         "quantidade_data_alerta": 50,
@@ -22524,7 +22524,7 @@
       },
       {
         "dias": 30,
-        "datetime": "2026-08-27T02:39:12Z/2026-09-26T02:39:12Z",
+        "datetime": "2026-08-27T02:52:08Z/2026-09-26T02:52:08Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,
@@ -22533,7 +22533,7 @@
       },
       {
         "dias": 90,
-        "datetime": "2026-06-28T02:39:12Z/2026-09-26T02:39:12Z",
+        "datetime": "2026-06-28T02:52:08Z/2026-09-26T02:52:08Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,

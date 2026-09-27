@@ -1,6 +1,6 @@
 {
-  "versao": "GXA-V0.17-ESTADOS-HIDRAULICOS-INFERENCIA-CENARIOS",
-  "gerado_em": "2026-09-26T20:51:00.661504-03:00",
+  "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
+  "gerado_em": "2026-09-26T21:03:14.576353-03:00",
   "status": "grafo_hidrografico_integrado",
   "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
   "microbacia": "44-0",
@@ -17,7 +17,7 @@
     "incerteza_m": null,
     "confianca": "fisica_parcial_sem_calibracao_de_nivel",
     "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-    "instante": "2026-09-26T20:51:02.773779-03:00"
+    "instante": "2026-09-26T21:03:16.834134-03:00"
   },
   "parametros_hidraulicos_documentados": {
     "bypass_montezuma_odilon": {
@@ -10541,13 +10541,13 @@
     ]
   },
   "camada_matematica": {
-    "versao": "GXA-V0.17-ESTADOS-HIDRAULICOS-INFERENCIA-CENARIOS",
-    "status": "resultados_modelados_com_inferencia_de_estados_sem_sensor_local",
+    "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
+    "status": "resultados_modelados_com_contexto_hidrometrico_e_calibracao_visual_pendente",
     "nivel_estimado_m": null,
     "incerteza_m": null,
     "confianca": "fisica_parcial_sem_calibracao_de_nivel",
     "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-    "instante": "2026-09-26T20:51:02.773779-03:00",
+    "instante": "2026-09-26T21:03:16.834134-03:00",
     "uso_operacional": false,
     "alerta_operacional_liberado": false,
     "representa_medicao_instrumental": false,
@@ -10623,6 +10623,124 @@
         "uso": "ajustar_atraso_amortecimento_e_evolucao_relativa_da_lamina_sem_inventar_cota_absoluta"
       },
       "regra_publicacao": "publicar_resultados_como_MODELADOS_e_com_cenario_incerteza; nunca_como_nivel_observado"
+    },
+    "contexto_hidrometrico_v018": {
+      "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
+      "ponto_controle": {
+        "referencia": "Rua Itapoa, 135 - Comasa - Joinville/SC",
+        "latitude": -26.270641,
+        "longitude": -48.809508,
+        "segmento_simgeo_objectid": 30960,
+        "microbacia": "44-0",
+        "sistema_topografico_municipal": "SIRGAS 2000 / UTM 22S",
+        "epsg": 31982,
+        "utm_aproximado": {
+          "E_m": 718747.22,
+          "N_m": 7092492.45,
+          "status": "transformacao_aproximada_a_validar_antes_de_uso_altimetrico"
+        }
+      },
+      "fontes_altimetricas_municipais": [
+        {
+          "nome": "Ponto Cotado 2007 1:1.000",
+          "campo_elevacao": "elevation",
+          "epsg": 31982,
+          "status": "fonte_oficial_identificada_consulta_local_pendente_de_vinculacao_ao_datum_hidraulico"
+        },
+        {
+          "nome": "Curva de Nivel 2007 1:1.000",
+          "epsg": 31982,
+          "status": "fonte_oficial_identificada_contexto_altimetrico"
+        }
+      ],
+      "referencias_verticais_de_trabalho": {
+        "cota_rua_referencia_m": 5.0,
+        "cota_fundo_referencia_m": 0.5,
+        "diferenca_vertical_m": 4.5,
+        "status": "referencias_de_trabalho_nao_promovidas_a_datum_hidraulico",
+        "uso_operacional": false,
+        "regra": "nao_converter_em_nivel_absoluto_ou_folga_operacional_sem_vinculacao_documental_e_compatibilidade_de_datum"
+      },
+      "mare_joinville_2026_09_26": {
+        "fonte": "EPAGRI/CIRAM - Tabua de Mare Joinville 2026",
+        "extremos": [
+          {
+            "hora": "03:21",
+            "altura_m": 1.9,
+            "tipo": "preamar"
+          },
+          {
+            "hora": "08:14",
+            "altura_m": -0.2,
+            "tipo": "baixamar"
+          },
+          {
+            "hora": "15:10",
+            "altura_m": 1.8,
+            "tipo": "preamar"
+          },
+          {
+            "hora": "20:08",
+            "altura_m": -0.1,
+            "tipo": "baixamar"
+          }
+        ],
+        "amplitude_08_14_a_15_10_m": 2.0,
+        "amplitude_15_10_a_20_08_m": 1.9,
+        "uso": "forcante_jusante_contextual_para_calibracao_temporal",
+        "representa_TW_local_absoluto": false,
+        "representa_nivel_do_rio": false
+      },
+      "serie_visual_2026_09_26": {
+        "estacao_primaria": "Portao Costuraria",
+        "estacao_secundaria": "Muro Costuraria",
+        "observacoes": [
+          {
+            "hora": "07:00",
+            "estacao": "Portao Costuraria"
+          },
+          {
+            "hora": "08:00",
+            "estacao": "Portao Costuraria"
+          },
+          {
+            "hora": "08:06",
+            "estacao": "Muro Costuraria"
+          },
+          {
+            "hora": "09:10",
+            "estacao": "Portao Costuraria"
+          },
+          {
+            "hora": "10:03",
+            "estacao": "Muro Costuraria"
+          },
+          {
+            "hora": "15:30",
+            "estacao": "Portao Costuraria"
+          },
+          {
+            "hora": "16:30",
+            "estacao": "Portao Costuraria"
+          },
+          {
+            "hora": "16:32",
+            "estacao": "Muro Costuraria"
+          },
+          {
+            "hora": "17:00",
+            "estacao": "Portao Costuraria"
+          },
+          {
+            "hora": "17:31",
+            "estacao": "Muro Costuraria"
+          }
+        ],
+        "status": "serie_visual_disponivel_calibracao_metrica_pendente",
+        "regra_geometrica": "comparar_apenas_mesma_camera_e_mesmo_recorte; nao_converter_pixels_em_metros_sem_transformacao_geometrica_e_referencia_vertical",
+        "objetivo": "calibrar_atraso_amortecimento_e_evolucao_relativa_da_lamina_e_posteriormente_ancorar_em_metros"
+      },
+      "regra_integridade": "separar_medicao_observada_resultado_modelado_referencia_e_inferencia_por_cenario"
     },
     "geometria_hidraulica_documentada": {
       "bypass_montezuma_odilon": {
@@ -11732,7 +11850,7 @@
       }
     }
   },
-  "status_modelo_hidraulico": "resultados_modelados_com_inferencia_de_estados_sem_sensor_local",
+  "status_modelo_hidraulico": "resultados_modelados_com_contexto_hidrometrico_e_calibracao_visual_pendente",
   "inferencia_estados_hidraulicos_v017": {
     "versao": "GXA-V0.17-ESTADOS-HIDRAULICOS-INFERENCIA-CENARIOS",
     "status": "modelo_inferencial_ativo_sem_instrumentacao_local",
@@ -11805,5 +11923,123 @@
       "uso": "ajustar_atraso_amortecimento_e_evolucao_relativa_da_lamina_sem_inventar_cota_absoluta"
     },
     "regra_publicacao": "publicar_resultados_como_MODELADOS_e_com_cenario_incerteza; nunca_como_nivel_observado"
+  },
+  "contexto_hidrometrico_v018": {
+    "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
+    "ponto_controle": {
+      "referencia": "Rua Itapoa, 135 - Comasa - Joinville/SC",
+      "latitude": -26.270641,
+      "longitude": -48.809508,
+      "segmento_simgeo_objectid": 30960,
+      "microbacia": "44-0",
+      "sistema_topografico_municipal": "SIRGAS 2000 / UTM 22S",
+      "epsg": 31982,
+      "utm_aproximado": {
+        "E_m": 718747.22,
+        "N_m": 7092492.45,
+        "status": "transformacao_aproximada_a_validar_antes_de_uso_altimetrico"
+      }
+    },
+    "fontes_altimetricas_municipais": [
+      {
+        "nome": "Ponto Cotado 2007 1:1.000",
+        "campo_elevacao": "elevation",
+        "epsg": 31982,
+        "status": "fonte_oficial_identificada_consulta_local_pendente_de_vinculacao_ao_datum_hidraulico"
+      },
+      {
+        "nome": "Curva de Nivel 2007 1:1.000",
+        "epsg": 31982,
+        "status": "fonte_oficial_identificada_contexto_altimetrico"
+      }
+    ],
+    "referencias_verticais_de_trabalho": {
+      "cota_rua_referencia_m": 5.0,
+      "cota_fundo_referencia_m": 0.5,
+      "diferenca_vertical_m": 4.5,
+      "status": "referencias_de_trabalho_nao_promovidas_a_datum_hidraulico",
+      "uso_operacional": false,
+      "regra": "nao_converter_em_nivel_absoluto_ou_folga_operacional_sem_vinculacao_documental_e_compatibilidade_de_datum"
+    },
+    "mare_joinville_2026_09_26": {
+      "fonte": "EPAGRI/CIRAM - Tabua de Mare Joinville 2026",
+      "extremos": [
+        {
+          "hora": "03:21",
+          "altura_m": 1.9,
+          "tipo": "preamar"
+        },
+        {
+          "hora": "08:14",
+          "altura_m": -0.2,
+          "tipo": "baixamar"
+        },
+        {
+          "hora": "15:10",
+          "altura_m": 1.8,
+          "tipo": "preamar"
+        },
+        {
+          "hora": "20:08",
+          "altura_m": -0.1,
+          "tipo": "baixamar"
+        }
+      ],
+      "amplitude_08_14_a_15_10_m": 2.0,
+      "amplitude_15_10_a_20_08_m": 1.9,
+      "uso": "forcante_jusante_contextual_para_calibracao_temporal",
+      "representa_TW_local_absoluto": false,
+      "representa_nivel_do_rio": false
+    },
+    "serie_visual_2026_09_26": {
+      "estacao_primaria": "Portao Costuraria",
+      "estacao_secundaria": "Muro Costuraria",
+      "observacoes": [
+        {
+          "hora": "07:00",
+          "estacao": "Portao Costuraria"
+        },
+        {
+          "hora": "08:00",
+          "estacao": "Portao Costuraria"
+        },
+        {
+          "hora": "08:06",
+          "estacao": "Muro Costuraria"
+        },
+        {
+          "hora": "09:10",
+          "estacao": "Portao Costuraria"
+        },
+        {
+          "hora": "10:03",
+          "estacao": "Muro Costuraria"
+        },
+        {
+          "hora": "15:30",
+          "estacao": "Portao Costuraria"
+        },
+        {
+          "hora": "16:30",
+          "estacao": "Portao Costuraria"
+        },
+        {
+          "hora": "16:32",
+          "estacao": "Muro Costuraria"
+        },
+        {
+          "hora": "17:00",
+          "estacao": "Portao Costuraria"
+        },
+        {
+          "hora": "17:31",
+          "estacao": "Muro Costuraria"
+        }
+      ],
+      "status": "serie_visual_disponivel_calibracao_metrica_pendente",
+      "regra_geometrica": "comparar_apenas_mesma_camera_e_mesmo_recorte; nao_converter_pixels_em_metros_sem_transformacao_geometrica_e_referencia_vertical",
+      "objetivo": "calibrar_atraso_amortecimento_e_evolucao_relativa_da_lamina_e_posteriormente_ancorar_em_metros"
+    },
+    "regra_integridade": "separar_medicao_observada_resultado_modelado_referencia_e_inferencia_por_cenario"
   }
 }

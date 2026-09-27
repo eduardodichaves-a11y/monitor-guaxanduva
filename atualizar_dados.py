@@ -9698,9 +9698,9 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.17-ESTADOS-HIDRAULICOS-INFERENCIA-CENARIOS"
-
-
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL"
+ 
+ 
 # =========================================================
 # TABELA-MESTRA GUAXANDUVA - BASE MODELADA ESTATICA
 # =========================================================
@@ -9708,14 +9708,14 @@ GUAXANDUVA_MODELO_VERSAO = "GXA-V0.17-ESTADOS-HIDRAULICOS-INFERENCIA-CENARIOS"
 # Ela NAO altera o GUAXANDUVA-MODEL V0.15, NAO reescreve o CSV e
 # NAO transforma area modelada em delimitacao hidrologica oficial.
 # Em qualquer falha, opera em modo fail-closed: ausencia/erro != zero.
-
+ 
 TABELA_MESTRA_GUAXANDUVA_ARQUIVO = "TABELA_MESTRA_GUAXANDUVA.csv"
 TABELA_MESTRA_SEGMENTOS_ESPERADOS = 119
 TABELA_MESTRA_OUTLET = 392
 TABELA_MESTRA_AREA_RASTER_HA = 544.26
 TABELA_MESTRA_TOLERANCIA_AREA_HA = 0.01
-
-
+ 
+ 
 def _tabela_mestra_float_ou_none(valor):
     if valor is None:
         return None
@@ -9726,15 +9726,15 @@ def _tabela_mestra_float_ou_none(valor):
     if not math.isfinite(numero):
         raise ValueError("valor numerico nao finito")
     return numero
-
-
+ 
+ 
 def _tabela_mestra_int_obrigatorio(valor, campo):
     numero = _tabela_mestra_float_ou_none(valor)
     if numero is None or not float(numero).is_integer():
         raise ValueError(f"{campo} deve ser inteiro")
     return int(numero)
-
-
+ 
+ 
 def carregar_tabela_mestra_guaxanduva():
     diagnostico = {
         "versao": "tabela-mestra-v1.0",
@@ -9758,7 +9758,7 @@ def carregar_tabela_mestra_guaxanduva():
             "Ausencia, erro de leitura ou falha de validacao nunca e convertido em zero.",
         ],
     }
-
+ 
     colunas_obrigatorias = {
         "segment",
         "local_ha",
@@ -9770,7 +9770,7 @@ def carregar_tabela_mestra_guaxanduva():
         "flag_pixels_gt2",
         "uncertainty_flag",
     }
-
+ 
     try:
         with open(
             TABELA_MESTRA_GUAXANDUVA_ARQUIVO,
@@ -9786,20 +9786,20 @@ def carregar_tabela_mestra_guaxanduva():
                     "colunas obrigatorias ausentes: " + ", ".join(faltantes)
                 )
             linhas = list(leitor)
-
+ 
         if len(linhas) != TABELA_MESTRA_SEGMENTOS_ESPERADOS:
             raise ValueError(
                 f"quantidade de segmentos invalida: {len(linhas)}; "
                 f"esperado {TABELA_MESTRA_SEGMENTOS_ESPERADOS}"
             )
-
+ 
         segmentos = set()
         soma_local_ha = 0.0
         outlet = None
         total_gt1 = 0
         total_gt2 = 0
         segmentos_com_incerteza = 0
-
+ 
         for linha in linhas:
             segmento = _tabela_mestra_int_obrigatorio(
                 linha.get("segment"),
@@ -9808,14 +9808,14 @@ def carregar_tabela_mestra_guaxanduva():
             if segmento in segmentos:
                 raise ValueError(f"segmento duplicado: {segmento}")
             segmentos.add(segmento)
-
+ 
             local_ha = _tabela_mestra_float_ou_none(linha.get("local_ha"))
             acc_ha = _tabela_mestra_float_ou_none(linha.get("acc_ha"))
             if local_ha is None or local_ha < 0:
                 raise ValueError(f"local_ha invalido no segmento {segmento}")
             if acc_ha is None or acc_ha < 0:
                 raise ValueError(f"acc_ha invalido no segmento {segmento}")
-
+ 
             gt1 = _tabela_mestra_int_obrigatorio(
                 linha.get("flag_pixels_gt1"),
                 "flag_pixels_gt1",
@@ -9828,34 +9828,34 @@ def carregar_tabela_mestra_guaxanduva():
                 raise ValueError(
                     f"flags de auditoria invalidas no segmento {segmento}"
                 )
-
+ 
             soma_local_ha += local_ha
             total_gt1 += gt1
             total_gt2 += gt2
-
+ 
             if str(linha.get("uncertainty_flag") or "").strip():
                 segmentos_com_incerteza += 1
-
+ 
             if segmento == TABELA_MESTRA_OUTLET:
                 outlet = {"segmento": segmento, "acc_ha": acc_ha}
-
+ 
         if outlet is None:
             raise ValueError(
                 f"outlet {TABELA_MESTRA_OUTLET} ausente da tabela"
             )
-
+ 
         if abs(soma_local_ha - TABELA_MESTRA_AREA_RASTER_HA) > TABELA_MESTRA_TOLERANCIA_AREA_HA:
             raise ValueError(
                 f"fechamento local invalido: {soma_local_ha:.6f} ha; "
                 f"esperado {TABELA_MESTRA_AREA_RASTER_HA:.2f} ha"
             )
-
+ 
         if abs(outlet["acc_ha"] - TABELA_MESTRA_AREA_RASTER_HA) > TABELA_MESTRA_TOLERANCIA_AREA_HA:
             raise ValueError(
                 f"area acumulada do outlet invalida: {outlet['acc_ha']:.6f} ha; "
                 f"esperado {TABELA_MESTRA_AREA_RASTER_HA:.2f} ha"
             )
-
+ 
         diagnostico.update({
             "status": "BASE_MODELADA_VALIDADA",
             "valida": True,
@@ -9867,11 +9867,11 @@ def carregar_tabela_mestra_guaxanduva():
             "flags_pixels_gt2": total_gt2,
             "segmentos_com_incerteza": segmentos_com_incerteza,
         })
-
+ 
     except Exception as exc:
         diagnostico["status"] = "BASE_MODELADA_INVALIDA"
         diagnostico["erro"] = f"{type(exc).__name__}: {exc}"
-
+ 
     return diagnostico
  
  
@@ -10324,7 +10324,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         }
         trecho["capacidade_vazao_m3_s"] = None
         trecho["equacao_capacidade"] = "Q_m3_s = fator_geometrico_manning_m_8_3 / n_manning_s_m_1_3"
-
+ 
     # V0.9 - estrutura de decisao e prontidao para controle de entrada/saida segundo FHWA HDS-5.
     # Nao executa as equacoes de inlet/outlet control enquanto faltarem dados de
     # carga de montante, tailwater/submergencia e geometria/coficientes da entrada.
@@ -10375,7 +10375,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "criterio_liberacao": "calcular_controle_de_entrada_e_controle_de_saida_separadamente_e_comparar_somente_quando_as_entradas_exigidas_estiverem_documentadas",
         "observacao": "A V0.9 nao converte o envelope Manning de tubo cheio em capacidade definitiva e nao inventa coeficientes HDS-5.",
     }
-
+ 
     # V0.16 - premissas documentais adotadas para o modelo hidraulico.
     # A geometria oficial de projeto e aceita como base computacional, sem
     # afirmar verificacao as-built. A classificacao groove-end e uma decisao
@@ -10412,7 +10412,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
     manning_n_modelo_v016 = 0.012
     ke_modelo_v016 = 0.20
     ko_modelo_v016 = 1.00
-
+ 
     entradas_hds5 = {
         "headwater_referenciado_ao_invert_entrada": None,
         "tailwater_referenciado_ao_invert_saida": None,
@@ -10482,7 +10482,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "campos_faltantes": faltantes_calculo,
             "quantidade_faltantes": len(faltantes_calculo),
         }
-
+ 
     faltantes_hds5 = [chave for chave, valor in entradas_hds5.items() if valor is None]
     prontidao_hds5 = {
         "fonte_primaria": "FHWA HDS-5 Hydraulic Design of Highway Culverts, Third Edition",
@@ -10516,7 +10516,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "capacidade_definitiva_m3_s": None,
     }
     controle_hidraulico_bueiro["prontidao_hds5"] = prontidao_hds5
-
+ 
     # V0.11 - plano auditavel de fechamento dos dados HDS-5.
     # Organiza os bloqueios da V0.10 por dependencia fisica e por forma de
     # obtencao, sem preencher lacunas por hipotese e sem liberar calculos.
@@ -10599,7 +10599,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         ],
     }
     controle_hidraulico_bueiro["plano_fechamento_hds5"] = plano_fechamento_hds5
-
+ 
     # V0.12 - gates auditaveis de liberacao HDS-5.
     # A camada transforma as dependencias ja explicitadas em portas booleanas
     # estritas. Nenhuma porta satisfeita por inferencia, zero substituto ou
@@ -10664,7 +10664,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             },
         },
     }
-
+ 
     gates = gates_liberacao_hds5["gates"]
     gates_liberacao_hds5["resumo"] = {
         "quantidade_gates": len(gates),
@@ -10686,7 +10686,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "nao_publicar_capacidade_definitiva_sem_controle_governante_determinado",
     ]
     controle_hidraulico_bueiro["gates_liberacao_hds5"] = gates_liberacao_hds5
-
+ 
     # V0.13 - estado de decisao HDS-5 e proximo bloqueio acionavel.
     # Consolida os gates da V0.12 em uma leitura deterministica e fail-closed,
     # sem criar valores hidraulicos, coeficientes ou equivalencias entre fontes.
@@ -10706,7 +10706,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
     ]
     proximo_gate_bloqueado = gates_bloqueados_ordenados[0] if gates_bloqueados_ordenados else None
     proximo_gate_detalhe = gates.get(proximo_gate_bloqueado) if proximo_gate_bloqueado else None
-
+ 
     estado_decisao_hds5 = {
         "versao": "GXA-V0.13-ESTADO-DECISAO-HDS5-CONTROLE-HIDRAULICO",
         "uso_operacional": False,
@@ -10756,7 +10756,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         ],
     }
     controle_hidraulico_bueiro["estado_decisao_hds5"] = estado_decisao_hds5
-
+ 
     # V0.14 - matriz auditavel de evidencias para fechamento dos gates HDS-5.
     # Cada entrada faltante recebe criterio explicito de evidencia aceitavel.
     # A matriz nao cria valores, nao presume equivalencias entre fontes e
@@ -10835,7 +10835,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "nao_aceitar": ["envelope_bibliografico_usado_como_calibracao_local"],
         },
     }
-
+ 
     matriz_evidencias_hds5 = {}
     for campo, criterio in criterios_evidencia_hds5.items():
         valor_atual = entradas_hds5.get(campo)
@@ -10847,7 +10847,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "evidencias_nao_aceitaveis": list(criterio["nao_aceitar"]),
             "regra": "satisfeito_somente_quando_a_entrada_correspondente_deixar_de_ser_None_com_proveniencia_registrada",
         }
-
+ 
     campos_evidencia_pendentes = [
         campo for campo, estado in matriz_evidencias_hds5.items() if not estado["satisfeito"]
     ]
@@ -10869,7 +10869,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "regra": "a_matriz_define_o_que_pode_fechar_cada_entrada_sem_transformar_evidencia_indireta_em_valor_hidraulico",
     }
     controle_hidraulico_bueiro["auditoria_evidencias_hds5"] = auditoria_evidencias_hds5
-
+ 
     # V0.15 - consolidacao e auditoria final do nucleo HDS-5.
     # Esta camada nao cria nenhum valor hidraulico. Ela verifica invariantes
     # construidos entre V0.10 e V0.14 e fecha o ciclo do PY em fail-closed.
@@ -10922,7 +10922,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         ],
     }
     controle_hidraulico_bueiro["auditoria_final_v015"] = auditoria_final_v015
-
+ 
     # V0.16 - resultados modelados e politica documental.
     # Mantem HW/TW observados como None, mas deixa de bloquear resultados que
     # dependem apenas da geometria oficial e de premissas metodologicas declaradas.
@@ -10935,7 +10935,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
     vazao_modelada_min_v016 = fator_critico_v016 / manning_n_max_literatura
     vazao_modelada_max_v016 = fator_critico_v016 / manning_n_min_literatura
     velocidade_modelada_central_v016 = vazao_modelada_central_v016 / area_bueiro_duplo_m2
-
+ 
     # V0.17 - camada inferencial para estados que nao terao instrumentacao local.
     # HW, TW e condicao efetiva dos tubos deixam de ser gates impossiveis.
     # Sao tratados por cenarios matematicos transparentes, sem rotulo de medicao.
@@ -10957,7 +10957,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
             "perda_local_Ke_Ko_m": round(perda_local, 3) if perda_local is not None else None,
             "natureza": "cenario_inferencial_nao_observado",
         })
-
+ 
     mare_jusante_v017 = (guaxanduva166 or {}).get("mare_jusante_mais_recente") or {}
     mare_observada_m_v017 = mare_jusante_v017.get("nivel_m")
     inferencia_estados_v017 = {
@@ -10993,7 +10993,82 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         },
         "regra_publicacao": "publicar_resultados_como_MODELADOS_e_com_cenario_incerteza; nunca_como_nivel_observado",
     }
-
+ 
+    # V0.18 - consolida o contexto hidrometrico e a serie visual de 26/09/2026.
+    # Esta camada organiza referencias para calibracao; nao cria cota d'agua absoluta.
+    contexto_hidrometrico_v018 = {
+        "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
+        "ponto_controle": {
+            "referencia": "Rua Itapoa, 135 - Comasa - Joinville/SC",
+            "latitude": -26.270641,
+            "longitude": -48.809508,
+            "segmento_simgeo_objectid": 30960,
+            "microbacia": "44-0",
+            "sistema_topografico_municipal": "SIRGAS 2000 / UTM 22S",
+            "epsg": 31982,
+            "utm_aproximado": {
+                "E_m": 718747.22,
+                "N_m": 7092492.45,
+                "status": "transformacao_aproximada_a_validar_antes_de_uso_altimetrico",
+            },
+        },
+        "fontes_altimetricas_municipais": [
+            {
+                "nome": "Ponto Cotado 2007 1:1.000",
+                "campo_elevacao": "elevation",
+                "epsg": 31982,
+                "status": "fonte_oficial_identificada_consulta_local_pendente_de_vinculacao_ao_datum_hidraulico",
+            },
+            {
+                "nome": "Curva de Nivel 2007 1:1.000",
+                "epsg": 31982,
+                "status": "fonte_oficial_identificada_contexto_altimetrico",
+            },
+        ],
+        "referencias_verticais_de_trabalho": {
+            "cota_rua_referencia_m": 5.00,
+            "cota_fundo_referencia_m": 0.50,
+            "diferenca_vertical_m": 4.50,
+            "status": "referencias_de_trabalho_nao_promovidas_a_datum_hidraulico",
+            "uso_operacional": False,
+            "regra": "nao_converter_em_nivel_absoluto_ou_folga_operacional_sem_vinculacao_documental_e_compatibilidade_de_datum",
+        },
+        "mare_joinville_2026_09_26": {
+            "fonte": "EPAGRI/CIRAM - Tabua de Mare Joinville 2026",
+            "extremos": [
+                {"hora": "03:21", "altura_m": 1.9, "tipo": "preamar"},
+                {"hora": "08:14", "altura_m": -0.2, "tipo": "baixamar"},
+                {"hora": "15:10", "altura_m": 1.8, "tipo": "preamar"},
+                {"hora": "20:08", "altura_m": -0.1, "tipo": "baixamar"},
+            ],
+            "amplitude_08_14_a_15_10_m": 2.0,
+            "amplitude_15_10_a_20_08_m": 1.9,
+            "uso": "forcante_jusante_contextual_para_calibracao_temporal",
+            "representa_TW_local_absoluto": False,
+            "representa_nivel_do_rio": False,
+        },
+        "serie_visual_2026_09_26": {
+            "estacao_primaria": "Portao Costuraria",
+            "estacao_secundaria": "Muro Costuraria",
+            "observacoes": [
+                {"hora": "07:00", "estacao": "Portao Costuraria"},
+                {"hora": "08:00", "estacao": "Portao Costuraria"},
+                {"hora": "08:06", "estacao": "Muro Costuraria"},
+                {"hora": "09:10", "estacao": "Portao Costuraria"},
+                {"hora": "10:03", "estacao": "Muro Costuraria"},
+                {"hora": "15:30", "estacao": "Portao Costuraria"},
+                {"hora": "16:30", "estacao": "Portao Costuraria"},
+                {"hora": "16:32", "estacao": "Muro Costuraria"},
+                {"hora": "17:00", "estacao": "Portao Costuraria"},
+                {"hora": "17:31", "estacao": "Muro Costuraria"},
+            ],
+            "status": "serie_visual_disponivel_calibracao_metrica_pendente",
+            "regra_geometrica": "comparar_apenas_mesma_camera_e_mesmo_recorte; nao_converter_pixels_em_metros_sem_transformacao_geometrica_e_referencia_vertical",
+            "objetivo": "calibrar_atraso_amortecimento_e_evolucao_relativa_da_lamina_e_posteriormente_ancorar_em_metros",
+        },
+        "regra_integridade": "separar_medicao_observada_resultado_modelado_referencia_e_inferencia_por_cenario",
+    }
+ 
     politica_modelagem_documental_v016 = {
         "versao": "GXA-V0.16-RESULTADOS-HIDRAULICOS-DOCUMENTAIS",
         "regra": "documentos_oficiais_de_projeto_sao_aceitos_como_geometria_efetiva_do_modelo_com_proveniencia_explicita",
@@ -11032,7 +11107,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
     controle_hidraulico_bueiro["outlet_control"]["coeficiente_perda_entrada_ke"] = ke_modelo_v016
     controle_hidraulico_bueiro["outlet_control"]["coeficiente_perda_saida_ko"] = ko_modelo_v016
     controle_hidraulico_bueiro["outlet_control"]["motivo"] = "parametros_metodologicos_definidos; falta_TW_para_resolver_condicao_hidraulica_especifica"
-
+ 
     # Recalcula o resumo dos gates apos a incorporacao documental V0.16.
     gates_liberacao_hds5["resumo"] = {
         "quantidade_gates": len(gates),
@@ -11047,7 +11122,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "resultado_modelado_referencia_liberado": True,
         "vazao_modelada_referencia_m3_s": round(vazao_modelada_central_v016, 3),
     }
-
+ 
     auditoria_v016 = {
         "versao": "GXA-V0.16-RESULTADOS-HIDRAULICOS-DOCUMENTAIS",
         "estado": "consistente_resultados_modelados_liberados",
@@ -11063,8 +11138,8 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
     controle_hidraulico_bueiro["auditoria_v016"] = auditoria_v016
  
     resultado = {
-        "versao": "GXA-V0.17-ESTADOS-HIDRAULICOS-INFERENCIA-CENARIOS",
-        "status": "resultados_modelados_com_inferencia_de_estados_sem_sensor_local",
+        "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
+        "status": "resultados_modelados_com_contexto_hidrometrico_e_calibracao_visual_pendente",
         "nivel_estimado_m": None,
         "incerteza_m": None,
         "confianca": "fisica_parcial_sem_calibracao_de_nivel",
@@ -11074,6 +11149,7 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
         "alerta_operacional_liberado": False,
         "representa_medicao_instrumental": False,
         "inferencia_estados_hidraulicos_v017": inferencia_estados_v017,
+        "contexto_hidrometrico_v018": contexto_hidrometrico_v018,
         "geometria_hidraulica_documentada": {
             "bypass_montezuma_odilon": {
                 "quantidade_tubos": 2,
@@ -11407,6 +11483,7 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
         base["inferencia_estados_hidraulicos_v017"] = camada_matematica.get(
             "inferencia_estados_hidraulicos_v017"
         )
+        base["contexto_hidrometrico_v018"] = camada_matematica.get("contexto_hidrometrico_v018")
         base["rio"]["nivel_estimado_m"] = camada_matematica.get("nivel_estimado_m")
         base["rio"]["incerteza_m"] = camada_matematica.get("incerteza_m")
         base["rio"]["confianca"] = camada_matematica.get("confianca")
@@ -11416,8 +11493,26 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
         with open(GUAXANDUVA_GRAFO_ARQUIVO, "w", encoding="utf-8") as arquivo:
             json.dump(base, arquivo, ensure_ascii=False, indent=2)
     except Exception as exc:
+        # Fail-soft V0.18: uma falha na montagem/consulta do grafo nao deve
+        # apagar a camada hidraulica documental e inferencial independente.
         base["erro"] = str(exc)
         base["status"] = "indisponivel_sem_interromper_monitor"
+        if "camada_matematica" not in base:
+            try:
+                camada_matematica = _gxa_calcular_nivel_experimental_v02(guaxanduva166, None)
+                base["camada_matematica"] = camada_matematica
+                base["versao"] = camada_matematica.get("versao") or GUAXANDUVA_MODELO_VERSAO
+                base["status_modelo_hidraulico"] = camada_matematica.get("status")
+                base["inferencia_estados_hidraulicos_v017"] = camada_matematica.get("inferencia_estados_hidraulicos_v017")
+                base["contexto_hidrometrico_v018"] = camada_matematica.get("contexto_hidrometrico_v018")
+                base["rio"]["nivel_estimado_m"] = camada_matematica.get("nivel_estimado_m")
+                base["rio"]["incerteza_m"] = camada_matematica.get("incerteza_m")
+                base["rio"]["confianca"] = camada_matematica.get("confianca")
+                base["rio"]["metodo"] = camada_matematica.get("metodo")
+                base["rio"]["instante"] = camada_matematica.get("instante")
+                base["fallback_modelo_hidraulico"] = "ativo_sem_propagacao_do_grafo"
+            except Exception as exc_modelo:
+                base["erro_modelo_hidraulico"] = str(exc_modelo)
     return base
  
  
@@ -11754,7 +11849,7 @@ def main():
  
         "modelo_computacional_guaxanduva_v01":
             modelo_guaxanduva_v01,
-
+ 
         "tabela_mestra_guaxanduva":
             tabela_mestra_guaxanduva,
  

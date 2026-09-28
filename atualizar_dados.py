@@ -11938,6 +11938,144 @@ def calcular_hidrologia_guaxanduva_v019():
         ],
     }
 
+
+# =========================================================
+# GUAXANDUVA-MODEL V0.20 - ESTIMADOR DINAMICO DE NIVEL
+# =========================================================
+# Primeira sintese matematica do estado do rio usando somente entradas ja
+# existentes no Monitor. O resultado e NIVEL MODELADO em datum hidraulico
+# local; nao e leitura de sensor. A incerteza e parte obrigatoria da saida.
+
+GUAXANDUVA_V020_LARGURA_REF_M = 3.5
+GUAXANDUVA_V020_MANNING_N = 0.012
+GUAXANDUVA_V020_DECLIVIDADE_REF = 0.0041
+GUAXANDUVA_V020_H_BASE_BAIXA_M = 1.50
+GUAXANDUVA_V020_MARE_REF_BAIXA_M = -0.20
+GUAXANDUVA_V020_ALPHA_MARE_CENTRAL = 0.50
+GUAXANDUVA_V020_ALPHA_MARE_MIN = 0.25
+GUAXANDUVA_V020_ALPHA_MARE_MAX = 0.75
+GUAXANDUVA_V020_C_CENTRAL = 0.625
+GUAXANDUVA_V020_C_MIN = 0.45
+GUAXANDUVA_V020_C_MAX = 0.80
+
+def _v020_manning_q_retangular(h, b=GUAXANDUVA_V020_LARGURA_REF_M, n=GUAXANDUVA_V020_MANNING_N, s=GUAXANDUVA_V020_DECLIVIDADE_REF):
+    if h is None or h <= 0 or b <= 0 or n <= 0 or s <= 0:
+        return 0.0
+    a = b * h
+    p = b + 2.0 * h
+    r = a / p
+    return (1.0 / n) * a * (r ** (2.0 / 3.0)) * math.sqrt(s)
+
+def _v020_profundidade_por_q(q):
+    if q is None or q <= 0:
+        return 0.0
+    lo, hi = 0.0, 6.0
+    for _ in range(80):
+        mid = (lo + hi) / 2.0
+        if _v020_manning_q_retangular(mid) < q:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2.0
+
+def _v020_chuva_representativa(guaxanduva166):
+    # As estacoes permanecem independentes na camada observacional. Para o
+    # MODELO, a mediana espacial e usada apenas como forcante regional robusta.
+    # Isso evita somar pluviometros e reduz a influencia de um unico extremo.
+    candidatos = []
+    detalhes = []
+    for e in (guaxanduva166 or {}).get("chuva_por_estacao") or []:
+        p1 = (e.get("P1h") or {}) if isinstance(e, dict) else {}
+        if p1.get("disponivel") is True and isinstance(p1.get("valor_mm"), (int, float)):
+            v = float(p1["valor_mm"])
+            if math.isfinite(v) and v >= 0:
+                candidatos.append(v)
+                detalhes.append({"codigo": e.get("codigo"), "nome": e.get("nome"), "P1h_mm": round(v,3)})
+    if not candidatos:
+        return None, detalhes
+    return float(statistics.median(candidatos)), detalhes
+
+def calcular_nivel_guaxanduva_v020(guaxanduva166, hidrologia_v019):
+    chuva_1h, chuva_fontes = _v020_chuva_representativa(guaxanduva166)
+    mare = (guaxanduva166 or {}).get("mare_jusante_mais_recente") or {}
+    mare_m = mare.get("nivel_m") if isinstance(mare, dict) else None
+    if not isinstance(mare_m, (int, float)) or not math.isfinite(float(mare_m)):
+        mare_m = None
+
+    area = float((hidrologia_v019.get("area_contribuinte_controle") or {}).get("km2") or GUAXANDUVA_V019_AREA_CONTRIBUINTE_KM2)
+    phi = float((hidrologia_v019.get("metodo_racional_modificado") or {}).get("phi") or 0.865067)
+
+    def estado(c, alpha):
+        # P1h [mm] / 1 h -> intensidade media horaria da forcante regional.
+        q = None if chuva_1h is None else c * chuva_1h * area * phi / 3.6
+        h_chuva = None if q is None else _v020_profundidade_por_q(q)
+        # A maré atua como condicao de jusante/remanso. Nesta V0.20 o ganho
+        # alpha e explicitamente parametrico; nao se confunde com transmissao 1:1.
+        dh_mare = None if mare_m is None else alpha * max(0.0, float(mare_m) - GUAXANDUVA_V020_MARE_REF_BAIXA_M)
+        # A profundidade de referencia de estiagem e preservada. O componente
+        # pluvial entra pela profundidade normal de Manning apenas quando excede
+        # essa referencia; o remanso e acrescido como condicao de jusante.
+        h_sem_mare = GUAXANDUVA_V020_H_BASE_BAIXA_M if h_chuva is None else max(GUAXANDUVA_V020_H_BASE_BAIXA_M, h_chuva)
+        h = None if dh_mare is None else h_sem_mare + dh_mare
+        return {"q_m3_s": q, "h_chuva_m": h_chuva, "dh_mare_m": dh_mare, "h_m": h}
+
+    central = estado(GUAXANDUVA_V020_C_CENTRAL, GUAXANDUVA_V020_ALPHA_MARE_CENTRAL)
+    baixo = estado(GUAXANDUVA_V020_C_MIN, GUAXANDUVA_V020_ALPHA_MARE_MIN)
+    alto = estado(GUAXANDUVA_V020_C_MAX, GUAXANDUVA_V020_ALPHA_MARE_MAX)
+    completo = chuva_1h is not None and mare_m is not None and central["h_m"] is not None
+    hmin = baixo["h_m"] if completo else None
+    hmax = alto["h_m"] if completo else None
+    hc = central["h_m"] if completo else None
+    incerteza = None if not completo else max(hc-hmin, hmax-hc)
+
+    return {
+        "versao": "GXA-V0.20-NIVEL-DINAMICO",
+        "status": "nivel_modelado_calculado" if completo else "forcantes_insuficientes",
+        "natureza": "MODELADO_NAO_INSTRUMENTAL",
+        "instante": agora().isoformat(),
+        "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
+        "nivel_estimado_m": None if hc is None else round(hc,3),
+        "faixa_estimativa_m": {"min": None if hmin is None else round(hmin,3), "max": None if hmax is None else round(hmax,3)},
+        "incerteza_aprox_m": None if incerteza is None else round(incerteza,3),
+        "confianca": "baixa_experimental",
+        "tendencia": "a_calcular_com_historico_de_saidas_v020",
+        "entradas": {
+            "chuva_representativa_P1h_mm": None if chuva_1h is None else round(chuva_1h,3),
+            "chuva_metodo": "mediana_espacial_das_estacoes_EPAGRI_com_P1h_completa",
+            "chuva_fontes": chuva_fontes,
+            "mare_jusante_m": None if mare_m is None else round(float(mare_m),3),
+            "mare_horario": mare.get("horario_medicao") if isinstance(mare, dict) else None,
+            "area_km2": area,
+            "phi": phi,
+        },
+        "parametros": {
+            "secao_referencia_largura_m": GUAXANDUVA_V020_LARGURA_REF_M,
+            "manning_n": GUAXANDUVA_V020_MANNING_N,
+            "declividade_referencia_m_m": GUAXANDUVA_V020_DECLIVIDADE_REF,
+            "profundidade_base_baixa_m": GUAXANDUVA_V020_H_BASE_BAIXA_M,
+            "mare_referencia_baixa_m": GUAXANDUVA_V020_MARE_REF_BAIXA_M,
+            "C_envelope": [GUAXANDUVA_V020_C_MIN, GUAXANDUVA_V020_C_MAX],
+            "C_central": GUAXANDUVA_V020_C_CENTRAL,
+            "alpha_mare_envelope": [GUAXANDUVA_V020_ALPHA_MARE_MIN, GUAXANDUVA_V020_ALPHA_MARE_MAX],
+            "alpha_mare_central": GUAXANDUVA_V020_ALPHA_MARE_CENTRAL,
+        },
+        "componentes_central": {k: (None if v is None else round(v,3)) for k,v in central.items()},
+        "equacoes": {
+            "chuva_vazao": "Q=C*i*A*phi/3.6",
+            "manning": "Q=(1/n)*A*R^(2/3)*S^(1/2)",
+            "mare": "dH_mare=alpha*max(0,H_jusante-H_ref_baixa)",
+            "sintese": "H=max(H_base,H_Manning(Q))+dH_mare",
+        },
+        "restricoes": [
+            "Nivel matematico em datum local; nao e leitura de sensor.",
+            "Chuva EPAGRI e forcante regional e nao medicao dentro da bacia do Guaxanduva.",
+            "C atual e alpha de transmissao da mare ainda nao foram calibrados localmente; por isso a faixa e obrigatoria.",
+            "A V0.20 e um modelo concentrado/quase-estacionario; nao substitui Saint-Venant ou levantamento de secoes do rio.",
+            "A profundidade base de 1,50 m e referencia de campo/modelo, nao datum geodesico oficial.",
+        ],
+        "uso_operacional_alerta_liberado": False,
+    }
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_epagri165 = buscar_chuva_epagri_165()
@@ -11953,6 +12091,7 @@ def main():
     modelo_guaxanduva_v01 = construir_modelo_computacional_guaxanduva_v01(guaxanduva166)
     tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
     hidrologia_guaxanduva_v019 = calcular_hidrologia_guaxanduva_v019()
+    nivel_guaxanduva_v020 = calcular_nivel_guaxanduva_v020(guaxanduva166, hidrologia_guaxanduva_v019)
     dados = {
         "monitor":
             "Monitor Guaxanduva",
@@ -12019,6 +12158,9 @@ def main():
 
         "hidrologia_guaxanduva_v019":
             hidrologia_guaxanduva_v019,
+
+        "nivel_guaxanduva_v020":
+            nivel_guaxanduva_v020,
  
         "rio": {
             "nome":
@@ -12029,6 +12171,15 @@ def main():
  
             "nivel_m":
                 None,
+
+            "nivel_estimado_m":
+                nivel_guaxanduva_v020.get("nivel_estimado_m"),
+
+            "faixa_estimativa_m":
+                nivel_guaxanduva_v020.get("faixa_estimativa_m"),
+
+            "natureza_nivel_estimado":
+                "MODELADO_NAO_INSTRUMENTAL",
         },
  
         "previsao":

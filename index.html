@@ -301,7 +301,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="box"><small><b>Regra de segurança:</b> chuva observada não é HW e a maré de Joinville/Babitonga não é TW local absoluto. A V0.18 preserva geometria documental, HDS-5/Manning e cenários de seção efetiva e acrescenta contexto hidrométrico para calibração visual. Resultados permanecem MODELADOS, com incerteza explícita, e não equivalem a sensor nem a capacidade definitiva calibrada.</small></div>
 </section>
 
-<section class="card"><div class="local">🏞️ RIO GUAXANDUVA • MODELO V0.18</div><h2>Estado hidráulico do rio</h2><div class="valor" id="rio">--</div><div id="rs" class="box aviso">Carregando modelo inferencial...</div><small>Sem sensor público confirmado para nível local. O Monitor trabalha com estados e cenários MODELADOS; não apresenta inferência como medição observada.</small></section>
+<section class="card"><div class="local">🌊 RIO GUAXANDUVA • GUAXANDUVA-MODEL V0.20</div><h2>Altura matemática do rio agora</h2><div class="valor" id="rio">--</div><div id="rs" class="box aviso">Carregando nível matemático V0.20...</div><div id="rioV020" class="box"><small>Carregando componentes do cálculo...</small></div><small>MODELADO/NÃO INSTRUMENTAL. A altura é calculada matematicamente a partir das forçantes disponíveis e possui incerteza explícita. Não é leitura de sensor e não libera alerta operacional automaticamente.</small></section>
 <section class="card"><div class="local">📐 ALTITUDE DO TERRENO • ESTIMATIVA CARTOGRÁFICA</div><h2>Rua Itapoá • Comasa</h2><div class="valor">≈ 5 m</div><div class="sub">acima do nível do mar</div><div class="box"><b>Fonte:</b> Prefeitura de Joinville / SIMGeo<br><small>ESTIMATIVA. Cota aproximada do terreno. Não representa nível de inundação nem nível atual do rio.</small></div></section>
 
 <section class="card">
@@ -371,7 +371,7 @@ async function carregarHistorico(){
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
-  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{};
+  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n20=d.nivel_guaxanduva_v020||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
 
@@ -561,7 +561,22 @@ async function carregar(){
   $("hds15Auditoria").textContent=aud16.estado?nomeFamilia(aud16.estado):((v18||v17)?(v18?"V0.18 ATIVA":"V0.17 ATIVA"):"--"); $("hds15Gates").textContent=res16.vazao_central_m3_s==null?"--":f(res16.vazao_central_m3_s,3)+" m³/s"; $("hds15Pendencias").textContent=(res16.vazao_sensibilidade_min_m3_s==null||res16.vazao_sensibilidade_max_m3_s==null)?"--":f(res16.vazao_sensibilidade_min_m3_s,3)+"–"+f(res16.vazao_sensibilidade_max_m3_s,3)+" m³/s"; $("hds15ProximoGate").textContent=cen.length?String(cen.length)+" CENÁRIOS":"--"; $("hds15Nivel").textContent=inf17.status?"ATIVOS":"--"; $("hds15Capacidade").textContent=(camada.uso_operacional===true||gxa.alerta_operacional_liberado===true)?"SIM":"NÃO";
   if((v18||v17)&&res16.publicacao_liberada===true){$("hds15Estado").innerHTML='<span class="ok">🟢 '+(v18?'V0.18':'V0.17')+' • RESULTADOS MODELADOS PUBLICADOS</span> • referência hidráulica liberada • não instrumental • uso operacional NÃO LIBERADO'}else{$("hds15Estado").innerHTML='<span class="aviso">⚪ RESULTADOS HIDRÁULICOS AINDA NÃO DISPONÍVEIS</span>'}
   $("hds15Evidencias").innerHTML=cen.length?'<b>🧮 Cenários de seção efetiva dos dois tubos</b><br><small>'+cen.map(x=>'<b>'+nomeFamilia(x.cenario)+'</b> • obstrução assumida '+Math.round(Number(x.fracao_obstrucao_assumida||0)*100)+'% • área '+f(x.area_efetiva_m2,4)+' m² • Q '+f(x.vazao_referencia_ajustada_m3_s,3)+' m³/s • MODELADO').join('<br>')+'<br><br>HW/TW absolutos permanecem sem medição local; a V0.18 preserva os cenários inferenciais e aguarda calibração métrica visual.</small>':'<small>Cenários inferenciais não recebidos nesta coleta.</small>';
-  if(q.nivel_m!=null){$("rio").textContent=f(q.nivel_m,2)+" m";$("rs").innerHTML='<span class="ok">🟢 OBSERVADO • nível automático recebido</span>'}else if(v18&&ctx18.serie_visual_2026_09_26){$("rio").textContent="MODELO V0.18";$("rs").innerHTML='<span class="ok">📷 V0.18 HIDROMÉTRICA ATIVA</span> • contexto visual carregado • calibração métrica pendente • não é medição instrumental'}else if(inf17.status){$("rio").textContent="MODELO ATIVO";$("rs").innerHTML='<span class="ok">🧮 V0.17 INFERENCIAL ATIVA</span> • sem sensor local de nível • estados avaliados por cenários • não é medição instrumental'}else{$("rio").textContent="SEM SENSOR";$("rs").innerHTML='<span class="aviso">⚪ Sem sensor público confirmado e sem camada inferencial disponível</span>'}
+  if(q.nivel_m!=null){
+    $("rio").textContent=f(q.nivel_m,2)+" m";
+    $("rs").innerHTML='<span class="ok">🟢 OBSERVADO • nível automático recebido</span>';
+    $("rioV020").innerHTML='<small>Existe medição instrumental disponível nesta coleta; o valor observado tem precedência visual sobre o modelo.</small>';
+   }else if(n20.nivel_estimado_m!=null||q.nivel_estimado_m!=null){
+    const nv=n20.nivel_estimado_m??q.nivel_estimado_m,fx=n20.faixa_estimativa_m||q.faixa_estimativa_m||{},ent=n20.entradas||{},par=n20.parametros||{},comp=n20.componentes_centro||n20.componentes_centrais||{};
+    $("rio").textContent=f(nv,2)+" m";
+    $("rs").innerHTML='<span class="ok">🧮 ALTURA MODELADA AGORA • V0.20</span> • faixa '+(fx.min==null?'--':f(fx.min,2)+' m')+' a '+(fx.max==null?'--':f(fx.max,2)+' m')+' • confiança '+nomeFamilia(n20.confianca||'baixa_experimental');
+    $("rioV020").innerHTML='<b>🧮 Componentes do cálculo V0.20</b><br><small>Natureza: <b>'+nomeFamilia(n20.natureza||q.natureza_nivel_estimado||'MODELADO_NAO_INSTRUMENTAL')+'</b><br>Base hidráulica: <b>'+(par.h_base_baixa_m==null?'1,50 m':f(par.h_base_baixa_m,2)+' m')+'</b><br>Chuva representativa P1h: <b>'+(ent.chuva_representativa_P1h_mm==null?'--':f(ent.chuva_representativa_P1h_mm,2)+' mm')+'</b><br>Maré de jusante usada: <b>'+(ent.mare_jusante_m==null?'--':f(ent.mare_jusante_m,3)+' m')+'</b>'+(ent.mare_horario?(' • '+dataHoraBR(ent.mare_horario)):'')+'<br>Incerteza aproximada: <b>'+(n20.incerteza_aprox_m==null?'--':'± '+f(n20.incerteza_aprox_m,3)+' m')+'</b><br><br>Este valor é calculado matematicamente; não é leitura de sensor do Rio Guaxanduva.</small>';
+   }else if(v18&&ctx18.serie_visual_2026_09_26){
+    $("rio").textContent="MODELO V0.18";$("rs").innerHTML='<span class="aviso">📷 V0.18 HIDROMÉTRICA ATIVA</span> • V0.20 ainda sem entradas completas';$("rioV020").innerHTML='<small>Nível V0.20 indisponível nesta coleta. Nenhum valor ausente é convertido em zero.</small>';
+   }else if(inf17.status){
+    $("rio").textContent="MODELO ATIVO";$("rs").innerHTML='<span class="aviso">🧮 V0.17 INFERENCIAL ATIVA</span> • V0.20 ainda indisponível';$("rioV020").innerHTML='<small>Nível V0.20 indisponível nesta coleta.</small>';
+   }else{
+    $("rio").textContent="INDISPONÍVEL";$("rs").innerHTML='<span class="aviso">⚪ Nível matemático V0.20 não recebido nesta coleta</span>';$("rioV020").innerHTML='<small>Nenhum dado ausente é interpretado como zero.</small>';
+   }
 
   const re=rh.entradas||{},rc=rh.criterios||{};
   $("riscoChuva24").textContent=re.chuva_prevista_24h_mm==null?"--":f(re.chuva_prevista_24h_mm,2)+" mm";

@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-09-27T23:43:44.226267-03:00",
+  "gerado_em": "2026-09-27T23:56:38.661663-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -143,7 +143,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-09-27T23:43:24.204515-03:00"
+    "coletado_em": "2026-09-27T23:56:20.889652-03:00"
   },
   "chuva_observada_epagri_165": {
     "status": "online",
@@ -163,7 +163,7 @@
         "longitude": -48.9708,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-27T23:00:00-03:00",
-        "idade_leitura_min": 43.4,
+        "idade_leitura_min": 56.4,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -179,7 +179,7 @@
         "longitude": -48.9889,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-27T23:00:00-03:00",
-        "idade_leitura_min": 43.4,
+        "idade_leitura_min": 56.4,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -348,7 +348,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-27T23:00:00-03:00",
-        "idade_leitura_min": 43.4,
+        "idade_leitura_min": 56.4,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -367,7 +367,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-27T23:00:00-03:00",
-        "idade_leitura_min": 43.4,
+        "idade_leitura_min": 56.4,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -561,8 +561,8 @@
     "endpoint": "https://resources.cemaden.gov.br/graficos/interativo/grafico_pcds.php?idpcd=6259",
     "http_status": 200,
     "content_type": "text/html; charset=UTF-8",
-    "bytes_resposta": 28944,
-    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-27 22h00 UTC','2026-09-27 23h00 UTC','2026-09-28 00h00 UTC','2026-09-28 01h00 UTC','2026-09-28 02h00 UTC'],'2026-09-27 ',[0,0,null,null,null],'Acumulada',[0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA464",
+    "bytes_resposta": 28975,
+    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-27 22h00 UTC','2026-09-27 23h00 UTC','2026-09-28 00h00 UTC','2026-09-28 01h00 UTC','2026-09-28 02h00 UTC','2026-09-28 03h00 UTC'],'2026-09-27 ',[0,0,null,null,null,null],'Acumulada',[0,0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor",
     "referencias_encontradas": [
       {
         "referencia_bruta": "css/estilo_.css",
@@ -1029,7 +1029,7 @@
       "data_fonte": "28/09/2026",
       "hora_fonte": "2h"
     },
-    "idade_ultima_leitura_min": 43.9,
+    "idade_ultima_leitura_min": 56.8,
     "dados_frescos_diagnostico": true,
     "limite_frescor_diagnostico_min": 120,
     "acumulados_diagnosticos": {
@@ -1257,7 +1257,7 @@
     "24h_mm": 0.0,
     "horario_ultima_celula_utc": "2026-09-28T02:00:00+00:00",
     "horario_ultima_celula_local": "2026-09-27T23:00:00-03:00",
-    "idade_leitura_min": 44.0,
+    "idade_leitura_min": 56.9,
     "dados_frescos": true,
     "limite_frescor_min": 120,
     "granularidade": "horaria",
@@ -1293,7 +1293,7 @@
     "leitura_horaria_mm": 0.0,
     "horario_medicao_utc": "2026-09-28T02:00:00+00:00",
     "horario_medicao_local": "2026-09-27T23:00:00-03:00",
-    "idade_leitura_min": 44.1,
+    "idade_leitura_min": 57.0,
     "dados_frescos": true,
     "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
     "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
@@ -1443,13 +1443,13 @@
     "local": "Joinville / Babitonga",
     "unidade": "cm",
     "url_fonte": "https://ciram.epagri.sc.gov.br/graficos/getDataMare11_2913.php",
-    "nivel_cm": 110.6,
-    "nivel_m": 1.106,
-    "mare_astronomica_cm": 91.0,
-    "residual_cm": 19.6,
+    "nivel_cm": 109.5,
+    "nivel_m": 1.095,
+    "mare_astronomica_cm": 96.0,
+    "residual_cm": 13.5,
     "nmm_cm": 103.1,
-    "horario": "2026-09-27T23:15:00-03:00",
-    "idade_min": 28.7,
+    "horario": "2026-09-27T23:30:00-03:00",
+    "idade_min": 26.6,
     "frescor": "atual",
     "residual_aritmetica_validada": true,
     "uso_no_risco": false,
@@ -1465,7 +1465,7 @@
     ],
     "estrutura_validada": true,
     "erro_residual_cm": 0.0,
-    "quantidade_observacoes_validas": 189
+    "quantidade_observacoes_validas": 190
   },
   "mare_prevista_24h_164": {
     "status": "online_completo",
@@ -3323,10 +3323,10 @@
     "versao": "166-v0.2-historico-integrado",
     "status": "historico_em_formacao",
     "arquivo_historico": "historico_guaxanduva_166.json",
-    "gerado_em": "2026-09-27T23:43:42.087557-03:00",
-    "quantidade_registros": 339,
+    "gerado_em": "2026-09-27T23:56:36.707552-03:00",
+    "quantidade_registros": 340,
     "quantidade_chuva_horaria": 146,
-    "quantidade_mare_observada": 193,
+    "quantidade_mare_observada": 194,
     "chuva_por_estacao": [
       {
         "codigo": "2382",
@@ -3410,11 +3410,11 @@
       "fonte": "EPAGRI/CIRAM",
       "codigo_estacao": "maregrafo_joinville_2913",
       "nome_estacao": "Joinville / Babitonga",
-      "horario_medicao": "2026-09-27T23:15:00-03:00",
-      "nivel_cm": 110.6,
-      "nivel_m": 1.106,
-      "mare_astronomica_cm": 91.0,
-      "residual_cm": 19.6,
+      "horario_medicao": "2026-09-27T23:30:00-03:00",
+      "nivel_cm": 109.5,
+      "nivel_m": 1.095,
+      "mare_astronomica_cm": 96.0,
+      "residual_cm": 13.5,
       "nmm_cm": 103.1,
       "representa_nivel_rio_guaxanduva": false,
       "uso": "condicao_de_jusante_para_calibracao_futura"
@@ -3447,7 +3447,7 @@
   },
   "modelo_computacional_guaxanduva_v01": {
     "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
-    "gerado_em": "2026-09-27T23:43:42.097879-03:00",
+    "gerado_em": "2026-09-27T23:56:36.714689-03:00",
     "status": "grafo_hidrografico_integrado",
     "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
     "microbacia": "44-0",
@@ -3464,7 +3464,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-09-27T23:43:44.139176-03:00"
+      "instante": "2026-09-27T23:56:38.644909-03:00"
     },
     "parametros_hidraulicos_documentados": {
       "bypass_montezuma_odilon": {
@@ -3599,11 +3599,11 @@
         "fonte": "EPAGRI/CIRAM",
         "codigo_estacao": "maregrafo_joinville_2913",
         "nome_estacao": "Joinville / Babitonga",
-        "horario_medicao": "2026-09-27T23:15:00-03:00",
-        "nivel_cm": 110.6,
-        "nivel_m": 1.106,
-        "mare_astronomica_cm": 91.0,
-        "residual_cm": 19.6,
+        "horario_medicao": "2026-09-27T23:30:00-03:00",
+        "nivel_cm": 109.5,
+        "nivel_m": 1.095,
+        "mare_astronomica_cm": 96.0,
+        "residual_cm": 13.5,
         "nmm_cm": 103.1,
         "representa_nivel_rio_guaxanduva": false,
         "uso": "condicao_de_jusante_para_calibracao_futura"
@@ -13994,7 +13994,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-09-27T23:43:44.139176-03:00",
+      "instante": "2026-09-27T23:56:38.644909-03:00",
       "uso_operacional": false,
       "alerta_operacional_liberado": false,
       "representa_medicao_instrumental": false,
@@ -14005,7 +14005,7 @@
         "TW": {
           "observado_local": false,
           "forcante_jusante_disponivel": true,
-          "mare_joinville_babitonga_observada_m": 1.106,
+          "mare_joinville_babitonga_observada_m": 1.095,
           "TW_local_absoluto_m": null,
           "regra": "mare_e_forcante_de_jusante; sem_compatibilidade_de_datum_nao_e_convertida_diretamente_em_TW_local_absoluto",
           "modelo_previsto": "funcao_de_transferencia_com_atraso_tau_amortecimento_km_e_componente_fluvial_calibrados_pela_serie_visual"
@@ -15289,10 +15289,10 @@
           "regra": "estacoes_independentes_nao_somadas; maior_acumulado_valido_apenas_para_resumo_regional"
         },
         "mare_jusante": {
-          "nivel_m": 1.106,
+          "nivel_m": 1.095,
           "nmm_m": 1.031,
-          "anomalia_relativa_ao_nmm_m": 0.075,
-          "horario_medicao": "2026-09-27T23:15:00-03:00",
+          "anomalia_relativa_ao_nmm_m": 0.064,
+          "horario_medicao": "2026-09-27T23:30:00-03:00",
           "representa_nivel_rio_guaxanduva": false
         }
       }
@@ -15305,7 +15305,7 @@
       "TW": {
         "observado_local": false,
         "forcante_jusante_disponivel": true,
-        "mare_joinville_babitonga_observada_m": 1.106,
+        "mare_joinville_babitonga_observada_m": 1.095,
         "TW_local_absoluto_m": null,
         "regra": "mare_e_forcante_de_jusante; sem_compatibilidade_de_datum_nao_e_convertida_diretamente_em_TW_local_absoluto",
         "modelo_previsto": "funcao_de_transferencia_com_atraso_tau_amortecimento_km_e_componente_fluvial_calibrados_pela_serie_visual"
@@ -15522,11 +15522,11 @@
     "fonte": "Open-Meteo",
     "modelo": "Best Match",
     "atual": {
-      "horario": "2026-09-27T23:30",
+      "horario": "2026-09-27T23:45",
       "temperatura_c": 18.7,
       "precipitacao_mm": 0.0,
-      "vento_kmh": 1.2,
-      "direcao_graus": 117,
+      "vento_kmh": 1.0,
+      "direcao_graus": 121,
       "rajada_kmh": 1.8
     },
     "proxima_hora": {
@@ -15655,13 +15655,13 @@
     "entradas": {
       "chuva_prevista_24h_mm": 3.0,
       "chuva_24h_integra": true,
-      "mare_observada_m": 1.106,
+      "mare_observada_m": 1.095,
       "mare_observada_fresca": true,
       "mare_fonte": "EPAGRI/CIRAM",
       "janela_inicio": "2026-09-28T00:00",
       "janela_fim_exclusivo": "2026-09-29T00:00:00-03:00",
-      "mare_horario": "2026-09-27T23:15:00-03:00",
-      "mare_idade_min": 28.7
+      "mare_horario": "2026-09-27T23:30:00-03:00",
+      "mare_idade_min": 26.6
     },
     "criterios": {
       "mobilizacao_chuva_superior_20mm_24h": false,
@@ -15695,7 +15695,7 @@
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
     "horario_ultimo_quadro": "2026-09-27T20:50:00-03:00",
-    "idade_ultimo_quadro_min": 174.4,
+    "idade_ultimo_quadro_min": 187.3,
     "dados_frescos": false,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -29255,7 +29255,7 @@
             "projecao_adiante_km": 82.36,
             "velocidade_recente_media_kmh": 40.1,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29268,7 +29268,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29302,7 +29302,7 @@
             "projecao_adiante_km": 199.98,
             "velocidade_recente_media_kmh": 49.6,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29315,7 +29315,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29349,7 +29349,7 @@
             "projecao_adiante_km": 91.92,
             "velocidade_recente_media_kmh": 42.0,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29362,7 +29362,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29396,7 +29396,7 @@
             "projecao_adiante_km": 319.61,
             "velocidade_recente_media_kmh": 68.1,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29409,7 +29409,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29443,7 +29443,7 @@
             "projecao_adiante_km": 367.53,
             "velocidade_recente_media_kmh": 64.4,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29456,7 +29456,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29490,7 +29490,7 @@
             "projecao_adiante_km": 254.52,
             "velocidade_recente_media_kmh": 63.6,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29503,7 +29503,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29537,7 +29537,7 @@
             "projecao_adiante_km": 289.1,
             "velocidade_recente_media_kmh": 58.4,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29550,7 +29550,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29584,7 +29584,7 @@
             "projecao_adiante_km": 336.23,
             "velocidade_recente_media_kmh": 76.8,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29597,7 +29597,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29631,7 +29631,7 @@
             "projecao_adiante_km": 288.23,
             "velocidade_recente_media_kmh": 58.5,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29644,7 +29644,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29678,7 +29678,7 @@
             "projecao_adiante_km": 303.06,
             "velocidade_recente_media_kmh": 71.8,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29691,7 +29691,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29725,7 +29725,7 @@
             "projecao_adiante_km": 309.03,
             "velocidade_recente_media_kmh": 84.4,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29738,7 +29738,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29772,7 +29772,7 @@
             "projecao_adiante_km": 381.94,
             "velocidade_recente_media_kmh": 80.0,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29785,7 +29785,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29819,7 +29819,7 @@
             "projecao_adiante_km": -199.5,
             "velocidade_recente_media_kmh": 11.5,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29832,7 +29832,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29866,7 +29866,7 @@
             "projecao_adiante_km": 256.85,
             "velocidade_recente_media_kmh": 69.0,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29879,7 +29879,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29913,7 +29913,7 @@
             "projecao_adiante_km": 435.91,
             "velocidade_recente_media_kmh": 49.4,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29926,7 +29926,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -29960,7 +29960,7 @@
             "projecao_adiante_km": 266.29,
             "velocidade_recente_media_kmh": 60.3,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -29973,7 +29973,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -30007,7 +30007,7 @@
             "projecao_adiante_km": 204.71,
             "velocidade_recente_media_kmh": 97.7,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -30020,7 +30020,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         },
@@ -30054,7 +30054,7 @@
             "projecao_adiante_km": 183.32,
             "velocidade_recente_media_kmh": 53.8,
             "radar_fresco": false,
-            "idade_radar_min": 174.4,
+            "idade_radar_min": 187.3,
             "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -30067,7 +30067,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 174.4 min.",
+            "motivo": "Radar desatualizado: 187.3 min.",
             "eta": null
           }
         }
@@ -30099,7 +30099,7 @@
       "projecao_adiante_km": 82.36,
       "velocidade_recente_media_kmh": 40.1,
       "radar_fresco": false,
-      "idade_radar_min": 174.4,
+      "idade_radar_min": 187.3,
       "horario_ultimo_quadro": "2026-09-27T23:50:00+00:00",
       "criterios": {
         "minimo_transicoes": 3,
@@ -30112,7 +30112,7 @@
         "horizonte_max_min": 180,
         "idade_max_radar_min": 30
       },
-      "motivo": "Radar desatualizado: 174.4 min.",
+      "motivo": "Radar desatualizado: 187.3 min.",
       "eta": null
     },
     "quadros": [
@@ -48228,7 +48228,7 @@
       "candidato": false,
       "validado": false,
       "janela_chegada": null,
-      "motivo": "Radar desatualizado: 174.4 min."
+      "motivo": "Radar desatualizado: 187.3 min."
     },
     "seguranca_eta": {
       "status": "experimental",
@@ -50033,7 +50033,7 @@
     "consultas_temporais": [
       {
         "dias": 2,
-        "datetime": "2026-09-26T02:43:25Z/2026-09-28T02:43:25Z",
+        "datetime": "2026-09-26T02:56:21Z/2026-09-28T02:56:21Z",
         "http_status": 200,
         "quantidade_features": 17,
         "quantidade_data_alerta": 17,
@@ -50042,7 +50042,7 @@
       },
       {
         "dias": 7,
-        "datetime": "2026-09-21T02:43:25Z/2026-09-28T02:43:25Z",
+        "datetime": "2026-09-21T02:56:21Z/2026-09-28T02:56:21Z",
         "http_status": 200,
         "quantidade_features": 57,
         "quantidade_data_alerta": 57,
@@ -50051,7 +50051,7 @@
       },
       {
         "dias": 30,
-        "datetime": "2026-08-29T02:43:25Z/2026-09-28T02:43:25Z",
+        "datetime": "2026-08-29T02:56:21Z/2026-09-28T02:56:21Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,
@@ -50060,7 +50060,7 @@
       },
       {
         "dias": 90,
-        "datetime": "2026-06-30T02:43:25Z/2026-09-28T02:43:25Z",
+        "datetime": "2026-06-30T02:56:21Z/2026-09-28T02:56:21Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,

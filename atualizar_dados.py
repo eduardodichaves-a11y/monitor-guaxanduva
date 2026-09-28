@@ -9698,7 +9698,7 @@ GUAXANDUVA_SEGMENTO_REFERENCIA = 30960
 GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
-GUAXANDUVA_MODELO_VERSAO = "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL"
+GUAXANDUVA_MODELO_VERSAO = "GXA-V0.19-HIDROLOGIA-CHUVA-RIO-MARE"
  
  
 # =========================================================
@@ -11775,6 +11775,169 @@ def atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160):
     return diagnostico
  
  
+
+# =========================================================
+# GUAXANDUVA-MODEL V0.19 - ESPINHA DORSAL HIDROLOGICA
+# =========================================================
+# Camada independente da medicao de nivel do rio. Consolida parametros
+# documentais e modelados para transformar chuva de projeto em vazao de pico.
+# Nenhum resultado desta camada e nivel observado do Rio Guaxanduva.
+#
+# Proveniencia resumida:
+# - area 4,2609 km2: acumulacao topologica modelada ate o segmento 26421;
+# - 26421 <-> SIMGeo 30960: correspondencia geometrica INFERIDA, nao documental;
+# - Lmax 3986,980752 m: caminho dirigido pela coluna successor da Tabela-Mestra;
+# - nascente 13712 / segmento 7309: cabeceira do caminho modelado;
+# - cota 72,532196 m: MDT municipal na nascente 13712;
+# - cota 2,0 m: ponto cotado municipal proximo ao controle, usado apenas como
+#   proxy topografico; nao e cota instrumental do fundo do rio;
+# - Tc: Kirpich, portanto MODELADO e nao medido;
+# - IDF: parametros do Guia de Orientacoes Tecnicas para Drenagem Urbana de
+#   Joinville/PMSB (2026), para duracoes <= 120 min;
+# - C=0,80: cenario futuro municipal; C ponderado atual permanece desconhecido.
+
+GUAXANDUVA_V019_AREA_CONTRIBUINTE_KM2 = 4.2609
+GUAXANDUVA_V019_AREA_CONTRIBUINTE_HA = 426.09
+GUAXANDUVA_V019_SEGMENTOS_CONTRIBUINTES = 109
+GUAXANDUVA_V019_SEGMENTO_CABECEIRA = 7309
+GUAXANDUVA_V019_NASCENTE_CABECEIRA = 13712
+GUAXANDUVA_V019_SEGMENTO_CONTROLE_TABELA = 26421
+GUAXANDUVA_V019_SEGMENTO_CONTROLE_SIMGEO = 30960
+GUAXANDUVA_V019_LMAX_M = 3986.9807522169003
+GUAXANDUVA_V019_COTA_CABECEIRA_MDT_M = 72.532196
+GUAXANDUVA_V019_COTA_CONTROLE_PROXY_M = 2.0
+GUAXANDUVA_V019_C_PROJETO_FUTURO = 0.80
+GUAXANDUVA_V019_IDF_A = 641.7
+GUAXANDUVA_V019_IDF_B = 0.2290
+GUAXANDUVA_V019_IDF_C = 8.8
+GUAXANDUVA_V019_IDF_D = 0.6859
+GUAXANDUVA_V019_TR_ANOS = (5, 10, 25, 50, 100)
+
+
+def calcular_hidrologia_guaxanduva_v019():
+    area_km2 = GUAXANDUVA_V019_AREA_CONTRIBUINTE_KM2
+    area_ha = GUAXANDUVA_V019_AREA_CONTRIBUINTE_HA
+    lmax_m = GUAXANDUVA_V019_LMAX_M
+    z_cab = GUAXANDUVA_V019_COTA_CABECEIRA_MDT_M
+    z_controle = GUAXANDUVA_V019_COTA_CONTROLE_PROXY_M
+
+    desnivel_m = z_cab - z_controle
+    declividade_m_m = desnivel_m / lmax_m
+
+    # Kirpich em unidades SI: Tc[min] = 0,01947 * L^0,77 * S^-0,385.
+    tc_min = (
+        0.01947
+        * (lmax_m ** 0.77)
+        * (declividade_m_m ** -0.385)
+    )
+
+    # Metodo Racional Modificado: coeficiente de retardo phi=1/A^n,
+    # com n=0,10 e A em km2 nesta implementacao.
+    n_retardo = 0.10
+    phi = 1.0 / (area_km2 ** n_retardo)
+
+    cenarios = []
+    for tr_anos in GUAXANDUVA_V019_TR_ANOS:
+        intensidade_mm_h = (
+            GUAXANDUVA_V019_IDF_A
+            * (tr_anos ** GUAXANDUVA_V019_IDF_B)
+            / ((tc_min + GUAXANDUVA_V019_IDF_C) ** GUAXANDUVA_V019_IDF_D)
+        )
+
+        # A em km2 -> divisor 3,6. Equivalente a A em ha -> divisor 360.
+        q_pico_m3_s = (
+            GUAXANDUVA_V019_C_PROJETO_FUTURO
+            * intensidade_mm_h
+            * area_km2
+            * phi
+            / 3.6
+        )
+
+        cenarios.append({
+            "TR_anos": tr_anos,
+            "intensidade_IDF_mm_h": round(intensidade_mm_h, 3),
+            "C": GUAXANDUVA_V019_C_PROJETO_FUTURO,
+            "phi_retardo": round(phi, 6),
+            "Q_pico_modelado_m3_s": round(q_pico_m3_s, 3),
+            "natureza": "MODELADO_NAO_OBSERVADO",
+        })
+
+    # Sensibilidade do proxy topografico no controle. Nao escolhe nova cota;
+    # apenas demonstra o efeito sobre Tc sem alterar o cenario principal.
+    sensibilidade_tc = []
+    for z_teste in (0.5, 1.0, 2.0):
+        s_teste = (z_cab - z_teste) / lmax_m
+        tc_teste = 0.01947 * (lmax_m ** 0.77) * (s_teste ** -0.385)
+        sensibilidade_tc.append({
+            "cota_controle_proxy_m": z_teste,
+            "declividade_equivalente_pct": round(s_teste * 100.0, 4),
+            "Tc_min": round(tc_teste, 3),
+        })
+
+    return {
+        "versao": "GXA-V0.19-HIDROLOGIA-CHUVA-RIO-MARE",
+        "status": "parametrizacao_hidrologica_modelada",
+        "natureza": "MODELADO_NAO_INSTRUMENTAL",
+        "uso_operacional_alerta_liberado": False,
+        "nivel_rio_observado_m": None,
+        "area_contribuinte_controle": {
+            "km2": area_km2,
+            "ha": area_ha,
+            "segmentos_contribuintes": GUAXANDUVA_V019_SEGMENTOS_CONTRIBUINTES,
+            "segmento_controle_tabela_mestra": GUAXANDUVA_V019_SEGMENTO_CONTROLE_TABELA,
+            "segmento_controle_simgeo": GUAXANDUVA_V019_SEGMENTO_CONTROLE_SIMGEO,
+            "correspondencia_26421_30960": "MODELADA_INFERIDA_FORTE_NAO_DOCUMENTAL",
+            "fechamento_area_ha": 0.0,
+            "natureza": "MODELADA_NAO_OFICIAL",
+        },
+        "caminho_hidrologico": {
+            "segmento_cabeceira": GUAXANDUVA_V019_SEGMENTO_CABECEIRA,
+            "nascente_oficial_associada": GUAXANDUVA_V019_NASCENTE_CABECEIRA,
+            "comprimento_maximo_modelado_m": round(lmax_m, 6),
+            "cota_cabeceira_MDT_m": z_cab,
+            "cota_controle_proxy_topografico_m": z_controle,
+            "desnivel_modelado_m": round(desnivel_m, 6),
+            "declividade_equivalente_m_m": round(declividade_m_m, 8),
+            "declividade_equivalente_pct": round(declividade_m_m * 100.0, 4),
+            "observacao": (
+                "A cota de 2,0 m e ponto cotado de terreno proximo ao controle; "
+                "nao representa cota medida do fundo do Rio Guaxanduva."
+            ),
+        },
+        "tempo_concentracao": {
+            "metodo": "Kirpich_SI",
+            "formula": "Tc_min=0.01947*L_m^0.77*S^-0.385",
+            "Tc_calculado_min": round(tc_min, 3),
+            "Tc_adotado_modelo_min": round(tc_min),
+            "medido_em_campo": False,
+            "sensibilidade_proxy_controle": sensibilidade_tc,
+        },
+        "idf_joinville_2026": {
+            "formula": "i=641.7*TR^0.2290/(t+8.8)^0.6859",
+            "unidade_i": "mm/h",
+            "duracao_usada_min": round(tc_min, 3),
+            "faixa_duracao_declarada_modelo_min": "<=120",
+            "fonte": "Guia de Orientacoes Tecnicas para Drenagem Urbana - Joinville/PMSB 2026",
+        },
+        "metodo_racional_modificado": {
+            "area_km2": area_km2,
+            "expoente_retardo_n": n_retardo,
+            "phi": round(phi, 6),
+            "C_projeto_futuro": GUAXANDUVA_V019_C_PROJETO_FUTURO,
+            "C_ponderado_atual": None,
+            "Q_formula_km2": "Q=C*i*A_km2*phi/3.6",
+            "Q_formula_ha_equivalente": "Q=C*i*A_ha*phi/360",
+            "cenarios": cenarios,
+        },
+        "restricoes": [
+            "Nao e medicao de vazao nem de nivel do Rio Guaxanduva.",
+            "C=0,80 representa cenario futuro de projeto; nao ocupacao atual medida.",
+            "C ponderado atual permanece nulo ate intersecao espacial dos usos do solo com os 426,09 ha.",
+            "Maré/remanso ainda deve atuar como condicao de jusante no modelo hidraulico, nao como soma direta de alturas.",
+            "O valor de Q de projeto nao deve ser publicado como vazao instantanea observada.",
+        ],
+    }
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_epagri165 = buscar_chuva_epagri_165()
@@ -11789,6 +11952,7 @@ def main():
     guaxanduva166 = atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160)
     modelo_guaxanduva_v01 = construir_modelo_computacional_guaxanduva_v01(guaxanduva166)
     tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
+    hidrologia_guaxanduva_v019 = calcular_hidrologia_guaxanduva_v019()
     dados = {
         "monitor":
             "Monitor Guaxanduva",
@@ -11852,6 +12016,9 @@ def main():
  
         "tabela_mestra_guaxanduva":
             tabela_mestra_guaxanduva,
+
+        "hidrologia_guaxanduva_v019":
+            hidrologia_guaxanduva_v019,
  
         "rio": {
             "nome":

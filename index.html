@@ -247,6 +247,25 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="box"><small><b>Regra de segurança:</b> o grafo representa a estrutura hidrográfica computacional. Nível observado permanece indisponível sem sensor público confirmado. HW, TW local e condição efetiva dos tubos podem ser inferidos por cenários matemáticos com incerteza explícita. Nenhum resultado modelado é apresentado como medição instrumental e nenhum cenário libera alerta operacional automaticamente.</small></div>
 </section>
 
+
+<section class="card">
+<div class="local">🧮 GUAXANDUVA-MODEL V0.19 • HIDROLOGIA • MODELADO/NÃO OBSERVADO</div>
+<h2>Bacia contribuinte e resposta hidrológica</h2>
+<div class="sub">Modelo hidrológico do ponto de controle • área contribuinte + caminho hidráulico modelado + Tc + IDF + Método Racional Modificado</div>
+<div class="radar-grid">
+<div class="radar-item">🗺️ Área contribuinte<b id="gxa19Area">--</b></div>
+<div class="radar-item">🌊 Segmentos contribuintes<b id="gxa19Segmentos">--</b></div>
+<div class="radar-item">📏 Caminho máximo modelado<b id="gxa19Lmax">--</b></div>
+<div class="radar-item">⛰️ Declividade equivalente<b id="gxa19Declive">--</b></div>
+<div class="radar-item">⏱️ Tempo de concentração<b id="gxa19Tc">--</b></div>
+<div class="radar-item">🧮 Coeficiente futuro C<b id="gxa19C">--</b></div>
+</div>
+<div id="gxa19Estado" class="box aviso">Carregando hidrologia V0.19...</div>
+<div id="gxa19Geometria" class="box"><small>Carregando rastreabilidade topográfica...</small></div>
+<div id="gxa19Vazoes" class="box"><small>Carregando vazões de projeto...</small></div>
+<div class="box"><small><b>Regra de segurança:</b> os valores deste quadro são <b>MODELADOS/NÃO OBSERVADOS</b>. A correspondência 26421 ↔ 30960 é inferida, a cota de 2,00 m é proxy topográfico do terreno e não fundo medido do rio, e as vazões TR são cenários de projeto — não vazão instantânea observada. O nível observado do Rio Guaxanduva continua indisponível sem sensor local confirmado. Nenhum resultado deste quadro libera alerta operacional automaticamente.</small></div>
+</section>
+
 <section class="card">
 <div class="local">🗺️ BASE MODELADA DA BACIA • TABELA-MESTRA</div>
 <h2>Áreas contribuintes modeladas do Guaxanduva</h2>
@@ -352,7 +371,7 @@ async function carregarHistorico(){
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
-  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{};
+  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
 
@@ -493,6 +512,27 @@ async function carregar(){
   }else{
    $("guax166Estado").innerHTML='<span class="erro">🔴 #166 INDISPONÍVEL</span> • nenhum valor ausente é interpretado como zero';
   }
+
+
+   // GUAXANDUVA-MODEL V0.19 • camada hidrológica modelada/não observada
+   const h19A=h19.area_contribuinte_controle||{},h19Cam=h19.caminho_hidrologico||{},h19TcObj=h19.tempo_concentracao||{},h19RM=h19.metodo_racional_modificado||{};
+   $("gxa19Area").textContent=h19A.km2==null?"--":f(h19A.km2,4)+" km²"+(h19A.ha==null?"":" • "+f(h19A.ha,2)+" ha");
+   $("gxa19Segmentos").textContent=h19A.segmentos_contribuintes==null?"--":String(h19A.segmentos_contribuintes);
+   $("gxa19Lmax").textContent=h19Cam.comprimento_maximo_modelado_m==null?"--":f(Number(h19Cam.comprimento_maximo_modelado_m)/1000,3)+" km";
+   $("gxa19Declive").textContent=h19Cam.declividade_equivalente_pct==null?"--":f(h19Cam.declividade_equivalente_pct,4)+" %";
+   $("gxa19Tc").textContent=h19TcObj.Tc_adotado_modelo_min==null?"--":f(h19TcObj.Tc_adotado_modelo_min,0)+" min"+(h19TcObj.Tc_calculado_min==null?"":" • calc. "+f(h19TcObj.Tc_calculado_min,2));
+   $("gxa19C").textContent=h19RM.C_projeto_futuro==null?"--":f(h19RM.C_projeto_futuro,2);
+   if(h19.versao&&h19.status){
+    const op=h19.uso_operacional_alerta_liberado===true?"LIBERADO":"NÃO LIBERADO";
+    $("gxa19Estado").innerHTML='<span class="ok">🟢 V0.19 HIDROLÓGICA RECEBIDA</span> • '+nomeFamilia(h19.natureza||"MODELADO_NAO_INSTRUMENTAL")+' • uso operacional '+op;
+    $("gxa19Geometria").innerHTML='<b>📐 Rastreabilidade do caminho modelado</b><br><small>Controle: Tabela-Mestra <b>'+(h19A.segmento_controle_tabela_mestra??'--')+'</b> ↔ SIMGeo <b>'+(h19A.segmento_controle_simgeo??'--')+'</b> • '+nomeFamilia(h19A.correspondencia_26421_30960||"--")+'<br>Cabeceira: segmento <b>'+(h19Cam.segmento_cabeceira??'--')+'</b> ↔ nascente oficial <b>'+(h19Cam.nascente_oficial_associada??'--')+'</b> • MDT <b>'+(h19Cam.cota_cabeceira_MDT_m==null?'--':f(h19Cam.cota_cabeceira_MDT_m,3)+' m')+'</b><br>Proxy topográfico no controle: <b>'+(h19Cam.cota_controle_proxy_topografico_m==null?'--':f(h19Cam.cota_controle_proxy_topografico_m,2)+' m')+'</b> • desnível modelado <b>'+(h19Cam.desnivel_modelado_m==null?'--':f(h19Cam.desnivel_modelado_m,3)+' m')+'</b><br>'+String(h19Cam.observacao||'Proxy topográfico não equivale a fundo/invert medido do rio.')+'</small>';
+   }else{
+    $("gxa19Estado").innerHTML='<span class="erro">🔴 V0.19 HIDROLÓGICA INDISPONÍVEL</span> • nenhum valor ausente é interpretado como zero';
+    $("gxa19Geometria").innerHTML='<small>Bloco hidrologia_guaxanduva_v019 não recebido ou incompleto nesta coleta.</small>';
+   }
+   const cen19=Array.isArray(h19RM.cenarios)?h19RM.cenarios:[];
+   const linhasTR=cen19.length?cen19.map(x=>'<b>TR '+String(x.TR_anos??'--')+' anos:</b> '+(x.Q_pico_modelado_m3_s==null?'--':f(x.Q_pico_modelado_m3_s,3)+' m³/s')+(x.intensidade_IDF_mm_h==null?'':' • i '+f(x.intensidade_IDF_mm_h,3)+' mm/h')).join('<br>'):'Vazões de projeto indisponíveis nesta coleta.';
+   $("gxa19Vazoes").innerHTML='<b>🌧️ Vazões de projeto • Método Racional Modificado</b><br><small>'+linhasTR+(h19RM.phi==null?'':'<br>φ = <b>'+f(h19RM.phi,6)+'</b>')+(h19RM.C_ponderado_atual==null?'<br>C ponderado atual: <b>AINDA NÃO DETERMINADO</b>':'<br>C ponderado atual: <b>'+f(h19RM.C_ponderado_atual,3)+'</b>')+'<br><br><b>MODELADO/NÃO OBSERVADO:</b> TR representa período de retorno de projeto; estes valores não são vazão atual do rio.</small>';
 
   $("tmSegmentos").textContent=tm.segmentos==null?"--":String(tm.segmentos);
   $("tmArea").textContent=tm.area_modelada_ha==null?"--":f(tm.area_modelada_ha,2)+" ha";

@@ -112,8 +112,8 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="dash-summary"><b>EM RESUMO:</b> <span id="dashResumoLinha">Os dados acima preservam a diferença entre observação, previsão e modelagem. Ausência nunca vira zero.</span></div>
 
 <div class="dash-row">
-<div class="dash-panel"><h3>📡 Radar meteorológico • Santa Catarina</h3><div class="dash-statgrid"><div class="dash-stat">Estado<b id="dashRadarEstado">--</b></div><div class="dash-stat">Último quadro<b id="dashRadarHora">--</b></div><div class="dash-stat">Idade<b id="dashRadarIdade">--</b></div><div class="dash-stat">Quadros válidos<b id="dashRadarValidos">--</b></div></div><div class="dash-muted" style="margin-top:8px">RadarSC • Defesa Civil/CIASC. Detecção por radar ≠ chuva medida no solo. O painel técnico completo permanece abaixo.</div></div>
-<div class="dash-panel"><h3>🌧️ Estações meteorológicas • EPAGRI/CIRAM</h3><div id="dashEstacoes" class="station-list"><div class="station-line"><span>Carregando estações...</span><b>--</b></div></div><div class="dash-muted" style="margin-top:8px">Cada estação representa seu próprio ponto; o dashboard não soma nem transforma leituras em “chuva no Comasa”.</div></div>
+<div class="dash-panel"><h3>📡 Radar meteorológico • Santa Catarina</h3><div class="dash-statgrid"><div class="dash-stat">Estado<b id="dashRadarEstado">--</b></div><div class="dash-stat">Último quadro<b id="dashRadarHora">--</b></div><div class="dash-stat">Idade<b id="dashRadarIdade">--</b></div><div class="dash-stat">Quadros válidos<b id="dashRadarValidos">--</b></div></div><div id="dashRadarLegenda" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"><span class="dash-muted">Carregando legenda oficial RadarSC...</span></div><div id="dashRadarEco" class="dash-muted" style="margin-top:8px">Aguardando classificação qualitativa local...</div><div class="dash-muted" style="margin-top:8px">Cores = classes qualitativas de eco da legenda oficial RadarSC; não são alerta oficial, dBZ validado nem chuva medida no solo.</div></div>
+<div class="dash-panel"><h3>🌧️ Rede pluviométrica • medições numéricas</h3><div id="dashEstacoes" class="station-list"><div class="station-line"><span>Carregando estações...</span><b>--</b></div></div><div class="dash-muted" style="margin-top:8px">EPAGRI/CIRAM: precipitação horária (1 h). CEMADEN: acumulado de 24 h. Cada estação representa seu próprio ponto; grandezas de janelas diferentes não são somadas nem comparadas como equivalentes.</div></div>
 <div class="dash-panel"><h3>🌦️ Previsão • curto prazo</h3><div class="forecast-strip"><div class="forecast-cell">Agora<b id="dashPrevAgora">--</b><span id="dashPrevAgoraDet">--</span></div><div class="forecast-cell">Próx. h<b id="dashPrev1h">--</b><span id="dashPrev1hDet">--</span></div><div class="forecast-cell">Vento<b id="dashPrevVento">--</b><span id="dashPrevVentoDet">--</span></div><div class="forecast-cell">Nuvens<b id="dashPrevNuvens">--</b><span id="dashPrevNuvensDet">--</span></div></div><div class="dash-muted" style="margin-top:8px">Previsão/modelo meteorológico; não é observação instrumental local.</div></div>
 </div>
 
@@ -760,16 +760,33 @@ async function carregar(){
   $("dashRadarIdade").textContent=rad.idade_ultimo_quadro_min==null?"--":f(rad.idade_ultimo_quadro_min,1)+" min";
   $("dashRadarValidos").textContent=(rad.quadros_png_validos??rad.quantidade_quadros_validos??rad.quadros_validos??"--");
   const estDash=Array.isArray(r165.estacoes)?r165.estacoes:[];
-  const epDash=estDash.filter(e=>{
-    const ehEpagri=String(e.rede||e.fonte||"").toUpperCase().includes("EPAGRI");
-    const med=e.precipitacao_1h_mm;
-    return ehEpagri&&med!=null&&Number.isFinite(Number(med));
-  });
-  $("dashEstacoes").innerHTML=epDash.length?epDash.map(e=>{
-    const med=Number(e.precipitacao_1h_mm);
+  const numDash=estDash.map(e=>{
+    const p1=e.precipitacao_1h_mm, p24=e.acumulado_24h_mm;
+    if(p1!=null&&Number.isFinite(Number(p1)))return {e,valor:Number(p1),unidade:"mm/1h"};
+    if(p24!=null&&Number.isFinite(Number(p24)))return {e,valor:Number(p24),unidade:"mm/24h"};
+    return null;
+  }).filter(Boolean);
+  $("dashEstacoes").innerHTML=numDash.length?numDash.map(x=>{
+    const e=x.e,fonte=String(e.rede||e.fonte||"fonte não informada");
     const horario=e.horario_medicao?(" • "+dataHoraBR(e.horario_medicao)):"";
-    return '<div class="station-line"><span><b>'+String(e.nome||e.codigo||"Estação")+'</b><br><small>'+(e.codigo||"EPAGRI/CIRAM")+horario+'</small></span><b>'+f(med,2)+' mm/1h</b></div>';
-  }).join(""):'<div class="station-line"><span>EPAGRI/CIRAM</span><b>SEM MEDIÇÃO NUMÉRICA VÁLIDA</b></div>';
+    const dist=e.distancia_comasa_aprox_km!=null?(" • "+f(e.distancia_comasa_aprox_km,1)+" km da referência"):"";
+    return '<div class="station-line"><span><b>'+String(e.nome||e.codigo||"Estação")+'</b><br><small>'+fonte+(e.codigo?" • "+e.codigo:"")+horario+dist+'</small></span><b>'+f(x.valor,2)+' '+x.unidade+'</b></div>';
+  }).join(""):'<div class="station-line"><span>Rede integrada</span><b>SEM MEDIÇÃO NUMÉRICA VÁLIDA</b></div>';
+
+  const dicRadar=(rad.dicionario_cores_130||{}).classes||[];
+  $("dashRadarLegenda").innerHTML=dicRadar.length?dicRadar.map(x=>{
+    const rgb=Array.isArray(x.rgb)&&x.rgb.length===3?"rgb("+x.rgb.join(",")+")":"transparent";
+    const cat=textoCategoria(x.categoria||x.intensidade||x.familia_cor||"classe qualitativa");
+    return '<span title="Classe '+String(x.classe??"--")+' • '+cat+'" style="display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid #315564;border-radius:8px;font-size:11px"><i style="display:inline-block;width:14px;height:14px;border-radius:3px;background:'+rgb+';border:1px solid rgba(255,255,255,.35)"></i>C'+String(x.classe??"--")+'</span>';
+  }).join(""):'<span class="dash-muted">Legenda oficial indisponível nesta coleta</span>';
+  if(escolhido){
+    const famDash=(escolhido.familias_cor||[])[0]||{};
+    $("dashRadarEco").innerHTML='<span class="ok">● ECO OFICIAL DETECTADO ≤ '+escolhido.raio+' km</span> • '+nomeFamilia(famDash.familia||"família não informada");
+  }else if(cq.status){
+    $("dashRadarEco").innerHTML='<span class="aviso">○ SEM ECO OFICIAL DETECTADO ≤ 25 km</span>';
+  }else{
+    $("dashRadarEco").innerHTML='<span class="erro">Classificação qualitativa #130 indisponível</span>';
+  }
   $("dashPrevAgora").textContent=a.temperatura_c==null?"--":f(a.temperatura_c,1)+"°";
   $("dashPrevAgoraDet").textContent=tempoNome;
   $("dashPrev1h").textContent=ph.precipitacao_mm==null?"--":f(ph.precipitacao_mm,1)+" mm";

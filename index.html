@@ -41,8 +41,8 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 .card-recolhivel.fechado .card-seta{transform:translateY(-50%) rotate(-90deg)}
 @media(min-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.meteo{grid-template-columns:repeat(4,minmax(0,1fr))}.radar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:520px){main{padding:10px}.grid,.meteo,.radar-grid{grid-template-columns:1fr}.mare-grid{grid-template-columns:1fr 1fr}h1{font-size:27px}header{padding:18px}}
- 
- 
+
+
 .resumo-agora{background:linear-gradient(145deg,#0b2632,#0b1d27);border:2px solid #3180a0;box-shadow:0 14px 38px rgba(0,0,0,.30);padding:16px}
 .resumo-topo{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;border-bottom:1px solid #285365;padding-bottom:12px}
 .resumo-topo h2{font-size:26px}
@@ -65,7 +65,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 @media(max-width:900px){.resumo-grid,.resumo-astro{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.resumo-grid,.resumo-astro{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.resumo-item{min-height:105px;padding:12px}.resumo-item .destaque{font-size:21px}.resumo-item .destaque-granizo{font-size:18px}.resumo-frase{font-size:15px}.resumo-topo h2{font-size:24px}}
 @media(max-width:370px){.resumo-grid,.resumo-astro{grid-template-columns:1fr}}
- 
+
 /* DASHBOARD V2 — camada visual compacta; usa somente dados já existentes no Monitor */
 .hero-monitor{display:grid;grid-template-columns:1fr auto;align-items:center;gap:18px;padding:14px 18px;margin-bottom:8px;border:1px solid #257493;border-radius:16px;background:linear-gradient(105deg,#06151d,#0a2733 55%,#104352);box-shadow:0 8px 24px rgba(0,0,0,.22)}
 .hero-brand{display:flex;align-items:center;gap:12px}.hero-logo{font-size:44px;line-height:1}.hero-kicker{color:#8fd6ec;letter-spacing:2px;font-size:11px}.hero-title{font-size:32px;font-weight:900;line-height:1;margin:3px 0}.hero-nav{color:#b6ced8;font-size:13px}
@@ -85,7 +85,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 @media(max-width:900px){.dash-cards{grid-template-columns:repeat(4,minmax(0,1fr))}.dash-row{grid-template-columns:1fr 1fr}.dash-row .dash-panel:first-child{grid-column:1/-1}.dash-footer{grid-template-columns:1fr 1fr}.dash-footer .dash-foot:nth-child(2){grid-column:1/-1;grid-row:2}}
 @media(max-width:560px){main{padding:7px}.hero-monitor{grid-template-columns:1fr auto;padding:10px 11px;gap:8px}.hero-logo{font-size:32px}.hero-title{font-size:21px}.hero-kicker{font-size:9px}.hero-nav{font-size:10px}.hero-time{min-width:0;padding:7px 8px}.hero-time b{font-size:12px}.dash{padding:7px}.dash-head-title{font-size:16px}.dash-tag{font-size:8.5px;padding:5px 7px}.dash-status{padding:8px 9px;gap:8px}.dash-status-icon{font-size:22px}.dash-status-text{font-size:12px}.dash-cards{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.dash-mini{padding:7px;min-height:92px}.dash-mini .k{font-size:8px;letter-spacing:.2px}.dash-mini .v{font-size:15px;margin:5px 0 2px}.dash-mini .d{font-size:8.5px}.dash-mini.granizo .v{font-size:11px}.dash-summary{font-size:10px;padding:8px}.dash-row{grid-template-columns:1fr;gap:6px}.dash-row .dash-panel:first-child{grid-column:auto}.dash-panel{padding:8px}.dash-panel h3{font-size:10px}.dash-big{font-size:21px}.dash-statgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.forecast-strip{grid-template-columns:repeat(4,minmax(0,1fr))}.dash-footer{grid-template-columns:1fr;gap:6px}.dash-footer .dash-foot:nth-child(2){grid-column:auto;grid-row:auto}.hero-monitor+ .dash{margin-top:0}}
 @media(max-width:390px){.dash-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-time{display:none}}
- 
+
 </style>
 </head>
 <body><main>
@@ -93,11 +93,11 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="hero-brand"><div class="hero-logo">🌧️🌊</div><div><div class="hero-kicker">COMASA • JOINVILLE/SC</div><div class="hero-title">Monitor Guaxanduva</div><div class="hero-nav">Chuva • Radar • Maré • Rio • Vento • Tempo • Lua • Riscos</div></div></div>
 <div class="hero-time"><small>Atualizado em</small><b id="hora">🕒 --</b></div>
 </header>
- 
+
 <section class="dash" id="resumoAgoraCard">
 <div class="dash-head"><div class="dash-head-title">📊 SITUAÇÃO DO GUAXANDUVA AGORA</div><div class="dash-tags"><span class="dash-tag">RESUMO EM LINGUAGEM SIMPLES</span><span class="dash-tag model">DADOS + MODELO</span><span class="dash-tag">V0.21 • EXPERIMENTAL</span></div></div>
 <div class="dash-status"><div class="dash-status-icon">🌊</div><div class="dash-status-text" id="resumoFrase">Carregando situação atual...</div></div>
- 
+
 <div class="dash-cards">
 <div class="dash-mini"><div class="k">🌊 Nível do rio • modelo</div><div class="v" id="resRio">--</div><div class="d" id="resRioDet">V0.21 • não instrumental</div></div>
 <div class="dash-mini"><div class="k">🌧️ Chuva recente</div><div class="v" id="resChuva">--</div><div class="d" id="resChuvaDet">forçante regional</div></div>
@@ -108,27 +108,27 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="dash-mini granizo"><div class="k">🧊 Granizo</div><div class="v" id="resGranizo">--</div><div class="d" id="resGranizoDet">INMET/WIS2/CAP</div></div>
 <div class="dash-mini"><div class="k">🌙 Lua</div><div class="v" id="resLua">--</div><div class="d" id="resLuaDet">USNO</div></div>
 </div>
- 
+
 <div class="dash-summary"><b>EM RESUMO:</b> <span id="dashResumoLinha">Os dados acima preservam a diferença entre observação, previsão e modelagem. Ausência nunca vira zero.</span></div>
- 
+
 <div class="dash-row">
 <div class="dash-panel"><h3>📡 Radar meteorológico • Santa Catarina</h3><div class="dash-statgrid"><div class="dash-stat">Estado<b id="dashRadarEstado">--</b></div><div class="dash-stat">Último quadro<b id="dashRadarHora">--</b></div><div class="dash-stat">Idade<b id="dashRadarIdade">--</b></div><div class="dash-stat">Quadros válidos<b id="dashRadarValidos">--</b></div></div><div class="dash-muted" style="margin-top:8px">RadarSC • Defesa Civil/CIASC. Detecção por radar ≠ chuva medida no solo. O painel técnico completo permanece abaixo.</div></div>
 <div class="dash-panel"><h3>🌧️ Estações meteorológicas • EPAGRI/CIRAM</h3><div id="dashEstacoes" class="station-list"><div class="station-line"><span>Carregando estações...</span><b>--</b></div></div><div class="dash-muted" style="margin-top:8px">Cada estação representa seu próprio ponto; o dashboard não soma nem transforma leituras em “chuva no Comasa”.</div></div>
 <div class="dash-panel"><h3>🌦️ Previsão • curto prazo</h3><div class="forecast-strip"><div class="forecast-cell">Agora<b id="dashPrevAgora">--</b><span id="dashPrevAgoraDet">--</span></div><div class="forecast-cell">Próx. h<b id="dashPrev1h">--</b><span id="dashPrev1hDet">--</span></div><div class="forecast-cell">Vento<b id="dashPrevVento">--</b><span id="dashPrevVentoDet">--</span></div><div class="forecast-cell">Nuvens<b id="dashPrevNuvens">--</b><span id="dashPrevNuvensDet">--</span></div></div><div class="dash-muted" style="margin-top:8px">Previsão/modelo meteorológico; não é observação instrumental local.</div></div>
 </div>
- 
+
 <div class="dash-row">
 <div class="dash-panel"><h3>🌊 Rio Guaxanduva • Modelo V0.21</h3><div class="dash-big" id="dashRioNivel">--</div><div class="dash-muted" id="dashRioTend">MODELADO/NÃO INSTRUMENTAL</div><div class="gauge"><span id="dashRioGauge"></span></div><div class="dash-statgrid"><div class="dash-stat">Faixa estimativa<b id="dashRioFaixa">--</b></div><div class="dash-stat">Chuva memória<b id="dashRioChuva">--</b></div></div><div class="dash-muted" style="margin-top:7px">A barra apenas posiciona o valor dentro da própria faixa de incerteza do V0.21; não é escala de perigo.</div></div>
 <div class="dash-panel"><h3>🌊 Maré • condição de jusante</h3><div class="dash-big" id="dashMareNivel">--</div><div class="dash-muted" id="dashMareDet">Joinville/Babitonga • não é nível do rio</div><div class="gauge"><span id="dashMareGauge"></span></div><div class="dash-statgrid"><div class="dash-stat">Observada EPAGRI<b id="dashMareObs">--</b></div><div class="dash-stat">Próximo extremo<b id="dashMareProx">--</b></div></div></div>
 <div class="dash-panel"><h3>🌬️ Vento • condições atuais</h3><div class="wind-rose"><span class="wind-n">N</span><span class="wind-s">S</span><span class="wind-l">L</span><span class="wind-o">O</span><span class="wind-arrow" id="dashWindArrow"></span></div><div style="text-align:center"><div class="dash-big" id="dashWindVel">--</div><div class="dash-muted" id="dashWindDet">--</div></div></div>
 </div>
- 
+
 <div class="dash-row">
 <div class="dash-panel"><h3>🌡️ Condições do tempo • Joinville</h3><div class="dash-statgrid"><div class="dash-stat">Temperatura<b id="dashTemp">--</b></div><div class="dash-stat">Sensação<b id="dashSens">--</b></div><div class="dash-stat">Céu<b id="dashCeu">--</b></div><div class="dash-stat">Nuvens<b id="dashNuvens">--</b></div></div></div>
 <div class="dash-panel"><h3>🌙 Lua • fase e horários</h3><div class="dash-big" id="dashLuaFase">--</div><div class="dash-muted" id="dashLuaDados">--</div><div style="margin-top:8px">☀️ <b id="resSol">--</b><div class="dash-muted" id="resSolDet">USNO</div></div></div>
 <div class="dash-panel"><h3>🌘 Eclipses • próximos eventos</h3><div class="dash-statgrid"><div class="dash-stat">Solar<b id="resEclipseSolar">--</b><span class="dash-muted" id="resEclipseSolarDet">OPALE/IMCCE</span></div><div class="dash-stat">Lunar<b id="resEclipseLunar">--</b><span class="dash-muted" id="resEclipseLunarDet">OPALE/IMCCE</span></div></div></div>
 </div>
- 
+
 <div class="dash-footer">
 <div class="dash-foot"><b>🕒 HISTÓRICO RECENTE</b><br>Última coleta: <span id="resAtualizacao">--</span><br><span id="resAtualizacaoDet">--</span></div>
 <div class="dash-foot"><b>🗄️ FONTES DE DADOS</b><br>EPAGRI/CIRAM • RadarSC/Defesa Civil • previsão meteorológica • USNO • OPALE/IMCCE • demais fontes detalhadas nos painéis técnicos.</div>
@@ -136,13 +136,20 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 </div>
 <div class="dash-muted" style="margin-top:8px">⚠️ O nível do Guaxanduva exibido no dashboard é MODELADO/NÃO INSTRUMENTAL enquanto não houver sensor público confirmado.</div>
 </section>
- 
+
+<section class="card">
+<div class="local">🌧️ PREVISÃO DE CHUVA • PRÓXIMOS 7 DIAS</div><h2>Tendência para Comasa • Joinville</h2>
+<div class="sub">PREVISTO por modelo meteorológico • Open-Meteo • não é observação</div>
+<div id="previsao7dias" class="box">Carregando previsão dos próximos dias...</div>
+<div class="box"><small>☔ <b>Maior probabilidade de chuva</b> = maior porcentagem prevista no dia, acompanhada do horário ou faixa de horários em que esse pico ocorre.<br><br>🌧️ <b>Total previsto no dia</b> = soma estimada de precipitação do dia em milímetros (mm).<br><br>Por isso a porcentagem diária pode ser diferente da previsão para a próxima hora. As previsões podem mudar conforme o modelo recebe novas informações.</small></div>
+</section>
+
 <div class="tech-separator">Painéis técnicos e auditoria das fontes • detalhamento completo preservado abaixo</div>
- 
+
 <div class="dashboard-divisor"></div>
 <div class="dashboard-subtitulo">Painéis técnicos e auditoria das fontes</div>
 <div class="sub" style="margin:5px 0 14px">Detalhamento completo preservado abaixo • toque nos painéis para abrir</div>
- 
+
 <section class="card">
 <div class="local">📡 RADAR METEOROLÓGICO • EXPERIMENTAL</div>
 <h2>Monitoramento de precipitação por radar</h2>
@@ -157,7 +164,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="etaEstado" class="box aviso">🧪 ETA em validação experimental</div>
 <small>DETECTADO POR RADAR ≠ chuva medida. O sistema acompanha ecos e testa retrospectivamente trajetórias. Enquanto a validação não for concluída, não publica horário automático de chegada da chuva.</small>
 </section>
- 
+
 <section class="card">
 <div class="local">🌈 ECO RADARSC • CLASSIFICAÇÃO QUALITATIVA #130</div>
 <h2>Cor oficial detectada perto do Comasa</h2>
@@ -172,7 +179,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="ecoQualInterpretacao" class="box aviso">Aguardando diagnóstico qualitativo...</div>
 <small>DETECTADO POR RADAR. A cor é comparada com a legenda oficial do RadarSC. A categoria de intensidade é qualitativa; não representa chuva medida no solo, não atribui mm/h e não converte a cor em dBZ numérico. Se o quadro estiver desatualizado, a detecção também é antiga.</small>
 </section>
- 
+
 <section class="card">
 <div class="local">🎨 VALIDAÇÃO RADARSC • EXPERIMENTAL</div>
 <h2>Legenda oficial × paleta dos quadros</h2>
@@ -186,7 +193,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="paletaEstado" class="box aviso">Carregando validação da paleta...</div>
 <small>Compatibilidade RGB confirma apenas que cores da legenda oficial aparecem na estrutura dos PNGs analisados. Isso não atribui valores numéricos de dBZ, não equivale a chuva medida e não libera ETA automaticamente.</small>
 </section>
- 
+
 <section class="card">
 <div class="local">🧪 AUTOVALIDAÇÃO DO RADAR • EXPERIMENTAL</div>
 <h2>O sistema mede o próprio erro</h2>
@@ -200,7 +207,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="histEstado" class="box aviso">Carregando histórico de validação...</div>
 <small>Erro em quilômetros é diagnóstico do algoritmo, não previsão de distância da chuva. Não há limiar de aprovação definido.</small>
 </section>
- 
+
 <section class="grid">
 <div class="card">
 <div class="local">🌧️ CHUVA OBSERVADA • CEMADEN • DADO BRUTO</div><h2>Pluviômetro automático</h2>
@@ -272,7 +279,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <small>PREVISTO. Este quadro procura o maior extremo de maré dentro das mesmas próximas 24 horas usadas pela previsão de chuva. Não é medição instantânea, não é nível do Rio Guaxanduva e, nesta etapa, não altera automaticamente a classificação #163.</small>
 </div>
 </section>
- 
+
 <section class="card">
 <div class="local">🌦️ PREVISÃO METEOROLÓGICA • PRÓXIMA HORA</div>
 <h2>Comasa • Joinville</h2>
@@ -289,14 +296,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="ps" class="box aviso">Carregando previsão...</div>
 <div class="box"><small>⚠️ Estes valores vêm de um modelo meteorológico. “0,0 mm previstos” não significa que não esteja chovendo no local neste momento.</small></div>
 </section>
- 
-<section class="card">
-<div class="local">🌧️ PREVISÃO DE CHUVA • PRÓXIMOS 7 DIAS</div><h2>Tendência para Comasa • Joinville</h2>
-<div class="sub">PREVISTO por modelo meteorológico • Open-Meteo • não é observação</div>
-<div id="previsao7dias" class="box">Carregando previsão dos próximos dias...</div>
-<div class="box"><small>☔ <b>Maior probabilidade de chuva</b> = maior porcentagem prevista no dia, acompanhada do horário ou faixa de horários em que esse pico ocorre.<br><br>🌧️ <b>Total previsto no dia</b> = soma estimada de precipitação do dia em milímetros (mm).<br><br>Por isso a porcentagem diária pode ser diferente da previsão para a próxima hora. As previsões podem mudar conforme o modelo recebe novas informações.</small></div>
-</section>
- 
+
 <section class="card">
 <div class="local">🧊 GRANIZO • INMET / WIS2 / CAP • #157</div>
 <h2>Aviso oficial de possibilidade de granizo</h2>
@@ -306,7 +306,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <a id="granizoLink" href="https://alertas2.inmet.gov.br/" target="_blank">ABRIR ALERTAS DO INMET</a>
 <small>ALERTA OFICIAL ≠ granizo observado. O Monitor só publica alerta positivo quando o mesmo CAP é Actual, Public, não cancelado, vigente, menciona explicitamente granizo e cobre a referência pública aproximada do Comasa/Joinville. Falha de fonte ou ausência de prova suficiente permanece inconclusiva e nunca é convertida automaticamente em “sem alerta”.</small>
 </section>
- 
+
 <section class="card">
 <div class="local">🧪 HISTÓRICO HIDROMETEOROLÓGICO • GUAXANDUVA • #166</div>
 <h2>Chuva observada × maré de jusante</h2>
@@ -322,7 +322,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="guax166Mare" class="box"><small>Carregando condição de jusante...</small></div>
 <div class="box"><small><b>Regra de segurança:</b> P1h, P3h, P6h e P24h são calculados separadamente para cada estação e somente quando todas as horas necessárias estão presentes. A maré de Joinville/Babitonga é condição de jusante e não representa o nível do Rio Guaxanduva. O histórico alimenta a calibração do modelo inferencial. Ausência de sensor não impede cenários matemáticos, mas nenhum estado inferido é rotulado como medição instrumental nem libera alerta operacional automaticamente.</small></div>
 </section>
- 
+
 <section class="card">
 <div class="local">🧮 GUAXANDUVA-MODEL V0.18 • CONTEXTO HIDROMÉTRICO • AUDITADO</div>
 <h2>Estrutura computacional do Rio Guaxanduva</h2>
@@ -341,8 +341,8 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="gxaV018" class="box"><small>Carregando contexto hidrométrico V0.18...</small></div>
 <div class="box"><small><b>Regra de segurança:</b> o grafo representa a estrutura hidrográfica computacional. Nível observado permanece indisponível sem sensor público confirmado. HW, TW local e condição efetiva dos tubos podem ser inferidos por cenários matemáticos com incerteza explícita. Nenhum resultado modelado é apresentado como medição instrumental e nenhum cenário libera alerta operacional automaticamente.</small></div>
 </section>
- 
- 
+
+
 <section class="card">
 <div class="local">🧮 GUAXANDUVA-MODEL V0.19 • HIDROLOGIA • MODELADO/NÃO OBSERVADO</div>
 <h2>Bacia contribuinte e resposta hidrológica</h2>
@@ -360,7 +360,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="gxa19Vazoes" class="box"><small>Carregando vazões de projeto...</small></div>
 <div class="box"><small><b>Regra de segurança:</b> os valores deste quadro são <b>MODELADOS/NÃO OBSERVADOS</b>. A correspondência 26421 ↔ 30960 é inferida, a cota de 2,00 m é proxy topográfico do terreno e não fundo medido do rio, e as vazões TR são cenários de projeto — não vazão instantânea observada. O nível observado do Rio Guaxanduva continua indisponível sem sensor local confirmado. Nenhum resultado deste quadro libera alerta operacional automaticamente.</small></div>
 </section>
- 
+
 <section class="card">
 <div class="local">🗺️ BASE MODELADA DA BACIA • TABELA-MESTRA</div>
 <h2>Áreas contribuintes modeladas do Guaxanduva</h2>
@@ -378,7 +378,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="tmEstado" class="box aviso">Carregando Tabela-Mestra...</div>
 <div class="box"><small><b>Regra de segurança:</b> esta base representa áreas contribuintes <b>modeladas</b> a partir do MDT e da hidrografia oficial. Não é uma delimitação hidrológica oficial da Prefeitura. Falha, ausência ou inconsistência do CSV mantém a base indisponível; nunca é convertida em zero.</small></div>
 </section>
- 
+
 <section class="card">
 <div class="local">⚙️ CONTROLE HIDRÁULICO • FHWA HDS-5 • V0.18 INFERENCIAL</div>
 <h2>Auditoria, resultados e cenários hidráulicos</h2>
@@ -395,10 +395,10 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="hds15Evidencias" class="box"><small>Carregando cenários hidráulicos inferenciais...</small></div>
 <div class="box"><small><b>Regra de segurança:</b> chuva observada não é HW e a maré de Joinville/Babitonga não é TW local absoluto. A V0.18 preserva geometria documental, HDS-5/Manning e cenários de seção efetiva e acrescenta contexto hidrométrico para calibração visual. Resultados permanecem MODELADOS, com incerteza explícita, e não equivalem a sensor nem a capacidade definitiva calibrada.</small></div>
 </section>
- 
+
 <section class="card"><div class="local">🌊 RIO GUAXANDUVA • GUAXANDUVA-MODEL V0.21</div><h2>Altura matemática do rio agora</h2><div class="valor" id="rio">--</div><div id="rs" class="box aviso">Carregando nível matemático V0.21...</div><div id="rioV021" class="box"><small>Carregando memória hidrológica e tendência...</small></div><small>MODELADO/NÃO INSTRUMENTAL. A altura é calculada matematicamente a partir das forçantes disponíveis e possui incerteza explícita. A tendência também é modelada, não é leitura de sensor e não libera alerta operacional automaticamente.</small></section>
 <section class="card"><div class="local">📐 ALTITUDE DO TERRENO • ESTIMATIVA CARTOGRÁFICA</div><h2>Rua Itapoá • Comasa</h2><div class="valor">≈ 5 m</div><div class="sub">acima do nível do mar</div><div class="box"><b>Fonte:</b> Prefeitura de Joinville / SIMGeo<br><small>ESTIMATIVA. Cota aproximada do terreno. Não representa nível de inundação nem nível atual do rio.</small></div></section>
- 
+
 <section class="card">
 <div class="local">📖 COMO LER O MONITOR</div><h2>Tipo de informação</h2>
 <div class="medida"><div class="medida-sigla">🟢 OBSERVADO</div><b>Medido por instrumento</b><div class="medida-exemplo">Ex.: pluviômetro. Deve ter fonte e horário de leitura.</div></div>
@@ -407,7 +407,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="medida"><div class="medida-sigla">⚪ INDISPONÍVEL</div><b>Sem dado confiável</b><div class="medida-exemplo">Não significa condição normal ou valor zero.</div></div>
 <div class="medida"><div class="medida-sigla">🧮 MODELADO / INFERIDO</div><b>Calculado matematicamente a partir de dados documentados e forcantes disponíveis</b><div class="medida-exemplo">Ex.: vazão de referência, HW/TW inferenciais e cenários de obstrução. Não é leitura de sensor e carrega incerteza.</div></div><div class="medida"><div class="medida-sigla">🧪 EXPERIMENTAL</div><b>Ainda em validação</b><div class="medida-exemplo">Não deve ser usado sozinho para decisão operacional.</div></div>
 </section>
- 
+
 <section class="card">
 <div class="local">📖 ENTENDA AS MEDIDAS</div><h2>O que significam os números?</h2><div class="sub">Guia rápido para interpretar o Monitor Guaxanduva</div>
 <div class="medida"><div class="medida-sigla">🌧️ mm</div><b>Milímetros de chuva</b><div class="medida-exemplo">1 mm de chuva equivale aproximadamente a 1 litro de água sobre cada metro quadrado.</div></div>
@@ -419,11 +419,11 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="medida"><div class="medida-sigla">📡 dBZ</div><b>Refletividade do radar</b><div class="medida-exemplo">Representa intensidade dos ecos. Não prova sozinho quantidade exata de chuva ou granizo.</div></div>
 <div class="box"><small>ℹ️ Previsões, estimativas e análises experimentais não substituem avisos oficiais da Defesa Civil.</small></div>
 </section>
- 
+
 <section class="card"><div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2><div id="sistema" class="box aviso">Carregando dados.json...</div><p><small id="coleta">Última coleta: --</small></p></section>
 <section class="card"><div class="local">PAINEL HIDROMETEOROLÓGICO • #163</div><h2>Correspondência aos critérios hidrológicos do PLANCON</h2><div class="sub">Cálculo técnico do Monitor Guaxanduva • não representa ativação oficial do PLANCON pela Defesa Civil</div><div class="risco"><div>🟢<br>Sem gatilho superior</div><div>🟡<br>Mobilização*</div><div>🟠<br>Atenção</div><div>🔴<br>Alerta</div></div><div id="riscoEstado" class="box aviso">⚪ Carregando cálculo hidrometeorológico...</div><div class="radar-grid"><div class="radar-item">🌧️ Chuva prevista • 24 h<b id="riscoChuva24">--</b></div><div class="radar-item">🌊 Maré observada • EPAGRI<b id="riscoMare">--</b></div><div class="radar-item">🕐 Janela da previsão<b id="riscoJanela">--</b></div><div class="radar-item">🏛️ PLANCON oficial<b id="riscoOficial">NÃO INFERIDO</b></div></div><div id="riscoCriterios" class="box"><small>Aguardando critérios calculados...</small></div><div class="box"><small>* O Monitor não declara Mobilização apenas pela chuva &gt; 20 mm/24 h porque o quadro oficial também exige a deflagração de uma ou mais ocorrências. Crise não é calculada automaticamente. A maré utilizada neste diagnóstico é a observada atual e não representa automaticamente o pico de toda a janela futura de 24 h.</small></div></section>
 <section class="card"><h2>🚨 Emergência</h2><div class="em"><div>Defesa Civil<div class="num">199</div></div><div>Bombeiros<div class="num">193</div></div></div></section>
- 
+
 <script>
 const $=x=>document.getElementById(x);
 const f=(v,n=1)=>v==null?"--":Number(v).toFixed(n).replace(".",",");
@@ -450,7 +450,7 @@ function textoCategoria(v){
  return mapa[v]||"Interpretação qualitativa ainda não disponível";
 }
 relogio();setInterval(relogio,1000);
- 
+
 async function carregarHistorico(){
  try{
   const r=await fetch("historico_validacao.json?"+Date.now(),{cache:"no-store"}); if(!r.ok)throw Error("HTTP "+r.status);
@@ -462,14 +462,14 @@ async function carregarHistorico(){
   $("histEstado").innerHTML=h.validado_para_eta?'<span class="ok">🟢 Validação concluída</span>':'<span class="aviso">🧪 Coletando evidências • ETA continua bloqueado</span>';
  }catch(e){$("histEstado").innerHTML='<span class="erro">🔴 Histórico de validação indisponível</span>'}
 }
- 
+
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
   const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
- 
+
   const rt=rad.rastreamento_temporal||{}, av=rad.avaliacao_trajetorias||{};
   $("radarHora").textContent=horaCurta(rad.horario_ultimo_quadro);
   $("radarIdade").textContent=rad.idade_ultimo_quadro_min==null?"--":f(rad.idade_ultimo_quadro_min,1)+" min";
@@ -480,7 +480,7 @@ async function carregar(){
   else{$("radarEstado").innerHTML='<span class="erro">🔴 Radar indisponível</span>'}
   const cand=av.quantidade_candidatos_eta??0;
   $("etaEstado").innerHTML='<span class="aviso">🧪 ETA experimental bloqueado • candidatos atuais: '+cand+'</span>';
- 
+
   const cq=rad.classificacao_qualitativa_local_130||{}, pr=cq.por_raio||{};
   let escolhido=null;
   for(const raio of ["2","5","10","25"]){
@@ -498,13 +498,13 @@ async function carregar(){
    $("ecoQualEstado").innerHTML=fresco?'<span class="ok">🟢 ECO OFICIAL DETECTADO</span> • RGB idêntico à legenda RadarSC':'<span class="aviso">🟡 ECO OFICIAL DETECTADO EM QUADRO DESATUALIZADO</span>';
    $("ecoQualInterpretacao").innerHTML='<b>'+textoCategoria(fam.categoria)+'</b><br><small>Raio mostrado = menor raio em que a #130 encontrou pixel de classe oficial. Não significa que esteja chovendo no ponto de referência.</small>';
   }else if(cq.status){
-   $("ecoQualCor").textContent="--";$("ecoQualClasse").textContent="--";$("ecoQualRaio").textContent="NENHUM ≤ 25 km";$("ecoQualPixels").textContent="0";
+   $("ecoQualCor").textContent="SEM ECO OFICIAL";$("ecoQualClasse").textContent="NÃO APLICÁVEL";$("ecoQualRaio").textContent="NENHUM ≤ 25 km";$("ecoQualPixels").textContent="0";
    $("ecoQualEstado").innerHTML='<span class="aviso">⚪ Nenhum RGB oficial detectado até 25 km neste quadro</span>';
    $("ecoQualInterpretacao").innerHTML='<small>Ausência de eco oficial nesta busca não prova ausência de chuva no solo.</small>';
   }else{
    $("ecoQualEstado").innerHTML='<span class="erro">🔴 Diagnóstico qualitativo #130 indisponível</span>';
   }
- 
+
   const vp=rad.validacao_paleta_radar||{};
   const compat=vp.status==="compatibilidade_rgb_observada";
   $("paletaStatus").textContent=vp.status?(compat?"OBSERVADA":"NÃO OBSERVADA"):"--";
@@ -514,7 +514,7 @@ async function carregar(){
   if(!vp.status){$("paletaEstado").innerHTML='<span class="aviso">🟡 Diagnóstico da paleta ainda não recebido</span>'}
   else if(compat){$("paletaEstado").innerHTML='<span class="ok">🟢 Compatibilidade estrutural RGB observada</span> • dBZ numérico e ETA continuam bloqueados'}
   else{$("paletaEstado").innerHTML='<span class="aviso">🟡 Sem correspondência RGB observada nesta amostra</span> • continuar coletando evidências'}
- 
+
   const ce=c.estacao_selecionada||{},cop=d.chuva_observada_cemaden_144||{};
   $("h24").textContent=cop["24h_mm"]==null?(c.acumulado_24h_mm==null?"--":f(c.acumulado_24h_mm,1)+" mm"):f(cop["24h_mm"],1)+" mm";
   $("cemaden1h").textContent=cop["1h_mm"]==null?"--":f(cop["1h_mm"],1)+" mm";
@@ -544,7 +544,7 @@ async function carregar(){
    $("cs").innerHTML='<span class="erro">🔴 CEMADEN indisponível nesta coleta</span>';
    $("cemadenNota").innerHTML='<small>'+(c.observacao||"Falha ou resposta não validada. Isso não significa ausência de chuva.")+'</small>';
   }
- 
+
   $("rede165Total").textContent=r165.quantidade_estacoes==null?"--":String(r165.quantidade_estacoes);
   $("rede165Online").textContent=r165.quantidade_com_leitura_atual==null?"--":String(r165.quantidade_com_leitura_atual);
   $("rede165NaoIntegradas").textContent=r165.quantidade_sem_leitura_automatica_integrada==null?"--":String(r165.quantidade_sem_leitura_automatica_integrada);
@@ -558,7 +558,7 @@ async function carregar(){
   }else{
    $("rede165Estado").innerHTML='<span class="aviso">⚪ #165 INDISPONÍVEL OU INCOMPLETA</span> • nenhuma ausência é interpretada como 0 mm';
   }
- 
+
   $("mareObsNivel").textContent=mo.nivel_m==null?"--":f(mo.nivel_m,3)+" m";
   $("mareObsHora").textContent=mo.horario?dataHoraBR(mo.horario):"--";
   $("mareObsIdade").textContent=mo.idade_min==null?"--":f(mo.idade_min,1)+" min";
@@ -574,12 +574,12 @@ async function carregar(){
   }else{
    $("mareObsEstado").innerHTML='<span class="erro">🔴 INDISPONÍVEL • maré observada não recebida</span>';
   }
- 
+
   const ma=m.anterior||null,mp=m.proximo||null;
   $("mareAnterior").textContent=ma?f(ma.altura_m,1)+" m":"--";$("mareAnteriorHora").textContent=ma?"às "+ma.hora:"--";
   $("mareProxima").textContent=mp?f(mp.altura_m,1)+" m":"--";$("mareProximaHora").textContent=mp?"às "+mp.hora:"--";
   $("ms").innerHTML=m.status==="online"?'<span class="ok">🟢 PREVISTO • tábua de maré recebida</span>':'<span class="erro">🔴 INDISPONÍVEL • tábua de maré não recebida</span>';
- 
+
   $("mare164Pico").textContent=m24.pico_previsto_m==null?"--":f(m24.pico_previsto_m,2)+" m";
   $("mare164Horario").textContent=m24.pico_previsto_horario?dataHoraBR(m24.pico_previsto_horario):"--";
   $("mare164Qtd").textContent=m24.quantidade_eventos==null?"--":String(m24.quantidade_eventos);
@@ -591,7 +591,7 @@ async function carregar(){
   }else{
    $("mare164Estado").innerHTML='<span class="aviso">⚪ #164 INCONCLUSIVA</span> • janela de maré prevista incompleta ou indisponível';
   }
- 
+
   $("guax166Registros").textContent=h166.quantidade_registros==null?"--":String(h166.quantidade_registros);
   $("guax166ChuvaQtd").textContent=h166.quantidade_chuva_horaria==null?"--":String(h166.quantidade_chuva_horaria);
   $("guax166MareQtd").textContent=h166.quantidade_mare_observada==null?"--":String(h166.quantidade_mare_observada);
@@ -607,8 +607,8 @@ async function carregar(){
   }else{
    $("guax166Estado").innerHTML='<span class="erro">🔴 #166 INDISPONÍVEL</span> • nenhum valor ausente é interpretado como zero';
   }
- 
- 
+
+
    // GUAXANDUVA-MODEL V0.19 • camada hidrológica modelada/não observada
    const h19A=h19.area_contribuinte_controle||{},h19Cam=h19.caminho_hidrologico||{},h19TcObj=h19.tempo_concentracao||{},h19RM=h19.metodo_racional_modificado||{};
    $("gxa19Area").textContent=h19A.km2==null?"--":f(h19A.km2,4)+" km²"+(h19A.ha==null?"":" • "+f(h19A.ha,2)+" ha");
@@ -628,7 +628,7 @@ async function carregar(){
    const cen19=Array.isArray(h19RM.cenarios)?h19RM.cenarios:[];
    const linhasTR=cen19.length?cen19.map(x=>'<b>TR '+String(x.TR_anos??'--')+' anos:</b> '+(x.Q_pico_modelado_m3_s==null?'--':f(x.Q_pico_modelado_m3_s,3)+' m³/s')+(x.intensidade_IDF_mm_h==null?'':' • i '+f(x.intensidade_IDF_mm_h,3)+' mm/h')).join('<br>'):'Vazões de projeto indisponíveis nesta coleta.';
    $("gxa19Vazoes").innerHTML='<b>🌧️ Vazões de projeto • Método Racional Modificado</b><br><small>'+linhasTR+(h19RM.phi==null?'':'<br>φ = <b>'+f(h19RM.phi,6)+'</b>')+(h19RM.C_ponderado_atual==null?'<br>C ponderado atual: <b>AINDA NÃO DETERMINADO</b>':'<br>C ponderado atual: <b>'+f(h19RM.C_ponderado_atual,3)+'</b>')+'<br><br><b>MODELADO/NÃO OBSERVADO:</b> TR representa período de retorno de projeto; estes valores não são vazão atual do rio.</small>';
- 
+
   $("tmSegmentos").textContent=tm.segmentos==null?"--":String(tm.segmentos);
   $("tmArea").textContent=tm.area_modelada_ha==null?"--":f(tm.area_modelada_ha,2)+" ha";
   $("tmOutlet").textContent=tm.outlet_segmento==null?"--":"SEGMENTO "+String(tm.outlet_segmento);
@@ -644,7 +644,7 @@ async function carregar(){
   }else{
    $("tmEstado").innerHTML='<span class="erro">🔴 TABELA-MESTRA NÃO RECEBIDA</span> • nenhum valor ausente é interpretado como zero';
   }
- 
+
   const camada=gxa.camada_matematica||{},gxar=gxa.resumo||{},gxap=gxa.ponto_referencia_topologia||{},gxario=gxa.rio||{},gxah=gxa.parametros_hidraulicos_documentados||{},gxageom=camada.geometria_hidraulica_documentada||{},inf17=gxa.inferencia_estados_hidraulicos_v017||camada.inferencia_estados_hidraulicos_v017||{};
   $("gxaSegmentos").textContent=gxar.segmentos_microbacia==null?"--":String(gxar.segmentos_microbacia); $("gxaComponente").textContent=gxar.segmentos_componente_30960==null?"--":String(gxar.segmentos_componente_30960); $("gxaNos").textContent=gxar.nos_endpoints==null?"--":String(gxar.nos_endpoints); $("gxaJuncoes").textContent=gxar.juncoes_grau_3_ou_mais==null?"--":String(gxar.juncoes_grau_3_ou_mais); $("gxaLigacoes").textContent=gxar.ligacoes_endpoint_interior==null?"--":String(gxar.ligacoes_endpoint_interior); $("gxaReferencia").textContent=gxap.coincide_com_30960===true?"SIM":(gxap.segmento_mais_proximo==null?"--":"NÃO");
   const versaoGxa=String(gxa.versao||camada.versao||""),v18=versaoGxa.includes("V0.18"),v17=versaoGxa.includes("V0.17"); if((v18||v17)&&gxa.status_modelo_hidraulico){$("gxaEstado").innerHTML='<span class="ok">🟢 GUAXANDUVA-MODEL '+(v18?'V0.18':'V0.17')+' ATIVO</span> • '+nomeFamilia(gxa.status_modelo_hidraulico)+' • grafo: '+nomeFamilia(gxa.status)}else if(gxa.status){$("gxaEstado").innerHTML='<span class="aviso">🧪 MODELO RECEBIDO</span> • '+nomeFamilia(gxa.status)}else{$("gxaEstado").innerHTML='<span class="erro">🔴 GUAXANDUVA-MODEL INDISPONÍVEL</span>'}
@@ -674,8 +674,8 @@ async function carregar(){
     }else{
      $("rio").textContent="INDISPONÍVEL";$("rs").innerHTML='<span class="aviso">⚪ Nível matemático V0.21 não recebido nesta coleta</span>';$("rioV021").innerHTML='<small>Forçantes insuficientes. Nenhum dado ausente é interpretado como zero.</small>';
    }
- 
- 
+
+
   const re=rh.entradas||{},rc=rh.criterios||{};
   $("riscoChuva24").textContent=re.chuva_prevista_24h_mm==null?"--":f(re.chuva_prevista_24h_mm,2)+" mm";
   $("riscoMare").textContent=re.mare_observada_m==null?"--":f(re.mare_observada_m,3)+" m";
@@ -697,7 +697,7 @@ async function carregar(){
    $("riscoEstado").innerHTML='<span class="aviso">⚪ CLASSIFICAÇÃO INCONCLUSIVA</span><br><small>As entradas necessárias da #163 não estão completas ou válidas.</small>';
    $("riscoCriterios").innerHTML='<small>Sem critérios suficientes para classificação nesta coleta. Ausência de dado não é interpretada como condição normal.</small>';
   }
- 
+
   if(p.status==="online"){
    $("temperatura").textContent=a.temperatura_c==null?"--":f(a.temperatura_c,1)+" °C";
    $("prob").textContent=ph.probabilidade_chuva_pct==null?"--":Math.round(ph.probabilidade_chuva_pct)+"%";
@@ -705,8 +705,8 @@ async function carregar(){
    $("vento").textContent=f(a.vento_kmh)+" km/h";$("rajada").textContent=f(a.rajada_kmh)+" km/h";$("direcao").textContent=pontoCardinal(a.direcao_graus);$("prevhora").textContent=horaCurta(ph.horario);
    $("ps").innerHTML='<span class="ok">🟢 PREVISTO • modelo atualizado</span> • janela: próxima hora';
   }else{$("ps").innerHTML='<span class="erro">🔴 INDISPONÍVEL • previsão não recebida</span>'}
- 
- 
+
+
   // RESUMO RÁPIDO: camada de tradução; não cria nova fonte nem converte ausência em zero.
   const sol=astro.sol||{},lua=astro.lua||{},ecl=(astro.eclipses||{}),es=ecl.solar||{},el=ecl.lunar||{};
   const nResumo=n21||{},entResumo=nResumo.entradas||{},tendResumo=nResumo.tendencia||{};
@@ -752,7 +752,7 @@ async function carregar(){
     frase="O nível modelado V0.21 está indisponível nesta coleta; o Monitor não substitui ausência de dado por zero.";
   }
   $("resumoFrase").textContent=frase;
- 
+
   // DASHBOARD V2: espelha somente dados já carregados acima.
   $("dashResumoLinha").textContent=frase;
   $("dashRadarEstado").textContent=rad.status?nomeFamilia(rad.status):"--";
@@ -760,11 +760,16 @@ async function carregar(){
   $("dashRadarIdade").textContent=rad.idade_ultimo_quadro_min==null?"--":f(rad.idade_ultimo_quadro_min,1)+" min";
   $("dashRadarValidos").textContent=(rad.quadros_png_validos??rad.quantidade_quadros_validos??rad.quadros_validos??"--");
   const estDash=Array.isArray(r165.estacoes)?r165.estacoes:[];
-  const epDash=estDash.filter(e=>String(e.rede||e.fonte||"").toUpperCase().includes("EPAGRI"));
-  $("dashEstacoes").innerHTML=epDash.length?epDash.slice(0,4).map(e=>{
+  const epDash=estDash.filter(e=>{
+    const ehEpagri=String(e.rede||e.fonte||"").toUpperCase().includes("EPAGRI");
     const med=e.precipitacao_1h_mm;
-    return '<div class="station-line"><span><b>'+String(e.nome||e.codigo||"Estação")+'</b><br><small>'+(e.codigo||"EPAGRI/CIRAM")+'</small></span><b>'+(med==null?"INDISP.":f(med,2)+" mm/1h")+'</b></div>';
-  }).join(""):'<div class="station-line"><span>EPAGRI/CIRAM</span><b>INDISPONÍVEL</b></div>';
+    return ehEpagri&&med!=null&&Number.isFinite(Number(med));
+  });
+  $("dashEstacoes").innerHTML=epDash.length?epDash.map(e=>{
+    const med=Number(e.precipitacao_1h_mm);
+    const horario=e.horario_medicao?(" • "+dataHoraBR(e.horario_medicao)):"";
+    return '<div class="station-line"><span><b>'+String(e.nome||e.codigo||"Estação")+'</b><br><small>'+(e.codigo||"EPAGRI/CIRAM")+horario+'</small></span><b>'+f(med,2)+' mm/1h</b></div>';
+  }).join(""):'<div class="station-line"><span>EPAGRI/CIRAM</span><b>SEM MEDIÇÃO NUMÉRICA VÁLIDA</b></div>';
   $("dashPrevAgora").textContent=a.temperatura_c==null?"--":f(a.temperatura_c,1)+"°";
   $("dashPrevAgoraDet").textContent=tempoNome;
   $("dashPrev1h").textContent=ph.precipitacao_mm==null?"--":f(ph.precipitacao_mm,1)+" mm";
@@ -798,14 +803,14 @@ async function carregar(){
   $("dashNuvens").textContent=a.cobertura_nuvens_pct==null?"--":Math.round(a.cobertura_nuvens_pct)+"%";
   $("dashLuaFase").textContent=lua.fase||"INDISPONÍVEL";
   $("dashLuaDados").textContent=(lua.iluminacao_pct==null?"iluminação --":"iluminação "+f(lua.iluminacao_pct,0)+"%")+" • nascer "+(lua.nascer||"--")+" • pôr "+(lua.por||"--");
- 
+
   const dias=Array.isArray(p.proximos_7_dias)?p.proximos_7_dias:[];
   if(dias.length){
    const nomes=["domingo","segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado"];let html="";
    dias.forEach((dia,i)=>{const dt=new Date(dia.data+"T12:00:00"),nome=i===0?"HOJE":nomes[dt.getDay()].toUpperCase(),dataBR=dt.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}),prob=dia.probabilidade_chuva_pct==null?"--":Math.round(dia.probabilidade_chuva_pct)+"%",quando=faixaHorarios(dia.horarios_probabilidade_max),mm=dia.precipitacao_total_mm==null?"--":f(dia.precipitacao_total_mm,1)+" mm",tmin=dia.temperatura_min_c==null?"--":f(dia.temperatura_min_c,1)+" °C",tmax=dia.temperatura_max_c==null?"--":f(dia.temperatura_max_c,1)+" °C";html+='<div class="dia-previsao"><div class="dia-titulo">'+nome+" • "+dataBR+"</div>🌡️ Temperatura: <b>mín. "+tmin+" • máx. "+tmax+"</b><br>☔ Maior probabilidade de chuva: <b>"+prob+" "+quando+"</b><br>🌧️ Total previsto no dia: <b>"+mm+"</b></div>"});
    $("previsao7dias").innerHTML=html+'<div class="ok" style="margin-top:12px">🟢 PREVISTO • previsão de 7 dias recebida</div>';
   }else{$("previsao7dias").innerHTML='<span class="erro">🔴 INDISPONÍVEL • previsão de 7 dias não recebida</span>'}
- 
+
   if(g.status==="alerta_ativo_confirmado"&&g.ativo===true){
    const al=g.alerta||{};
    $("granizo").innerHTML='<span class="erro">🔴 ALERTA OFICIAL ATIVO • POSSIBILIDADE DE GRANIZO</span><br><small>INMET / WIS2 / CAP • cobertura da referência pública do Comasa confirmada</small>';
@@ -833,9 +838,9 @@ async function carregar(){
  }
 }
 carregar();carregarHistorico();setInterval(carregar,60000);setInterval(carregarHistorico,60000);
- 
+
 function iniciarCardsRecolhiveis(){
- const manterAbertos=["🌊 SITUAÇÃO DO GUAXANDUVA AGORA","📡 SISTEMA AUTOMÁTICO","PAINEL HIDROMETEOROLÓGICO"];
+ const manterAbertos=["🌊 SITUAÇÃO DO GUAXANDUVA AGORA","🌧️ PREVISÃO DE CHUVA • PRÓXIMOS 7 DIAS","📡 SISTEMA AUTOMÁTICO","PAINEL HIDROMETEOROLÓGICO"];
  document.querySelectorAll(".card").forEach((card)=>{
   const local=card.querySelector(":scope > .local");
   const h2=card.querySelector(":scope > h2");
@@ -843,30 +848,30 @@ function iniciarCardsRecolhiveis(){
   const tituloLocal=local?local.textContent.trim():"";
   const tituloH2=h2.textContent.trim();
   if(manterAbertos.some(x=>tituloLocal.includes(x))||tituloH2.includes("🚨 Emergência"))return;
- 
+
   const cab=document.createElement("div");
   cab.className="card-cabecalho";
   cab.setAttribute("role","button");
   cab.setAttribute("tabindex","0");
   cab.setAttribute("aria-expanded","false");
- 
+
   if(local)cab.appendChild(local);
   cab.appendChild(h2);
- 
+
   const seta=document.createElement("span");
   seta.className="card-seta";
   seta.setAttribute("aria-hidden","true");
   seta.textContent="⌄";
   cab.appendChild(seta);
- 
+
   const conteudo=document.createElement("div");
   conteudo.className="card-conteudo";
   while(card.firstChild)conteudo.appendChild(card.firstChild);
- 
+
   card.appendChild(cab);
   card.appendChild(conteudo);
   card.classList.add("card-recolhivel","fechado");
- 
+
   const alternar=()=>{
    const fechado=card.classList.toggle("fechado");
    cab.setAttribute("aria-expanded",fechado?"false":"true");
@@ -878,7 +883,7 @@ function iniciarCardsRecolhiveis(){
  });
 }
 iniciarCardsRecolhiveis();
- 
+
 const cemToggle=$("cemadenToggle");
 if(cemToggle){
  const alternar=()=>{const painel=$("cemadenPanorama");const aberto=painel.classList.toggle("aberto");cemToggle.setAttribute("aria-expanded",aberto?"true":"false")};

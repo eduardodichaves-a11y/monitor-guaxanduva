@@ -52,6 +52,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 .resumo-item{background:linear-gradient(180deg,#071b24,#081720);border:1px solid #245269;border-radius:14px;padding:13px;min-height:112px;box-shadow:inset 0 1px rgba(255,255,255,.025)}
 .resumo-item .rotulo{color:#8fd6ec;font-size:11px;letter-spacing:.8px;text-transform:uppercase;font-weight:700}
 .resumo-item .destaque{display:block;font-size:24px;font-weight:800;margin:7px 0 4px;line-height:1.15;color:#f5fbff}
+.resumo-item .destaque-granizo{font-size:20px;letter-spacing:-.2px;overflow-wrap:anywhere}
 .resumo-item .detalhe{color:#abc5cf;font-size:12px;line-height:1.45}
 .resumo-astro{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
 .resumo-rodape{margin-top:12px;padding:12px 13px;border:1px solid #385765;border-radius:12px;background:#0a1820;color:#b9ccd4;font-size:11px;line-height:1.45}
@@ -62,7 +63,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 .dashboard-divisor{margin:18px 0 12px;border-top:1px solid #285365}
 .dashboard-subtitulo{font-size:12px;letter-spacing:1.4px;color:#78c6de;font-weight:800;text-transform:uppercase}
 @media(max-width:900px){.resumo-grid,.resumo-astro{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:520px){.resumo-grid,.resumo-astro{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.resumo-item{min-height:105px;padding:12px}.resumo-item .destaque{font-size:21px}.resumo-frase{font-size:15px}.resumo-topo h2{font-size:24px}}
+@media(max-width:520px){.resumo-grid,.resumo-astro{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.resumo-item{min-height:105px;padding:12px}.resumo-item .destaque{font-size:21px}.resumo-item .destaque-granizo{font-size:18px}.resumo-frase{font-size:15px}.resumo-topo h2{font-size:24px}}
 @media(max-width:370px){.resumo-grid,.resumo-astro{grid-template-columns:1fr}}
 </style>
 </head>
@@ -99,7 +100,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="resumo-item"><span class="rotulo">🌡️ Tempo agora</span><b class="destaque" id="resTempo">--</b><span class="detalhe" id="resTempoDet">Open-Meteo • modelo meteorológico</span></div>
 <div class="resumo-item"><span class="rotulo">🌬️ Vento</span><b class="destaque" id="resVento">--</b><span class="detalhe" id="resVentoDet">Vento e rajadas do modelo</span></div>
 <div class="resumo-item"><span class="rotulo">☔ Próxima hora</span><b class="destaque" id="resProximaHora">--</b><span class="detalhe" id="resProximaHoraDet">Precipitação e probabilidade previstas</span></div>
-<div class="resumo-item"><span class="rotulo">🧊 Granizo</span><b class="destaque" id="resGranizo">--</b><span class="detalhe" id="resGranizoDet">INMET/WIS2/CAP</span></div>
+<div class="resumo-item"><span class="rotulo">🧊 Granizo</span><b class="destaque destaque-granizo" id="resGranizo">--</b><span class="detalhe" id="resGranizoDet">INMET/WIS2/CAP</span></div>
 <div class="resumo-item"><span class="rotulo">🕒 Atualização</span><b class="destaque" id="resAtualizacao">--</b><span class="detalhe" id="resAtualizacaoDet">Horário da última coleta</span></div>
 </div>
 <div class="resumo-astro">

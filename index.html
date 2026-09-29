@@ -65,53 +65,79 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 @media(max-width:900px){.resumo-grid,.resumo-astro{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.resumo-grid,.resumo-astro{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.resumo-item{min-height:105px;padding:12px}.resumo-item .destaque{font-size:21px}.resumo-item .destaque-granizo{font-size:18px}.resumo-frase{font-size:15px}.resumo-topo h2{font-size:24px}}
 @media(max-width:370px){.resumo-grid,.resumo-astro{grid-template-columns:1fr}}
+ 
+/* DASHBOARD V2 — camada visual compacta; usa somente dados já existentes no Monitor */
+.hero-monitor{display:grid;grid-template-columns:1fr auto;align-items:center;gap:18px;padding:14px 18px;margin-bottom:8px;border:1px solid #257493;border-radius:16px;background:linear-gradient(105deg,#06151d,#0a2733 55%,#104352);box-shadow:0 8px 24px rgba(0,0,0,.22)}
+.hero-brand{display:flex;align-items:center;gap:12px}.hero-logo{font-size:44px;line-height:1}.hero-kicker{color:#8fd6ec;letter-spacing:2px;font-size:11px}.hero-title{font-size:32px;font-weight:900;line-height:1;margin:3px 0}.hero-nav{color:#b6ced8;font-size:13px}
+.hero-time{min-width:190px;border:1px solid #315e70;border-radius:12px;background:#091b24;padding:10px 14px;text-align:right}.hero-time small{display:block;font-size:10px;letter-spacing:1px;text-transform:uppercase}.hero-time b{font-size:17px}
+.dash{border:2px solid #247fa2;border-radius:16px;background:#071b24;padding:10px;margin-bottom:14px;box-shadow:0 12px 34px rgba(0,0,0,.26)}
+.dash-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:0 4px 8px}.dash-head-title{font-size:20px;font-weight:900}.dash-tags{display:flex;gap:7px;flex-wrap:wrap}.dash-tag{font-size:10px;font-weight:800;padding:6px 9px;border:1px solid #3b6b7e;border-radius:999px;background:#0e2b36;color:#d8edf5}.dash-tag.model{background:#403413;border-color:#b88b2c;color:#ffe39a}
+.dash-status{display:flex;align-items:center;gap:12px;border:1px solid #159261;border-radius:12px;background:linear-gradient(90deg,#06392d,#092d2d);padding:10px 14px;margin-bottom:9px}.dash-status-icon{font-size:27px}.dash-status-text{font-size:15px;font-weight:800;line-height:1.45}
+.dash-cards{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:7px}.dash-mini{min-width:0;border:1px solid #22556c;border-radius:11px;background:linear-gradient(180deg,#071c26,#071720);padding:9px;min-height:110px}.dash-mini .k{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:#8fd6ec;font-weight:800}.dash-mini .v{font-size:21px;font-weight:900;margin:7px 0 3px;line-height:1.08;overflow-wrap:anywhere}.dash-mini .d{font-size:10.5px;line-height:1.35;color:#abc4cf}.dash-mini.granizo .v{font-size:15px}
+.dash-summary{margin-top:8px;border:1px solid #23556a;border-radius:10px;background:#0a202a;padding:9px 12px;font-size:12px;line-height:1.45}.dash-summary b{color:#ffe07a}
+.dash-row{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:8px;margin-top:8px}.dash-panel{border:1px solid #22556c;border-radius:11px;background:#071a23;padding:10px;min-width:0}.dash-panel h3{font-size:12px;color:#8fd6ec;margin:0 0 9px;letter-spacing:.5px;text-transform:uppercase}.dash-big{font-size:26px;font-weight:900}.dash-muted{font-size:10.5px;color:#abc4cf;line-height:1.45}.dash-statgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.dash-stat{background:#091f29;border-radius:8px;padding:8px}.dash-stat b{display:block;font-size:17px;margin-top:3px}
+.station-list{display:grid;gap:7px}.station-line{display:flex;justify-content:space-between;gap:8px;background:#091f29;border-radius:8px;padding:8px;font-size:11px}.station-line b:last-child{white-space:nowrap}
+.forecast-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.forecast-cell{background:#091f29;border-radius:8px;padding:7px 4px;text-align:center;font-size:10px}.forecast-cell b{display:block;font-size:15px;margin:4px 0}
+.gauge{height:9px;background:#102e3a;border-radius:999px;overflow:hidden;margin:9px 0}.gauge>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#2ba8d2,#6de0c0);border-radius:999px;transition:width .3s}
+.wind-rose{width:96px;height:96px;border:1px solid #315c6d;border-radius:50%;margin:4px auto;position:relative;background:radial-gradient(circle,#0d2a35 0 3px,transparent 4px),linear-gradient(90deg,transparent 49%,#294c59 50%,transparent 51%),linear-gradient(transparent 49%,#294c59 50%,transparent 51%)}.wind-arrow{position:absolute;left:45px;top:15px;width:6px;height:36px;background:#4cc9ef;transform-origin:3px 33px;border-radius:4px}.wind-arrow:before{content:"";position:absolute;top:-7px;left:-4px;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:11px solid #4cc9ef}.wind-n{position:absolute;top:3px;left:43px;font-size:9px}.wind-s{position:absolute;bottom:3px;left:43px;font-size:9px}.wind-l{position:absolute;right:5px;top:43px;font-size:9px}.wind-o{position:absolute;left:5px;top:43px;font-size:9px}
+.dash-footer{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:8px;margin-top:8px}.dash-foot{border:1px solid #22556c;border-radius:10px;background:#081c25;padding:9px;font-size:10.5px;line-height:1.45}.dash-foot b{color:#8fd6ec}
+.tech-separator{margin:18px 0 12px;border-top:1px solid #2a6175;padding-top:12px;color:#83cee6;font-size:11px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase}
+@media(max-width:900px){.dash-cards{grid-template-columns:repeat(4,minmax(0,1fr))}.dash-row{grid-template-columns:1fr 1fr}.dash-row .dash-panel:first-child{grid-column:1/-1}.dash-footer{grid-template-columns:1fr 1fr}.dash-footer .dash-foot:nth-child(2){grid-column:1/-1;grid-row:2}}
+@media(max-width:560px){main{padding:7px}.hero-monitor{grid-template-columns:1fr auto;padding:10px 11px;gap:8px}.hero-logo{font-size:32px}.hero-title{font-size:21px}.hero-kicker{font-size:9px}.hero-nav{font-size:10px}.hero-time{min-width:0;padding:7px 8px}.hero-time b{font-size:12px}.dash{padding:7px}.dash-head-title{font-size:16px}.dash-tag{font-size:8.5px;padding:5px 7px}.dash-status{padding:8px 9px;gap:8px}.dash-status-icon{font-size:22px}.dash-status-text{font-size:12px}.dash-cards{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.dash-mini{padding:7px;min-height:92px}.dash-mini .k{font-size:8px;letter-spacing:.2px}.dash-mini .v{font-size:15px;margin:5px 0 2px}.dash-mini .d{font-size:8.5px}.dash-mini.granizo .v{font-size:11px}.dash-summary{font-size:10px;padding:8px}.dash-row{grid-template-columns:1fr;gap:6px}.dash-row .dash-panel:first-child{grid-column:auto}.dash-panel{padding:8px}.dash-panel h3{font-size:10px}.dash-big{font-size:21px}.dash-statgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.forecast-strip{grid-template-columns:repeat(4,minmax(0,1fr))}.dash-footer{grid-template-columns:1fr;gap:6px}.dash-footer .dash-foot:nth-child(2){grid-column:auto;grid-row:auto}.hero-monitor+ .dash{margin-top:0}}
+@media(max-width:390px){.dash-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-time{display:none}}
+ 
 </style>
 </head>
 <body><main>
-<header>
-<div class="local">COMASA • JOINVILLE/SC</div>
-<h1>🌧️🌊 Monitor Guaxanduva</h1>
-<div class="sub">Chuva • Radar • Maré • Rio • Vento • Tempo • Lua • Riscos</div>
-<div id="hora" style="margin-top:15px">🕒 --</div>
+<header class="hero-monitor">
+<div class="hero-brand"><div class="hero-logo">🌧️🌊</div><div><div class="hero-kicker">COMASA • JOINVILLE/SC</div><div class="hero-title">Monitor Guaxanduva</div><div class="hero-nav">Chuva • Radar • Maré • Rio • Vento • Tempo • Lua • Riscos</div></div></div>
+<div class="hero-time"><small>Atualizado em</small><b id="hora">🕒 --</b></div>
 </header>
  
+<section class="dash" id="resumoAgoraCard">
+<div class="dash-head"><div class="dash-head-title">📊 SITUAÇÃO DO GUAXANDUVA AGORA</div><div class="dash-tags"><span class="dash-tag">RESUMO EM LINGUAGEM SIMPLES</span><span class="dash-tag model">DADOS + MODELO</span><span class="dash-tag">V0.21 • EXPERIMENTAL</span></div></div>
+<div class="dash-status"><div class="dash-status-icon">🌊</div><div class="dash-status-text" id="resumoFrase">Carregando situação atual...</div></div>
  
-<section class="card resumo-agora" id="resumoAgoraCard">
-<div class="resumo-topo">
-<div>
-<div class="local">🌊 SITUAÇÃO DO GUAXANDUVA AGORA • RESUMO RÁPIDO</div>
-<h2>O essencial em uma olhada</h2>
-<div class="sub">Leitura simples dos mesmos dados técnicos exibidos nos painéis abaixo</div>
+<div class="dash-cards">
+<div class="dash-mini"><div class="k">🌊 Nível do rio • modelo</div><div class="v" id="resRio">--</div><div class="d" id="resRioDet">V0.21 • não instrumental</div></div>
+<div class="dash-mini"><div class="k">🌧️ Chuva recente</div><div class="v" id="resChuva">--</div><div class="d" id="resChuvaDet">forçante regional</div></div>
+<div class="dash-mini"><div class="k">🌊 Maré • jusante</div><div class="v" id="resMare">--</div><div class="d" id="resMareDet">Joinville/Babitonga</div></div>
+<div class="dash-mini"><div class="k">🌡️ Temperatura</div><div class="v" id="resTempo">--</div><div class="d" id="resTempoDet">condição atual</div></div>
+<div class="dash-mini"><div class="k">🌬️ Vento</div><div class="v" id="resVento">--</div><div class="d" id="resVentoDet">vento e rajadas</div></div>
+<div class="dash-mini"><div class="k">☔ Próxima hora</div><div class="v" id="resProximaHora">--</div><div class="d" id="resProximaHoraDet">previsão</div></div>
+<div class="dash-mini granizo"><div class="k">🧊 Granizo</div><div class="v" id="resGranizo">--</div><div class="d" id="resGranizoDet">INMET/WIS2/CAP</div></div>
+<div class="dash-mini"><div class="k">🌙 Lua</div><div class="v" id="resLua">--</div><div class="d" id="resLuaDet">USNO</div></div>
 </div>
-<div>
-<div class="resumo-selo">DADOS + MODELO • SEM INVENTAR AUSÊNCIAS</div>
-<div class="dashboard-faixa">
-<span class="dashboard-chip modelo">V0.21 • MODELADO</span>
-<span class="dashboard-chip">OBSERVAÇÕES PRESERVADAS</span>
-<span class="dashboard-chip exp">EXPERIMENTAL</span>
+ 
+<div class="dash-summary"><b>EM RESUMO:</b> <span id="dashResumoLinha">Os dados acima preservam a diferença entre observação, previsão e modelagem. Ausência nunca vira zero.</span></div>
+ 
+<div class="dash-row">
+<div class="dash-panel"><h3>📡 Radar meteorológico • Santa Catarina</h3><div class="dash-statgrid"><div class="dash-stat">Estado<b id="dashRadarEstado">--</b></div><div class="dash-stat">Último quadro<b id="dashRadarHora">--</b></div><div class="dash-stat">Idade<b id="dashRadarIdade">--</b></div><div class="dash-stat">Quadros válidos<b id="dashRadarValidos">--</b></div></div><div class="dash-muted" style="margin-top:8px">RadarSC • Defesa Civil/CIASC. Detecção por radar ≠ chuva medida no solo. O painel técnico completo permanece abaixo.</div></div>
+<div class="dash-panel"><h3>🌧️ Estações meteorológicas • EPAGRI/CIRAM</h3><div id="dashEstacoes" class="station-list"><div class="station-line"><span>Carregando estações...</span><b>--</b></div></div><div class="dash-muted" style="margin-top:8px">Cada estação representa seu próprio ponto; o dashboard não soma nem transforma leituras em “chuva no Comasa”.</div></div>
+<div class="dash-panel"><h3>🌦️ Previsão • curto prazo</h3><div class="forecast-strip"><div class="forecast-cell">Agora<b id="dashPrevAgora">--</b><span id="dashPrevAgoraDet">--</span></div><div class="forecast-cell">Próx. h<b id="dashPrev1h">--</b><span id="dashPrev1hDet">--</span></div><div class="forecast-cell">Vento<b id="dashPrevVento">--</b><span id="dashPrevVentoDet">--</span></div><div class="forecast-cell">Nuvens<b id="dashPrevNuvens">--</b><span id="dashPrevNuvensDet">--</span></div></div><div class="dash-muted" style="margin-top:8px">Previsão/modelo meteorológico; não é observação instrumental local.</div></div>
 </div>
+ 
+<div class="dash-row">
+<div class="dash-panel"><h3>🌊 Rio Guaxanduva • Modelo V0.21</h3><div class="dash-big" id="dashRioNivel">--</div><div class="dash-muted" id="dashRioTend">MODELADO/NÃO INSTRUMENTAL</div><div class="gauge"><span id="dashRioGauge"></span></div><div class="dash-statgrid"><div class="dash-stat">Faixa estimativa<b id="dashRioFaixa">--</b></div><div class="dash-stat">Chuva memória<b id="dashRioChuva">--</b></div></div><div class="dash-muted" style="margin-top:7px">A barra apenas posiciona o valor dentro da própria faixa de incerteza do V0.21; não é escala de perigo.</div></div>
+<div class="dash-panel"><h3>🌊 Maré • condição de jusante</h3><div class="dash-big" id="dashMareNivel">--</div><div class="dash-muted" id="dashMareDet">Joinville/Babitonga • não é nível do rio</div><div class="gauge"><span id="dashMareGauge"></span></div><div class="dash-statgrid"><div class="dash-stat">Observada EPAGRI<b id="dashMareObs">--</b></div><div class="dash-stat">Próximo extremo<b id="dashMareProx">--</b></div></div></div>
+<div class="dash-panel"><h3>🌬️ Vento • condições atuais</h3><div class="wind-rose"><span class="wind-n">N</span><span class="wind-s">S</span><span class="wind-l">L</span><span class="wind-o">O</span><span class="wind-arrow" id="dashWindArrow"></span></div><div style="text-align:center"><div class="dash-big" id="dashWindVel">--</div><div class="dash-muted" id="dashWindDet">--</div></div></div>
 </div>
+ 
+<div class="dash-row">
+<div class="dash-panel"><h3>🌡️ Condições do tempo • Joinville</h3><div class="dash-statgrid"><div class="dash-stat">Temperatura<b id="dashTemp">--</b></div><div class="dash-stat">Sensação<b id="dashSens">--</b></div><div class="dash-stat">Céu<b id="dashCeu">--</b></div><div class="dash-stat">Nuvens<b id="dashNuvens">--</b></div></div></div>
+<div class="dash-panel"><h3>🌙 Lua • fase e horários</h3><div class="dash-big" id="dashLuaFase">--</div><div class="dash-muted" id="dashLuaDados">--</div><div style="margin-top:8px">☀️ <b id="resSol">--</b><div class="dash-muted" id="resSolDet">USNO</div></div></div>
+<div class="dash-panel"><h3>🌘 Eclipses • próximos eventos</h3><div class="dash-statgrid"><div class="dash-stat">Solar<b id="resEclipseSolar">--</b><span class="dash-muted" id="resEclipseSolarDet">OPALE/IMCCE</span></div><div class="dash-stat">Lunar<b id="resEclipseLunar">--</b><span class="dash-muted" id="resEclipseLunarDet">OPALE/IMCCE</span></div></div></div>
 </div>
-<div id="resumoFrase" class="resumo-frase">Carregando situação atual...</div>
-<div class="resumo-grid">
-<div class="resumo-item"><span class="rotulo">🌊 Rio Guaxanduva</span><b class="destaque" id="resRio">--</b><span class="detalhe" id="resRioDet">Modelo V0.21 • não instrumental</span></div>
-<div class="resumo-item"><span class="rotulo">🌧️ Chuva recente</span><b class="destaque" id="resChuva">--</b><span class="detalhe" id="resChuvaDet">Forçante regional observada</span></div>
-<div class="resumo-item"><span class="rotulo">🌊 Maré de jusante</span><b class="destaque" id="resMare">--</b><span class="detalhe" id="resMareDet">Joinville/Babitonga • não é nível do rio</span></div>
-<div class="resumo-item"><span class="rotulo">🌡️ Tempo agora</span><b class="destaque" id="resTempo">--</b><span class="detalhe" id="resTempoDet">Open-Meteo • modelo meteorológico</span></div>
-<div class="resumo-item"><span class="rotulo">🌬️ Vento</span><b class="destaque" id="resVento">--</b><span class="detalhe" id="resVentoDet">Vento e rajadas do modelo</span></div>
-<div class="resumo-item"><span class="rotulo">☔ Próxima hora</span><b class="destaque" id="resProximaHora">--</b><span class="detalhe" id="resProximaHoraDet">Precipitação e probabilidade previstas</span></div>
-<div class="resumo-item"><span class="rotulo">🧊 Granizo</span><b class="destaque destaque-granizo" id="resGranizo">--</b><span class="detalhe" id="resGranizoDet">INMET/WIS2/CAP</span></div>
-<div class="resumo-item"><span class="rotulo">🕒 Atualização</span><b class="destaque" id="resAtualizacao">--</b><span class="detalhe" id="resAtualizacaoDet">Horário da última coleta</span></div>
+ 
+<div class="dash-footer">
+<div class="dash-foot"><b>🕒 HISTÓRICO RECENTE</b><br>Última coleta: <span id="resAtualizacao">--</span><br><span id="resAtualizacaoDet">--</span></div>
+<div class="dash-foot"><b>🗄️ FONTES DE DADOS</b><br>EPAGRI/CIRAM • RadarSC/Defesa Civil • previsão meteorológica • USNO • OPALE/IMCCE • demais fontes detalhadas nos painéis técnicos.</div>
+<div class="dash-foot"><b>🛡️ SITUAÇÃO OPERACIONAL</b><br>Modelo em fase experimental. O dashboard não cria automaticamente classificação de segurança, perigo ou evacuação.</div>
 </div>
-<div class="resumo-astro">
-<div class="resumo-item"><span class="rotulo">☀️ Sol</span><b class="destaque" id="resSol">--</b><span class="detalhe" id="resSolDet">USNO</span></div>
-<div class="resumo-item"><span class="rotulo">🌙 Lua</span><b class="destaque" id="resLua">--</b><span class="detalhe" id="resLuaDet">USNO</span></div>
-<div class="resumo-item"><span class="rotulo">🌘 Próximo eclipse solar</span><b class="destaque" id="resEclipseSolar">--</b><span class="detalhe" id="resEclipseSolarDet">OPALE/IMCCE</span></div>
-<div class="resumo-item"><span class="rotulo">🌑 Próximo eclipse lunar</span><b class="destaque" id="resEclipseLunar">--</b><span class="detalhe" id="resEclipseLunarDet">OPALE/IMCCE</span></div>
-</div>
-<div class="resumo-rodape">⚠️ O nível do Guaxanduva mostrado aqui é MODELADO/NÃO INSTRUMENTAL enquanto não houver sensor público confirmado. Este resumo não cria classificação automática de segurança, perigo ou evacuação.</div>
+<div class="dash-muted" style="margin-top:8px">⚠️ O nível do Guaxanduva exibido no dashboard é MODELADO/NÃO INSTRUMENTAL enquanto não houver sensor público confirmado.</div>
 </section>
  
+<div class="tech-separator">Painéis técnicos e auditoria das fontes • detalhamento completo preservado abaixo</div>
  
 <div class="dashboard-divisor"></div>
 <div class="dashboard-subtitulo">Painéis técnicos e auditoria das fontes</div>
@@ -726,6 +752,52 @@ async function carregar(){
     frase="O nível modelado V0.21 está indisponível nesta coleta; o Monitor não substitui ausência de dado por zero.";
   }
   $("resumoFrase").textContent=frase;
+ 
+  // DASHBOARD V2: espelha somente dados já carregados acima.
+  $("dashResumoLinha").textContent=frase;
+  $("dashRadarEstado").textContent=rad.status?nomeFamilia(rad.status):"--";
+  $("dashRadarHora").textContent=rad.horario_ultimo_quadro?horaCurta(rad.horario_ultimo_quadro):"--";
+  $("dashRadarIdade").textContent=rad.idade_ultimo_quadro_min==null?"--":f(rad.idade_ultimo_quadro_min,1)+" min";
+  $("dashRadarValidos").textContent=(rad.quadros_png_validos??rad.quantidade_quadros_validos??rad.quadros_validos??"--");
+  const estDash=Array.isArray(r165.estacoes)?r165.estacoes:[];
+  const epDash=estDash.filter(e=>String(e.rede||e.fonte||"").toUpperCase().includes("EPAGRI"));
+  $("dashEstacoes").innerHTML=epDash.length?epDash.slice(0,4).map(e=>{
+    const med=e.precipitacao_1h_mm;
+    return '<div class="station-line"><span><b>'+String(e.nome||e.codigo||"Estação")+'</b><br><small>'+(e.codigo||"EPAGRI/CIRAM")+'</small></span><b>'+(med==null?"INDISP.":f(med,2)+" mm/1h")+'</b></div>';
+  }).join(""):'<div class="station-line"><span>EPAGRI/CIRAM</span><b>INDISPONÍVEL</b></div>';
+  $("dashPrevAgora").textContent=a.temperatura_c==null?"--":f(a.temperatura_c,1)+"°";
+  $("dashPrevAgoraDet").textContent=tempoNome;
+  $("dashPrev1h").textContent=ph.precipitacao_mm==null?"--":f(ph.precipitacao_mm,1)+" mm";
+  $("dashPrev1hDet").textContent=ph.probabilidade_chuva_pct==null?"prob. --":"prob. "+Math.round(ph.probabilidade_chuva_pct)+"%";
+  $("dashPrevVento").textContent=a.vento_kmh==null?"--":f(a.vento_kmh,1);
+  $("dashPrevVentoDet").textContent=a.vento_kmh==null?"km/h":"km/h • "+pontoCardinal(a.direcao_graus);
+  $("dashPrevNuvens").textContent=a.cobertura_nuvens_pct==null?"--":Math.round(a.cobertura_nuvens_pct)+"%";
+  $("dashPrevNuvensDet").textContent="cobertura";
+  $("dashRioNivel").textContent=nvResumo==null?"INDISPONÍVEL":f(nvResumo,2)+" m";
+  $("dashRioTend").textContent=(tendResumo.classe?setaResumo+" "+nomeFamilia(tendResumo.classe)+" • ":"")+"MODELADO/NÃO INSTRUMENTAL";
+  const fxDash=nResumo.faixa_estimativa_m||q.faixa_estimativa_m||{};
+  $("dashRioFaixa").textContent=(fxDash.min==null||fxDash.max==null)?"--":f(fxDash.min,2)+"–"+f(fxDash.max,2)+" m";
+  $("dashRioChuva").textContent=entResumo.chuva_memoria_mm_h_equivalente==null?"--":f(entResumo.chuva_memoria_mm_h_equivalente,3)+" mm/h";
+  if(nvResumo!=null&&fxDash.min!=null&&fxDash.max!=null&&Number(fxDash.max)>Number(fxDash.min)){
+    const pct=Math.max(0,Math.min(100,(Number(nvResumo)-Number(fxDash.min))/(Number(fxDash.max)-Number(fxDash.min))*100));
+    $("dashRioGauge").style.width=pct+"%";
+  }else $("dashRioGauge").style.width="0%";
+  const mareDash=entResumo.mare_jusante_m??mo.nivel_m;
+  $("dashMareNivel").textContent=mareDash==null?"INDISPONÍVEL":f(mareDash,3)+" m";
+  $("dashMareDet").textContent="Joinville/Babitonga • condição de jusante • não é nível do rio";
+  $("dashMareObs").textContent=mo.nivel_m==null?"--":f(mo.nivel_m,3)+" m";
+  const proxDash=(m.proximo_extremo||m.proxima||{});
+  $("dashMareProx").textContent=(proxDash.altura_m==null?"--":f(proxDash.altura_m,2)+" m")+(proxDash.horario?" • "+horaCurta(proxDash.horario):"");
+  $("dashMareGauge").style.width=mareDash==null?"0%":Math.max(0,Math.min(100,Number(mareDash)/2.5*100))+"%";
+  $("dashWindVel").textContent=a.vento_kmh==null?"--":f(a.vento_kmh,1)+" km/h";
+  $("dashWindDet").textContent="rajada "+(a.rajada_kmh==null?"--":f(a.rajada_kmh,1)+" km/h")+" • "+pontoCardinal(a.direcao_graus);
+  $("dashWindArrow").style.transform="rotate("+((Number(a.direcao_graus)||0)+180)+"deg)";
+  $("dashTemp").textContent=a.temperatura_c==null?"--":f(a.temperatura_c,1)+" °C";
+  $("dashSens").textContent=a.sensacao_termica_c==null?"--":f(a.sensacao_termica_c,1)+" °C";
+  $("dashCeu").textContent=tempoNome;
+  $("dashNuvens").textContent=a.cobertura_nuvens_pct==null?"--":Math.round(a.cobertura_nuvens_pct)+"%";
+  $("dashLuaFase").textContent=lua.fase||"INDISPONÍVEL";
+  $("dashLuaDados").textContent=(lua.iluminacao_pct==null?"iluminação --":"iluminação "+f(lua.iluminacao_pct,0)+"%")+" • nascer "+(lua.nascer||"--")+" • pôr "+(lua.por||"--");
  
   const dias=Array.isArray(p.proximos_7_dias)?p.proximos_7_dias:[];
   if(dias.length){

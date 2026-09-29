@@ -616,17 +616,17 @@ def buscar_previsao():
                     atual.get(
                         "temperature_2m"
                     ),
-
+ 
                 "sensacao_termica_c":
                     atual.get(
                         "apparent_temperature"
                     ),
-
+ 
                 "codigo_tempo_wmo":
                     atual.get(
                         "weather_code"
                     ),
-
+ 
                 "cobertura_nuvens_pct":
                     atual.get(
                         "cloud_cover"
@@ -661,17 +661,17 @@ def buscar_previsao():
                     hv(
                         "temperature_2m"
                     ),
-
+ 
                 "sensacao_termica_c":
                     hv(
                         "apparent_temperature"
                     ),
-
+ 
                 "codigo_tempo_wmo":
                     hv(
                         "weather_code"
                     ),
-
+ 
                 "cobertura_nuvens_pct":
                     hv(
                         "cloud_cover"
@@ -726,12 +726,12 @@ def buscar_previsao():
 # - OPALE/IMCCE: eclipses solares e lunares.
 # A coordenada é a referência pública aproximada do Monitor (LAT/LON).
 # Falha de qualquer serviço permanece None/indisponível e nunca vira zero.
-
+ 
 USNO_RSTT_ONEDAY = "https://aa.usno.navy.mil/api/rstt/oneday"
 USNO_CELNAV = "https://aa.usno.navy.mil/api/celnav"
 OPALE_ECLIPSES = "https://opale.imcce.fr/api/v1/phenomena/eclipses"
-
-
+ 
+ 
 def _astro_numero(valor):
     try:
         if valor is None or isinstance(valor, bool):
@@ -739,8 +739,8 @@ def _astro_numero(valor):
         return float(str(valor).replace("%", "").strip())
     except Exception:
         return None
-
-
+ 
+ 
 def _astro_traduz_fase(fase):
     mapa = {
         "New Moon": "Lua Nova",
@@ -753,8 +753,8 @@ def _astro_traduz_fase(fase):
         "Waning Crescent": "Minguante",
     }
     return mapa.get(str(fase), fase)
-
-
+ 
+ 
 def _astro_fenomenos(lista):
     mapa = {
         "Rise": "nascer",
@@ -771,8 +771,8 @@ def _astro_fenomenos(lista):
         if chave:
             saida[chave] = item.get("time")
     return saida
-
-
+ 
+ 
 def _astro_parse_iso_utc(valor):
     if not isinstance(valor, str) or not valor.strip():
         return None
@@ -784,8 +784,8 @@ def _astro_parse_iso_utc(valor):
         return dt.astimezone(UTC)
     except Exception:
         return None
-
-
+ 
+ 
 def _astro_procurar_datas(obj, saida=None):
     if saida is None:
         saida = []
@@ -801,8 +801,8 @@ def _astro_procurar_datas(obj, saida=None):
         for v in obj:
             _astro_procurar_datas(v, saida)
     return saida
-
-
+ 
+ 
 def _astro_primeiro_valor(obj, chaves):
     alvos = {str(x).lower() for x in chaves}
     if isinstance(obj, dict):
@@ -819,89 +819,148 @@ def _astro_primeiro_valor(obj, chaves):
             if achado is not None:
                 return achado
     return None
-
-
+ 
+ 
 def _astro_evento_futuro_opale(body, referencia):
-    """Localiza o próximo eclipse em até 3 anos e pede o detalhe do dia.
-
-    body=10: solar; body=301: lunar. OPALE ignora observer para eclipse lunar.
-    O parser é deliberadamente tolerante a pequenas variações de envelope JSON.
+    """Localiza o próximo eclipse OPALE e extrai apenas campos astronômicos reais.
+ 
+    body=10: eclipse solar para o observador LAT/LON.
+    body=301: eclipse lunar global; a visibilidade local é testada separadamente
+    pela altitude da Lua no USNO.
+ 
+    V2: não usa mais o menor/maior datetime encontrado recursivamente como
+    início/fim, pois metadados como a data civil 00:00 podem ser confundidos
+    com contatos astronômicos.
     """
-    candidatos = []
+    ref_utc = referencia.astimezone(UTC)
+    evento_anual = None
+    data_evento = None
+ 
     for ano in range(referencia.year, referencia.year + 4):
-        url_ano = f"{OPALE_ECLIPSES}/{body}/{ano}"
-        r = requests.get(
+        url_ano = f"{OPALE_ECLIPSES}/{body}/gregorian,{ano}"
+        r_ano = requests.get(
             url_ano,
             timeout=(10, 25),
             headers={"User-Agent": "Monitor-Guaxanduva/1.0", "Accept": "application/json"},
         )
-        r.raise_for_status()
-        bruto = r.json()
-        for _, dt, _ in _astro_procurar_datas(bruto):
-            if dt >= referencia.astimezone(UTC) - timedelta(hours=12):
-                candidatos.append(dt)
-        if candidatos:
-            break
-    if not candidatos:
+        r_ano.raise_for_status()
+        bruto = r_ano.json()
+        resposta = bruto.get("response", {}) if isinstance(bruto, dict) else {}
+ 
+        if body == 301:
+            eventos_ano = resposta.get("lunareclipse", [])
+            if not isinstance(eventos_ano, list):
+                eventos_ano = []
+            candidatos = []
+            for evento in eventos_ano:
+                if not isinstance(evento, dict):
+                    continue
+                eventos = evento.get("events") or {}
+                maior = eventos.get("greatest") if isinstance(eventos, dict) else None
+                dt = _astro_parse_iso_utc(
+                    maior.get("date") if isinstance(maior, dict) else None
+                )
+                if dt is not None and dt >= ref_utc - timedelta(hours=12):
+                    candidatos.append((dt, evento))
+            if candidatos:
+                candidatos.sort(key=lambda x: x[0])
+                _, evento_anual = candidatos[0]
+                data_evento = evento_anual.get("calendarDate")
+                break
+ 
+        else:
+            candidatos = []
+            for _, dt, _ in _astro_procurar_datas(resposta):
+                if dt >= ref_utc - timedelta(hours=12):
+                    candidatos.append(dt)
+            if candidatos:
+                data_evento = min(candidatos).date().isoformat()
+                break
+ 
+    if not data_evento:
         return {"status": "sem_evento_localizado", "body_opale": body}
-
-    instante = min(candidatos)
-    data_evento = instante.date().isoformat()
-    url = f"{OPALE_ECLIPSES}/{body}/{data_evento}"
-    params = None
+ 
+    if body == 301:
+        evento = evento_anual
+        url_consulta = r_ano.url
+    else:
+        url = f"{OPALE_ECLIPSES}/{body}/gregorian,{data_evento}"
+        r = requests.get(
+            url,
+            params={"observer": f"{LAT:.6f},{LON:.6f},0.000000"},
+            timeout=(10, 30),
+            headers={"User-Agent": "Monitor-Guaxanduva/1.0", "Accept": "application/json"},
+        )
+        r.raise_for_status()
+        detalhe = r.json()
+        resposta = detalhe.get("response", {}) if isinstance(detalhe, dict) else {}
+        lista = resposta.get("data", [])
+        evento = lista[0] if isinstance(lista, list) and lista else None
+        url_consulta = r.url
+ 
+    if not isinstance(evento, dict):
+        return {
+            "status": "indisponivel",
+            "body_opale": body,
+            "data_evento": data_evento,
+            "motivo": "evento_OPALE_sem_estrutura_esperada",
+            "url_consulta": url_consulta,
+        }
+ 
+    eventos = evento.get("events") or {}
+    if not isinstance(eventos, dict):
+        eventos = {}
+ 
+    def instante_evento(chave):
+        item = eventos.get(chave)
+        if not isinstance(item, dict):
+            return None
+        return _astro_parse_iso_utc(item.get("date"))
+ 
+    maximo = instante_evento("greatest")
+ 
     if body == 10:
-        params = {"observer": f"{LAT:.6f},{LON:.6f},0.0"}
-    r = requests.get(
-        url,
-        params=params,
-        timeout=(10, 30),
-        headers={"User-Agent": "Monitor-Guaxanduva/1.0", "Accept": "application/json"},
-    )
-    r.raise_for_status()
-    detalhe = r.json()
-    datas = _astro_procurar_datas(detalhe)
-    instantes = sorted({dt for _, dt, _ in datas})
-    futuros = [dt for dt in instantes if dt >= referencia.astimezone(UTC) - timedelta(hours=12)]
-    maximo = None
-    # Prefere campos semanticamente associados ao máximo/greatest.
-    def achar_maximo(x):
-        if isinstance(x, dict):
-            for k, v in x.items():
-                if str(k).lower() in {"greatest", "maximum", "max"}:
-                    ds = _astro_procurar_datas(v)
-                    if ds:
-                        return ds[0][1]
-            for v in x.values():
-                a = achar_maximo(v)
-                if a is not None:
-                    return a
-        elif isinstance(x, list):
-            for v in x:
-                a = achar_maximo(v)
-                if a is not None:
-                    return a
-        return None
-    maximo = achar_maximo(detalhe)
-    if maximo is None and futuros:
-        maximo = futuros[len(futuros)//2]
-
+        inicio = instante_evento("P1")
+        fim = instante_evento("P4")
+        if inicio is None:
+            inicio = instante_evento("U1") or instante_evento("C1") or instante_evento("P2")
+        if fim is None:
+            fim = instante_evento("U4") or instante_evento("C2") or instante_evento("P3")
+    else:
+        inicio = instante_evento("P1") or instante_evento("U1")
+        fim = instante_evento("P2") or instante_evento("U4")
+ 
+    tipo = evento.get("type")
+    magnitude = _astro_numero(evento.get("magnitude"))
+    obscuracao = _astro_numero(evento.get("obscuration")) if body == 10 else None
+ 
     resumo = {
         "status": "online",
         "fonte": "OPALE/IMCCE",
         "body_opale": body,
         "data_evento": data_evento,
-        "tipo": _astro_primeiro_valor(detalhe, ["type"]),
-        "magnitude": _astro_numero(_astro_primeiro_valor(detalhe, ["magnitude"])),
-        "obscuracao_pct": _astro_numero(_astro_primeiro_valor(detalhe, ["obscuration"])),
+        "tipo": tipo,
+        "magnitude": magnitude,
+        "obscuracao_pct": obscuracao,
         "maximo_utc": maximo.isoformat() if maximo else None,
         "maximo_local": maximo.astimezone(FUSO).isoformat() if maximo else None,
-        "inicio_utc": instantes[0].isoformat() if instantes else None,
-        "fim_utc": instantes[-1].isoformat() if instantes else None,
-        "url_consulta": r.url,
+        "inicio_utc": inicio.isoformat() if inicio else None,
+        "inicio_local": inicio.astimezone(FUSO).isoformat() if inicio else None,
+        "fim_utc": fim.isoformat() if fim else None,
+        "fim_local": fim.astimezone(FUSO).isoformat() if fim else None,
+        "url_consulta": url_consulta,
     }
+ 
+    if body == 301:
+        duracao = evento.get("duration")
+        resumo["duracao"] = duracao if isinstance(duracao, dict) else None
+        resumo["observacao_opale"] = (
+            "Evento lunar OPALE é global/geocêntrico; visibilidade local "
+            "é avaliada separadamente pela altitude da Lua no USNO."
+        )
+ 
     return resumo
-
-
+ 
 def _astro_altura_lua_usno(instante_utc):
     """Consulta a altitude geocêntrica hc da Lua no USNO para um instante UTC."""
     if instante_utc is None:
@@ -936,8 +995,8 @@ def _astro_altura_lua_usno(instante_utc):
             "criterio": "hc_USNO_maior_que_0_grau",
         }
     return {"status": "indisponivel", "altura_graus": None}
-
-
+ 
+ 
 def buscar_astronomia_joinville():
     resultado = {
         "status": "indisponivel",
@@ -956,7 +1015,7 @@ def buscar_astronomia_joinville():
     }
     erros = []
     ref_local = agora()
-
+ 
     try:
         r = requests.get(
             USNO_RSTT_ONEDAY,
@@ -995,12 +1054,12 @@ def buscar_astronomia_joinville():
         resultado["status"] = "online_parcial"
     except Exception as e:
         erros.append("USNO diario: " + str(e))
-
+ 
     try:
         resultado["eclipses"]["solar"] = _astro_evento_futuro_opale(10, ref_local)
     except Exception as e:
         erros.append("OPALE solar: " + str(e))
-
+ 
     try:
         lunar = _astro_evento_futuro_opale(301, ref_local)
         maximo = _astro_parse_iso_utc(lunar.get("maximo_utc")) if isinstance(lunar, dict) else None
@@ -1014,7 +1073,7 @@ def buscar_astronomia_joinville():
         resultado["eclipses"]["lunar"] = lunar
     except Exception as e:
         erros.append("OPALE/USNO lunar: " + str(e))
-
+ 
     if resultado["sol"] or resultado["lua"] or any(
         isinstance(v, dict) and v.get("status") == "online"
         for v in resultado["eclipses"].values()
@@ -1022,8 +1081,8 @@ def buscar_astronomia_joinville():
         resultado["status"] = "online" if not erros else "online_parcial"
     resultado["erros_parciais"] = erros
     return resultado
-
-
+ 
+ 
 # =========================================================
 # MARÉ
 # =========================================================
@@ -12741,7 +12800,7 @@ def main():
  
         "previsao":
             previsao,
-
+ 
         "astronomia_joinville":
             astronomia_joinville,
  

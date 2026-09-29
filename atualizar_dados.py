@@ -258,6 +258,220 @@ def media_angular_ponderada(valores):
  
  
 # =========================================================
+# #167 - GOES-19 / TATHU (CPTEC/INPE) - EXPERIMENTAL FAIL-CLOSED
+# =========================================================
+
+TATHU_BASE_167 = (
+    "https://ftp.cptec.inpe.br/goes/goes19/"
+    "goes19_web/tathu_web/diag/"
+)
+
+
+def _numero_167(valor):
+    try:
+        if valor is None or isinstance(valor, bool):
+            return None
+        return float(str(valor).strip().replace(",", "."))
+    except Exception:
+        return None
+
+
+def _centro_geometria_geojson_167(geometria):
+    """Centro geométrico simples dos vértices GeoJSON; não é centroide geodésico."""
+    if not isinstance(geometria, dict):
+        return None
+    coords = geometria.get("coordinates")
+    pontos = []
+
+    def caminhar(obj):
+        if not isinstance(obj, (list, tuple)):
+            return
+        if (
+            len(obj) >= 2
+            and isinstance(obj[0], (int, float))
+            and isinstance(obj[1], (int, float))
+        ):
+            lon = float(obj[0])
+            lat = float(obj[1])
+            if -180 <= lon <= 180 and -90 <= lat <= 90:
+                pontos.append((lat, lon))
+            return
+        for item in obj:
+            caminhar(item)
+
+    caminhar(coords)
+    if not pontos:
+        return None
+    return {
+        "lat": sum(p[0] for p in pontos) / len(pontos),
+        "lon": sum(p[1] for p in pontos) / len(pontos),
+        "metodo": "media_simples_vertices_geojson",
+    }
+
+
+def _extrair_posicao_tathu_167(feature):
+    props = feature.get("properties") or {}
+    lat = _numero_167(props.get("Latitude"))
+    lon = _numero_167(props.get("Longitude"))
+    if lat is not None and lon is not None and -90 <= lat <= 90 and -180 <= lon <= 180:
+        return {"lat": lat, "lon": lon, "metodo": "properties_Latitude_Longitude"}
+    return _centro_geometria_geojson_167(feature.get("geometry"))
+
+
+def _normalizar_feature_tathu_167(feature):
+    if not isinstance(feature, dict):
+        return None
+    props = feature.get("properties") or {}
+    pos = _extrair_posicao_tathu_167(feature)
+    dist = None
+    if pos:
+        dist = round(hav(LAT, LON, pos["lat"], pos["lon"]), 2)
+    dt_prev = _numero_167(props.get("dt"))
+    return {
+        "nome": props.get("name"),
+        "timestamp_fonte": props.get("timestamp"),
+        "evento": props.get("event"),
+        "fase": props.get("phase"),
+        "latitude": None if not pos else round(pos["lat"], 6),
+        "longitude": None if not pos else round(pos["lon"], 6),
+        "metodo_posicao": None if not pos else pos["metodo"],
+        "distancia_comasa_km": dist,
+        "temperatura_minima_k": _numero_167(props.get("Tmin")),
+        "taxa_resfriamento_k_10min": _numero_167(props.get("TxResf")),
+        "velocidade_m_s": _numero_167(props.get("Vel")),
+        "direcao_graus": _numero_167(props.get("Dir")),
+        "duracao_h": _numero_167(props.get("Duracao")),
+        "fracao_convectiva_pct": _numero_167(props.get("FracConv")),
+        "previsao_dt_min": dt_prev,
+        "natureza": "previsao_geometrica_tathu" if dt_prev not in (None, 0) else "diagnostico_tathu",
+        "geometry": feature.get("geometry"),
+    }
+
+
+def buscar_goes19_tathu_167():
+    """
+    Consulta experimental do produto TATHU que o DSAT/CPTEC referencia.
+    Fail-closed: indisponibilidade nunca significa ausência de tempestade e
+    nenhum resultado desta função libera ETA ou alerta operacional.
+    """
+    agora_utc = datetime.now(UTC)
+    minuto = (agora_utc.minute // 10) * 10
+    base_tempo = agora_utc.replace(minute=minuto, second=0, microsecond=0)
+    tentativas = []
+    payload = None
+    momento_encontrado = None
+    url_encontrada = None
+
+    sessao = requests.Session()
+    sessao.headers.update({"User-Agent": "Monitor-Guaxanduva/1.0"})
+
+    # Até 4 horas para trás, em passos compatíveis com a cadência de 10 min do DSAT.
+    for passo in range(25):
+        momento = base_tempo - timedelta(minutes=10 * passo)
+        url = (
+            TATHU_BASE_167
+            + momento.strftime("%Y/%m/")
+            + "goes19_diagnostic_"
+            + momento.strftime("%Y%m%d%H%M")
+            + ".json"
+        )
+        try:
+            resposta = sessao.get(url, timeout=8)
+            tentativas.append({
+                "horario_utc": momento.isoformat(),
+                "http": resposta.status_code,
+                "url": url,
+            })
+            if resposta.status_code != 200:
+                continue
+            candidato = resposta.json()
+            if not isinstance(candidato, dict):
+                continue
+            features = candidato.get("features")
+            if not isinstance(features, list):
+                continue
+            payload = candidato
+            momento_encontrado = momento
+            url_encontrada = url
+            break
+        except Exception as e:
+            tentativas.append({
+                "horario_utc": momento.isoformat(),
+                "http": None,
+                "url": url,
+                "erro": str(e)[:180],
+            })
+
+    base = {
+        "versao": "#167",
+        "fonte": "CPTEC/INPE - DSAT - GOES-19 / TATHU",
+        "produto": "Sistemas Convectivos de Mesoescala - diagnostico TATHU",
+        "referencia_monitor": {
+            "local": "Comasa - Joinville/SC",
+            "latitude_publica_aproximada": LAT,
+            "longitude_publica_aproximada": LON,
+        },
+        "cadencia_consulta_min": 10,
+        "janela_busca_retrospectiva_min": 240,
+        "tentativas": tentativas,
+        "eta_liberado": False,
+        "uso_operacional_alerta_liberado": False,
+        "equivale_chuva_medida_solo": False,
+        "regra_seguranca": (
+            "TATHU/GOES-19 é evidência remota de sistemas convectivos. "
+            "Indisponibilidade não significa ausência de tempestade; GLM/satélite não equivalem a chuva no solo. "
+            "Velocidade, direção e geometrias previstas permanecem experimentais no Monitor até validação histórica independente."
+        ),
+    }
+
+    if payload is None:
+        return {
+            **base,
+            "status": "indisponivel",
+            "motivo": "nenhum_geojson_tathu_valido_encontrado_na_janela",
+            "horario_produto_utc": None,
+            "idade_dado_min": None,
+            "sistemas_detectados": None,
+            "sistemas_relevantes_joinville": None,
+            "sistemas": [],
+        }
+
+    idade = max(0.0, (agora_utc - momento_encontrado).total_seconds() / 60.0)
+    normalizados = []
+    for feature in payload.get("features", []):
+        item = _normalizar_feature_tathu_167(feature)
+        if item:
+            normalizados.append(item)
+
+    # 250 km é somente um recorte de investigação regional; não é raio de alerta.
+    relevantes = [
+        x for x in normalizados
+        if isinstance(x.get("distancia_comasa_km"), (int, float))
+        and x["distancia_comasa_km"] <= 250
+    ]
+    relevantes.sort(key=lambda x: x.get("distancia_comasa_km", 1e9))
+
+    return {
+        **base,
+        "status": "online" if idade <= 40 else "atrasado",
+        "url_produto": url_encontrada,
+        "horario_produto_utc": momento_encontrado.isoformat(),
+        "horario_produto_local": momento_encontrado.astimezone(FUSO).isoformat(),
+        "idade_dado_min": round(idade, 1),
+        "limite_frescor_monitor_min": 40,
+        "tipo_geojson": payload.get("type"),
+        "sistemas_detectados": len(normalizados),
+        "sistemas_relevantes_joinville": len(relevantes),
+        "raio_triagem_regional_km": 250,
+        "sistemas": relevantes,
+        "observacao": (
+            "O recorte de 250 km serve apenas para triagem e armazenamento de evidência. "
+            "Não representa zona de risco nem autoriza ETA público."
+        ),
+    }
+
+
+# =========================================================
 # HISTÓRICO DE AUTOVALIDAÇÃO #120 - RECUPERADO NA #128
 # =========================================================
  
@@ -12708,6 +12922,7 @@ def main():
     tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
     hidrologia_guaxanduva_v019 = calcular_hidrologia_guaxanduva_v019()
     nivel_guaxanduva_v021 = calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_guaxanduva_v019)
+    goes19_tathu167 = buscar_goes19_tathu_167()
     dados = {
         "monitor":
             "Monitor Guaxanduva",
@@ -12753,6 +12968,9 @@ def main():
  
         "investigacao_radarsc_128":
             investigar_fonte_radarsc(),
+
+        "goes19_tathu_167":
+            goes19_tathu167,
  
         "mare":
             buscar_mare(),

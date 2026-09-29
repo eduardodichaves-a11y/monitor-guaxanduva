@@ -8,11 +8,13 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#08151d;color:#eef8fc;font-family:Arial,sans-serif}
-main{max-width:700px;margin:auto;padding:12px}
-header,.card{background:#112632;border:1px solid #294956;border-radius:18px;padding:18px;margin-bottom:14px}
-h1{margin:6px 0;font-size:27px} h2{margin:6px 0}
+main{max-width:1280px;margin:auto;padding:14px}
+header,.card{background:#0d202a;border:1px solid #285365;border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 10px 28px rgba(0,0,0,.16)}
+header{position:relative;overflow:hidden;background:linear-gradient(110deg,#071923 0%,#0b2c39 52%,#123b46 100%);border-color:#39788d;padding:20px 24px}
+header:after{content:"";position:absolute;right:-90px;top:-120px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(71,193,224,.20),rgba(71,193,224,0) 68%);pointer-events:none}
+h1{margin:6px 0;font-size:34px;letter-spacing:-.5px} h2{margin:6px 0}
 .local{color:#8fc8df;font-size:12px;letter-spacing:2px}.sub,small{color:#a8c0ca}
-.grid,.meteo,.mare-grid,.radar-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid,.meteo,.mare-grid,.radar-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .valor{font-size:38px;font-weight:bold;margin:20px 0 4px}
 .box,.meteo div,.mare-item,.radar-item,.medida{background:#091a23;border-radius:12px;padding:14px;margin-top:14px;line-height:1.6}
 .ok{color:#8fe3a1}.aviso{color:#f1d277}.erro{color:#ff9b9b}
@@ -37,29 +39,38 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 .card-recolhivel.fechado{padding-bottom:14px}
 .card-recolhivel.fechado .card-cabecalho h2{margin-bottom:0}
 .card-recolhivel.fechado .card-seta{transform:translateY(-50%) rotate(-90deg)}
-@media(max-width:520px){.grid,.meteo,.radar-grid{grid-template-columns:1fr}.mare-grid{grid-template-columns:1fr 1fr}h1{font-size:24px}}
+@media(min-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.meteo{grid-template-columns:repeat(4,minmax(0,1fr))}.radar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:520px){main{padding:10px}.grid,.meteo,.radar-grid{grid-template-columns:1fr}.mare-grid{grid-template-columns:1fr 1fr}h1{font-size:27px}header{padding:18px}}
  
-.resumo-agora{background:linear-gradient(145deg,#12313d,#0d202a);border-color:#3d7183;box-shadow:0 10px 28px rgba(0,0,0,.22)}
-.resumo-topo{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
-.resumo-selo{background:#173d49;border:1px solid #356979;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:bold;color:#bfe9f5}
-.resumo-frase{background:#091a23;border-left:4px solid #62b7cf;border-radius:12px;padding:14px;margin-top:14px;line-height:1.55;font-size:15px}
-.resumo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
-.resumo-item{background:#091a23;border:1px solid #173844;border-radius:14px;padding:13px;min-height:104px}
-.resumo-item .rotulo{color:#8fc8df;font-size:11px;letter-spacing:.7px;text-transform:uppercase}
-.resumo-item .destaque{display:block;font-size:22px;font-weight:800;margin:7px 0 3px;line-height:1.15}
-.resumo-item .detalhe{color:#a8c0ca;font-size:12px;line-height:1.45}
-.resumo-astro{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.resumo-rodape{margin-top:12px;padding-top:11px;border-top:1px solid #294956;color:#a8c0ca;font-size:11px;line-height:1.45}
-@media(max-width:520px){.resumo-grid,.resumo-astro{grid-template-columns:1fr 1fr}.resumo-item{min-height:96px}.resumo-item .destaque{font-size:20px}}
+ 
+.resumo-agora{background:linear-gradient(145deg,#0b2632,#0b1d27);border:2px solid #3180a0;box-shadow:0 14px 38px rgba(0,0,0,.30);padding:16px}
+.resumo-topo{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;border-bottom:1px solid #285365;padding-bottom:12px}
+.resumo-topo h2{font-size:26px}
+.resumo-selo{background:#173d49;border:1px solid #4aa3bb;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:bold;color:#d2f5ff}
+.resumo-frase{background:linear-gradient(90deg,#07392f,#0a2d2b);border:1px solid #1d9d72;border-left:5px solid #5de0a6;border-radius:14px;padding:15px 18px;margin-top:14px;line-height:1.5;font-size:17px;font-weight:600}
+.resumo-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+.resumo-item{background:linear-gradient(180deg,#071b24,#081720);border:1px solid #245269;border-radius:14px;padding:13px;min-height:112px;box-shadow:inset 0 1px rgba(255,255,255,.025)}
+.resumo-item .rotulo{color:#8fd6ec;font-size:11px;letter-spacing:.8px;text-transform:uppercase;font-weight:700}
+.resumo-item .destaque{display:block;font-size:24px;font-weight:800;margin:7px 0 4px;line-height:1.15;color:#f5fbff}
+.resumo-item .detalhe{color:#abc5cf;font-size:12px;line-height:1.45}
+.resumo-astro{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
+.resumo-rodape{margin-top:12px;padding:12px 13px;border:1px solid #385765;border-radius:12px;background:#0a1820;color:#b9ccd4;font-size:11px;line-height:1.45}
+.dashboard-faixa{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.dashboard-chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800;border:1px solid #315d6d;background:#102b36;color:#d5edf5}
+.dashboard-chip.modelo{border-color:#b38a32;background:#3a3014;color:#ffe6a1}
+.dashboard-chip.exp{border-color:#4d7787;background:#122c36;color:#c7e6ef}
+.dashboard-divisor{margin:18px 0 12px;border-top:1px solid #285365}
+.dashboard-subtitulo{font-size:12px;letter-spacing:1.4px;color:#78c6de;font-weight:800;text-transform:uppercase}
+@media(max-width:900px){.resumo-grid,.resumo-astro{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.resumo-grid,.resumo-astro{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.resumo-item{min-height:105px;padding:12px}.resumo-item .destaque{font-size:21px}.resumo-frase{font-size:15px}.resumo-topo h2{font-size:24px}}
 @media(max-width:370px){.resumo-grid,.resumo-astro{grid-template-columns:1fr}}
- 
 </style>
 </head>
 <body><main>
 <header>
 <div class="local">COMASA • JOINVILLE/SC</div>
 <h1>🌧️🌊 Monitor Guaxanduva</h1>
-<div class="sub">Chuva • Radar • Maré • Rio • Vento • Tempestades • Riscos</div>
+<div class="sub">Chuva • Radar • Maré • Rio • Vento • Tempo • Lua • Riscos</div>
 <div id="hora" style="margin-top:15px">🕒 --</div>
 </header>
  
@@ -71,7 +82,14 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <h2>O essencial em uma olhada</h2>
 <div class="sub">Leitura simples dos mesmos dados técnicos exibidos nos painéis abaixo</div>
 </div>
+<div>
 <div class="resumo-selo">DADOS + MODELO • SEM INVENTAR AUSÊNCIAS</div>
+<div class="dashboard-faixa">
+<span class="dashboard-chip modelo">V0.21 • MODELADO</span>
+<span class="dashboard-chip">OBSERVAÇÕES PRESERVADAS</span>
+<span class="dashboard-chip exp">EXPERIMENTAL</span>
+</div>
+</div>
 </div>
 <div id="resumoFrase" class="resumo-frase">Carregando situação atual...</div>
 <div class="resumo-grid">
@@ -93,6 +111,10 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="resumo-rodape">⚠️ O nível do Guaxanduva mostrado aqui é MODELADO/NÃO INSTRUMENTAL enquanto não houver sensor público confirmado. Este resumo não cria classificação automática de segurança, perigo ou evacuação.</div>
 </section>
  
+ 
+<div class="dashboard-divisor"></div>
+<div class="dashboard-subtitulo">Painéis técnicos e auditoria das fontes</div>
+<div class="sub" style="margin:5px 0 14px">Detalhamento completo preservado abaixo • toque nos painéis para abrir</div>
  
 <section class="card">
 <div class="local">📡 RADAR METEOROLÓGICO • EXPERIMENTAL</div>

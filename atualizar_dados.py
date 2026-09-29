@@ -344,6 +344,9 @@ def buscar_previsao():
  
             "current": (
                 "temperature_2m,"
+                "apparent_temperature,"
+                "weather_code,"
+                "cloud_cover,"
                 "precipitation,"
                 "wind_speed_10m,"
                 "wind_direction_10m,"
@@ -352,6 +355,9 @@ def buscar_previsao():
  
             "hourly": (
                 "temperature_2m,"
+                "apparent_temperature,"
+                "weather_code,"
+                "cloud_cover,"
                 "precipitation_probability,"
                 "precipitation,"
                 "wind_speed_10m,"
@@ -610,6 +616,21 @@ def buscar_previsao():
                     atual.get(
                         "temperature_2m"
                     ),
+
+                "sensacao_termica_c":
+                    atual.get(
+                        "apparent_temperature"
+                    ),
+
+                "codigo_tempo_wmo":
+                    atual.get(
+                        "weather_code"
+                    ),
+
+                "cobertura_nuvens_pct":
+                    atual.get(
+                        "cloud_cover"
+                    ),
  
                 "precipitacao_mm":
                     atual.get(
@@ -639,6 +660,21 @@ def buscar_previsao():
                 "temperatura_c":
                     hv(
                         "temperature_2m"
+                    ),
+
+                "sensacao_termica_c":
+                    hv(
+                        "apparent_temperature"
+                    ),
+
+                "codigo_tempo_wmo":
+                    hv(
+                        "weather_code"
+                    ),
+
+                "cobertura_nuvens_pct":
+                    hv(
+                        "cloud_cover"
                     ),
  
                 "probabilidade_chuva_pct":
@@ -682,6 +718,312 @@ def buscar_previsao():
         }
  
  
+# =========================================================
+# ASTRONOMIA - SOL, LUA E ECLIPSES - JOINVILLE/COMASA
+# =========================================================
+# Fontes astronômicas independentes das camadas hidrológicas:
+# - USNO/Astronomical Applications Department: Sol e Lua diários;
+# - OPALE/IMCCE: eclipses solares e lunares.
+# A coordenada é a referência pública aproximada do Monitor (LAT/LON).
+# Falha de qualquer serviço permanece None/indisponível e nunca vira zero.
+
+USNO_RSTT_ONEDAY = "https://aa.usno.navy.mil/api/rstt/oneday"
+USNO_CELNAV = "https://aa.usno.navy.mil/api/celnav"
+OPALE_ECLIPSES = "https://opale.imcce.fr/api/v1/phenomena/eclipses"
+
+
+def _astro_numero(valor):
+    try:
+        if valor is None or isinstance(valor, bool):
+            return None
+        return float(str(valor).replace("%", "").strip())
+    except Exception:
+        return None
+
+
+def _astro_traduz_fase(fase):
+    mapa = {
+        "New Moon": "Lua Nova",
+        "Waxing Crescent": "Crescente",
+        "First Quarter": "Quarto Crescente",
+        "Waxing Gibbous": "Gibosa Crescente",
+        "Full Moon": "Lua Cheia",
+        "Waning Gibbous": "Gibosa Minguante",
+        "Last Quarter": "Quarto Minguante",
+        "Waning Crescent": "Minguante",
+    }
+    return mapa.get(str(fase), fase)
+
+
+def _astro_fenomenos(lista):
+    mapa = {
+        "Rise": "nascer",
+        "Set": "por",
+        "Upper Transit": "transito_superior",
+        "Begin Civil Twilight": "crepusculo_civil_inicio",
+        "End Civil Twilight": "crepusculo_civil_fim",
+    }
+    saida = {}
+    for item in lista if isinstance(lista, list) else []:
+        if not isinstance(item, dict):
+            continue
+        chave = mapa.get(item.get("phen"))
+        if chave:
+            saida[chave] = item.get("time")
+    return saida
+
+
+def _astro_parse_iso_utc(valor):
+    if not isinstance(valor, str) or not valor.strip():
+        return None
+    texto = valor.strip().replace("Z", "+00:00")
+    try:
+        dt = datetime.fromisoformat(texto)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=UTC)
+        return dt.astimezone(UTC)
+    except Exception:
+        return None
+
+
+def _astro_procurar_datas(obj, saida=None):
+    if saida is None:
+        saida = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            kl = str(k).lower()
+            if isinstance(v, str) and ("date" in kl or "time" in kl):
+                dt = _astro_parse_iso_utc(v)
+                if dt is not None:
+                    saida.append((str(k), dt, v))
+            _astro_procurar_datas(v, saida)
+    elif isinstance(obj, list):
+        for v in obj:
+            _astro_procurar_datas(v, saida)
+    return saida
+
+
+def _astro_primeiro_valor(obj, chaves):
+    alvos = {str(x).lower() for x in chaves}
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if str(k).lower() in alvos and not isinstance(v, (dict, list)):
+                return v
+        for v in obj.values():
+            achado = _astro_primeiro_valor(v, chaves)
+            if achado is not None:
+                return achado
+    elif isinstance(obj, list):
+        for v in obj:
+            achado = _astro_primeiro_valor(v, chaves)
+            if achado is not None:
+                return achado
+    return None
+
+
+def _astro_evento_futuro_opale(body, referencia):
+    """Localiza o próximo eclipse em até 3 anos e pede o detalhe do dia.
+
+    body=10: solar; body=301: lunar. OPALE ignora observer para eclipse lunar.
+    O parser é deliberadamente tolerante a pequenas variações de envelope JSON.
+    """
+    candidatos = []
+    for ano in range(referencia.year, referencia.year + 4):
+        url_ano = f"{OPALE_ECLIPSES}/{body}/{ano}"
+        r = requests.get(
+            url_ano,
+            timeout=(10, 25),
+            headers={"User-Agent": "Monitor-Guaxanduva/1.0", "Accept": "application/json"},
+        )
+        r.raise_for_status()
+        bruto = r.json()
+        for _, dt, _ in _astro_procurar_datas(bruto):
+            if dt >= referencia.astimezone(UTC) - timedelta(hours=12):
+                candidatos.append(dt)
+        if candidatos:
+            break
+    if not candidatos:
+        return {"status": "sem_evento_localizado", "body_opale": body}
+
+    instante = min(candidatos)
+    data_evento = instante.date().isoformat()
+    url = f"{OPALE_ECLIPSES}/{body}/{data_evento}"
+    params = None
+    if body == 10:
+        params = {"observer": f"{LAT:.6f},{LON:.6f},0.0"}
+    r = requests.get(
+        url,
+        params=params,
+        timeout=(10, 30),
+        headers={"User-Agent": "Monitor-Guaxanduva/1.0", "Accept": "application/json"},
+    )
+    r.raise_for_status()
+    detalhe = r.json()
+    datas = _astro_procurar_datas(detalhe)
+    instantes = sorted({dt for _, dt, _ in datas})
+    futuros = [dt for dt in instantes if dt >= referencia.astimezone(UTC) - timedelta(hours=12)]
+    maximo = None
+    # Prefere campos semanticamente associados ao máximo/greatest.
+    def achar_maximo(x):
+        if isinstance(x, dict):
+            for k, v in x.items():
+                if str(k).lower() in {"greatest", "maximum", "max"}:
+                    ds = _astro_procurar_datas(v)
+                    if ds:
+                        return ds[0][1]
+            for v in x.values():
+                a = achar_maximo(v)
+                if a is not None:
+                    return a
+        elif isinstance(x, list):
+            for v in x:
+                a = achar_maximo(v)
+                if a is not None:
+                    return a
+        return None
+    maximo = achar_maximo(detalhe)
+    if maximo is None and futuros:
+        maximo = futuros[len(futuros)//2]
+
+    resumo = {
+        "status": "online",
+        "fonte": "OPALE/IMCCE",
+        "body_opale": body,
+        "data_evento": data_evento,
+        "tipo": _astro_primeiro_valor(detalhe, ["type"]),
+        "magnitude": _astro_numero(_astro_primeiro_valor(detalhe, ["magnitude"])),
+        "obscuracao_pct": _astro_numero(_astro_primeiro_valor(detalhe, ["obscuration"])),
+        "maximo_utc": maximo.isoformat() if maximo else None,
+        "maximo_local": maximo.astimezone(FUSO).isoformat() if maximo else None,
+        "inicio_utc": instantes[0].isoformat() if instantes else None,
+        "fim_utc": instantes[-1].isoformat() if instantes else None,
+        "url_consulta": r.url,
+    }
+    return resumo
+
+
+def _astro_altura_lua_usno(instante_utc):
+    """Consulta a altitude geocêntrica hc da Lua no USNO para um instante UTC."""
+    if instante_utc is None:
+        return {"status": "indisponivel", "altura_graus": None}
+    r = requests.get(
+        USNO_CELNAV,
+        params={
+            "date": instante_utc.strftime("%Y-%m-%d"),
+            "time": instante_utc.strftime("%H:%M:%S"),
+            "coords": f"{LAT},{LON}",
+        },
+        timeout=(10, 25),
+        headers={"User-Agent": "Monitor-Guaxanduva/1.0", "Accept": "application/json"},
+    )
+    r.raise_for_status()
+    obj = r.json()
+    props = obj.get("properties", {}) if isinstance(obj, dict) else {}
+    itens = props.get("data", []) if isinstance(props, dict) else []
+    for item in itens if isinstance(itens, list) else []:
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("object", "")).strip().lower() != "moon":
+            continue
+        alm = item.get("almanac_data") or {}
+        hc = _astro_numero(alm.get("hc")) if isinstance(alm, dict) else None
+        zn = _astro_numero(alm.get("zn")) if isinstance(alm, dict) else None
+        return {
+            "status": "online" if hc is not None else "indisponivel",
+            "altura_graus": hc,
+            "azimute_graus": zn,
+            "acima_horizonte_geometrico": (hc > 0) if hc is not None else None,
+            "criterio": "hc_USNO_maior_que_0_grau",
+        }
+    return {"status": "indisponivel", "altura_graus": None}
+
+
+def buscar_astronomia_joinville():
+    resultado = {
+        "status": "indisponivel",
+        "fontes": ["USNO Astronomical Applications Department", "OPALE/IMCCE"],
+        "coordenadas_referencia": {"latitude": LAT, "longitude": LON},
+        "fuso": "America/Sao_Paulo",
+        "sol": {},
+        "lua": {},
+        "eclipses": {"solar": {"status": "indisponivel"}, "lunar": {"status": "indisponivel"}},
+        "regras_seguranca": [
+            "Coordenadas sao referencia publica aproximada do Monitor e nao endereco residencial.",
+            "Falha ou ausencia de dado astronomico nunca e convertida em zero.",
+            "Eclipse lunar OPALE e global; visibilidade local exige Lua acima do horizonte em Joinville.",
+            "Visibilidade geometrica nao garante observacao pratica: nuvens, relevo e obstrucoes locais podem impedir a visualizacao.",
+        ],
+    }
+    erros = []
+    ref_local = agora()
+
+    try:
+        r = requests.get(
+            USNO_RSTT_ONEDAY,
+            params={
+                "date": ref_local.strftime("%Y-%m-%d"),
+                "coords": f"{LAT},{LON}",
+                "tz": -3,
+                "dst": "false",
+            },
+            timeout=(10, 25),
+            headers={"User-Agent": "Monitor-Guaxanduva/1.0", "Accept": "application/json"},
+        )
+        r.raise_for_status()
+        obj = r.json()
+        data = (((obj.get("properties") or {}).get("data")) or {}) if isinstance(obj, dict) else {}
+        sol = _astro_fenomenos(data.get("sundata"))
+        lua = _astro_fenomenos(data.get("moondata"))
+        sol.update({"fonte": "USNO", "data_local": ref_local.date().isoformat()})
+        lua.update({
+            "fonte": "USNO",
+            "data_local": ref_local.date().isoformat(),
+            "fase": _astro_traduz_fase(data.get("curphase")),
+            "fase_original": data.get("curphase"),
+            "iluminacao_pct": _astro_numero(data.get("fracillum")),
+        })
+        cp = data.get("closestphase")
+        if isinstance(cp, dict):
+            lua["fase_principal_mais_proxima"] = {
+                "fase": _astro_traduz_fase(cp.get("phase")),
+                "fase_original": cp.get("phase"),
+                "ano": cp.get("year"), "mes": cp.get("month"), "dia": cp.get("day"),
+                "hora_local": cp.get("time"),
+            }
+        resultado["sol"] = sol
+        resultado["lua"] = lua
+        resultado["status"] = "online_parcial"
+    except Exception as e:
+        erros.append("USNO diario: " + str(e))
+
+    try:
+        resultado["eclipses"]["solar"] = _astro_evento_futuro_opale(10, ref_local)
+    except Exception as e:
+        erros.append("OPALE solar: " + str(e))
+
+    try:
+        lunar = _astro_evento_futuro_opale(301, ref_local)
+        maximo = _astro_parse_iso_utc(lunar.get("maximo_utc")) if isinstance(lunar, dict) else None
+        vis = _astro_altura_lua_usno(maximo) if maximo else {"status": "indisponivel", "altura_graus": None}
+        if isinstance(lunar, dict):
+            lunar["visibilidade_local_no_maximo"] = vis
+            lunar["visivel_geometricamente_no_maximo"] = vis.get("acima_horizonte_geometrico")
+            lunar["observacao_visibilidade"] = (
+                "Criterio geometrico no maximo do eclipse. Nao considera nuvens, relevo nem obstrucoes locais."
+            )
+        resultado["eclipses"]["lunar"] = lunar
+    except Exception as e:
+        erros.append("OPALE/USNO lunar: " + str(e))
+
+    if resultado["sol"] or resultado["lua"] or any(
+        isinstance(v, dict) and v.get("status") == "online"
+        for v in resultado["eclipses"].values()
+    ):
+        resultado["status"] = "online" if not erros else "online_parcial"
+    resultado["erros_parciais"] = erros
+    return resultado
+
+
 # =========================================================
 # MARÉ
 # =========================================================
@@ -12298,6 +12640,7 @@ def main():
     diag156 = diagnosticar_conteudo_cap_inmet_156(diag155)
     granizo157 = granizo_operacional_inmet_157(diag156)
     previsao = buscar_previsao()
+    astronomia_joinville = buscar_astronomia_joinville()
     mare_observada160 = buscar_mare_observada_joinville_160()
     criterio163 = calcular_criterio_hidrometeorologico_plancon_163(previsao, mare_observada160)
     mare_prevista164 = calcular_pico_mare_previsto_24h_164(previsao)
@@ -12398,6 +12741,9 @@ def main():
  
         "previsao":
             previsao,
+
+        "astronomia_joinville":
+            astronomia_joinville,
  
         "criterio_hidrometeorologico_plancon_163":
             criterio163,

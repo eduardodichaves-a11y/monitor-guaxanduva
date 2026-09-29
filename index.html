@@ -690,7 +690,8 @@ async function carregar(){
   $("resEclipseSolar").textContent=es.data_evento?new Date(es.data_evento+"T12:00:00").toLocaleDateString("pt-BR"):"INDISPONÍVEL";
   $("resEclipseSolarDet").textContent=es.maximo_local?"máximo "+horaCurta(es.maximo_local)+" • magnitude "+(es.magnitude==null?"--":f(es.magnitude,5)):"OPALE/IMCCE";
   $("resEclipseLunar").textContent=el.data_evento?new Date(el.data_evento+"T12:00:00").toLocaleDateString("pt-BR"):"INDISPONÍVEL";
-  $("resEclipseLunarDet").textContent=el.maximo_local?"máximo "+horaCurta(el.maximo_local)+" • "+nomeFamilia(el.tipo||"tipo indisponível")+(el.visivel_geometricamente_no_maximo===true?" • Lua acima do horizonte":""):"OPALE/IMCCE";
+  const tipoEclipsePT=({PenumbralEclipse:"Eclipse penumbral",PartialEclipse:"Eclipse parcial",TotalEclipse:"Eclipse total",ObserverPartialEclipse:"Eclipse solar parcial",ObserverTotalEclipse:"Eclipse solar total",ObserverAnnularEclipse:"Eclipse solar anular"})[el.tipo]||nomeFamilia(el.tipo||"tipo indisponível");
+  $("resEclipseLunarDet").textContent=el.maximo_local?"máximo "+horaCurta(el.maximo_local)+" • "+tipoEclipsePT+(el.visivel_geometricamente_no_maximo===true?" • Lua acima do horizonte":""):"OPALE/IMCCE";
   let frase="Dados carregados.";
   if(nvResumo!=null){
     frase="O modelo V0.21 estima o Guaxanduva em "+f(nvResumo,2)+" m";

@@ -260,13 +260,13 @@ def media_angular_ponderada(valores):
 # =========================================================
 # #167 - GOES-19 / TATHU (CPTEC/INPE) - EXPERIMENTAL FAIL-CLOSED
 # =========================================================
-
+ 
 TATHU_BASE_167 = (
     "https://ftp.cptec.inpe.br/goes/goes19/"
     "goes19_web/tathu_web/diag/"
 )
-
-
+ 
+ 
 def _numero_167(valor):
     try:
         if valor is None or isinstance(valor, bool):
@@ -274,15 +274,15 @@ def _numero_167(valor):
         return float(str(valor).strip().replace(",", "."))
     except Exception:
         return None
-
-
+ 
+ 
 def _centro_geometria_geojson_167(geometria):
     """Centro geométrico simples dos vértices GeoJSON; não é centroide geodésico."""
     if not isinstance(geometria, dict):
         return None
     coords = geometria.get("coordinates")
     pontos = []
-
+ 
     def caminhar(obj):
         if not isinstance(obj, (list, tuple)):
             return
@@ -298,7 +298,7 @@ def _centro_geometria_geojson_167(geometria):
             return
         for item in obj:
             caminhar(item)
-
+ 
     caminhar(coords)
     if not pontos:
         return None
@@ -307,8 +307,8 @@ def _centro_geometria_geojson_167(geometria):
         "lon": sum(p[1] for p in pontos) / len(pontos),
         "metodo": "media_simples_vertices_geojson",
     }
-
-
+ 
+ 
 def _extrair_posicao_tathu_167(feature):
     props = feature.get("properties") or {}
     lat = _numero_167(props.get("Latitude"))
@@ -316,8 +316,8 @@ def _extrair_posicao_tathu_167(feature):
     if lat is not None and lon is not None and -90 <= lat <= 90 and -180 <= lon <= 180:
         return {"lat": lat, "lon": lon, "metodo": "properties_Latitude_Longitude"}
     return _centro_geometria_geojson_167(feature.get("geometry"))
-
-
+ 
+ 
 def _normalizar_feature_tathu_167(feature):
     if not isinstance(feature, dict):
         return None
@@ -346,8 +346,8 @@ def _normalizar_feature_tathu_167(feature):
         "natureza": "previsao_geometrica_tathu" if dt_prev not in (None, 0) else "diagnostico_tathu",
         "geometry": feature.get("geometry"),
     }
-
-
+ 
+ 
 def buscar_goes19_tathu_167():
     """
     Consulta experimental do produto TATHU que o DSAT/CPTEC referencia.
@@ -361,10 +361,10 @@ def buscar_goes19_tathu_167():
     payload = None
     momento_encontrado = None
     url_encontrada = None
-
+ 
     sessao = requests.Session()
     sessao.headers.update({"User-Agent": "Monitor-Guaxanduva/1.0"})
-
+ 
     # Até 4 horas para trás, em passos compatíveis com a cadência de 10 min do DSAT.
     for passo in range(25):
         momento = base_tempo - timedelta(minutes=10 * passo)
@@ -401,7 +401,7 @@ def buscar_goes19_tathu_167():
                 "url": url,
                 "erro": str(e)[:180],
             })
-
+ 
     base = {
         "versao": "#167",
         "fonte": "CPTEC/INPE - DSAT - GOES-19 / TATHU",
@@ -425,7 +425,7 @@ def buscar_goes19_tathu_167():
             "Velocidade, direção e geometrias previstas alimentam o nowcast experimental #168; não constituem observação nem alerta oficial."
         ),
     }
-
+ 
     if payload is None:
         return {
             **base,
@@ -437,14 +437,14 @@ def buscar_goes19_tathu_167():
             "sistemas_relevantes_joinville": None,
             "sistemas": [],
         }
-
+ 
     idade = max(0.0, (agora_utc - momento_encontrado).total_seconds() / 60.0)
     normalizados = []
     for feature in payload.get("features", []):
         item = _normalizar_feature_tathu_167(feature)
         if item:
             normalizados.append(item)
-
+ 
     # 250 km é somente um recorte de investigação regional; não é raio de alerta.
     relevantes = [
         x for x in normalizados
@@ -452,7 +452,7 @@ def buscar_goes19_tathu_167():
         and x["distancia_comasa_km"] <= 250
     ]
     relevantes.sort(key=lambda x: x.get("distancia_comasa_km", 1e9))
-
+ 
     return {
         **base,
         "status": "online" if idade <= 40 else "atrasado",
@@ -471,8 +471,8 @@ def buscar_goes19_tathu_167():
             "Não representa zona de risco; o ETA experimental público é calculado separadamente pela camada #168 com incerteza explícita."
         ),
     }
-
-
+ 
+ 
 # =========================================================
 # HISTÓRICO DE AUTOVALIDAÇÃO #120 - RECUPERADO NA #128
 # =========================================================
@@ -1645,40 +1645,27 @@ def investigar_fonte_radarsc():
 # =========================================================
  
 def legenda():
-    """Extrai a legenda RadarSC e valida RGB→faixa dBZ com #169.2.
-
-    #169.2 torna a validação estrutural resistente a redimensionamento da
-    mesma legenda. O SHA-256 permanece para auditoria, mas não é gate sozinho.
-    O gate numérico continua fail-closed: quantidade, ordem cromática,
-    proporções/posições relativas ou cores representativas divergentes
-    bloqueiam a associação RGB→dBZ.
-    """
+    """Extrai a legenda RadarSC e aplica RGB→faixa dBZ somente se #169 validar integralmente."""
     try:
         bruto = get(LEGENDA, radar=True).content
         imagem = Image.open(io.BytesIO(bruto)).convert("RGBA")
         sha = hashlib.sha256(bruto).hexdigest()
         melhor = []
-        melhor_y = None
-
         for y in range(imagem.height):
             segmentos = []
-            cor = imagem.getpixel((0, y))
-            inicio = 0
+            cor = imagem.getpixel((0, y)); inicio = 0
             for x in range(1, imagem.width):
                 atual = imagem.getpixel((x, y))
                 if atual != cor:
                     largura = x - inicio
                     if largura >= 10 and cor[3] > 0 and cor[:3] not in ((255,255,255),(0,0,0)):
                         segmentos.append((inicio, x - 1, cor))
-                    inicio = x
-                    cor = atual
+                    inicio = x; cor = atual
             largura = imagem.width - inicio
             if largura >= 10 and cor[3] > 0 and cor[:3] not in ((255,255,255),(0,0,0)):
                 segmentos.append((inicio, imagem.width - 1, cor))
-            if len(segmentos) > len(melhor):
-                melhor = segmentos
-                melhor_y = y
-
+            if len(segmentos) > len(melhor): melhor = segmentos
+ 
         esperado = [
             ((255,224,255),98,175,73.0,78.0), ((255,200,255),192,262,68.0,73.0),
             ((254,128,254),288,350,63.0,68.0), ((255,0,254),368,431,58.0,63.0),
@@ -1689,191 +1676,42 @@ def legenda():
             ((0,255,1),1180,1246,13.0,18.0), ((0,254,129),1276,1337,10.0,13.0),
             ((0,255,255),1360,1425,-10.0,10.0), ((0,0,254),1456,1535,-31.5,-10.0),
         ]
-        ref_w, ref_h = 1536, 152
-        sha_esperado = "59f3855538d71fae41d5211314dc5b0bfc88a477273ec1ddc6c3556f3443e061"
         extraidos = melhor[:16]
-        quantidade_ok = (len(extraidos) == 16)
-        sha_ok = (sha == sha_esperado)
-
-        # #169.2 — resolução não é identidade meteorológica da legenda.
-        # A razão de aspecto deve permanecer compatível; a geometria das 16
-        # faixas é comparada em coordenadas normalizadas (0..1).
-        razao_ref = ref_w / ref_h
-        razao_obs = (imagem.width / imagem.height) if imagem.height else None
-        erro_razao_pct = (
-            abs(razao_obs - razao_ref) / razao_ref * 100.0
-            if razao_obs is not None else None
-        )
-        razao_aspecto_ok = erro_razao_pct is not None and erro_razao_pct <= 1.0
-
-        # Tolerâncias conservadoras para reamostragem/arredondamento de pixels.
-        # RGB: distância euclidiana máxima 12 em espaço RGB 8-bit.
-        # Geometria: centro e largura normalizados podem divergir até 1,0%.
-        tolerancia_rgb = 12.0
-        tolerancia_geometria = 0.010
-        diagnostico_classes = []
-        rgb_ok = quantidade_ok
-        geometria_normalizada_ok = quantidade_ok
-
-        for i in range(16):
-            if not quantidade_ok:
-                break
-            seg = extraidos[i]
-            exp = esperado[i]
-            rgb_obs = tuple(seg[2][:3])
-            rgb_ref = exp[0]
-            distancia_rgb = math.sqrt(sum((float(a)-float(b))**2 for a,b in zip(rgb_obs,rgb_ref)))
-
-            centro_obs = ((seg[0] + seg[1]) / 2.0) / max(1.0, float(imagem.width - 1))
-            largura_obs = (seg[1] - seg[0] + 1) / max(1.0, float(imagem.width))
-            centro_ref = ((exp[1] + exp[2]) / 2.0) / float(ref_w - 1)
-            largura_ref = (exp[2] - exp[1] + 1) / float(ref_w)
-            erro_centro = abs(centro_obs - centro_ref)
-            erro_largura = abs(largura_obs - largura_ref)
-
-            cor_valida = distancia_rgb <= tolerancia_rgb
-            geometria_valida = (
-                erro_centro <= tolerancia_geometria
-                and erro_largura <= tolerancia_geometria
-            )
-            rgb_ok = rgb_ok and cor_valida
-            geometria_normalizada_ok = geometria_normalizada_ok and geometria_valida
-            diagnostico_classes.append({
-                "classe": i + 1,
-                "rgb_observado": list(rgb_obs),
-                "rgb_referencia": list(rgb_ref),
-                "distancia_rgb": round(distancia_rgb, 3),
-                "rgb_valido": cor_valida,
-                "centro_normalizado_observado": round(centro_obs, 6),
-                "centro_normalizado_referencia": round(centro_ref, 6),
-                "erro_centro_normalizado": round(erro_centro, 6),
-                "largura_normalizada_observada": round(largura_obs, 6),
-                "largura_normalizada_referencia": round(largura_ref, 6),
-                "erro_largura_normalizada": round(erro_largura, 6),
-                "geometria_normalizada_valida": geometria_valida,
-            })
-
+        sha_esperado = "59f3855538d71fae41d5211314dc5b0bfc88a477273ec1ddc6c3556f3443e061"
         estrutura_ok = (
-            quantidade_ok
-            and razao_aspecto_ok
-            and rgb_ok
-            and geometria_normalizada_ok
+            sha == sha_esperado and (imagem.width, imagem.height) == (1536,152)
+            and len(extraidos) == 16
+            and all(tuple(seg[2][:3]) == exp[0] and seg[0] == exp[1] and seg[1] == exp[2]
+                    for seg, exp in zip(extraidos, esperado))
         )
-
-        motivos_bloqueio = []
-        if not quantidade_ok:
-            motivos_bloqueio.append("quantidade_classes_divergente")
-        if not razao_aspecto_ok:
-            motivos_bloqueio.append("razao_aspecto_divergente")
-        if quantidade_ok and not rgb_ok:
-            motivos_bloqueio.append("ordem_ou_rgb_divergente")
-        if quantidade_ok and not geometria_normalizada_ok:
-            motivos_bloqueio.append("geometria_relativa_divergente")
-
-        classes = []
-        for i, seg in enumerate(extraidos):
-            item = {
-                "classe": i + 1,
-                "classe_tipo": "indice_interno_monitor",
-                "rgb": list(seg[2][:3]),
-                "x_inicio": seg[0],
-                "x_fim": seg[1],
-                "largura_px": seg[1] - seg[0] + 1,
-                "dbz": None,
-                "dbz_min": None,
-                "dbz_max": None,
-            }
+        classes=[]
+        for i,seg in enumerate(extraidos):
+            item={"classe":i+1,"classe_tipo":"indice_interno_monitor","rgb":list(seg[2][:3]),
+                  "x_inicio":seg[0],"x_fim":seg[1],"largura_px":seg[1]-seg[0]+1,
+                  "dbz":None,"dbz_min":None,"dbz_max":None}
             if estrutura_ok:
-                lo, hi = esperado[i][3], esperado[i][4]
-                item.update({
-                    "dbz": {"min": lo, "max": hi, "unidade": "dBZ"},
-                    "dbz_min": lo,
-                    "dbz_max": hi,
-                })
+                lo,hi=esperado[i][3],esperado[i][4]
+                item.update({"dbz":{"min":lo,"max":hi,"unidade":"dBZ"},"dbz_min":lo,"dbz_max":hi})
             classes.append(item)
-
-        dimensoes_identicas = ((imagem.width, imagem.height) == (ref_w, ref_h))
-        modo_validacao = (
-            "identidade_pixel_referencia"
-            if estrutura_ok and dimensoes_identicas
-            else "equivalencia_estrutural_normalizada"
-            if estrutura_ok
-            else "fail_closed"
-        )
-
-        return {
-            "status": "online",
-            "fonte": "legenda oficial RadarSC",
-            "produto": "COMP / C-MAX",
-            "dimensoes_px": {"largura": imagem.width, "altura": imagem.height},
-            "sha256": sha,
-            "quantidade_classes": len(classes),
-            "classes": classes,
-            "validacao_169": {
-                "versao": "#169.2",
-                "status": "validada" if estrutura_ok else "invalidada_fail_closed",
-                "modo_validacao": modo_validacao,
-                "rgb_para_faixa_dbz_validado": estrutura_ok,
-                "sha256_esperado": sha_esperado,
-                "sha256_confere": sha_ok,
-                "sha256_observado": sha,
-                "sha256_somente_auditoria": True,
-                "dimensoes_esperadas_px": {"largura": ref_w, "altura": ref_h},
-                "dimensoes_observadas_px": {"largura": imagem.width, "altura": imagem.height},
-                "dimensoes_identicas_referencia": dimensoes_identicas,
-                "redimensionamento_aceitavel": estrutura_ok and not dimensoes_identicas,
-                "razao_aspecto_referencia": round(razao_ref, 6),
-                "razao_aspecto_observada": None if razao_obs is None else round(razao_obs, 6),
-                "erro_razao_aspecto_pct": None if erro_razao_pct is None else round(erro_razao_pct, 4),
-                "razao_aspecto_valida": razao_aspecto_ok,
-                "classes_esperadas": 16,
-                "quantidade_classes_valida": quantidade_ok,
-                "rgb_ordem_validos": rgb_ok,
-                "geometria_normalizada_valida": geometria_normalizada_ok,
-                "linha_segmentacao_y": melhor_y,
-                "tolerancias": {
-                    "distancia_rgb_euclidiana_max": tolerancia_rgb,
-                    "erro_centro_normalizado_max": tolerancia_geometria,
-                    "erro_largura_normalizada_max": tolerancia_geometria,
-                    "erro_razao_aspecto_pct_max": 1.0,
-                },
-                "diagnostico_classes": diagnostico_classes,
-                "motivos_bloqueio": motivos_bloqueio,
-                "regra": (
-                    "#169.2 fail-closed resistente a redimensionamento: exige 16 faixas, "
-                    "mesma ordem cromática, cores representativas compatíveis, razão de aspecto "
-                    "compatível e geometria relativa normalizada compatível. SHA-256 e dimensão "
-                    "absoluta são auditoria; mudança estrutural real bloqueia RGB→faixa dBZ."
-                ),
-            },
-            "diagnostico_128": (
-                "Estrutura normalizada da legenda validada; RGB→faixa dBZ liberado pela #169.2. C1-C16 são IDs internos do Monitor."
-                if estrutura_ok
-                else "Estrutura normalizada da legenda divergiu; dBZ bloqueado por fail-closed #169.2."
-            ),
-            "dbz_numerico": "validado_por_faixa" if estrutura_ok else "bloqueado_fail_closed",
-            "dbz_numerico_validado": estrutura_ok,
-            "mm_h_validado": False,
-            "equivale_chuva_medida": False,
-        }
+        return {"status":"online","fonte":"legenda oficial RadarSC","produto":"COMP / C-MAX",
+                "dimensoes_px":{"largura":imagem.width,"altura":imagem.height},"sha256":sha,
+                "quantidade_classes":len(classes),"classes":classes,
+                "validacao_169":{"status":"validada" if estrutura_ok else "invalidada_fail_closed",
+                    "rgb_para_faixa_dbz_validado":estrutura_ok,"sha256_esperado":sha_esperado,
+                    "dimensoes_esperadas_px":{"largura":1536,"altura":152},"classes_esperadas":16,
+                    "regra":"Mudança de SHA, dimensões, RGB ou geometria invalida a associação numérica até nova revisão."},
+                "diagnostico_128":("RGB, geometria e faixas dBZ validados; C1-C16 são IDs internos do Monitor."
+                    if estrutura_ok else "Legenda mudou; dBZ bloqueado por fail-closed #169."),
+                "dbz_numerico":"validado_por_faixa" if estrutura_ok else "bloqueado_fail_closed",
+                "dbz_numerico_validado":estrutura_ok,"mm_h_validado":False,"equivale_chuva_medida":False}
     except Exception as e:
-        return {
-            "status": "indisponivel",
-            "erro": str(e),
-            "dbz_numerico_validado": False,
-            "validacao_169": {
-                "versao": "#169.2",
-                "status": "invalidada_fail_closed",
-                "rgb_para_faixa_dbz_validado": False,
-                "motivos_bloqueio": ["erro_extracao_legenda"],
-            },
-        }
-
-
+        return {"status":"indisponivel","erro":str(e),"dbz_numerico_validado":False}
+ 
+ 
 # =========================================================
 # #127 - VALIDACAO CRUZADA LEGENDA x PALETA DO RADAR
 # =========================================================
-
+ 
 def validar_paleta_radar(legenda_oficial, quadros_validos):
     """
     #127
@@ -5464,8 +5302,8 @@ def construir_dicionario_cores_130(legenda_oficial):
         "fonte_cores":"legenda oficial RadarSC baixada em cada execução","produto_monitor":"COMP / C-MAX","classes":saida,
         "regra_seguranca":"RGB→faixa dBZ só é publicado com #169 íntegra. dBZ é refletividade; não é chuva medida. mm/h permanece bloqueado sem relação Z-R validada.",
         "dbz_numerico_validado":dbz_ok,"mm_h_validado":False,"equivale_chuva_medida":False,"eta_liberado":False}
-
-
+ 
+ 
 def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
     dicionario = construir_dicionario_cores_130(legenda_oficial)
     mapa = {tuple(x["rgb"]): x for x in dicionario.get("classes", []) if x.get("rgb")}
@@ -12976,7 +12814,7 @@ def calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_v019):
         "uso_operacional_alerta_liberado": False,
     }
  
-
+ 
 # =========================================================
 # #168 - LIBERACAO EXPERIMENTAL INTEGRADA
 # FORTRACC/TATHU + RADARSC + GXA-V0.21 + MARE
@@ -12984,31 +12822,31 @@ def calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_v019):
 # Esta camada publica os resultados matematicos autorizados pelo projeto sem
 # alterar a natureza das fontes: modelo != sensor; radar != pluviometro;
 # alerta do Monitor != alerta oficial da Defesa Civil.
-
+ 
 FORTRACC_168_VALIDACAO = {
     30: {"n": 242, "total": 332, "taxa_associacao_pct": 72.9, "erro_mediano_km": 23.917, "p90_km": 68.037},
     60: {"n": 211, "total": 332, "taxa_associacao_pct": 63.6, "erro_mediano_km": 47.564, "p90_km": 113.963},
     90: {"n": 165, "total": 332, "taxa_associacao_pct": 49.7, "erro_mediano_km": 64.300, "p90_km": 121.190},
     120:{"n": 134, "total": 332, "taxa_associacao_pct": 40.4, "erro_mediano_km": 86.088, "p90_km": 136.164},
 }
-
-
+ 
+ 
 def _num168(v):
     return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(float(v))
-
-
+ 
+ 
 def _ang168(a, b):
     return abs((float(a) - float(b) + 180.0) % 360.0 - 180.0)
-
-
+ 
+ 
 def _bearing168(lat1, lon1, lat2, lon2):
     p1, p2 = math.radians(lat1), math.radians(lat2)
     dl = math.radians(lon2 - lon1)
     y = math.sin(dl) * math.cos(p2)
     x = math.cos(p1)*math.sin(p2) - math.sin(p1)*math.cos(p2)*math.cos(dl)
     return (math.degrees(math.atan2(y, x)) + 360.0) % 360.0
-
-
+ 
+ 
 def estimativa_radar_quantitativa_168(radar):
     """Usa faixa dBZ validada #169; não converte refletividade em mm/h."""
     base={"versao":"#168+#169","status":"indisponivel","natureza":"REFLETIVIDADE_RADAR_OFICIAL_COM_INTERPRETACAO_EXPERIMENTAL",
@@ -13039,8 +12877,8 @@ def estimativa_radar_quantitativa_168(radar):
         return base
     except Exception as e:
         base["erro"]=str(e)[:180]; return base
-
-
+ 
+ 
 def eta_fortracc_tathu_168(tathu):
     base = {
         "versao":"#168", "status":"sem_eta_calculavel", "eta_experimental_liberado":True,
@@ -13087,8 +12925,8 @@ def eta_fortracc_tathu_168(tathu):
         "sistema_base":c["sistema"],
     })
     return base
-
-
+ 
+ 
 def indice_confianca_168(radar_est, eta, nivel, tathu):
     pontos=0; maxp=0; motivos=[]
     for peso, ok, nome in [
@@ -13103,8 +12941,8 @@ def indice_confianca_168(radar_est, eta, nivel, tathu):
     classe="alta_experimental" if pct>=80 else "moderada_experimental" if pct>=55 else "baixa_experimental"
     return {"versao":"#168","indice_0_100":pct,"classe":classe,"componentes_disponiveis":motivos,
             "regra":"indice de completude/coerencia das entradas; nao e probabilidade estatistica de acerto"}
-
-
+ 
+ 
 def alerta_experimental_monitor_168(radar_est, eta, nivel, mare_obs, mare_prev, confianca):
     score=0; evid=[]
     if (radar_est or {}).get("status")=="estimativa_disponivel":
@@ -13139,8 +12977,8 @@ def alerta_experimental_monitor_168(radar_est, eta, nivel, mare_obs, mare_prev, 
         "regra_seguranca":"Nao e alerta oficial da Defesa Civil. Use comunicacoes oficiais e 199/193 em emergencia.",
         "limiares_modelo":{"nivel_modelado_m":[1.75,2.0],"mare_m":[1.5,1.8],"score":[3,6,9]},
     }
-
-
+ 
+ 
 def construir_liberacao_experimental_168(radar, tathu, nivel, mare_obs, mare_prev):
     radar_est=estimativa_radar_quantitativa_168(radar)
     eta=eta_fortracc_tathu_168(tathu)
@@ -13165,7 +13003,7 @@ def construir_liberacao_experimental_168(radar, tathu, nivel, mare_obs, mare_pre
             "Dados ausentes permanecem ausentes e nunca sao convertidos em zero.",
         ],
     }
-
+ 
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_epagri165 = buscar_chuva_epagri_165()
@@ -13233,7 +13071,7 @@ def main():
  
         "investigacao_radarsc_128":
             investigar_fonte_radarsc(),
-
+ 
         "goes19_tathu_167":
             goes19_tathu167,
  
@@ -13279,10 +13117,10 @@ def main():
  
             "natureza_nivel_estimado":
                 "MODELADO_NAO_INSTRUMENTAL",
-
+ 
             "nivel_modelado_liberado":
                 True,
-
+ 
             "observacao_nivel":
                 "nivel_m observado permanece None sem sensor publico confirmado",
         },
@@ -13298,7 +13136,7 @@ def main():
  
         "radar":
             radar_atual,
-
+ 
         "liberacao_experimental_168":
             liberacao168,
         "granizo": granizo157,

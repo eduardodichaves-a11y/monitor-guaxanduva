@@ -155,7 +155,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="radar-item">📊 Confiança do conjunto<b id="exp168Confianca">--</b></div>
 <div class="radar-item">🌊 Nível modelado<b id="exp168Nivel">--</b></div>
 <div class="radar-item">📈 Tendência modelada<b id="exp168Tendencia">--</b></div>
-<div class="radar-item">📡 Intensidade por radar<b id="exp168Radar">--</b></div>
+<div class="radar-item">📡 Refletividade RadarSC<b id="exp168Radar">--</b></div>
 <div class="radar-item">🧪 Alerta automático<b id="exp168Alerta">--</b></div>
 </div>
 
@@ -163,7 +163,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="exp168NivelDetalhe" class="box"><small>Carregando faixa e natureza do nível...</small></div>
 <div id="exp168Validacao" class="box"><small>Carregando validação histórica do ETA...</small></div>
 <div id="exp168AlertaDetalhe" class="box"><small>Carregando evidências do alerta experimental...</small></div>
-<div id="exp168RadarDetalhe" class="box"><small>Carregando estimativa quantitativa experimental do radar...</small></div>
+<div id="exp168RadarDetalhe" class="box"><small>Carregando faixa de refletividade do radar...</small></div>
 
 <div class="box"><small><b>Distinções obrigatórias:</b> ETA é nowcast experimental; intensidade derivada do radar não é chuva medida; o nível do Guaxanduva é MODELADO/NÃO INSTRUMENTAL; o alerta automático do Monitor é experimental e não substitui a Defesa Civil; dados ausentes permanecem ausentes e nunca são convertidos em zero.</small></div>
 </section>
@@ -197,18 +197,19 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="ecoQualEstado" class="box aviso">Carregando classificação das cores...</div>
 <div class="radar-grid">
 <div class="radar-item">🎨 Família de cor<b id="ecoQualCor">--</b></div>
-<div class="radar-item">🧩 Classe oficial<b id="ecoQualClasse">--</b></div>
+<div class="radar-item">🧩 Classe interna do Monitor<b id="ecoQualClasse">--</b></div>
 <div class="radar-item">📍 Menor raio com eco<b id="ecoQualRaio">--</b></div>
+<div class="radar-item">📡 Faixa RadarSC<b id="ecoQualDbz">--</b></div>
 <div class="radar-item">🔎 Pixels oficiais<b id="ecoQualPixels">--</b></div>
 </div>
 <div id="ecoQualInterpretacao" class="box aviso">Aguardando diagnóstico qualitativo...</div>
-<small>DETECTADO POR RADAR. A cor é comparada com a legenda oficial do RadarSC. A categoria de intensidade é qualitativa; não representa chuva medida no solo, não atribui mm/h e não converte a cor em dBZ numérico. Se o quadro estiver desatualizado, a detecção também é antiga.</small>
+<small>DETECTADO POR RADAR. O RGB é comparado com a legenda oficial do RadarSC. C1–C16 são índices internos do Monitor. A faixa dBZ só é exibida quando a validação #169 está íntegra; dBZ é refletividade do radar, não chuva medida no solo, e não é convertido em mm/h.</small>
 </section>
  
 <section class="card">
 <div class="local">🎨 VALIDAÇÃO RADARSC • EXPERIMENTAL</div>
 <h2>Legenda oficial × paleta dos quadros</h2>
-<div class="sub">Diagnóstico estrutural #125 • correspondência RGB observada nos PNGs do radar</div>
+<div class="sub">Diagnóstico estrutural #125 + validação numérica fail-closed #169</div>
 <div class="radar-grid">
 <div class="radar-item">🎯 Compatibilidade RGB<b id="paletaStatus">--</b></div>
 <div class="radar-item">🧩 Classes observadas<b id="paletaClasses">--</b></div>
@@ -216,7 +217,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="radar-item">🛡️ ETA automático liberado?<b id="paletaEta">NÃO</b></div>
 </div>
 <div id="paletaEstado" class="box aviso">Carregando validação da paleta...</div>
-<small>Compatibilidade RGB confirma apenas que cores da legenda oficial aparecem na estrutura dos PNGs analisados. Isso não atribui valores numéricos de dBZ, não equivale a chuva medida e não libera ETA automaticamente.</small>
+<small>A #169 valida RGB → faixa dBZ somente quando SHA-256, dimensões, 16 segmentos, RGB e geometria da legenda oficial permanecem exatamente iguais à referência validada. Qualquer mudança bloqueia os valores numéricos. dBZ não equivale a chuva medida e mm/h permanece bloqueado.</small>
 </section>
  
 <section class="card">
@@ -515,29 +516,37 @@ async function carregar(){
   if(escolhido){
    const cls=(escolhido.classes_presentes||[])[0]||{};
    const fam=(escolhido.familias_cor||[])[0]||{};
+   const leg=rad.legenda_oficial||{}, v169=leg.validacao_169||{}, mapaDbz={};
+   (leg.classes||[]).forEach(x=>{if(x&&x.classe!=null)mapaDbz[Number(x.classe)]=x});
+   const infoDbz=cls.classe==null?null:mapaDbz[Number(cls.classe)];
+   const dbzOk=leg.dbz_numerico_validado===true&&v169.rgb_para_faixa_dbz_validado===true&&infoDbz&&infoDbz.dbz_min!=null&&infoDbz.dbz_max!=null;
    $("ecoQualCor").textContent=nomeFamilia(fam.familia);
-   $("ecoQualClasse").textContent=cls.classe==null?"--":"CLASSE "+cls.classe;
+   $("ecoQualClasse").textContent=cls.classe==null?"--":"C"+cls.classe+" • ÍNDICE INTERNO";
+   $("ecoQualDbz").textContent=dbzOk?f(infoDbz.dbz_min,1)+"–"+f(infoDbz.dbz_max,1)+" dBZ":"BLOQUEADA";
    $("ecoQualRaio").textContent="≤ "+escolhido.raio+" km";
    $("ecoQualPixels").textContent=escolhido.pixels_oficiais_classificados??"--";
    const fresco=rad.dados_frescos===true;
    $("ecoQualEstado").innerHTML=fresco?'<span class="ok">🟢 ECO OFICIAL DETECTADO</span> • RGB idêntico à legenda RadarSC':'<span class="aviso">🟡 ECO OFICIAL DETECTADO EM QUADRO DESATUALIZADO</span>';
    $("ecoQualInterpretacao").innerHTML='<b>'+textoCategoria(fam.categoria)+'</b><br><small>Raio mostrado = menor raio em que a #130 encontrou pixel de classe oficial. Não significa que esteja chovendo no ponto de referência.</small>';
   }else if(cq.status){
-   $("ecoQualCor").textContent="SEM ECO OFICIAL";$("ecoQualClasse").textContent="NÃO APLICÁVEL";$("ecoQualRaio").textContent="NENHUM ≤ 25 km";$("ecoQualPixels").textContent="0";
+   $("ecoQualCor").textContent="SEM ECO OFICIAL";$("ecoQualClasse").textContent="NÃO APLICÁVEL";$("ecoQualDbz").textContent="NÃO APLICÁVEL";$("ecoQualRaio").textContent="NENHUM ≤ 25 km";$("ecoQualPixels").textContent="0";
    $("ecoQualEstado").innerHTML='<span class="aviso">⚪ Nenhum RGB oficial detectado até 25 km neste quadro</span>';
    $("ecoQualInterpretacao").innerHTML='<small>Ausência de eco oficial nesta busca não prova ausência de chuva no solo.</small>';
   }else{
    $("ecoQualEstado").innerHTML='<span class="erro">🔴 Diagnóstico qualitativo #130 indisponível</span>';
   }
  
-  const vp=rad.validacao_paleta_radar||{};
+  const vp=rad.validacao_paleta_radar||{}, leg169=rad.legenda_oficial||{}, v169=leg169.validacao_169||{};
   const compat=vp.status==="compatibilidade_rgb_observada";
+  const dbz169=leg169.dbz_numerico_validado===true&&v169.rgb_para_faixa_dbz_validado===true;
   $("paletaStatus").textContent=vp.status?(compat?"OBSERVADA":"NÃO OBSERVADA"):"--";
   $("paletaClasses").textContent=vp.classes_legenda_total==null?"--":(vp.classes_legenda_observadas??0)+" de "+vp.classes_legenda_total;
-  $("paletaDbz").textContent=vp.dbz_numerico_validado?"SIM":"NÃO";
+  $("paletaDbz").textContent=dbz169?"SIM • #169":"NÃO";
   $("paletaEta").textContent=vp.eta_liberado?"SIM":"NÃO";
-  if(!vp.status){$("paletaEstado").innerHTML='<span class="aviso">🟡 Diagnóstico da paleta ainda não recebido</span>'}
-  else if(compat){$("paletaEstado").innerHTML='<span class="ok">🟢 Compatibilidade estrutural RGB observada</span> • dBZ numérico e ETA continuam bloqueados'}
+  if(v169.status==="invalidada_fail_closed"){$("paletaEstado").innerHTML='<span class="erro">🔴 #169 FAIL-CLOSED</span> • legenda oficial mudou; faixas dBZ bloqueadas'}
+  else if(dbz169&&compat){$("paletaEstado").innerHTML='<span class="ok">🟢 RGB → FAIXA dBZ VALIDADO • #169</span> • compatibilidade estrutural observada • mm/h e ETA continuam bloqueados'}
+  else if(!vp.status){$("paletaEstado").innerHTML='<span class="aviso">🟡 Diagnóstico da paleta ainda não recebido</span>'}
+  else if(compat){$("paletaEstado").innerHTML='<span class="aviso">🟡 Compatibilidade RGB observada</span> • aguardando validação numérica #169'}
   else{$("paletaEstado").innerHTML='<span class="aviso">🟡 Sem correspondência RGB observada nesta amostra</span> • continuar coletando evidências'}
  
   const ce=c.estacao_selecionada||{},cop=d.chuva_observada_cemaden_144||{};
@@ -821,7 +830,7 @@ async function carregar(){
     const classes=(escolhido.classes_presentes||[]).map(x=>"C"+String(x.classe)).join(", ");
     $("dashRadarEco").innerHTML='<span class="ok">● ECO OFICIAL DETECTADO ≤ '+escolhido.raio+' km</span> • '+nomeFamilia(famDash.familia||"família não informada")+(classes?' • '+classes:'')+'<br><small>'+significadoRadar(famDash.familia)+'</small>';
   }else if(cq.status){
-    $("dashRadarEco").innerHTML='<span class="aviso">○ SEM ECO OFICIAL DETECTADO ≤ 25 km</span> • nenhuma classe C1–C16 detectada';
+    $("dashRadarEco").innerHTML='<span class="aviso">○ SEM ECO OFICIAL DETECTADO ≤ 25 km</span> • nenhum índice interno C1–C16 detectado';
   }else{
     $("dashRadarEco").innerHTML='<span class="erro">Classificação qualitativa #130 indisponível</span>';
   }
@@ -894,9 +903,8 @@ async function carregar(){
    ?nomeFamilia(tend168.classe)+(tend168.cm_h==null?"":" • "+(Number(tend168.cm_h)>=0?"+":"")+f(tend168.cm_h,1)+" cm/h")
    :"INDISPONÍVEL";
 
-  if(radar168.faixa_mm_h_experimental!=null){
-   const fx=radar168.faixa_mm_h_experimental;
-   $("exp168Radar").textContent=Array.isArray(fx)?fx.join("–")+" mm/h":String(fx);
+  if(radar168.faixa_dbz&&radar168.faixa_dbz.min!=null&&radar168.faixa_dbz.max!=null){
+   $("exp168Radar").textContent=f(radar168.faixa_dbz.min,1)+"–"+f(radar168.faixa_dbz.max,1)+" dBZ";
   }else{
    $("exp168Radar").textContent=radar168.status==="indisponivel"?"INDISPONÍVEL":(radar168.status?nomeFamilia(radar168.status):"INDISPONÍVEL");
   }
@@ -931,11 +939,13 @@ async function carregar(){
    :'<span class="aviso">⚪ Alerta experimental indisponível nesta coleta.</span>';
 
   $("exp168RadarDetalhe").innerHTML=radar168.status==="indisponivel"
-   ?'<span class="aviso">⚪ ESTIMATIVA QUANTITATIVA EXPERIMENTAL INDISPONÍVEL</span><br><small>A função está integrada, mas esta coleta não forneceu classe local suficiente para uma faixa defensável. Nenhum valor foi fabricado. '+(radar168.aviso||"")+'</small>'
+   ?'<span class="aviso">⚪ REFLETIVIDADE RADAR INDISPONÍVEL</span><br><small>Esta coleta não forneceu classe local suficiente. Nenhum valor foi fabricado. '+(radar168.aviso||"")+'</small>'
    :'<b>📡 '+nomeFamilia(radar168.status||"experimental")+'</b><br><small>Natureza: '+nomeFamilia(radar168.natureza)+
-     '<br>Classe: '+(radar168.classe_radar??"--")+
-     '<br>Índice: '+(radar168.indice_intensidade_0_100??"--")+
-     '<br>'+(radar168.aviso||"Estimativa matemática experimental; não é chuva medida.")+'</small>';
+     '<br>Classe interna: '+(radar168.classe_radar==null?"--":"C"+radar168.classe_radar)+
+     (radar168.faixa_dbz&&radar168.faixa_dbz.min!=null&&radar168.faixa_dbz.max!=null?'<br>Faixa RadarSC: <b>'+f(radar168.faixa_dbz.min,1)+'–'+f(radar168.faixa_dbz.max,1)+' dBZ</b>':'')+
+     '<br>Índice experimental: '+(radar168.indice_intensidade_0_100??"--")+
+     '<br><b>mm/h:</b> NÃO ATRIBUÍDO • conversão Z–R não validada'+
+     '<br>'+(radar168.aviso||"dBZ é refletividade do radar; não é chuva medida.")+'</small>';
 
 
   const dias=Array.isArray(p.proximos_7_dias)?p.proximos_7_dias:[];

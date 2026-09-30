@@ -414,13 +414,15 @@ def buscar_goes19_tathu_167():
         "cadencia_consulta_min": 10,
         "janela_busca_retrospectiva_min": 240,
         "tentativas": tentativas,
-        "eta_liberado": False,
+        "eta_liberado": True,
+        "eta_natureza": "EXPERIMENTAL_MODELADO",
         "uso_operacional_alerta_liberado": False,
+        "uso_alerta_experimental_monitor_liberado": True,
         "equivale_chuva_medida_solo": False,
         "regra_seguranca": (
             "TATHU/GOES-19 é evidência remota de sistemas convectivos. "
             "Indisponibilidade não significa ausência de tempestade; GLM/satélite não equivalem a chuva no solo. "
-            "Velocidade, direção e geometrias previstas permanecem experimentais no Monitor até validação histórica independente."
+            "Velocidade, direção e geometrias previstas alimentam o nowcast experimental #168; não constituem observação nem alerta oficial."
         ),
     }
 
@@ -466,7 +468,7 @@ def buscar_goes19_tathu_167():
         "sistemas": relevantes,
         "observacao": (
             "O recorte de 250 km serve apenas para triagem e armazenamento de evidência. "
-            "Não representa zona de risco nem autoriza ETA público."
+            "Não representa zona de risco; o ETA experimental público é calculado separadamente pela camada #168 com incerteza explícita."
         ),
     }
 
@@ -12905,6 +12907,213 @@ def calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_v019):
         "uso_operacional_alerta_liberado": False,
     }
  
+
+# =========================================================
+# #168 - LIBERACAO EXPERIMENTAL INTEGRADA
+# FORTRACC/TATHU + RADARSC + GXA-V0.21 + MARE
+# =========================================================
+# Esta camada publica os resultados matematicos autorizados pelo projeto sem
+# alterar a natureza das fontes: modelo != sensor; radar != pluviometro;
+# alerta do Monitor != alerta oficial da Defesa Civil.
+
+FORTRACC_168_VALIDACAO = {
+    30: {"n": 242, "total": 332, "taxa_associacao_pct": 72.9, "erro_mediano_km": 23.917, "p90_km": 68.037},
+    60: {"n": 211, "total": 332, "taxa_associacao_pct": 63.6, "erro_mediano_km": 47.564, "p90_km": 113.963},
+    90: {"n": 165, "total": 332, "taxa_associacao_pct": 49.7, "erro_mediano_km": 64.300, "p90_km": 121.190},
+    120:{"n": 134, "total": 332, "taxa_associacao_pct": 40.4, "erro_mediano_km": 86.088, "p90_km": 136.164},
+}
+
+
+def _num168(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(float(v))
+
+
+def _ang168(a, b):
+    return abs((float(a) - float(b) + 180.0) % 360.0 - 180.0)
+
+
+def _bearing168(lat1, lon1, lat2, lon2):
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dl = math.radians(lon2 - lon1)
+    y = math.sin(dl) * math.cos(p2)
+    x = math.cos(p1)*math.sin(p2) - math.sin(p1)*math.cos(p2)*math.cos(dl)
+    return (math.degrees(math.atan2(y, x)) + 360.0) % 360.0
+
+
+def estimativa_radar_quantitativa_168(radar):
+    """Estimativa matematica por classe ordinal do RadarSC; nao e medicao."""
+    base = {
+        "versao": "#168", "status": "indisponivel",
+        "natureza": "ESTIMATIVA_MATEMATICA_EXPERIMENTAL_NAO_INSTRUMENTAL",
+        "equivale_chuva_medida": False, "dbz_oficial_atribuido": False,
+        "metodo": "classe_ordinal_RadarSC_para_faixa_ampla_de_intensidade",
+        "faixa_mm_h_experimental": None, "indice_intensidade_0_100": None,
+        "classe_radar": None,
+        "aviso": "Faixa experimental do Monitor. Nao e dBZ oficial nem leitura de pluviometro."
+    }
+    try:
+        quadros = (radar or {}).get("quadros") or []
+        if not quadros:
+            return base
+        q = quadros[-1]
+        d = q.get("classificacao_qualitativa_local_130") or q.get("eco_oficial_local_129") or {}
+        eco = d.get("eco_oficial_mais_proximo") or {}
+        classe = eco.get("classe")
+        if not _num168(classe):
+            # fallback: maior classe presente no raio de 25 km
+            por = d.get("por_raio") or {}
+            r25 = por.get("25") or por.get(25) or {}
+            presentes = r25.get("classes_presentes") or r25.get("classes") or []
+            cs = [x.get("classe") for x in presentes if isinstance(x, dict) and _num168(x.get("classe"))]
+            classe = max(cs) if cs else None
+        if not _num168(classe):
+            return base
+        c = max(1, min(16, int(classe)))
+        # Hipotese ordinal deliberadamente larga. Evita fingir uma calibracao RGB->dBZ inexistente.
+        faixas = {
+            1:(0.0,0.5), 2:(0.1,1.0), 3:(0.2,2.0), 4:(0.5,3.0),
+            5:(1.0,5.0), 6:(2.0,7.5), 7:(3.0,10.0), 8:(5.0,15.0),
+            9:(7.5,20.0), 10:(10.0,30.0), 11:(15.0,40.0), 12:(20.0,50.0),
+            13:(30.0,65.0), 14:(40.0,80.0), 15:(50.0,100.0), 16:(60.0,120.0),
+        }
+        lo, hi = faixas[c]
+        base.update({
+            "status":"estimativa_disponivel", "classe_radar":c,
+            "indice_intensidade_0_100":round((c-1)/15*100,1),
+            "faixa_mm_h_experimental":{"min":lo,"max":hi},
+            "hipotese_calibracao":"faixas_ordinais_amplas_definidas_pelo_modelo_168; nao derivadas de dBZ oficial",
+        })
+        return base
+    except Exception as e:
+        base["erro"] = str(e)[:180]
+        return base
+
+
+def eta_fortracc_tathu_168(tathu):
+    base = {
+        "versao":"#168", "status":"sem_eta_calculavel", "eta_experimental_liberado":True,
+        "natureza":"NOWCAST_EXPERIMENTAL", "destino":"Comasa - coordenada publica aproximada",
+        "eta_min":None, "janela_eta_min":None, "confianca":"indeterminada",
+        "validacao_historica_condicional":FORTRACC_168_VALIDACAO,
+        "nota_validacao":"Erros historicos condicionais as associacoes aceitas pela triagem #168; distribuicao truncada pelo gate de 150 km.",
+    }
+    sistemas = (tathu or {}).get("sistemas") or []
+    candidatos=[]
+    for x in sistemas:
+        lat=x.get("latitude"); lon=x.get("longitude"); vel=x.get("velocidade")
+        if vel is None: vel=x.get("Vel")
+        dire=x.get("direcao")
+        if dire is None: dire=x.get("Dir")
+        dist=x.get("distancia_comasa_km")
+        if not all(_num168(v) for v in (lat,lon,vel,dire,dist)) or float(vel) <= 1:
+            continue
+        rumo=_bearing168(float(lat),float(lon),LAT,LON)
+        dif=_ang168(float(dire),rumo)
+        # Somente sistemas com vetor apontando aproximadamente para a referencia.
+        if dif > 60:
+            continue
+        eta=float(dist)/float(vel)*60.0
+        if eta < 0 or eta > 180:
+            continue
+        h=min((30,60,90,120), key=lambda z: abs(z-eta))
+        ev=FORTRACC_168_VALIDACAO[h]
+        margem=ev["p90_km"]/float(vel)*60.0
+        candidatos.append({"eta":eta,"margem":margem,"h":h,"dist":float(dist),"vel":float(vel),"dir":float(dire),"dif":dif,"sistema":x,"ev":ev})
+    if not candidatos:
+        return base
+    c=min(candidatos,key=lambda z:z["eta"])
+    lo=max(0.0,c["eta"]-c["margem"]); hi=c["eta"]+c["margem"]
+    taxa=c["ev"]["taxa_associacao_pct"]
+    conf="moderada_experimental" if c["h"]<=60 and taxa>=60 else "baixa_experimental"
+    base.update({
+        "status":"eta_experimental_calculado", "eta_min":round(c["eta"],1),
+        "janela_eta_min":{"min":round(lo,1),"max":round(hi,1)}, "confianca":conf,
+        "horizonte_validacao_mais_proximo_min":c["h"], "erro_p90_condicional_km":c["ev"]["p90_km"],
+        "taxa_associacao_historica_pct":taxa, "distancia_atual_km":round(c["dist"],1),
+        "velocidade_movimento_km_h":round(c["vel"],1), "direcao_movimento_graus":round(c["dir"],1),
+        "diferenca_angular_para_comasa_graus":round(c["dif"],1),
+        "sistema_base":c["sistema"],
+    })
+    return base
+
+
+def indice_confianca_168(radar_est, eta, nivel, tathu):
+    pontos=0; maxp=0; motivos=[]
+    for peso, ok, nome in [
+        (25,(radar_est or {}).get("status")=="estimativa_disponivel","radar"),
+        (25,(eta or {}).get("status")=="eta_experimental_calculado","eta"),
+        (30,(nivel or {}).get("status")=="nivel_modelado_calculado","nivel_modelado"),
+        (20,(tathu or {}).get("status") in ("online","atrasado"),"tathu"),
+    ]:
+        maxp+=peso
+        if ok: pontos+=peso; motivos.append(nome)
+    pct=round(100*pontos/maxp,1) if maxp else 0
+    classe="alta_experimental" if pct>=80 else "moderada_experimental" if pct>=55 else "baixa_experimental"
+    return {"versao":"#168","indice_0_100":pct,"classe":classe,"componentes_disponiveis":motivos,
+            "regra":"indice de completude/coerencia das entradas; nao e probabilidade estatistica de acerto"}
+
+
+def alerta_experimental_monitor_168(radar_est, eta, nivel, mare_obs, mare_prev, confianca):
+    score=0; evid=[]
+    if (radar_est or {}).get("status")=="estimativa_disponivel":
+        idx=radar_est.get("indice_intensidade_0_100") or 0
+        if idx>=75: score+=3; evid.append("eco_radar_intenso")
+        elif idx>=50: score+=2; evid.append("eco_radar_moderado")
+        elif idx>0: score+=1; evid.append("eco_radar_presente")
+    if (eta or {}).get("status")=="eta_experimental_calculado":
+        em=eta.get("eta_min")
+        if _num168(em) and em<=60: score+=3; evid.append("sistema_em_aproximacao_ate_60min")
+        elif _num168(em) and em<=120: score+=2; evid.append("sistema_em_aproximacao_ate_120min")
+    if (nivel or {}).get("status")=="nivel_modelado_calculado":
+        h=nivel.get("nivel_estimado_m"); tend=(nivel.get("tendencia") or {}).get("classe")
+        if _num168(h) and h>=2.0: score+=3; evid.append("nivel_modelado_elevado")
+        elif _num168(h) and h>=1.75: score+=2; evid.append("nivel_modelado_acima_da_base")
+        if tend=="subindo": score+=2; evid.append("nivel_modelado_subindo")
+    mares=[]
+    for v in [(mare_obs or {}).get("nivel_m"),(mare_prev or {}).get("pico_previsto_m")]:
+        if _num168(v): mares.append(float(v))
+    if mares:
+        m=max(mares)
+        if m>=1.8: score+=3; evid.append("mare_alta_1_8m_ou_mais")
+        elif m>=1.5: score+=2; evid.append("mare_1_5m_ou_mais")
+    if score>=9: classe="ALERTA_EXPERIMENTAL"
+    elif score>=6: classe="ATENCAO_EXPERIMENTAL"
+    elif score>=3: classe="OBSERVACAO_EXPERIMENTAL"
+    else: classe="SEM_GATILHO_EXPERIMENTAL"
+    return {
+        "versao":"#168", "status":"calculado", "classe":classe, "score":score,
+        "evidencias":evid, "confianca_modelo":(confianca or {}).get("classe"),
+        "oficial_defesa_civil":False, "natureza":"ALERTA_AUTOMATICO_MODELADO_EXPERIMENTAL",
+        "regra_seguranca":"Nao e alerta oficial da Defesa Civil. Use comunicacoes oficiais e 199/193 em emergencia.",
+        "limiares_modelo":{"nivel_modelado_m":[1.75,2.0],"mare_m":[1.5,1.8],"score":[3,6,9]},
+    }
+
+
+def construir_liberacao_experimental_168(radar, tathu, nivel, mare_obs, mare_prev):
+    radar_est=estimativa_radar_quantitativa_168(radar)
+    eta=eta_fortracc_tathu_168(tathu)
+    conf=indice_confianca_168(radar_est,eta,nivel,tathu)
+    alerta=alerta_experimental_monitor_168(radar_est,eta,nivel,mare_obs,mare_prev,conf)
+    return {
+        "versao":"#168-LIBERACAO-EXPERIMENTAL", "status":"ativo",
+        "eta_fortracc_tathu":eta, "radar_estimativa_quantitativa":radar_est,
+        "nivel_guaxanduva_modelado":nivel, "indice_confianca":conf,
+        "alerta_automatico_monitor":alerta,
+        "proveniencia":{
+            "fortracc_validacao":"332 T0 / 1328 horizontes; 752 associacoes validas pela triagem automatica #168",
+            "radar":"RadarSC/Defesa Civil SC; conversao quantitativa e hipotese matematica do Monitor",
+            "nivel":"GXA-V0.21; modelado nao instrumental",
+            "mare":"EPAGRI/CIRAM observada e pico previsto #164 quando disponiveis",
+        },
+        "distincoes_obrigatorias":[
+            "ETA e nowcast experimental, nao observacao.",
+            "Faixa mm/h de radar e estimativa matematica, nao chuva medida.",
+            "Nivel do Guaxanduva e modelado; nivel observado permanece indisponivel sem sensor confirmado.",
+            "Alerta automatico do Monitor e experimental e nao substitui a Defesa Civil.",
+            "Dados ausentes permanecem ausentes e nunca sao convertidos em zero.",
+        ],
+    }
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_epagri165 = buscar_chuva_epagri_165()
@@ -12923,6 +13132,10 @@ def main():
     hidrologia_guaxanduva_v019 = calcular_hidrologia_guaxanduva_v019()
     nivel_guaxanduva_v021 = calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_guaxanduva_v019)
     goes19_tathu167 = buscar_goes19_tathu_167()
+    radar_atual = buscar_radar()
+    liberacao168 = construir_liberacao_experimental_168(
+        radar_atual, goes19_tathu167, nivel_guaxanduva_v021, mare_observada160, mare_prevista164
+    )
     dados = {
         "monitor":
             "Monitor Guaxanduva",
@@ -13014,6 +13227,12 @@ def main():
  
             "natureza_nivel_estimado":
                 "MODELADO_NAO_INSTRUMENTAL",
+
+            "nivel_modelado_liberado":
+                True,
+
+            "observacao_nivel":
+                "nivel_m observado permanece None sem sensor publico confirmado",
         },
  
         "previsao":
@@ -13026,7 +13245,10 @@ def main():
             criterio163,
  
         "radar":
-            buscar_radar(),
+            radar_atual,
+
+        "liberacao_experimental_168":
+            liberacao168,
         "granizo": granizo157,
  
         "diagnostico_wis2_inmet_149": diagnosticar_wis2_inmet_149(),

@@ -137,6 +137,30 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="dash-muted" style="margin-top:8px">⚠️ O nível do Guaxanduva exibido no dashboard é MODELADO/NÃO INSTRUMENTAL enquanto não houver sensor público confirmado.</div>
 </section>
  
+
+<section class="card" id="liberacao168Card">
+<div class="local">🧪 LIBERAÇÃO EXPERIMENTAL • #168</div>
+<h2>Nowcast, nível modelado, confiança e alerta do Monitor</h2>
+<div class="sub">Camada experimental integrada • modelo ≠ observação • alerta do Monitor ≠ alerta oficial da Defesa Civil</div>
+
+<div class="radar-grid">
+<div class="radar-item">🧭 ETA FORTRACC/TATHU<b id="exp168Eta">--</b></div>
+<div class="radar-item">📊 Confiança do conjunto<b id="exp168Confianca">--</b></div>
+<div class="radar-item">🌊 Nível modelado<b id="exp168Nivel">--</b></div>
+<div class="radar-item">📈 Tendência modelada<b id="exp168Tendencia">--</b></div>
+<div class="radar-item">📡 Intensidade por radar<b id="exp168Radar">--</b></div>
+<div class="radar-item">🧪 Alerta automático<b id="exp168Alerta">--</b></div>
+</div>
+
+<div id="exp168Estado" class="box aviso">Carregando liberação experimental #168...</div>
+<div id="exp168NivelDetalhe" class="box"><small>Carregando faixa e natureza do nível...</small></div>
+<div id="exp168Validacao" class="box"><small>Carregando validação histórica do ETA...</small></div>
+<div id="exp168AlertaDetalhe" class="box"><small>Carregando evidências do alerta experimental...</small></div>
+<div id="exp168RadarDetalhe" class="box"><small>Carregando estimativa quantitativa experimental do radar...</small></div>
+
+<div class="box"><small><b>Distinções obrigatórias:</b> ETA é nowcast experimental; intensidade derivada do radar não é chuva medida; o nível do Guaxanduva é MODELADO/NÃO INSTRUMENTAL; o alerta automático do Monitor é experimental e não substitui a Defesa Civil; dados ausentes permanecem ausentes e nunca são convertidos em zero.</small></div>
+</section>
+
 <section class="card">
 <div class="local">🌧️ PREVISÃO DE CHUVA • PRÓXIMOS 7 DIAS</div><h2>Tendência para Comasa • Joinville</h2>
 <div class="sub">PREVISTO por modelo meteorológico • Open-Meteo • não é observação</div>
@@ -466,7 +490,7 @@ async function carregarHistorico(){
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
-  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{};
+  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{},x168=d.liberacao_experimental_168||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
  
@@ -834,6 +858,85 @@ async function carregar(){
   $("dashLuaFase").textContent=lua.fase||"INDISPONÍVEL";
   $("dashLuaDados").textContent=(lua.iluminacao_pct==null?"iluminação --":"iluminação "+f(lua.iluminacao_pct,0)+"%")+" • nascer "+(lua.nascer||"--")+" • pôr "+(lua.por||"--");
  
+
+  /* #168 • liberação experimental • leitura fail-closed */
+  const eta168=x168.eta_fortracc_tathu||{}, radar168=x168.radar_estimativa_quantitativa||{},
+        nivel168=x168.nivel_guaxanduva_modelado||{}, conf168=x168.indice_confianca||{},
+        alerta168=x168.alerta_automatico_monitor||{}, tend168=nivel168.tendencia||{},
+        faixa168=nivel168.faixa_estimativa_m||{}, val168=eta168.validacao_historica_condicional||{};
+
+  if(x168.status==="ativo"){
+   $("exp168Estado").innerHTML='<span class="ok">🟢 #168 ATIVA • camada experimental recebida do backend</span>';
+  }else if(x168.status){
+   $("exp168Estado").innerHTML='<span class="aviso">🟡 #168 • '+nomeFamilia(x168.status)+'</span>';
+  }else{
+   $("exp168Estado").innerHTML='<span class="erro">🔴 #168 INDISPONÍVEL • bloco não recebido nesta coleta</span>';
+  }
+
+  if(eta168.eta_min!=null){
+   $("exp168Eta").textContent=Math.round(Number(eta168.eta_min))+" min";
+  }else if(eta168.status==="sem_eta_calculavel"){
+   $("exp168Eta").textContent="SEM ETA CALCULÁVEL";
+  }else{
+   $("exp168Eta").textContent=eta168.status?nomeFamilia(eta168.status):"INDISPONÍVEL";
+  }
+
+  $("exp168Confianca").textContent=conf168.indice_0_100==null
+   ?"INDISPONÍVEL"
+   :Math.round(Number(conf168.indice_0_100))+"/100 • "+nomeFamilia(conf168.classe);
+
+  $("exp168Nivel").textContent=nivel168.nivel_estimado_m==null
+   ?"INDISPONÍVEL"
+   :f(nivel168.nivel_estimado_m,2)+" m";
+
+  $("exp168Tendencia").textContent=tend168.classe
+   ?nomeFamilia(tend168.classe)+(tend168.cm_h==null?"":" • "+(Number(tend168.cm_h)>=0?"+":"")+f(tend168.cm_h,1)+" cm/h")
+   :"INDISPONÍVEL";
+
+  if(radar168.faixa_mm_h_experimental!=null){
+   const fx=radar168.faixa_mm_h_experimental;
+   $("exp168Radar").textContent=Array.isArray(fx)?fx.join("–")+" mm/h":String(fx);
+  }else{
+   $("exp168Radar").textContent=radar168.status==="indisponivel"?"INDISPONÍVEL":(radar168.status?nomeFamilia(radar168.status):"INDISPONÍVEL");
+  }
+
+  $("exp168Alerta").textContent=alerta168.classe?nomeFamilia(alerta168.classe):"INDISPONÍVEL";
+
+  $("exp168NivelDetalhe").innerHTML=nivel168.nivel_estimado_m==null
+   ?'<span class="aviso">⚪ Nível modelado indisponível nesta coleta.</span>'
+   :'<b>🌊 MODELADO/NÃO INSTRUMENTAL</b><br><small>Estimativa: <b>'+f(nivel168.nivel_estimado_m,2)+' m</b>'+
+     (faixa168.min==null||faixa168.max==null?'':' • faixa obrigatória: <b>'+f(faixa168.min,2)+'–'+f(faixa168.max,2)+' m</b>')+
+     ' • confiança: '+nomeFamilia(nivel168.confianca)+
+     '<br>Tendência: '+(tend168.classe?nomeFamilia(tend168.classe):'--')+
+     (tend168.cm_h==null?'':' • '+(Number(tend168.cm_h)>=0?'+':'')+f(tend168.cm_h,1)+' cm/h em janela de '+(tend168.janela_min??'--')+' min')+
+     '<br><b>Nível observado:</b> indisponível sem sensor público confirmado.</small>';
+
+  const horizontes=["30","60","90","120"];
+  const blocosVal=horizontes.map(h=>{
+   const v=val168[h]||{};
+   return '<div class="radar-item">+'+h+' min<b>'+(v.taxa_associacao_pct==null?'--':f(v.taxa_associacao_pct,1)+'%')+
+          '</b><small>n='+(v.n??'--')+'/'+(v.total??'--')+' • erro mediano '+(v.erro_mediano_km==null?'--':f(v.erro_mediano_km,1)+' km')+'</small></div>';
+  }).join("");
+  $("exp168Validacao").innerHTML='<b>🧭 Validação histórica condicional do ETA</b><div class="radar-grid" style="margin-top:8px">'+blocosVal+'</div>'+
+    '<small>Taxa de associação e erro são métricas históricas da triagem #168; não representam probabilidade de chuva no Comasa.</small>';
+
+  const evid=Array.isArray(alerta168.evidencias)?alerta168.evidencias:[];
+  $("exp168AlertaDetalhe").innerHTML=alerta168.status
+   ?'<b>🧪 '+nomeFamilia(alerta168.classe||alerta168.status)+'</b><br><small>Score experimental: <b>'+(alerta168.score??'--')+'</b>'+
+     '<br>Evidências: '+(evid.length?evid.map(nomeFamilia).join(" • "):"nenhuma evidência listada")+
+     '<br>Confiança do modelo: '+nomeFamilia(alerta168.confianca_modelo)+
+     '<br><b>Defesa Civil oficial:</b> '+(alerta168.oficial_defesa_civil===false?"NÃO":"NÃO CONFIRMADO")+
+     '<br>'+(alerta168.regra_seguranca||"Não substitui comunicações oficiais.")+'</small>'
+   :'<span class="aviso">⚪ Alerta experimental indisponível nesta coleta.</span>';
+
+  $("exp168RadarDetalhe").innerHTML=radar168.status==="indisponivel"
+   ?'<span class="aviso">⚪ ESTIMATIVA QUANTITATIVA EXPERIMENTAL INDISPONÍVEL</span><br><small>A função está integrada, mas esta coleta não forneceu classe local suficiente para uma faixa defensável. Nenhum valor foi fabricado. '+(radar168.aviso||"")+'</small>'
+   :'<b>📡 '+nomeFamilia(radar168.status||"experimental")+'</b><br><small>Natureza: '+nomeFamilia(radar168.natureza)+
+     '<br>Classe: '+(radar168.classe_radar??"--")+
+     '<br>Índice: '+(radar168.indice_intensidade_0_100??"--")+
+     '<br>'+(radar168.aviso||"Estimativa matemática experimental; não é chuva medida.")+'</small>';
+
+
   const dias=Array.isArray(p.proximos_7_dias)?p.proximos_7_dias:[];
   if(dias.length){
    const nomes=["domingo","segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado"];let html="";
@@ -870,7 +973,7 @@ async function carregar(){
 carregar();carregarHistorico();setInterval(carregar,60000);setInterval(carregarHistorico,60000);
  
 function iniciarCardsRecolhiveis(){
- const manterAbertos=["🌊 SITUAÇÃO DO GUAXANDUVA AGORA","🌧️ PREVISÃO DE CHUVA • PRÓXIMOS 7 DIAS","📡 SISTEMA AUTOMÁTICO","PAINEL HIDROMETEOROLÓGICO"];
+ const manterAbertos=["🌊 SITUAÇÃO DO GUAXANDUVA AGORA","🧪 LIBERAÇÃO EXPERIMENTAL • #168","🌧️ PREVISÃO DE CHUVA • PRÓXIMOS 7 DIAS","📡 SISTEMA AUTOMÁTICO","PAINEL HIDROMETEOROLÓGICO"];
  document.querySelectorAll(".card").forEach((card)=>{
   const local=card.querySelector(":scope > .local");
   const h2=card.querySelector(":scope > h2");

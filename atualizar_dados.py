@@ -1678,12 +1678,23 @@ def legenda():
         ]
         extraidos = melhor[:16]
         sha_esperado = "59f3855538d71fae41d5211314dc5b0bfc88a477273ec1ddc6c3556f3443e061"
-        estrutura_ok = (
-            sha == sha_esperado and (imagem.width, imagem.height) == (1536,152)
-            and len(extraidos) == 16
+        sha_ok = (sha == sha_esperado)
+        dimensoes_ok = ((imagem.width, imagem.height) == (1536,152))
+        quantidade_ok = (len(extraidos) == 16)
+        rgb_geometria_ok = (
+            quantidade_ok
             and all(tuple(seg[2][:3]) == exp[0] and seg[0] == exp[1] and seg[1] == exp[2]
                     for seg, exp in zip(extraidos, esperado))
         )
+        # #169.1 — o SHA binário é diagnóstico, não gate meteorológico:
+        # um PNG pode ser recompactado/metadatado sem alterar um único pixel.
+        # A associação RGB→dBZ só depende da estrutura visual validada:
+        # dimensões + 16 faixas + RGB + geometria exatos.
+        estrutura_ok = dimensoes_ok and quantidade_ok and rgb_geometria_ok
+        motivos_bloqueio = []
+        if not dimensoes_ok: motivos_bloqueio.append("dimensoes_divergentes")
+        if not quantidade_ok: motivos_bloqueio.append("quantidade_classes_divergente")
+        if quantidade_ok and not rgb_geometria_ok: motivos_bloqueio.append("rgb_ou_geometria_divergente")
         classes=[]
         for i,seg in enumerate(extraidos):
             item={"classe":i+1,"classe_tipo":"indice_interno_monitor","rgb":list(seg[2][:3]),
@@ -1698,10 +1709,13 @@ def legenda():
                 "quantidade_classes":len(classes),"classes":classes,
                 "validacao_169":{"status":"validada" if estrutura_ok else "invalidada_fail_closed",
                     "rgb_para_faixa_dbz_validado":estrutura_ok,"sha256_esperado":sha_esperado,
+                    "sha256_confere":sha_ok,"sha256_observado":sha,
                     "dimensoes_esperadas_px":{"largura":1536,"altura":152},"classes_esperadas":16,
-                    "regra":"Mudança de SHA, dimensões, RGB ou geometria invalida a associação numérica até nova revisão."},
+                    "dimensoes_validas":dimensoes_ok,"quantidade_classes_valida":quantidade_ok,
+                    "rgb_geometria_validos":rgb_geometria_ok,"motivos_bloqueio":motivos_bloqueio,
+                    "regra":"Fail-closed por dimensões, quantidade de classes, RGB ou geometria. SHA binário é diagnóstico: recompactação idêntica em pixels não bloqueia a escala."},
                 "diagnostico_128":("RGB, geometria e faixas dBZ validados; C1-C16 são IDs internos do Monitor."
-                    if estrutura_ok else "Legenda mudou; dBZ bloqueado por fail-closed #169."),
+                    if estrutura_ok else "Estrutura visual da legenda divergiu; dBZ bloqueado por fail-closed #169."),
                 "dbz_numerico":"validado_por_faixa" if estrutura_ok else "bloqueado_fail_closed",
                 "dbz_numerico_validado":estrutura_ok,"mm_h_validado":False,"equivale_chuva_medida":False}
     except Exception as e:
@@ -6173,7 +6187,8 @@ def buscar_radar():
                 movimento,
  
             "interpretacao_dbz":
-                "aguardando_validacao_numerica",
+                ("faixas_numericas_validadas_169" if leg.get("dbz_numerico_validado")
+                 else "bloqueado_fail_closed_169"),
  
             "eta":
                 eta,

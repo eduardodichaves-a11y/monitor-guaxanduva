@@ -12908,16 +12908,8 @@ def _mapa_classes_dbz_170(radar):
     return classes if len(classes) == 16 else None
 
 
-def _amostrar_estacao_no_quadro_170(nome, lat, lon, classes):
+def _amostrar_estacao_na_imagem_170(imagem, lat, lon, classes):
     """Amostra 5x5 pixels no ponto da estacao; C1 e a maior refletividade."""
-    bruto = get(
-        IMAGEM,
-        {"prod": 4, "radar": "COMP", "file": nome},
-        True,
-    ).content
-    if not bruto.startswith(b"\x89PNG\r\n\x1a\n"):
-        raise ValueError("Quadro RadarSC #170-A nao e PNG valido.")
-    imagem = Image.open(io.BytesIO(bruto)).convert("RGB")
     x0, y0 = geo2px(lon, lat, imagem.width, imagem.height)
     rgb_para_classe = {info["rgb"]: c for c, info in classes.items()}
     encontrados = []
@@ -12951,49 +12943,56 @@ def _amostrar_estacao_no_quadro_170(nome, lat, lon, classes):
     }
 
 
-def coletar_zr_170_a(chuva_cemaden, chuva_cemaden_144, radar):
+def _amostrar_estacao_no_quadro_170(nome, lat, lon, classes):
+    """Compatibilidade #170-A: baixa um quadro e amostra a estacao."""
+    bruto = get(
+        IMAGEM,
+        {"prod": 4, "radar": "COMP", "file": nome},
+        True,
+    ).content
+    if not bruto.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise ValueError("Quadro RadarSC #170 nao e PNG valido.")
+    imagem = Image.open(io.BytesIO(bruto)).convert("RGB")
+    return _amostrar_estacao_na_imagem_170(imagem, lat, lon, classes)
+
+
+def coletar_zr_170_b1(chuva_cemaden, radar):
+    """
+    #170-B1 - coleta Z-R multiestacao CEMADEN, fail-closed.
+
+    Mantem a #144 operacional intacta. Para pesquisa Z-R, reaplica exatamente
+    a validacao #144 a cada estacao CEMADEN ativa de Joinville com produto
+    311_24 disponivel e distancia <= 10 km da referencia publica do Comasa.
+    Os mesmos quadros RadarSC sao baixados uma unica vez e amostrados na
+    coordenada de cada pluviometro elegivel.
+    """
     base = {
-        "versao": "#170-A",
-        "status": "bloqueado_sem_par_candidato",
-        "modo": "COLETA_PARA_CALIBRACAO_ZR",
+        "versao": "#170-B1",
+        "status": "bloqueado_sem_candidatos_multiestacao",
+        "modo": "COLETA_MULTIestacao_PARA_CALIBRACAO_ZR",
         "zr_validada": False,
         "conversao_dbz_mm_h_liberada": False,
         "mm_h_radar_operacional": None,
         "relacao_zr_aplicada": None,
         "pareamento_temporal_validado": False,
         "elegivel_calibracao_zr": False,
-        "natureza_chuva_referencia": "OBSERVADA_EM_ESTACAO_CEMADEN",
+        "natureza_chuva_referencia": "OBSERVADA_EM_ESTACOES_CEMADEN",
         "natureza_radar": "REFLETIVIDADE_RADARSC_DBZ",
+        "raio_maximo_estacoes_comasa_km": 10.0,
         "regra_seguranca": (
-            "#170-A coleta evidencia. Nao converte dBZ em mm/h, nao trata radar "
-            "como pluviometro e nao libera Z-R. O rotulo horario CEMADEN ainda "
-            "nao foi demonstrado como inicio ou fechamento do intervalo; portanto "
-            "os pares sao candidatos ate validacao temporal explicita."
+            "#170-B1 amplia a coleta para multiplas estacoes CEMADEN proximas. "
+            "Nao converte dBZ em mm/h, nao trata radar como pluviometro e nao "
+            "libera Z-R. Cada leitura pertence a sua propria estacao. O rotulo "
+            "horario CEMADEN ainda nao foi demonstrado como inicio ou fechamento "
+            "do intervalo; todos os pares permanecem candidatos."
         ),
     }
     try:
-        obs = chuva_cemaden_144 or {}
-        if obs.get("status") not in (
-            "online_fresco_validado",
-            "online_desatualizado_validado",
-        ):
-            base["motivo"] = "chuva_horaria_cemaden_144_nao_validada"
-            return base
-        if not isinstance(obs.get("1h_mm"), (int, float)):
-            base["motivo"] = "chuva_1h_cemaden_ausente"
-            return base
-        est = obs.get("estacao") or {}
-        selecionada = (chuva_cemaden or {}).get("estacao_selecionada") or {}
-        try:
-            lat = float(selecionada.get("latitude"))
-            lon = float(selecionada.get("longitude"))
-        except Exception:
-            base["motivo"] = "coordenada_estacao_cemaden_ausente"
-            return base
         classes = _mapa_classes_dbz_170(radar)
         if not classes:
             base["motivo"] = "dbz_169_2r_nao_validado"
             return base
+
         quadros = [
             q for q in ((radar or {}).get("quadros") or [])
             if q.get("download") == "ok" and q.get("arquivo")
@@ -13001,73 +13000,171 @@ def coletar_zr_170_a(chuva_cemaden, chuva_cemaden_144, radar):
         if not quadros:
             base["motivo"] = "sem_quadros_radar_validos"
             return base
-        amostras = []
+
+        # Baixa cada quadro uma unica vez; evita N_estacoes x N_quadros downloads.
+        imagens = {}
+        erros_quadro = {}
         for q in quadros:
+            nome = q.get("arquivo")
             try:
-                a = _amostrar_estacao_no_quadro_170(
-                    q["arquivo"], lat, lon, classes
-                )
-                amostras.append({
-                    "arquivo": q.get("arquivo"),
-                    "horario_utc": q.get("horario_utc"),
-                    "horario_local": q.get("horario_local"),
-                    **a,
-                })
+                bruto = get(
+                    IMAGEM,
+                    {"prod": 4, "radar": "COMP", "file": nome},
+                    True,
+                ).content
+                if not bruto.startswith(b"\x89PNG\r\n\x1a\n"):
+                    raise ValueError("Quadro RadarSC #170-B1 nao e PNG valido.")
+                imagens[nome] = Image.open(io.BytesIO(bruto)).convert("RGB")
             except Exception as e:
-                amostras.append({
-                    "arquivo": q.get("arquivo"),
-                    "horario_utc": q.get("horario_utc"),
-                    "horario_local": q.get("horario_local"),
-                    "erro": str(e)[:180],
-                })
-        validas = [x for x in amostras if "erro" not in x]
-        com_eco = [x for x in validas if x.get("eco_oficial_detectado_5x5")]
-        base.update({
-            "status": "par_candidato_coletado",
-            "motivo": "aguardando_validacao_semantica_do_intervalo_horario_cemaden",
-            "estacao_cemaden": {
+                erros_quadro[nome] = str(e)[:180]
+
+        estacoes = []
+        for est in (chuva_cemaden or {}).get("estacoes_joinville_ativas") or []:
+            if not isinstance(est, dict):
+                continue
+            dist = est.get("distancia_comasa_aprox_km")
+            if not isinstance(dist, (int, float)) or float(dist) > 10.0:
+                continue
+            if not isinstance(est.get("acumulado_24h_mm"), (int, float)):
+                continue
+            if est.get("id") is None:
+                continue
+            estacoes.append(est)
+        estacoes.sort(key=lambda x: float(x.get("distancia_comasa_aprox_km", 1e9)))
+
+        candidatos = []
+        diagnosticos = []
+        for est in estacoes:
+            chuva_estacao = {
+                **(chuva_cemaden or {}),
+                "estacao_selecionada": est,
+                "acumulado_24h_mm": est.get("acumulado_24h_mm"),
+            }
+            obs = chuva_observada_cemaden_144(chuva_estacao)
+            diagnostico = {
                 "id": est.get("id"),
                 "codigo": est.get("codigo"),
                 "nome": est.get("nome"),
-                "cidade": est.get("cidade"),
-                "uf": est.get("uf"),
-                "latitude": lat,
-                "longitude": lon,
                 "distancia_comasa_aprox_km": est.get("distancia_comasa_aprox_km"),
-            },
-            "chuva_observada": {
-                "acumulado_1h_mm": obs.get("1h_mm"),
-                "rotulo_ultima_celula_utc": obs.get("horario_ultima_celula_utc"),
-                "rotulo_ultima_celula_local": obs.get("horario_ultima_celula_local"),
-                "dados_frescos": obs.get("dados_frescos"),
-                "idade_leitura_min": obs.get("idade_leitura_min"),
-                "fonte": "CEMADEN #144",
-            },
-            "radar": {
-                "produto": "RadarSC COMP C-MAX",
-                "quadros_disponiveis": len(quadros),
-                "quadros_amostrados_validos": len(validas),
-                "quadros_com_eco_oficial_5x5": len(com_eco),
-                "amostras": amostras,
-            },
+                "status_144": obs.get("status"),
+                "1h_mm": obs.get("1h_mm"),
+                "6h_mm": obs.get("6h_mm"),
+                "24h_mm": obs.get("24h_mm"),
+            }
+            diagnosticos.append(diagnostico)
+            if obs.get("status") not in (
+                "online_fresco_validado",
+                "online_desatualizado_validado",
+            ):
+                continue
+            if not isinstance(obs.get("1h_mm"), (int, float)):
+                continue
+            try:
+                lat = float(est.get("latitude"))
+                lon = float(est.get("longitude"))
+            except Exception:
+                continue
+
+            amostras = []
+            for q in quadros:
+                nome = q.get("arquivo")
+                if nome in erros_quadro:
+                    amostras.append({
+                        "arquivo": nome,
+                        "horario_utc": q.get("horario_utc"),
+                        "horario_local": q.get("horario_local"),
+                        "erro": erros_quadro[nome],
+                    })
+                    continue
+                try:
+                    a = _amostrar_estacao_na_imagem_170(
+                        imagens[nome], lat, lon, classes
+                    )
+                    amostras.append({
+                        "arquivo": nome,
+                        "horario_utc": q.get("horario_utc"),
+                        "horario_local": q.get("horario_local"),
+                        **a,
+                    })
+                except Exception as e:
+                    amostras.append({
+                        "arquivo": nome,
+                        "horario_utc": q.get("horario_utc"),
+                        "horario_local": q.get("horario_local"),
+                        "erro": str(e)[:180],
+                    })
+
+            validas = [x for x in amostras if "erro" not in x]
+            com_eco = [x for x in validas if x.get("eco_oficial_detectado_5x5")]
+            candidatos.append({
+                "versao": "#170-B1",
+                "pareamento_temporal_validado": False,
+                "elegivel_calibracao_zr": False,
+                "zr_validada": False,
+                "conversao_dbz_mm_h_liberada": False,
+                "estacao_cemaden": {
+                    "id": est.get("id"),
+                    "codigo": est.get("codigo"),
+                    "nome": est.get("nome"),
+                    "cidade": est.get("cidade"),
+                    "uf": est.get("uf"),
+                    "latitude": lat,
+                    "longitude": lon,
+                    "distancia_comasa_aprox_km": est.get("distancia_comasa_aprox_km"),
+                },
+                "chuva_observada": {
+                    "acumulado_1h_mm": obs.get("1h_mm"),
+                    "acumulado_6h_mm": obs.get("6h_mm"),
+                    "acumulado_24h_mm": obs.get("24h_mm"),
+                    "rotulo_ultima_celula_utc": obs.get("horario_ultima_celula_utc"),
+                    "rotulo_ultima_celula_local": obs.get("horario_ultima_celula_local"),
+                    "dados_frescos": obs.get("dados_frescos"),
+                    "idade_leitura_min": obs.get("idade_leitura_min"),
+                    "fonte": "CEMADEN #144 reaplicada por estacao na #170-B1",
+                },
+                "radar": {
+                    "produto": "RadarSC COMP C-MAX",
+                    "quadros_disponiveis": len(quadros),
+                    "quadros_amostrados_validos": len(validas),
+                    "quadros_com_eco_oficial_5x5": len(com_eco),
+                    "amostras": amostras,
+                },
+            })
+
+        if not candidatos:
+            base["motivo"] = "nenhuma_estacao_proxima_passou_validacao_144"
+            base["diagnostico_estacoes"] = diagnosticos
+            return base
+
+        base.update({
+            "status": "candidatos_multiestacao_coletados",
+            "motivo": "aguardando_validacao_semantica_do_intervalo_horario_cemaden",
+            "quantidade_estacoes_avaliadas": len(estacoes),
+            "quantidade_candidatos_validos": len(candidatos),
+            "quantidade_candidatos_com_chuva_1h_maior_que_zero": sum(
+                1 for c in candidatos
+                if (c.get("chuva_observada") or {}).get("acumulado_1h_mm", 0) > 0
+            ),
+            "diagnostico_estacoes": diagnosticos,
+            "candidatos": candidatos,
             "observacao_temporal": (
-                "A #144 informa que o horario e o rotulo temporal da celula CEMADEN, "
-                "mas ainda nao demonstra se representa inicio ou fechamento da hora. "
-                "Nenhuma amostra #170-A e usada para ajustar Z-R antes dessa validacao."
+                "A #144 e reaplicada separadamente a cada estacao. O horario continua "
+                "sendo apenas o rotulo temporal da celula CEMADEN; ate provarmos sua "
+                "borda exata, nenhuma amostra #170-B1 e elegivel para ajuste Z-R."
             ),
         })
         return base
     except Exception as e:
         base["erro"] = str(e)[:300]
-        base["motivo"] = "falha_coleta_170_a"
+        base["motivo"] = "falha_coleta_170_b1"
         return base
 
 
 def registrar_historico_zr_170(coleta):
     try:
-        if not isinstance(coleta, dict) or coleta.get("status") != "par_candidato_coletado":
+        if not isinstance(coleta, dict) or coleta.get("status") != "candidatos_multiestacao_coletados":
             return {
-                "versao": "#170-A",
+                "versao": "#170-B1",
                 "status": "sem_registro_novo",
                 "arquivo": HISTORICO_ZR_170_ARQUIVO,
                 "zr_validada": False,
@@ -13083,26 +13180,31 @@ def registrar_historico_zr_170(coleta):
             registros = []
         except Exception:
             registros = []
-        est = coleta.get("estacao_cemaden") or {}
-        chuva = coleta.get("chuva_observada") or {}
-        chave = "|".join([
-            str(est.get("id") or est.get("codigo") or "sem_estacao"),
-            str(chuva.get("rotulo_ultima_celula_utc") or "sem_hora"),
-        ])
-        registro = {
-            "chave": chave,
-            "registrado_em": agora().isoformat(),
-            "versao": "#170-A",
-            "pareamento_temporal_validado": False,
-            "elegivel_calibracao_zr": False,
-            "zr_validada": False,
-            "conversao_dbz_mm_h_liberada": False,
-            "estacao_cemaden": coleta.get("estacao_cemaden"),
-            "chuva_observada": coleta.get("chuva_observada"),
-            "radar": coleta.get("radar"),
-        }
-        registros = [x for x in registros if x.get("chave") != chave]
-        registros.append(registro)
+
+        novos = 0
+        for candidato in coleta.get("candidatos") or []:
+            est = candidato.get("estacao_cemaden") or {}
+            chuva = candidato.get("chuva_observada") or {}
+            chave = "|".join([
+                str(est.get("id") or est.get("codigo") or "sem_estacao"),
+                str(chuva.get("rotulo_ultima_celula_utc") or "sem_hora"),
+            ])
+            registro = {
+                "chave": chave,
+                "registrado_em": agora().isoformat(),
+                "versao": "#170-B1",
+                "pareamento_temporal_validado": False,
+                "elegivel_calibracao_zr": False,
+                "zr_validada": False,
+                "conversao_dbz_mm_h_liberada": False,
+                "estacao_cemaden": candidato.get("estacao_cemaden"),
+                "chuva_observada": candidato.get("chuva_observada"),
+                "radar": candidato.get("radar"),
+            }
+            registros = [x for x in registros if x.get("chave") != chave]
+            registros.append(registro)
+            novos += 1
+
         registros = registros[-HISTORICO_ZR_170_MAX_REGISTROS:]
         horas_chuva = sum(
             1 for x in registros
@@ -13114,10 +13216,16 @@ def registrar_historico_zr_170(coleta):
             if isinstance(((x.get("chuva_observada") or {}).get("acumulado_1h_mm")), (int, float))
             and (x.get("chuva_observada") or {}).get("acumulado_1h_mm") == 0
         )
+        estacoes_unicas = sorted({
+            str((x.get("estacao_cemaden") or {}).get("codigo") or (x.get("estacao_cemaden") or {}).get("id"))
+            for x in registros
+            if (x.get("estacao_cemaden") or {}).get("codigo") is not None
+            or (x.get("estacao_cemaden") or {}).get("id") is not None
+        })
         documento = {
             "monitor": "Monitor Guaxanduva",
-            "tipo": "historico_candidatos_calibracao_zr",
-            "versao": "#170-A",
+            "tipo": "historico_candidatos_calibracao_zr_multiestacao",
+            "versao": "#170-B1",
             "atualizado_em": agora().isoformat(),
             "maximo_registros": HISTORICO_ZR_170_MAX_REGISTROS,
             "zr_validada": False,
@@ -13126,21 +13234,25 @@ def registrar_historico_zr_170(coleta):
             "uso_operacional": False,
             "resumo": {
                 "registros_candidatos": len(registros),
-                "horas_com_chuva_observada_maior_que_zero": horas_chuva,
-                "horas_secas_observadas": horas_secas,
+                "registros_adicionados_ou_atualizados_execucao": novos,
+                "estacoes_unicas_no_historico": len(estacoes_unicas),
+                "codigos_estacoes_no_historico": estacoes_unicas,
+                "horas_estacao_com_chuva_observada_maior_que_zero": horas_chuva,
+                "horas_estacao_secas_observadas": horas_secas,
                 "registros_elegiveis_calibracao_zr": 0,
             },
             "regra_seguranca": (
-                "Historico #170-A e coleta experimental. Nenhum registro e elegivel "
-                "para ajuste Z-R ate validacao explicita da semantica temporal CEMADEN."
+                "Historico #170-B1 e coleta experimental multiestacao. Nenhum "
+                "registro e elegivel para ajuste Z-R ate validacao explicita da "
+                "semantica temporal CEMADEN."
             ),
             "registros": registros,
         }
         with open(HISTORICO_ZR_170_ARQUIVO, "w", encoding="utf-8") as f:
             json.dump(documento, f, ensure_ascii=False, indent=2)
         return {
-            "versao": "#170-A",
-            "status": "historico_atualizado",
+            "versao": "#170-B1",
+            "status": "historico_multiestacao_atualizado",
             "arquivo": HISTORICO_ZR_170_ARQUIVO,
             **documento["resumo"],
             "zr_validada": False,
@@ -13149,7 +13261,7 @@ def registrar_historico_zr_170(coleta):
         }
     except Exception as e:
         return {
-            "versao": "#170-A",
+            "versao": "#170-B1",
             "status": "falha_historico_fail_closed",
             "arquivo": HISTORICO_ZR_170_ARQUIVO,
             "erro": str(e)[:300],
@@ -13367,7 +13479,7 @@ def main():
     nivel_guaxanduva_v021 = calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_guaxanduva_v019)
     goes19_tathu167 = buscar_goes19_tathu_167()
     radar_atual = buscar_radar()
-    coleta_zr170 = coletar_zr_170_a(chuva_cemaden, chuva_cemaden144, radar_atual)
+    coleta_zr170 = coletar_zr_170_b1(chuva_cemaden, radar_atual)
     historico_zr170 = registrar_historico_zr_170(coleta_zr170)
     liberacao168 = construir_liberacao_experimental_168(
         radar_atual, goes19_tathu167, nivel_guaxanduva_v021, mare_observada160, mare_prevista164
@@ -13483,8 +13595,14 @@ def main():
         "radar":
             radar_atual,
 
+        "calibracao_zr_170_b1":
+            coleta_zr170,
+
         "calibracao_zr_170_a":
             coleta_zr170,
+
+        "historico_zr_170_b1":
+            historico_zr170,
 
         "historico_zr_170_a":
             historico_zr170,

@@ -1645,26 +1645,39 @@ def investigar_fonte_radarsc():
 # =========================================================
  
 def legenda():
-    """Extrai a legenda RadarSC e aplica RGB→faixa dBZ somente se #169 validar integralmente."""
+    """Extrai a legenda RadarSC e valida RGB→faixa dBZ com #169.2.
+
+    #169.2 torna a validação estrutural resistente a redimensionamento da
+    mesma legenda. O SHA-256 permanece para auditoria, mas não é gate sozinho.
+    O gate numérico continua fail-closed: quantidade, ordem cromática,
+    proporções/posições relativas ou cores representativas divergentes
+    bloqueiam a associação RGB→dBZ.
+    """
     try:
         bruto = get(LEGENDA, radar=True).content
         imagem = Image.open(io.BytesIO(bruto)).convert("RGBA")
         sha = hashlib.sha256(bruto).hexdigest()
         melhor = []
+        melhor_y = None
+
         for y in range(imagem.height):
             segmentos = []
-            cor = imagem.getpixel((0, y)); inicio = 0
+            cor = imagem.getpixel((0, y))
+            inicio = 0
             for x in range(1, imagem.width):
                 atual = imagem.getpixel((x, y))
                 if atual != cor:
                     largura = x - inicio
                     if largura >= 10 and cor[3] > 0 and cor[:3] not in ((255,255,255),(0,0,0)):
                         segmentos.append((inicio, x - 1, cor))
-                    inicio = x; cor = atual
+                    inicio = x
+                    cor = atual
             largura = imagem.width - inicio
             if largura >= 10 and cor[3] > 0 and cor[:3] not in ((255,255,255),(0,0,0)):
                 segmentos.append((inicio, imagem.width - 1, cor))
-            if len(segmentos) > len(melhor): melhor = segmentos
+            if len(segmentos) > len(melhor):
+                melhor = segmentos
+                melhor_y = y
 
         esperado = [
             ((255,224,255),98,175,73.0,78.0), ((255,200,255),192,262,68.0,73.0),
@@ -1676,50 +1689,185 @@ def legenda():
             ((0,255,1),1180,1246,13.0,18.0), ((0,254,129),1276,1337,10.0,13.0),
             ((0,255,255),1360,1425,-10.0,10.0), ((0,0,254),1456,1535,-31.5,-10.0),
         ]
-        extraidos = melhor[:16]
+        ref_w, ref_h = 1536, 152
         sha_esperado = "59f3855538d71fae41d5211314dc5b0bfc88a477273ec1ddc6c3556f3443e061"
-        sha_ok = (sha == sha_esperado)
-        dimensoes_ok = ((imagem.width, imagem.height) == (1536,152))
+        extraidos = melhor[:16]
         quantidade_ok = (len(extraidos) == 16)
-        rgb_geometria_ok = (
-            quantidade_ok
-            and all(tuple(seg[2][:3]) == exp[0] and seg[0] == exp[1] and seg[1] == exp[2]
-                    for seg, exp in zip(extraidos, esperado))
+        sha_ok = (sha == sha_esperado)
+
+        # #169.2 — resolução não é identidade meteorológica da legenda.
+        # A razão de aspecto deve permanecer compatível; a geometria das 16
+        # faixas é comparada em coordenadas normalizadas (0..1).
+        razao_ref = ref_w / ref_h
+        razao_obs = (imagem.width / imagem.height) if imagem.height else None
+        erro_razao_pct = (
+            abs(razao_obs - razao_ref) / razao_ref * 100.0
+            if razao_obs is not None else None
         )
-        # #169.1 — o SHA binário é diagnóstico, não gate meteorológico:
-        # um PNG pode ser recompactado/metadatado sem alterar um único pixel.
-        # A associação RGB→dBZ só depende da estrutura visual validada:
-        # dimensões + 16 faixas + RGB + geometria exatos.
-        estrutura_ok = dimensoes_ok and quantidade_ok and rgb_geometria_ok
+        razao_aspecto_ok = erro_razao_pct is not None and erro_razao_pct <= 1.0
+
+        # Tolerâncias conservadoras para reamostragem/arredondamento de pixels.
+        # RGB: distância euclidiana máxima 12 em espaço RGB 8-bit.
+        # Geometria: centro e largura normalizados podem divergir até 1,0%.
+        tolerancia_rgb = 12.0
+        tolerancia_geometria = 0.010
+        diagnostico_classes = []
+        rgb_ok = quantidade_ok
+        geometria_normalizada_ok = quantidade_ok
+
+        for i in range(16):
+            if not quantidade_ok:
+                break
+            seg = extraidos[i]
+            exp = esperado[i]
+            rgb_obs = tuple(seg[2][:3])
+            rgb_ref = exp[0]
+            distancia_rgb = math.sqrt(sum((float(a)-float(b))**2 for a,b in zip(rgb_obs,rgb_ref)))
+
+            centro_obs = ((seg[0] + seg[1]) / 2.0) / max(1.0, float(imagem.width - 1))
+            largura_obs = (seg[1] - seg[0] + 1) / max(1.0, float(imagem.width))
+            centro_ref = ((exp[1] + exp[2]) / 2.0) / float(ref_w - 1)
+            largura_ref = (exp[2] - exp[1] + 1) / float(ref_w)
+            erro_centro = abs(centro_obs - centro_ref)
+            erro_largura = abs(largura_obs - largura_ref)
+
+            cor_valida = distancia_rgb <= tolerancia_rgb
+            geometria_valida = (
+                erro_centro <= tolerancia_geometria
+                and erro_largura <= tolerancia_geometria
+            )
+            rgb_ok = rgb_ok and cor_valida
+            geometria_normalizada_ok = geometria_normalizada_ok and geometria_valida
+            diagnostico_classes.append({
+                "classe": i + 1,
+                "rgb_observado": list(rgb_obs),
+                "rgb_referencia": list(rgb_ref),
+                "distancia_rgb": round(distancia_rgb, 3),
+                "rgb_valido": cor_valida,
+                "centro_normalizado_observado": round(centro_obs, 6),
+                "centro_normalizado_referencia": round(centro_ref, 6),
+                "erro_centro_normalizado": round(erro_centro, 6),
+                "largura_normalizada_observada": round(largura_obs, 6),
+                "largura_normalizada_referencia": round(largura_ref, 6),
+                "erro_largura_normalizada": round(erro_largura, 6),
+                "geometria_normalizada_valida": geometria_valida,
+            })
+
+        estrutura_ok = (
+            quantidade_ok
+            and razao_aspecto_ok
+            and rgb_ok
+            and geometria_normalizada_ok
+        )
+
         motivos_bloqueio = []
-        if not dimensoes_ok: motivos_bloqueio.append("dimensoes_divergentes")
-        if not quantidade_ok: motivos_bloqueio.append("quantidade_classes_divergente")
-        if quantidade_ok and not rgb_geometria_ok: motivos_bloqueio.append("rgb_ou_geometria_divergente")
-        classes=[]
-        for i,seg in enumerate(extraidos):
-            item={"classe":i+1,"classe_tipo":"indice_interno_monitor","rgb":list(seg[2][:3]),
-                  "x_inicio":seg[0],"x_fim":seg[1],"largura_px":seg[1]-seg[0]+1,
-                  "dbz":None,"dbz_min":None,"dbz_max":None}
+        if not quantidade_ok:
+            motivos_bloqueio.append("quantidade_classes_divergente")
+        if not razao_aspecto_ok:
+            motivos_bloqueio.append("razao_aspecto_divergente")
+        if quantidade_ok and not rgb_ok:
+            motivos_bloqueio.append("ordem_ou_rgb_divergente")
+        if quantidade_ok and not geometria_normalizada_ok:
+            motivos_bloqueio.append("geometria_relativa_divergente")
+
+        classes = []
+        for i, seg in enumerate(extraidos):
+            item = {
+                "classe": i + 1,
+                "classe_tipo": "indice_interno_monitor",
+                "rgb": list(seg[2][:3]),
+                "x_inicio": seg[0],
+                "x_fim": seg[1],
+                "largura_px": seg[1] - seg[0] + 1,
+                "dbz": None,
+                "dbz_min": None,
+                "dbz_max": None,
+            }
             if estrutura_ok:
-                lo,hi=esperado[i][3],esperado[i][4]
-                item.update({"dbz":{"min":lo,"max":hi,"unidade":"dBZ"},"dbz_min":lo,"dbz_max":hi})
+                lo, hi = esperado[i][3], esperado[i][4]
+                item.update({
+                    "dbz": {"min": lo, "max": hi, "unidade": "dBZ"},
+                    "dbz_min": lo,
+                    "dbz_max": hi,
+                })
             classes.append(item)
-        return {"status":"online","fonte":"legenda oficial RadarSC","produto":"COMP / C-MAX",
-                "dimensoes_px":{"largura":imagem.width,"altura":imagem.height},"sha256":sha,
-                "quantidade_classes":len(classes),"classes":classes,
-                "validacao_169":{"status":"validada" if estrutura_ok else "invalidada_fail_closed",
-                    "rgb_para_faixa_dbz_validado":estrutura_ok,"sha256_esperado":sha_esperado,
-                    "sha256_confere":sha_ok,"sha256_observado":sha,
-                    "dimensoes_esperadas_px":{"largura":1536,"altura":152},"classes_esperadas":16,
-                    "dimensoes_validas":dimensoes_ok,"quantidade_classes_valida":quantidade_ok,
-                    "rgb_geometria_validos":rgb_geometria_ok,"motivos_bloqueio":motivos_bloqueio,
-                    "regra":"Fail-closed por dimensões, quantidade de classes, RGB ou geometria. SHA binário é diagnóstico: recompactação idêntica em pixels não bloqueia a escala."},
-                "diagnostico_128":("RGB, geometria e faixas dBZ validados; C1-C16 são IDs internos do Monitor."
-                    if estrutura_ok else "Estrutura visual da legenda divergiu; dBZ bloqueado por fail-closed #169."),
-                "dbz_numerico":"validado_por_faixa" if estrutura_ok else "bloqueado_fail_closed",
-                "dbz_numerico_validado":estrutura_ok,"mm_h_validado":False,"equivale_chuva_medida":False}
+
+        dimensoes_identicas = ((imagem.width, imagem.height) == (ref_w, ref_h))
+        modo_validacao = (
+            "identidade_pixel_referencia"
+            if estrutura_ok and dimensoes_identicas
+            else "equivalencia_estrutural_normalizada"
+            if estrutura_ok
+            else "fail_closed"
+        )
+
+        return {
+            "status": "online",
+            "fonte": "legenda oficial RadarSC",
+            "produto": "COMP / C-MAX",
+            "dimensoes_px": {"largura": imagem.width, "altura": imagem.height},
+            "sha256": sha,
+            "quantidade_classes": len(classes),
+            "classes": classes,
+            "validacao_169": {
+                "versao": "#169.2",
+                "status": "validada" if estrutura_ok else "invalidada_fail_closed",
+                "modo_validacao": modo_validacao,
+                "rgb_para_faixa_dbz_validado": estrutura_ok,
+                "sha256_esperado": sha_esperado,
+                "sha256_confere": sha_ok,
+                "sha256_observado": sha,
+                "sha256_somente_auditoria": True,
+                "dimensoes_esperadas_px": {"largura": ref_w, "altura": ref_h},
+                "dimensoes_observadas_px": {"largura": imagem.width, "altura": imagem.height},
+                "dimensoes_identicas_referencia": dimensoes_identicas,
+                "redimensionamento_aceitavel": estrutura_ok and not dimensoes_identicas,
+                "razao_aspecto_referencia": round(razao_ref, 6),
+                "razao_aspecto_observada": None if razao_obs is None else round(razao_obs, 6),
+                "erro_razao_aspecto_pct": None if erro_razao_pct is None else round(erro_razao_pct, 4),
+                "razao_aspecto_valida": razao_aspecto_ok,
+                "classes_esperadas": 16,
+                "quantidade_classes_valida": quantidade_ok,
+                "rgb_ordem_validos": rgb_ok,
+                "geometria_normalizada_valida": geometria_normalizada_ok,
+                "linha_segmentacao_y": melhor_y,
+                "tolerancias": {
+                    "distancia_rgb_euclidiana_max": tolerancia_rgb,
+                    "erro_centro_normalizado_max": tolerancia_geometria,
+                    "erro_largura_normalizada_max": tolerancia_geometria,
+                    "erro_razao_aspecto_pct_max": 1.0,
+                },
+                "diagnostico_classes": diagnostico_classes,
+                "motivos_bloqueio": motivos_bloqueio,
+                "regra": (
+                    "#169.2 fail-closed resistente a redimensionamento: exige 16 faixas, "
+                    "mesma ordem cromática, cores representativas compatíveis, razão de aspecto "
+                    "compatível e geometria relativa normalizada compatível. SHA-256 e dimensão "
+                    "absoluta são auditoria; mudança estrutural real bloqueia RGB→faixa dBZ."
+                ),
+            },
+            "diagnostico_128": (
+                "Estrutura normalizada da legenda validada; RGB→faixa dBZ liberado pela #169.2. C1-C16 são IDs internos do Monitor."
+                if estrutura_ok
+                else "Estrutura normalizada da legenda divergiu; dBZ bloqueado por fail-closed #169.2."
+            ),
+            "dbz_numerico": "validado_por_faixa" if estrutura_ok else "bloqueado_fail_closed",
+            "dbz_numerico_validado": estrutura_ok,
+            "mm_h_validado": False,
+            "equivale_chuva_medida": False,
+        }
     except Exception as e:
-        return {"status":"indisponivel","erro":str(e),"dbz_numerico_validado":False}
+        return {
+            "status": "indisponivel",
+            "erro": str(e),
+            "dbz_numerico_validado": False,
+            "validacao_169": {
+                "versao": "#169.2",
+                "status": "invalidada_fail_closed",
+                "rgb_para_faixa_dbz_validado": False,
+                "motivos_bloqueio": ["erro_extracao_legenda"],
+            },
+        }
 
 
 # =========================================================
@@ -6187,8 +6335,7 @@ def buscar_radar():
                 movimento,
  
             "interpretacao_dbz":
-                ("faixas_numericas_validadas_169" if leg.get("dbz_numerico_validado")
-                 else "bloqueado_fail_closed_169"),
+                "aguardando_validacao_numerica",
  
             "eta":
                 eta,

@@ -816,13 +816,17 @@ async function carregar(){
   (legRadar.classes||[]).forEach(x=>{if(x&&x.classe!=null)mapaLegDash[Number(x.classe)]=x});
   function faixaDbzDash(x){
     const l=mapaLegDash[Number(x.classe)]||x||{};
-    return dbz169Dash&&l.dbz_min!=null&&l.dbz_max!=null?f(l.dbz_min,1)+"–"+f(l.dbz_max,1)+" dBZ":"dBZ bloqueado";
+    return dbz169Dash&&l.dbz_min!=null&&l.dbz_max!=null?f(l.dbz_min,1)+"–"+f(l.dbz_max,1)+" dBZ":"";
   }
   $("dashRadarLegenda").innerHTML=dicRadar.length?dicRadar.map(x=>{
     const rgb=Array.isArray(x.rgb)&&x.rgb.length===3?"rgb("+x.rgb.join(",")+")":"transparent";
     const atual=classeAtual!==null&&Number(x.classe)===classeAtual;
-    return '<div title="C'+String(x.classe??"--")+' • '+faixaDbzDash(x)+'" style="position:relative;min-width:0;text-align:center;padding:9px 2px 6px;border:'+(atual?'2px solid #7ee787':'1px solid #315564')+';border-radius:8px;background:rgba(255,255,255,.025);'+(atual?'box-shadow:0 0 0 2px rgba(126,231,135,.16);':'')+'">'+(atual?'<span style="position:absolute;left:50%;top:-11px;transform:translateX(-50%);padding:1px 4px;border-radius:5px;background:#7ee787;color:#07150d;font-size:8px;font-weight:900;white-space:nowrap">▼ ECO AGORA</span>':'')+'<i style="display:block;width:24px;height:24px;margin:0 auto 4px;border-radius:5px;background:'+rgb+';border:1px solid rgba(255,255,255,.45)"></i><b style="font-size:12px">C'+String(x.classe??"--")+'</b><small style="display:block;font-size:8px;line-height:1.15;margin-top:2px">'+faixaDbzDash(x)+'</small></div>';
+    return '<div title="C'+String(x.classe??"--")+' • '+faixaDbzDash(x)+'" style="position:relative;min-width:0;text-align:center;padding:9px 2px 6px;border:'+(atual?'2px solid #7ee787':'1px solid #315564')+';border-radius:8px;background:rgba(255,255,255,.025);'+(atual?'box-shadow:0 0 0 2px rgba(126,231,135,.16);':'')+'">'+(atual?'<span style="position:absolute;left:50%;top:-11px;transform:translateX(-50%);padding:1px 4px;border-radius:5px;background:#7ee787;color:#07150d;font-size:8px;font-weight:900;white-space:nowrap">▼ ECO AGORA</span>':'')+'<i style="display:block;width:24px;height:24px;margin:0 auto 4px;border-radius:5px;background:'+rgb+';border:1px solid rgba(255,255,255,.45)"></i><b style="font-size:12px">C'+String(x.classe??"--")+'</b><small style="display:block;font-size:8px;line-height:1.15;margin-top:2px;min-height:9px">'+faixaDbzDash(x)+'</small></div>';
   }).join(""):'<span class="dash-muted" style="grid-column:1/-1">Escala RadarSC indisponível nesta coleta</span>';
+  if(!dbz169Dash){
+    const motivos=(v169Dash.motivos_bloqueio||[]).join(", ");
+    $("dashRadarEco").innerHTML='<span class="aviso">⚠ FAIXAS dBZ TEMPORARIAMENTE NÃO PUBLICADAS</span><br><small>A detecção RGB C1–C16 continua ativa. A #169 bloqueou apenas os números dBZ'+(motivos?' • diagnóstico: '+motivos:'')+'.</small>';
+  }
   if(escolhido&&classeAtual!==null){
     const atualInfo=dicRadar.find(x=>Number(x.classe)===classeAtual)||{classe:classeAtual};
     const famAtual=atualInfo.familia_cor||((escolhido.familias_cor||[])[0]||{}).familia||"não informada";

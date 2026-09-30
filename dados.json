@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-09-30T11:56:06.421849-03:00",
+  "gerado_em": "2026-09-30T11:59:58.227860-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -143,7 +143,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-09-30T11:55:24.606219-03:00"
+    "coletado_em": "2026-09-30T11:59:15.924423-03:00"
   },
   "chuva_observada_epagri_165": {
     "status": "online",
@@ -163,7 +163,7 @@
         "longitude": -48.9708,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-30T11:00:00-03:00",
-        "idade_leitura_min": 55.4,
+        "idade_leitura_min": 59.3,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -179,7 +179,7 @@
         "longitude": -48.9889,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-30T11:00:00-03:00",
-        "idade_leitura_min": 55.4,
+        "idade_leitura_min": 59.3,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -348,7 +348,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-30T11:00:00-03:00",
-        "idade_leitura_min": 55.4,
+        "idade_leitura_min": 59.3,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -367,7 +367,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-30T11:00:00-03:00",
-        "idade_leitura_min": 55.4,
+        "idade_leitura_min": 59.3,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -561,8 +561,8 @@
     "endpoint": "https://resources.cemaden.gov.br/graficos/interativo/grafico_pcds.php?idpcd=6259",
     "http_status": 200,
     "content_type": "text/html; charset=UTF-8",
-    "bytes_resposta": 28963,
-    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-30 10h00 UTC','2026-09-30 11h00 UTC','2026-09-30 12h00 UTC','2026-09-30 13h00 UTC','2026-09-30 14h00 UTC','2026-09-30 15h00 UTC'],'2026-09-30 ',[0,0,0,0,0,0],'Acumulada',[0,0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array",
+    "bytes_resposta": 28935,
+    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-30 11h00 UTC','2026-09-30 12h00 UTC','2026-09-30 13h00 UTC','2026-09-30 14h00 UTC','2026-09-30 15h00 UTC'],'2026-09-30 ',[0,0,0,0,0],'Acumulada',[0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643','#4B8F",
     "referencias_encontradas": [
       {
         "referencia_bruta": "css/estilo_.css",
@@ -738,7 +738,6 @@
       "30/09/2026"
     ],
     "horarios": [
-      "15h",
       "16h",
       "17h",
       "18h",
@@ -761,7 +760,8 @@
       "11h",
       "12h",
       "13h",
-      "14h"
+      "14h",
+      "15h"
     ],
     "dimensoes_acumulados": {
       "linhas": 2,
@@ -780,7 +780,7 @@
         0.0,
         0.0,
         0.0,
-        0.0,
+        null,
         null,
         null,
         null,
@@ -806,7 +806,7 @@
         null,
         null,
         null,
-        null,
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -852,13 +852,6 @@
     "timezone_fonte": "UTC",
     "timezone_local": "America/Sao_Paulo",
     "leituras_validas": [
-      {
-        "instante_utc": "2026-09-29T15:00:00+00:00",
-        "instante_local": "2026-09-29T12:00:00-03:00",
-        "valor_mm": 0.0,
-        "data_fonte": "29/09/2026",
-        "hora_fonte": "15h"
-      },
       {
         "instante_utc": "2026-09-29T16:00:00+00:00",
         "instante_local": "2026-09-29T13:00:00-03:00",
@@ -1019,17 +1012,24 @@
         "valor_mm": 0.0,
         "data_fonte": "30/09/2026",
         "hora_fonte": "14h"
+      },
+      {
+        "instante_utc": "2026-09-30T15:00:00+00:00",
+        "instante_local": "2026-09-30T12:00:00-03:00",
+        "valor_mm": 0.0,
+        "data_fonte": "30/09/2026",
+        "hora_fonte": "15h"
       }
     ],
     "quantidade_leituras_validas": 24,
     "ultima_leitura": {
-      "instante_utc": "2026-09-30T14:00:00+00:00",
-      "instante_local": "2026-09-30T11:00:00-03:00",
+      "instante_utc": "2026-09-30T15:00:00+00:00",
+      "instante_local": "2026-09-30T12:00:00-03:00",
       "valor_mm": 0.0,
       "data_fonte": "30/09/2026",
-      "hora_fonte": "14h"
+      "hora_fonte": "15h"
     },
-    "idade_ultima_leitura_min": 56.3,
+    "idade_ultima_leitura_min": 0.2,
     "dados_frescos_diagnostico": true,
     "limite_frescor_diagnostico_min": 120,
     "acumulados_diagnosticos": {
@@ -1076,13 +1076,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 1,
         "primeira_celula": {
-          "instante_utc": "2026-09-30T14:00:00+00:00",
-          "instante_local": "2026-09-30T11:00:00-03:00",
+          "instante_utc": "2026-09-30T15:00:00+00:00",
+          "instante_local": "2026-09-30T12:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-09-30T14:00:00+00:00",
-          "instante_local": "2026-09-30T11:00:00-03:00",
+          "instante_utc": "2026-09-30T15:00:00+00:00",
+          "instante_local": "2026-09-30T12:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1094,13 +1094,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 2,
         "primeira_celula": {
-          "instante_utc": "2026-09-30T13:00:00+00:00",
-          "instante_local": "2026-09-30T10:00:00-03:00",
+          "instante_utc": "2026-09-30T14:00:00+00:00",
+          "instante_local": "2026-09-30T11:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-09-30T14:00:00+00:00",
-          "instante_local": "2026-09-30T11:00:00-03:00",
+          "instante_utc": "2026-09-30T15:00:00+00:00",
+          "instante_local": "2026-09-30T12:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1112,13 +1112,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 6,
         "primeira_celula": {
-          "instante_utc": "2026-09-30T09:00:00+00:00",
-          "instante_local": "2026-09-30T06:00:00-03:00",
+          "instante_utc": "2026-09-30T10:00:00+00:00",
+          "instante_local": "2026-09-30T07:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-09-30T14:00:00+00:00",
-          "instante_local": "2026-09-30T11:00:00-03:00",
+          "instante_utc": "2026-09-30T15:00:00+00:00",
+          "instante_local": "2026-09-30T12:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1130,13 +1130,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 24,
         "primeira_celula": {
-          "instante_utc": "2026-09-29T15:00:00+00:00",
-          "instante_local": "2026-09-29T12:00:00-03:00",
+          "instante_utc": "2026-09-29T16:00:00+00:00",
+          "instante_local": "2026-09-29T13:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-09-30T14:00:00+00:00",
-          "instante_local": "2026-09-30T11:00:00-03:00",
+          "instante_utc": "2026-09-30T15:00:00+00:00",
+          "instante_local": "2026-09-30T12:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1148,13 +1148,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 48,
         "primeira_celula": {
-          "instante_utc": "2026-09-28T15:00:00+00:00",
-          "instante_local": "2026-09-28T12:00:00-03:00",
+          "instante_utc": "2026-09-28T16:00:00+00:00",
+          "instante_local": "2026-09-28T13:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-09-30T14:00:00+00:00",
-          "instante_local": "2026-09-30T11:00:00-03:00",
+          "instante_utc": "2026-09-30T15:00:00+00:00",
+          "instante_local": "2026-09-30T12:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1255,9 +1255,9 @@
     "1h_mm": 0.0,
     "6h_mm": 0.0,
     "24h_mm": 0.0,
-    "horario_ultima_celula_utc": "2026-09-30T14:00:00+00:00",
-    "horario_ultima_celula_local": "2026-09-30T11:00:00-03:00",
-    "idade_leitura_min": 56.4,
+    "horario_ultima_celula_utc": "2026-09-30T15:00:00+00:00",
+    "horario_ultima_celula_local": "2026-09-30T12:00:00-03:00",
+    "idade_leitura_min": 0.3,
     "dados_frescos": true,
     "limite_frescor_min": 120,
     "granularidade": "horaria",
@@ -1293,7 +1293,7 @@
     "leitura_horaria_mm": 0.0,
     "horario_medicao_utc": "2026-09-30T14:00:00+00:00",
     "horario_medicao_local": "2026-09-30T11:00:00-03:00",
-    "idade_leitura_min": 56.4,
+    "idade_leitura_min": 60.3,
     "dados_frescos": true,
     "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
     "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
@@ -1425,13 +1425,8 @@
       },
       {
         "horario_utc": "2026-09-30T14:40:00+00:00",
-        "http": 404,
-        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609301440.json"
-      },
-      {
-        "horario_utc": "2026-09-30T14:30:00+00:00",
         "http": 200,
-        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609301430.json"
+        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609301440.json"
       }
     ],
     "eta_liberado": true,
@@ -1441,30 +1436,30 @@
     "equivale_chuva_medida_solo": false,
     "regra_seguranca": "TATHU/GOES-19 é evidência remota de sistemas convectivos. Indisponibilidade não significa ausência de tempestade; GLM/satélite não equivalem a chuva no solo. Velocidade, direção e geometrias previstas alimentam o nowcast experimental #168; não constituem observação nem alerta oficial.",
     "status": "online",
-    "url_produto": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609301430.json",
-    "horario_produto_utc": "2026-09-30T14:30:00+00:00",
-    "horario_produto_local": "2026-09-30T11:30:00-03:00",
-    "idade_dado_min": 25.9,
+    "url_produto": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609301440.json",
+    "horario_produto_utc": "2026-09-30T14:40:00+00:00",
+    "horario_produto_local": "2026-09-30T11:40:00-03:00",
+    "idade_dado_min": 19.7,
     "limite_frescor_monitor_min": 40,
     "tipo_geojson": "FeatureCollection",
-    "sistemas_detectados": 311,
+    "sistemas_detectados": 297,
     "sistemas_relevantes_joinville": 1,
     "raio_triagem_regional_km": 250,
     "sistemas": [
       {
         "nome": "1bc2753e-d9a7-4169-a391-5ef42ca56f17",
-        "timestamp_fonte": "2026-09-30 14:30:00",
+        "timestamp_fonte": "2026-09-30 14:40:00",
         "evento": "CONTINUITY",
-        "fase": "Estável",
-        "latitude": -26.4,
-        "longitude": -50.55,
+        "fase": "Desintensificando",
+        "latitude": -26.5,
+        "longitude": -50.36,
         "metodo_posicao": "properties_Latitude_Longitude",
-        "distancia_comasa_km": 174.0,
-        "temperatura_minima_k": 227.5,
-        "taxa_resfriamento_k_10min": 0.4302,
+        "distancia_comasa_km": 156.5,
+        "temperatura_minima_k": 228.1,
+        "taxa_resfriamento_k_10min": 0.676,
         "velocidade_m_s": 0.0,
         "direcao_graus": 0.0,
-        "duracao_h": 1.0,
+        "duracao_h": 1.167,
         "fracao_convectiva_pct": 0.0,
         "previsao_dt_min": 0.0,
         "natureza": "diagnostico_tathu",
@@ -1473,79 +1468,47 @@
           "coordinates": [
             [
               [
-                -50.71,
-                -26.1
-              ],
-              [
-                -50.66,
-                -26.1
-              ],
-              [
-                -50.66,
-                -26.12
-              ],
-              [
-                -50.64,
-                -26.12
-              ],
-              [
-                -50.64,
-                -26.14
-              ],
-              [
-                -50.62,
-                -26.14
-              ],
-              [
-                -50.62,
-                -26.16
-              ],
-              [
-                -50.58,
-                -26.16
-              ],
-              [
-                -50.58,
-                -26.14
-              ],
-              [
                 -50.55,
-                -26.14
-              ],
-              [
-                -50.55,
-                -26.16
-              ],
-              [
-                -50.46,
-                -26.16
-              ],
-              [
-                -50.46,
                 -26.18
               ],
               [
-                -50.42,
+                -50.53,
                 -26.18
               ],
               [
-                -50.42,
-                -26.21
+                -50.53,
+                -26.19
               ],
               [
-                -50.39,
-                -26.21
+                -50.51,
+                -26.19
               ],
               [
-                -50.39,
+                -50.51,
                 -26.23
               ],
               [
-                -50.4,
+                -50.46,
                 -26.23
               ],
               [
+                -50.46,
+                -26.27
+              ],
+              [
                 -50.4,
+                -26.27
+              ],
+              [
+                -50.4,
+                -26.25
+              ],
+              [
+                -50.37,
+                -26.25
+              ],
+              [
+                -50.37,
                 -26.27
               ],
               [
@@ -1557,19 +1520,545 @@
                 -26.28
               ],
               [
-                -50.4,
+                -50.37,
                 -26.28
               ],
               [
+                -50.37,
+                -26.32
+              ],
+              [
+                -50.24,
+                -26.32
+              ],
+              [
+                -50.24,
+                -26.34
+              ],
+              [
+                -50.26,
+                -26.34
+              ],
+              [
+                -50.26,
+                -26.37
+              ],
+              [
+                -50.33,
+                -26.37
+              ],
+              [
+                -50.33,
+                -26.39
+              ],
+              [
+                -50.31,
+                -26.39
+              ],
+              [
+                -50.31,
+                -26.41
+              ],
+              [
+                -50.33,
+                -26.41
+              ],
+              [
+                -50.33,
+                -26.43
+              ],
+              [
+                -50.39,
+                -26.43
+              ],
+              [
+                -50.39,
+                -26.45
+              ],
+              [
                 -50.4,
-                -26.3
+                -26.45
+              ],
+              [
+                -50.4,
+                -26.46
+              ],
+              [
+                -50.35,
+                -26.46
+              ],
+              [
+                -50.35,
+                -26.45
+              ],
+              [
+                -50.31,
+                -26.45
+              ],
+              [
+                -50.31,
+                -26.46
+              ],
+              [
+                -50.33,
+                -26.46
+              ],
+              [
+                -50.33,
+                -26.48
+              ],
+              [
+                -50.37,
+                -26.48
+              ],
+              [
+                -50.37,
+                -26.52
               ],
               [
                 -50.39,
-                -26.3
+                -26.52
               ],
               [
                 -50.39,
+                -26.54
+              ],
+              [
+                -50.4,
+                -26.54
+              ],
+              [
+                -50.4,
+                -26.57
+              ],
+              [
+                -50.42,
+                -26.57
+              ],
+              [
+                -50.42,
+                -26.59
+              ],
+              [
+                -50.39,
+                -26.59
+              ],
+              [
+                -50.39,
+                -26.57
+              ],
+              [
+                -50.37,
+                -26.57
+              ],
+              [
+                -50.37,
+                -26.54
+              ],
+              [
+                -50.35,
+                -26.54
+              ],
+              [
+                -50.35,
+                -26.52
+              ],
+              [
+                -50.33,
+                -26.52
+              ],
+              [
+                -50.33,
+                -26.54
+              ],
+              [
+                -50.31,
+                -26.54
+              ],
+              [
+                -50.31,
+                -26.52
+              ],
+              [
+                -50.3,
+                -26.52
+              ],
+              [
+                -50.3,
+                -26.48
+              ],
+              [
+                -50.28,
+                -26.48
+              ],
+              [
+                -50.28,
+                -26.46
+              ],
+              [
+                -50.26,
+                -26.46
+              ],
+              [
+                -50.26,
+                -26.45
+              ],
+              [
+                -50.24,
+                -26.45
+              ],
+              [
+                -50.24,
+                -26.43
+              ],
+              [
+                -50.19,
+                -26.43
+              ],
+              [
+                -50.19,
+                -26.45
+              ],
+              [
+                -50.17,
+                -26.45
+              ],
+              [
+                -50.17,
+                -26.43
+              ],
+              [
+                -50.15,
+                -26.43
+              ],
+              [
+                -50.15,
+                -26.45
+              ],
+              [
+                -50.12,
+                -26.45
+              ],
+              [
+                -50.12,
+                -26.48
+              ],
+              [
+                -50.1,
+                -26.48
+              ],
+              [
+                -50.1,
+                -26.52
+              ],
+              [
+                -50.08,
+                -26.52
+              ],
+              [
+                -50.08,
+                -26.54
+              ],
+              [
+                -50.06,
+                -26.54
+              ],
+              [
+                -50.06,
+                -26.57
+              ],
+              [
+                -50.08,
+                -26.57
+              ],
+              [
+                -50.08,
+                -26.61
+              ],
+              [
+                -50.15,
+                -26.61
+              ],
+              [
+                -50.15,
+                -26.59
+              ],
+              [
+                -50.17,
+                -26.59
+              ],
+              [
+                -50.17,
+                -26.64
+              ],
+              [
+                -50.15,
+                -26.64
+              ],
+              [
+                -50.15,
+                -26.7
+              ],
+              [
+                -50.17,
+                -26.7
+              ],
+              [
+                -50.17,
+                -26.71
+              ],
+              [
+                -50.19,
+                -26.71
+              ],
+              [
+                -50.19,
+                -26.73
+              ],
+              [
+                -50.33,
+                -26.73
+              ],
+              [
+                -50.33,
+                -26.7
+              ],
+              [
+                -50.39,
+                -26.7
+              ],
+              [
+                -50.39,
+                -26.71
+              ],
+              [
+                -50.37,
+                -26.71
+              ],
+              [
+                -50.37,
+                -26.73
+              ],
+              [
+                -50.4,
+                -26.73
+              ],
+              [
+                -50.4,
+                -26.68
+              ],
+              [
+                -50.46,
+                -26.68
+              ],
+              [
+                -50.46,
+                -26.66
+              ],
+              [
+                -50.53,
+                -26.66
+              ],
+              [
+                -50.53,
+                -26.68
+              ],
+              [
+                -50.55,
+                -26.68
+              ],
+              [
+                -50.55,
+                -26.66
+              ],
+              [
+                -50.58,
+                -26.66
+              ],
+              [
+                -50.58,
+                -26.62
+              ],
+              [
+                -50.6,
+                -26.62
+              ],
+              [
+                -50.6,
+                -26.57
+              ],
+              [
+                -50.55,
+                -26.57
+              ],
+              [
+                -50.55,
+                -26.59
+              ],
+              [
+                -50.51,
+                -26.59
+              ],
+              [
+                -50.51,
+                -26.57
+              ],
+              [
+                -50.53,
+                -26.57
+              ],
+              [
+                -50.53,
+                -26.55
+              ],
+              [
+                -50.57,
+                -26.55
+              ],
+              [
+                -50.57,
+                -26.52
+              ],
+              [
+                -50.58,
+                -26.52
+              ],
+              [
+                -50.58,
+                -26.5
+              ],
+              [
+                -50.57,
+                -26.5
+              ],
+              [
+                -50.57,
+                -26.48
+              ],
+              [
+                -50.53,
+                -26.48
+              ],
+              [
+                -50.53,
+                -26.52
+              ],
+              [
+                -50.49,
+                -26.52
+              ],
+              [
+                -50.49,
+                -26.54
+              ],
+              [
+                -50.46,
+                -26.54
+              ],
+              [
+                -50.46,
+                -26.5
+              ],
+              [
+                -50.44,
+                -26.5
+              ],
+              [
+                -50.44,
+                -26.46
+              ],
+              [
+                -50.49,
+                -26.46
+              ],
+              [
+                -50.49,
+                -26.45
+              ],
+              [
+                -50.48,
+                -26.45
+              ],
+              [
+                -50.48,
+                -26.41
+              ],
+              [
+                -50.49,
+                -26.41
+              ],
+              [
+                -50.49,
+                -26.36
+              ],
+              [
+                -50.51,
+                -26.36
+              ],
+              [
+                -50.51,
+                -26.37
+              ],
+              [
+                -50.55,
+                -26.37
+              ],
+              [
+                -50.55,
+                -26.32
+              ],
+              [
+                -50.57,
+                -26.32
+              ],
+              [
+                -50.57,
+                -26.28
+              ],
+              [
+                -50.55,
+                -26.28
+              ],
+              [
+                -50.55,
+                -26.27
+              ],
+              [
+                -50.62,
+                -26.27
+              ],
+              [
+                -50.62,
+                -26.23
+              ],
+              [
+                -50.64,
+                -26.23
+              ],
+              [
+                -50.64,
+                -26.21
+              ],
+              [
+                -50.58,
+                -26.21
+              ],
+              [
+                -50.58,
+                -26.19
+              ],
+              [
+                -50.55,
+                -26.19
+              ],
+              [
+                -50.55,
+                -26.18
+              ]
+            ],
+            [
+              [
+                -50.37,
                 -26.32
               ],
               [
@@ -1581,668 +2070,96 @@
                 -26.34
               ],
               [
-                -50.46,
+                -50.37,
                 -26.34
               ],
               [
-                -50.46,
-                -26.36
-              ],
-              [
-                -50.42,
-                -26.36
-              ],
-              [
-                -50.42,
-                -26.37
-              ],
-              [
-                -50.44,
-                -26.37
-              ],
-              [
-                -50.44,
-                -26.43
-              ],
+                -50.37,
+                -26.32
+              ]
+            ],
+            [
               [
                 -50.48,
-                -26.43
-              ],
-              [
-                -50.48,
-                -26.46
-              ],
-              [
-                -50.44,
-                -26.46
-              ],
-              [
-                -50.44,
-                -26.45
-              ],
-              [
-                -50.42,
-                -26.45
-              ],
-              [
-                -50.42,
-                -26.43
-              ],
-              [
-                -50.4,
-                -26.43
-              ],
-              [
-                -50.4,
-                -26.41
-              ],
-              [
-                -50.42,
-                -26.41
-              ],
-              [
-                -50.42,
-                -26.39
-              ],
-              [
-                -50.4,
-                -26.39
-              ],
-              [
-                -50.4,
-                -26.37
-              ],
-              [
-                -50.39,
-                -26.37
-              ],
-              [
-                -50.39,
-                -26.36
-              ],
-              [
-                -50.35,
-                -26.36
-              ],
-              [
-                -50.35,
-                -26.37
-              ],
-              [
-                -50.31,
-                -26.37
-              ],
-              [
-                -50.31,
-                -26.36
-              ],
-              [
-                -50.28,
-                -26.36
-              ],
-              [
-                -50.28,
-                -26.41
-              ],
-              [
-                -50.26,
-                -26.41
-              ],
-              [
-                -50.26,
-                -26.45
-              ],
-              [
-                -50.24,
-                -26.45
-              ],
-              [
-                -50.24,
-                -26.46
-              ],
-              [
-                -50.22,
-                -26.46
-              ],
-              [
-                -50.22,
-                -26.52
-              ],
-              [
-                -50.24,
-                -26.52
-              ],
-              [
-                -50.24,
-                -26.54
-              ],
-              [
-                -50.28,
-                -26.54
-              ],
-              [
-                -50.28,
-                -26.52
-              ],
-              [
-                -50.33,
-                -26.52
-              ],
-              [
-                -50.33,
-                -26.54
-              ],
-              [
-                -50.31,
-                -26.54
-              ],
-              [
-                -50.31,
-                -26.55
-              ],
-              [
-                -50.3,
-                -26.55
-              ],
-              [
-                -50.3,
                 -26.59
-              ],
-              [
-                -50.33,
-                -26.59
-              ],
-              [
-                -50.33,
-                -26.62
-              ],
-              [
-                -50.35,
-                -26.62
-              ],
-              [
-                -50.35,
-                -26.64
               ],
               [
                 -50.48,
                 -26.64
               ],
               [
-                -50.48,
-                -26.61
+                -50.44,
+                -26.64
               ],
               [
-                -50.53,
-                -26.61
-              ],
-              [
-                -50.53,
-                -26.62
-              ],
-              [
-                -50.51,
-                -26.62
-              ],
-              [
-                -50.51,
+                -50.44,
                 -26.66
               ],
               [
-                -50.53,
+                -50.42,
                 -26.66
               ],
               [
-                -50.53,
+                -50.42,
                 -26.64
               ],
               [
-                -50.55,
+                -50.4,
                 -26.64
               ],
               [
-                -50.55,
+                -50.4,
+                -26.62
+              ],
+              [
+                -50.42,
+                -26.62
+              ],
+              [
+                -50.42,
                 -26.61
               ],
               [
-                -50.6,
+                -50.44,
                 -26.61
               ],
               [
-                -50.6,
-                -26.62
-              ],
-              [
-                -50.58,
-                -26.62
-              ],
-              [
-                -50.58,
-                -26.68
-              ],
-              [
-                -50.6,
-                -26.68
-              ],
-              [
-                -50.6,
-                -26.7
-              ],
-              [
-                -50.64,
-                -26.7
-              ],
-              [
-                -50.64,
-                -26.68
-              ],
-              [
-                -50.66,
-                -26.68
-              ],
-              [
-                -50.66,
-                -26.62
-              ],
-              [
-                -50.69,
-                -26.62
-              ],
-              [
-                -50.69,
+                -50.44,
                 -26.59
               ],
               [
-                -50.73,
+                -50.48,
                 -26.59
-              ],
+              ]
+            ],
+            [
               [
-                -50.73,
-                -26.54
-              ],
-              [
-                -50.75,
-                -26.54
-              ],
-              [
-                -50.75,
-                -26.48
-              ],
-              [
-                -50.8,
-                -26.48
-              ],
-              [
-                -50.8,
-                -26.43
-              ],
-              [
-                -50.82,
-                -26.43
-              ],
-              [
-                -50.82,
-                -26.37
-              ],
-              [
-                -50.84,
-                -26.37
-              ],
-              [
-                -50.84,
-                -26.36
-              ],
-              [
-                -50.85,
-                -26.36
-              ],
-              [
-                -50.85,
-                -26.32
-              ],
-              [
-                -50.87,
-                -26.32
-              ],
-              [
-                -50.87,
-                -26.28
-              ],
-              [
-                -50.85,
-                -26.28
-              ],
-              [
-                -50.85,
-                -26.25
-              ],
-              [
-                -50.84,
-                -26.25
-              ],
-              [
-                -50.84,
-                -26.21
-              ],
-              [
-                -50.85,
-                -26.21
-              ],
-              [
-                -50.85,
-                -26.19
-              ],
-              [
-                -50.8,
-                -26.19
-              ],
-              [
-                -50.8,
-                -26.21
-              ],
-              [
-                -50.82,
-                -26.21
-              ],
-              [
-                -50.82,
-                -26.25
-              ],
-              [
-                -50.8,
-                -26.25
-              ],
-              [
-                -50.8,
-                -26.28
-              ],
-              [
-                -50.78,
-                -26.28
-              ],
-              [
-                -50.78,
-                -26.3
-              ],
-              [
-                -50.76,
-                -26.3
-              ],
-              [
-                -50.76,
-                -26.32
-              ],
-              [
-                -50.75,
-                -26.32
-              ],
-              [
-                -50.75,
-                -26.36
-              ],
-              [
-                -50.73,
-                -26.36
-              ],
-              [
-                -50.73,
-                -26.37
-              ],
-              [
-                -50.75,
-                -26.37
-              ],
-              [
-                -50.75,
-                -26.41
-              ],
-              [
-                -50.76,
-                -26.41
-              ],
-              [
-                -50.76,
-                -26.45
-              ],
-              [
-                -50.73,
-                -26.45
-              ],
-              [
-                -50.73,
-                -26.5
-              ],
-              [
-                -50.69,
-                -26.5
-              ],
-              [
-                -50.69,
-                -26.48
-              ],
-              [
-                -50.71,
-                -26.48
-              ],
-              [
-                -50.71,
-                -26.43
-              ],
-              [
-                -50.69,
-                -26.43
-              ],
-              [
-                -50.69,
-                -26.41
-              ],
-              [
-                -50.66,
-                -26.41
-              ],
-              [
-                -50.66,
-                -26.43
-              ],
-              [
-                -50.64,
-                -26.43
-              ],
-              [
-                -50.64,
-                -26.46
-              ],
-              [
-                -50.62,
-                -26.46
-              ],
-              [
-                -50.62,
-                -26.43
-              ],
-              [
-                -50.6,
-                -26.43
-              ],
-              [
-                -50.6,
+                -50.44,
                 -26.39
               ],
               [
-                -50.64,
+                -50.44,
+                -26.43
+              ],
+              [
+                -50.4,
+                -26.43
+              ],
+              [
+                -50.4,
+                -26.41
+              ],
+              [
+                -50.42,
+                -26.41
+              ],
+              [
+                -50.42,
                 -26.39
               ],
               [
-                -50.64,
-                -26.36
-              ],
-              [
-                -50.62,
-                -26.36
-              ],
-              [
-                -50.62,
-                -26.32
-              ],
-              [
-                -50.64,
-                -26.32
-              ],
-              [
-                -50.64,
-                -26.3
-              ],
-              [
-                -50.67,
-                -26.3
-              ],
-              [
-                -50.67,
-                -26.28
-              ],
-              [
-                -50.71,
-                -26.28
-              ],
-              [
-                -50.71,
-                -26.25
-              ],
-              [
-                -50.73,
-                -26.25
-              ],
-              [
-                -50.73,
-                -26.23
-              ],
-              [
-                -50.75,
-                -26.23
-              ],
-              [
-                -50.75,
-                -26.19
-              ],
-              [
-                -50.76,
-                -26.19
-              ],
-              [
-                -50.76,
-                -26.16
-              ],
-              [
-                -50.73,
-                -26.16
-              ],
-              [
-                -50.73,
-                -26.12
-              ],
-              [
-                -50.71,
-                -26.12
-              ],
-              [
-                -50.71,
-                -26.1
-              ]
-            ],
-            [
-              [
-                -50.48,
-                -26.23
-              ],
-              [
-                -50.48,
-                -26.25
-              ],
-              [
                 -50.44,
-                -26.25
-              ],
-              [
-                -50.44,
-                -26.23
-              ],
-              [
-                -50.48,
-                -26.23
-              ]
-            ],
-            [
-              [
-                -50.55,
-                -26.5
-              ],
-              [
-                -50.55,
-                -26.52
-              ],
-              [
-                -50.53,
-                -26.52
-              ],
-              [
-                -50.53,
-                -26.5
-              ],
-              [
-                -50.55,
-                -26.5
-              ]
-            ],
-            [
-              [
-                -50.62,
-                -26.52
-              ],
-              [
-                -50.62,
-                -26.55
-              ],
-              [
-                -50.58,
-                -26.55
-              ],
-              [
-                -50.58,
-                -26.54
-              ],
-              [
-                -50.6,
-                -26.54
-              ],
-              [
-                -50.6,
-                -26.52
-              ],
-              [
-                -50.62,
-                -26.52
-              ]
-            ],
-            [
-              [
-                -50.73,
-                -26.19
-              ],
-              [
-                -50.73,
-                -26.21
-              ],
-              [
-                -50.67,
-                -26.21
-              ],
-              [
-                -50.67,
-                -26.19
-              ],
-              [
-                -50.73,
-                -26.19
+                -26.39
               ]
             ]
           ]
@@ -2313,7 +2230,7 @@
     "residual_cm": 3.1,
     "nmm_cm": 103.1,
     "horario": "2026-09-30T11:30:00-03:00",
-    "idade_min": 25.8,
+    "idade_min": 29.7,
     "frescor": "atual",
     "residual_aritmetica_validada": true,
     "uso_no_risco": false,
@@ -4211,7 +4128,7 @@
     "versao": "166-v0.2-historico-integrado",
     "status": "historico_em_formacao",
     "arquivo_historico": "historico_guaxanduva_166.json",
-    "gerado_em": "2026-09-30T11:55:50.031423-03:00",
+    "gerado_em": "2026-09-30T11:59:42.244498-03:00",
     "quantidade_registros": 615,
     "quantidade_chuva_horaria": 266,
     "quantidade_mare_observada": 349,
@@ -4335,7 +4252,7 @@
   },
   "modelo_computacional_guaxanduva_v01": {
     "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
-    "gerado_em": "2026-09-30T11:55:50.041527-03:00",
+    "gerado_em": "2026-09-30T11:59:42.250553-03:00",
     "status": "grafo_hidrografico_integrado",
     "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
     "microbacia": "44-0",
@@ -4352,7 +4269,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-09-30T11:55:52.144136-03:00"
+      "instante": "2026-09-30T11:59:44.373622-03:00"
     },
     "parametros_hidraulicos_documentados": {
       "bypass_montezuma_odilon": {
@@ -14882,7 +14799,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-09-30T11:55:52.144136-03:00",
+      "instante": "2026-09-30T11:59:44.373622-03:00",
       "uso_operacional": false,
       "alerta_operacional_liberado": false,
       "representa_medicao_instrumental": false,
@@ -16521,7 +16438,7 @@
     "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
     "status": "nivel_modelado_calculado",
     "natureza": "MODELADO_NAO_INSTRUMENTAL",
-    "instante": "2026-09-30T11:55:52.164670-03:00",
+    "instante": "2026-09-30T11:59:44.397633-03:00",
     "referencia_forcantes": "2026-09-30T11:30:00-03:00",
     "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
     "nivel_estimado_m": 1.966,
@@ -16895,7 +16812,7 @@
       "janela_inicio": "2026-09-30T12:00",
       "janela_fim_exclusivo": "2026-10-01T12:00:00-03:00",
       "mare_horario": "2026-09-30T11:30:00-03:00",
-      "mare_idade_min": 25.8
+      "mare_idade_min": 29.7
     },
     "criterios": {
       "mobilizacao_chuva_superior_20mm_24h": true,
@@ -16929,7 +16846,7 @@
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
     "horario_ultimo_quadro": "2026-09-30T11:50:00-03:00",
-    "idade_ultimo_quadro_min": 6.1,
+    "idade_ultimo_quadro_min": 10.0,
     "dados_frescos": true,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -22518,7 +22435,7 @@
             "projecao_adiante_km": 74.96,
             "velocidade_recente_media_kmh": 56.0,
             "radar_fresco": true,
-            "idade_radar_min": 6.1,
+            "idade_radar_min": 10.0,
             "horario_ultimo_quadro": "2026-09-30T14:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -22565,7 +22482,7 @@
             "projecao_adiante_km": 166.53,
             "velocidade_recente_media_kmh": 50.7,
             "radar_fresco": true,
-            "idade_radar_min": 6.1,
+            "idade_radar_min": 10.0,
             "horario_ultimo_quadro": "2026-09-30T14:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -22612,7 +22529,7 @@
             "projecao_adiante_km": -5.71,
             "velocidade_recente_media_kmh": 49.5,
             "radar_fresco": true,
-            "idade_radar_min": 6.1,
+            "idade_radar_min": 10.0,
             "horario_ultimo_quadro": "2026-09-30T14:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -22659,7 +22576,7 @@
             "projecao_adiante_km": -275.93,
             "velocidade_recente_media_kmh": 62.6,
             "radar_fresco": true,
-            "idade_radar_min": 6.1,
+            "idade_radar_min": 10.0,
             "horario_ultimo_quadro": "2026-09-30T14:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -22704,7 +22621,7 @@
       "projecao_adiante_km": 74.96,
       "velocidade_recente_media_kmh": 56.0,
       "radar_fresco": true,
-      "idade_radar_min": 6.1,
+      "idade_radar_min": 10.0,
       "horario_ultimo_quadro": "2026-09-30T14:50:00+00:00",
       "criterios": {
         "minimo_transicoes": 3,
@@ -32747,7 +32664,7 @@
       "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
       "status": "nivel_modelado_calculado",
       "natureza": "MODELADO_NAO_INSTRUMENTAL",
-      "instante": "2026-09-30T11:55:52.164670-03:00",
+      "instante": "2026-09-30T11:59:44.397633-03:00",
       "referencia_forcantes": "2026-09-30T11:30:00-03:00",
       "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
       "nivel_estimado_m": 1.966,
@@ -34707,7 +34624,7 @@
     "consultas_temporais": [
       {
         "dias": 2,
-        "datetime": "2026-09-28T14:55:26Z/2026-09-30T14:55:26Z",
+        "datetime": "2026-09-28T14:59:17Z/2026-09-30T14:59:17Z",
         "http_status": 200,
         "quantidade_features": 17,
         "quantidade_data_alerta": 17,
@@ -34716,7 +34633,7 @@
       },
       {
         "dias": 7,
-        "datetime": "2026-09-23T14:55:26Z/2026-09-30T14:55:26Z",
+        "datetime": "2026-09-23T14:59:17Z/2026-09-30T14:59:17Z",
         "http_status": 200,
         "quantidade_features": 62,
         "quantidade_data_alerta": 62,
@@ -34725,7 +34642,7 @@
       },
       {
         "dias": 30,
-        "datetime": "2026-08-31T14:55:26Z/2026-09-30T14:55:26Z",
+        "datetime": "2026-08-31T14:59:17Z/2026-09-30T14:59:17Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,
@@ -34734,7 +34651,7 @@
       },
       {
         "dias": 90,
-        "datetime": "2026-07-02T14:55:26Z/2026-09-30T14:55:26Z",
+        "datetime": "2026-07-02T14:59:17Z/2026-09-30T14:59:17Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,

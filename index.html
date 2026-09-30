@@ -217,7 +217,8 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="radar-item">🛡️ ETA automático liberado?<b id="paletaEta">NÃO</b></div>
 </div>
 <div id="paletaEstado" class="box aviso">Carregando validação da paleta...</div>
-<small>A #169 valida RGB → faixa dBZ somente quando SHA-256, dimensões, 16 segmentos, RGB e geometria da legenda oficial permanecem exatamente iguais à referência validada. Qualquer mudança bloqueia os valores numéricos. dBZ não equivale a chuva medida e mm/h permanece bloqueado.</small>
+<div id="paletaDiagnostico169" class="box"><b>🔬 Diagnóstico #169.1</b><br><small>Aguardando diagnóstico estrutural da legenda...</small></div>
+<small>A #169.1 libera RGB → faixa dBZ somente quando dimensões, 16 segmentos e RGB/geometria permanecem iguais à referência validada. O SHA-256 é exibido apenas para auditoria e não bloqueia a escala se a estrutura visual permanecer idêntica. dBZ não equivale a chuva medida e mm/h permanece bloqueado.</small>
 </section>
  
 <section class="card">
@@ -543,11 +544,30 @@ async function carregar(){
   $("paletaClasses").textContent=vp.classes_legenda_total==null?"--":(vp.classes_legenda_observadas??0)+" de "+vp.classes_legenda_total;
   $("paletaDbz").textContent=dbz169?"SIM • #169":"NÃO";
   $("paletaEta").textContent=vp.eta_liberado?"SIM":"NÃO";
-  if(v169.status==="invalidada_fail_closed"){$("paletaEstado").innerHTML='<span class="erro">🔴 #169 FAIL-CLOSED</span> • legenda oficial mudou; faixas dBZ bloqueadas'}
-  else if(dbz169&&compat){$("paletaEstado").innerHTML='<span class="ok">🟢 RGB → FAIXA dBZ VALIDADO • #169</span> • compatibilidade estrutural observada • mm/h e ETA continuam bloqueados'}
+  if(v169.status==="invalidada_fail_closed"){$("paletaEstado").innerHTML='<span class="erro">🔴 #169.1 FAIL-CLOSED</span> • faixas dBZ bloqueadas pela validação estrutural'}
+  else if(dbz169&&compat){$("paletaEstado").innerHTML='<span class="ok">🟢 RGB → FAIXA dBZ VALIDADO • #169.1</span> • estrutura da legenda íntegra • mm/h e ETA continuam bloqueados'}
   else if(!vp.status){$("paletaEstado").innerHTML='<span class="aviso">🟡 Diagnóstico da paleta ainda não recebido</span>'}
-  else if(compat){$("paletaEstado").innerHTML='<span class="aviso">🟡 Compatibilidade RGB observada</span> • aguardando validação numérica #169'}
+  else if(compat){$("paletaEstado").innerHTML='<span class="aviso">🟡 Compatibilidade RGB observada</span> • aguardando validação estrutural #169.1'}
   else{$("paletaEstado").innerHTML='<span class="aviso">🟡 Sem correspondência RGB observada nesta amostra</span> • continuar coletando evidências'}
+
+  const dimObs=leg169.dimensoes_px||{}, dimEsp=v169.dimensoes_esperadas_px||{};
+  const motivos169=Array.isArray(v169.motivos_bloqueio)?v169.motivos_bloqueio:[];
+  const qtdObs=leg169.quantidade_classes, qtdEsp=v169.classes_esperadas;
+  const shaObs=v169.sha256_observado||leg169.sha256||"--";
+  const shaEsp=v169.sha256_esperado||"--";
+  const linhaDim=(dimObs.largura!=null&&dimObs.altura!=null)?dimObs.largura+"×"+dimObs.altura:"--";
+  const linhaDimEsp=(dimEsp.largura!=null&&dimEsp.altura!=null)?dimEsp.largura+"×"+dimEsp.altura:"--";
+  $("paletaDiagnostico169").innerHTML=
+   '<b>🔬 Diagnóstico #169.1 • '+(v169.status?nomeFamilia(v169.status):"INDISPONÍVEL")+'</b><br><small>'+
+   'Dimensões: <b>'+linhaDim+'</b> • referência '+linhaDimEsp+' • '+(v169.dimensoes_validas===true?'OK':(v169.dimensoes_validas===false?'DIVERGENTE':'--'))+'<br>'+
+   'Segmentos: <b>'+(qtdObs??"--")+'</b> • referência '+(qtdEsp??"--")+' • '+(v169.quantidade_classes_valida===true?'OK':(v169.quantidade_classes_valida===false?'DIVERGENTE':'--'))+'<br>'+
+   'RGB/geometria: <b>'+(v169.rgb_geometria_validos===true?'OK':(v169.rgb_geometria_validos===false?'DIVERGENTE':'--'))+'</b><br>'+
+   'SHA-256: <b>'+(v169.sha256_confere===true?'IGUAL À REFERÊNCIA':(v169.sha256_confere===false?'DIFERENTE • somente diagnóstico':'--'))+'</b><br>'+
+   'Observado: <span style="word-break:break-all">'+shaObs+'</span><br>'+
+   'Referência: <span style="word-break:break-all">'+shaEsp+'</span><br>'+
+   'Gate dBZ: <b>'+(dbz169?'LIBERADO':'BLOQUEADO')+'</b>'+
+   (motivos169.length?'<br>Motivo(s) do bloqueio: <b>'+motivos169.map(nomeFamilia).join(' • ')+'</b>':'')+
+   '</small>';
  
   const ce=c.estacao_selecionada||{},cop=d.chuva_observada_cemaden_144||{};
   $("h24").textContent=cop["24h_mm"]==null?(c.acumulado_24h_mm==null?"--":f(c.acumulado_24h_mm,1)+" mm"):f(cop["24h_mm"],1)+" mm";

@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-09-30T07:56:18.534088-03:00",
+  "gerado_em": "2026-09-30T08:10:27.818212-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -143,7 +143,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-09-30T07:55:45.242362-03:00"
+    "coletado_em": "2026-09-30T08:09:52.565827-03:00"
   },
   "chuva_observada_epagri_165": {
     "status": "online",
@@ -162,8 +162,8 @@
         "latitude": -26.1622,
         "longitude": -48.9708,
         "precipitacao_1h_mm": 0.0,
-        "horario_medicao": "2026-09-30T07:00:00-03:00",
-        "idade_leitura_min": 55.8,
+        "horario_medicao": "2026-09-30T08:00:00-03:00",
+        "idade_leitura_min": 9.9,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -178,8 +178,8 @@
         "latitude": -26.3419,
         "longitude": -48.9889,
         "precipitacao_1h_mm": 0.0,
-        "horario_medicao": "2026-09-30T07:00:00-03:00",
-        "idade_leitura_min": 55.8,
+        "horario_medicao": "2026-09-30T08:00:00-03:00",
+        "idade_leitura_min": 9.9,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -347,8 +347,8 @@
         "janela_acumulado_h": 1,
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
-        "horario_medicao": "2026-09-30T07:00:00-03:00",
-        "idade_leitura_min": 55.8,
+        "horario_medicao": "2026-09-30T08:00:00-03:00",
+        "idade_leitura_min": 9.9,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -366,8 +366,8 @@
         "janela_acumulado_h": 1,
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
-        "horario_medicao": "2026-09-30T07:00:00-03:00",
-        "idade_leitura_min": 55.8,
+        "horario_medicao": "2026-09-30T08:00:00-03:00",
+        "idade_leitura_min": 9.9,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -561,8 +561,8 @@
     "endpoint": "https://resources.cemaden.gov.br/graficos/interativo/grafico_pcds.php?idpcd=6259",
     "http_status": 200,
     "content_type": "text/html; charset=UTF-8",
-    "bytes_resposta": 28963,
-    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-30 06h00 UTC','2026-09-30 07h00 UTC','2026-09-30 08h00 UTC','2026-09-30 09h00 UTC','2026-09-30 10h00 UTC','2026-09-30 11h00 UTC'],'2026-09-30 ',[0,0,0,0,0,0],'Acumulada',[0,0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array",
+    "bytes_resposta": 28935,
+    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-30 07h00 UTC','2026-09-30 08h00 UTC','2026-09-30 09h00 UTC','2026-09-30 10h00 UTC','2026-09-30 11h00 UTC'],'2026-09-30 ',[0,0,0,0,0],'Acumulada',[0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643','#4B8F",
     "referencias_encontradas": [
       {
         "referencia_bruta": "css/estilo_.css",
@@ -738,7 +738,6 @@
       "30/09/2026"
     ],
     "horarios": [
-      "11h",
       "12h",
       "13h",
       "14h",
@@ -761,7 +760,8 @@
       "7h",
       "8h",
       "9h",
-      "10h"
+      "10h",
+      "11h"
     ],
     "dimensoes_acumulados": {
       "linhas": 2,
@@ -784,7 +784,7 @@
         0.0,
         0.0,
         0.0,
-        0.0,
+        null,
         null,
         null,
         null,
@@ -810,7 +810,7 @@
         null,
         null,
         null,
-        null,
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -852,13 +852,6 @@
     "timezone_fonte": "UTC",
     "timezone_local": "America/Sao_Paulo",
     "leituras_validas": [
-      {
-        "instante_utc": "2026-09-29T11:00:00+00:00",
-        "instante_local": "2026-09-29T08:00:00-03:00",
-        "valor_mm": 0.0,
-        "data_fonte": "29/09/2026",
-        "hora_fonte": "11h"
-      },
       {
         "instante_utc": "2026-09-29T12:00:00+00:00",
         "instante_local": "2026-09-29T09:00:00-03:00",
@@ -1019,17 +1012,24 @@
         "valor_mm": 0.0,
         "data_fonte": "30/09/2026",
         "hora_fonte": "10h"
+      },
+      {
+        "instante_utc": "2026-09-30T11:00:00+00:00",
+        "instante_local": "2026-09-30T08:00:00-03:00",
+        "valor_mm": 0.0,
+        "data_fonte": "30/09/2026",
+        "hora_fonte": "11h"
       }
     ],
     "quantidade_leituras_validas": 24,
     "ultima_leitura": {
-      "instante_utc": "2026-09-30T10:00:00+00:00",
-      "instante_local": "2026-09-30T07:00:00-03:00",
+      "instante_utc": "2026-09-30T11:00:00+00:00",
+      "instante_local": "2026-09-30T08:00:00-03:00",
       "valor_mm": 0.0,
       "data_fonte": "30/09/2026",
-      "hora_fonte": "10h"
+      "hora_fonte": "11h"
     },
-    "idade_ultima_leitura_min": 56.5,
+    "idade_ultima_leitura_min": 10.7,
     "dados_frescos_diagnostico": true,
     "limite_frescor_diagnostico_min": 120,
     "acumulados_diagnosticos": {
@@ -1076,13 +1076,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 1,
         "primeira_celula": {
-          "instante_utc": "2026-09-30T10:00:00+00:00",
-          "instante_local": "2026-09-30T07:00:00-03:00",
+          "instante_utc": "2026-09-30T11:00:00+00:00",
+          "instante_local": "2026-09-30T08:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-09-30T10:00:00+00:00",
-          "instante_local": "2026-09-30T07:00:00-03:00",
+          "instante_utc": "2026-09-30T11:00:00+00:00",
+          "instante_local": "2026-09-30T08:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1094,13 +1094,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 2,
         "primeira_celula": {
-          "instante_utc": "2026-09-30T09:00:00+00:00",
-          "instante_local": "2026-09-30T06:00:00-03:00",
+          "instante_utc": "2026-09-30T10:00:00+00:00",
+          "instante_local": "2026-09-30T07:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-09-30T10:00:00+00:00",
-          "instante_local": "2026-09-30T07:00:00-03:00",
+          "instante_utc": "2026-09-30T11:00:00+00:00",
+          "instante_local": "2026-09-30T08:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1112,13 +1112,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 6,
         "primeira_celula": {
-          "instante_utc": "2026-09-30T05:00:00+00:00",
-          "instante_local": "2026-09-30T02:00:00-03:00",
+          "instante_utc": "2026-09-30T06:00:00+00:00",
+          "instante_local": "2026-09-30T03:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-09-30T10:00:00+00:00",
-          "instante_local": "2026-09-30T07:00:00-03:00",
+          "instante_utc": "2026-09-30T11:00:00+00:00",
+          "instante_local": "2026-09-30T08:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1130,13 +1130,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 24,
         "primeira_celula": {
-          "instante_utc": "2026-09-29T11:00:00+00:00",
-          "instante_local": "2026-09-29T08:00:00-03:00",
+          "instante_utc": "2026-09-29T12:00:00+00:00",
+          "instante_local": "2026-09-29T09:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-09-30T10:00:00+00:00",
-          "instante_local": "2026-09-30T07:00:00-03:00",
+          "instante_utc": "2026-09-30T11:00:00+00:00",
+          "instante_local": "2026-09-30T08:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1148,13 +1148,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 48,
         "primeira_celula": {
-          "instante_utc": "2026-09-28T11:00:00+00:00",
-          "instante_local": "2026-09-28T08:00:00-03:00",
+          "instante_utc": "2026-09-28T12:00:00+00:00",
+          "instante_local": "2026-09-28T09:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-09-30T10:00:00+00:00",
-          "instante_local": "2026-09-30T07:00:00-03:00",
+          "instante_utc": "2026-09-30T11:00:00+00:00",
+          "instante_local": "2026-09-30T08:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1255,9 +1255,9 @@
     "1h_mm": 0.0,
     "6h_mm": 0.0,
     "24h_mm": 0.0,
-    "horario_ultima_celula_utc": "2026-09-30T10:00:00+00:00",
-    "horario_ultima_celula_local": "2026-09-30T07:00:00-03:00",
-    "idade_leitura_min": 56.6,
+    "horario_ultima_celula_utc": "2026-09-30T11:00:00+00:00",
+    "horario_ultima_celula_local": "2026-09-30T08:00:00-03:00",
+    "idade_leitura_min": 10.8,
     "dados_frescos": true,
     "limite_frescor_min": 120,
     "granularidade": "horaria",
@@ -1293,7 +1293,7 @@
     "leitura_horaria_mm": 0.0,
     "horario_medicao_utc": "2026-09-30T10:00:00+00:00",
     "horario_medicao_local": "2026-09-30T07:00:00-03:00",
-    "idade_leitura_min": 56.7,
+    "idade_leitura_min": 70.8,
     "dados_frescos": true,
     "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
     "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
@@ -1419,14 +1419,19 @@
     "janela_busca_retrospectiva_min": 240,
     "tentativas": [
       {
-        "horario_utc": "2026-09-30T10:50:00+00:00",
+        "horario_utc": "2026-09-30T11:10:00+00:00",
         "http": 404,
-        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609301050.json"
+        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609301110.json"
       },
       {
-        "horario_utc": "2026-09-30T10:40:00+00:00",
+        "horario_utc": "2026-09-30T11:00:00+00:00",
+        "http": 404,
+        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609301100.json"
+      },
+      {
+        "horario_utc": "2026-09-30T10:50:00+00:00",
         "http": 200,
-        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609301040.json"
+        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609301050.json"
       }
     ],
     "eta_liberado": false,
@@ -1434,30 +1439,30 @@
     "equivale_chuva_medida_solo": false,
     "regra_seguranca": "TATHU/GOES-19 é evidência remota de sistemas convectivos. Indisponibilidade não significa ausência de tempestade; GLM/satélite não equivalem a chuva no solo. Velocidade, direção e geometrias previstas permanecem experimentais no Monitor até validação histórica independente.",
     "status": "online",
-    "url_produto": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609301040.json",
-    "horario_produto_utc": "2026-09-30T10:40:00+00:00",
-    "horario_produto_local": "2026-09-30T07:40:00-03:00",
-    "idade_dado_min": 16.2,
+    "url_produto": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609301050.json",
+    "horario_produto_utc": "2026-09-30T10:50:00+00:00",
+    "horario_produto_local": "2026-09-30T07:50:00-03:00",
+    "idade_dado_min": 20.4,
     "limite_frescor_monitor_min": 40,
     "tipo_geojson": "FeatureCollection",
-    "sistemas_detectados": 384,
-    "sistemas_relevantes_joinville": 2,
+    "sistemas_detectados": 375,
+    "sistemas_relevantes_joinville": 3,
     "raio_triagem_regional_km": 250,
     "sistemas": [
       {
-        "nome": "f70b003f-b1f1-4f5f-b7d8-e8b46103446e",
-        "timestamp_fonte": "2026-09-30 10:40:00",
-        "evento": "CONTINUITY",
+        "nome": "15e9b2dd-4386-4ae5-8105-154f6e24c53d",
+        "timestamp_fonte": "2026-09-30 10:50:00",
+        "evento": "SPONTANEOUS_GENERATION",
         "fase": "Estável",
-        "latitude": -24.5,
-        "longitude": -48.65,
+        "latitude": -26.04,
+        "longitude": -48.78,
         "metodo_posicao": "properties_Latitude_Longitude",
-        "distancia_comasa_km": 197.47,
-        "temperatura_minima_k": 227.3,
-        "taxa_resfriamento_k_10min": 0.2458,
+        "distancia_comasa_km": 25.75,
+        "temperatura_minima_k": 231.3,
+        "taxa_resfriamento_k_10min": 0.0,
         "velocidade_m_s": 0.0,
         "direcao_graus": 0.0,
-        "duracao_h": 2.167,
+        "duracao_h": 0.0,
         "fracao_convectiva_pct": 0.0,
         "previsao_dt_min": 0.0,
         "natureza": "diagnostico_tathu",
@@ -1466,55 +1471,276 @@
           "coordinates": [
             [
               [
+                -48.79,
+                -25.91
+              ],
+              [
                 -48.77,
-                -24.24
+                -25.91
+              ],
+              [
+                -48.77,
+                -25.92
+              ],
+              [
+                -48.75,
+                -25.92
+              ],
+              [
+                -48.75,
+                -25.94
+              ],
+              [
+                -48.73,
+                -25.94
+              ],
+              [
+                -48.73,
+                -25.96
               ],
               [
                 -48.72,
-                -24.24
+                -25.96
               ],
               [
                 -48.72,
-                -24.25
+                -25.98
               ],
               [
                 -48.7,
-                -24.25
+                -25.98
               ],
               [
                 -48.7,
-                -24.27
+                -25.96
+              ],
+              [
+                -48.64,
+                -25.96
+              ],
+              [
+                -48.64,
+                -25.98
               ],
               [
                 -48.63,
-                -24.27
+                -25.98
               ],
               [
                 -48.63,
-                -24.29
+                -26.0
               ],
               [
-                -48.59,
-                -24.29
+                -48.61,
+                -26.0
               ],
               [
-                -48.59,
-                -24.27
+                -48.61,
+                -26.05
               ],
               [
-                -48.55,
-                -24.27
+                -48.63,
+                -26.05
               ],
               [
-                -48.55,
+                -48.63,
+                -26.07
+              ],
+              [
+                -48.64,
+                -26.07
+              ],
+              [
+                -48.64,
+                -26.09
+              ],
+              [
+                -48.68,
+                -26.09
+              ],
+              [
+                -48.68,
+                -26.14
+              ],
+              [
+                -48.7,
+                -26.14
+              ],
+              [
+                -48.7,
+                -26.16
+              ],
+              [
+                -48.79,
+                -26.16
+              ],
+              [
+                -48.79,
+                -26.14
+              ],
+              [
+                -48.81,
+                -26.14
+              ],
+              [
+                -48.81,
+                -26.12
+              ],
+              [
+                -48.84,
+                -26.12
+              ],
+              [
+                -48.84,
+                -26.1
+              ],
+              [
+                -48.95,
+                -26.1
+              ],
+              [
+                -48.95,
+                -26.07
+              ],
+              [
+                -48.97,
+                -26.07
+              ],
+              [
+                -48.97,
+                -26.05
+              ],
+              [
+                -48.99,
+                -26.05
+              ],
+              [
+                -48.99,
+                -26.03
+              ],
+              [
+                -48.97,
+                -26.03
+              ],
+              [
+                -48.97,
+                -26.01
+              ],
+              [
+                -48.99,
+                -26.01
+              ],
+              [
+                -48.99,
+                -26.0
+              ],
+              [
+                -48.93,
+                -26.0
+              ],
+              [
+                -48.93,
+                -25.98
+              ],
+              [
+                -48.86,
+                -25.98
+              ],
+              [
+                -48.86,
+                -26.0
+              ],
+              [
+                -48.84,
+                -26.0
+              ],
+              [
+                -48.84,
+                -26.01
+              ],
+              [
+                -48.81,
+                -26.01
+              ],
+              [
+                -48.81,
+                -26.05
+              ],
+              [
+                -48.73,
+                -26.05
+              ],
+              [
+                -48.73,
+                -26.01
+              ],
+              [
+                -48.77,
+                -26.01
+              ],
+              [
+                -48.77,
+                -26.0
+              ],
+              [
+                -48.81,
+                -26.0
+              ],
+              [
+                -48.81,
+                -25.98
+              ],
+              [
+                -48.82,
+                -25.98
+              ],
+              [
+                -48.82,
+                -25.92
+              ],
+              [
+                -48.79,
+                -25.92
+              ],
+              [
+                -48.79,
+                -25.91
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "nome": "f70b003f-b1f1-4f5f-b7d8-e8b46103446e",
+        "timestamp_fonte": "2026-09-30 10:50:00",
+        "evento": "CONTINUITY",
+        "fase": "Estável",
+        "latitude": -24.51,
+        "longitude": -48.56,
+        "metodo_posicao": "properties_Latitude_Longitude",
+        "distancia_comasa_km": 197.31,
+        "temperatura_minima_k": 227.1,
+        "taxa_resfriamento_k_10min": -0.1844,
+        "velocidade_m_s": 0.0,
+        "direcao_graus": 0.0,
+        "duracao_h": 2.333,
+        "fracao_convectiva_pct": 0.0,
+        "previsao_dt_min": 0.0,
+        "natureza": "diagnostico_tathu",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -48.68,
                 -24.25
               ],
               [
-                -48.54,
+                -48.57,
                 -24.25
               ],
               [
-                -48.54,
+                -48.57,
                 -24.27
               ],
               [
@@ -1526,96 +1752,96 @@
                 -24.29
               ],
               [
-                -48.54,
+                -48.48,
                 -24.29
               ],
               [
-                -48.54,
-                -24.31
+                -48.48,
+                -24.27
               ],
               [
-                -48.55,
-                -24.31
+                -48.45,
+                -24.27
               ],
               [
-                -48.55,
+                -48.45,
                 -24.34
               ],
               [
-                -48.54,
+                -48.43,
                 -24.34
               ],
               [
-                -48.54,
-                -24.36
-              ],
-              [
-                -48.52,
-                -24.36
-              ],
-              [
-                -48.52,
+                -48.43,
                 -24.38
               ],
               [
-                -48.54,
+                -48.45,
                 -24.38
               ],
               [
-                -48.54,
-                -24.4
-              ],
-              [
-                -48.52,
-                -24.4
-              ],
-              [
-                -48.52,
+                -48.45,
                 -24.42
               ],
               [
-                -48.54,
+                -48.41,
                 -24.42
               ],
               [
-                -48.54,
-                -24.45
-              ],
-              [
-                -48.52,
-                -24.45
-              ],
-              [
-                -48.52,
+                -48.41,
                 -24.47
               ],
               [
-                -48.54,
+                -48.43,
                 -24.47
               ],
               [
-                -48.54,
-                -24.52
+                -48.43,
+                -24.49
               ],
               [
-                -48.5,
-                -24.52
+                -48.41,
+                -24.49
               ],
               [
-                -48.5,
-                -24.54
+                -48.41,
+                -24.56
               ],
               [
-                -48.52,
-                -24.54
+                -48.39,
+                -24.56
               ],
               [
-                -48.52,
+                -48.39,
                 -24.59
               ],
               [
-                -48.5,
+                -48.41,
                 -24.59
+              ],
+              [
+                -48.41,
+                -24.65
+              ],
+              [
+                -48.39,
+                -24.65
+              ],
+              [
+                -48.39,
+                -24.68
+              ],
+              [
+                -48.46,
+                -24.68
+              ],
+              [
+                -48.46,
+                -24.65
+              ],
+              [
+                -48.5,
+                -24.65
               ],
               [
                 -48.5,
@@ -1627,38 +1853,22 @@
               ],
               [
                 -48.48,
-                -24.68
-              ],
-              [
-                -48.46,
-                -24.68
-              ],
-              [
-                -48.46,
-                -24.7
-              ],
-              [
-                -48.55,
-                -24.7
-              ],
-              [
-                -48.55,
                 -24.72
               ],
               [
-                -48.52,
+                -48.46,
                 -24.72
+              ],
+              [
+                -48.46,
+                -24.74
               ],
               [
                 -48.52,
                 -24.74
               ],
               [
-                -48.57,
-                -24.74
-              ],
-              [
-                -48.57,
+                -48.52,
                 -24.76
               ],
               [
@@ -1670,133 +1880,67 @@
                 -24.74
               ],
               [
-                -48.73,
+                -48.66,
                 -24.74
               ],
               [
+                -48.66,
+                -24.7
+              ],
+              [
+                -48.68,
+                -24.7
+              ],
+              [
+                -48.68,
+                -24.67
+              ],
+              [
+                -48.72,
+                -24.67
+              ],
+              [
+                -48.72,
+                -24.65
+              ],
+              [
                 -48.73,
-                -24.7
-              ],
-              [
-                -48.77,
-                -24.7
-              ],
-              [
-                -48.77,
                 -24.65
               ],
               [
-                -48.79,
-                -24.65
-              ],
-              [
-                -48.79,
-                -24.59
+                -48.73,
+                -24.63
               ],
               [
                 -48.77,
-                -24.59
+                -24.63
               ],
               [
                 -48.77,
                 -24.61
-              ],
-              [
-                -48.75,
-                -24.61
-              ],
-              [
-                -48.75,
-                -24.56
-              ],
-              [
-                -48.79,
-                -24.56
-              ],
-              [
-                -48.79,
-                -24.52
-              ],
-              [
-                -48.77,
-                -24.52
-              ],
-              [
-                -48.77,
-                -24.49
-              ],
-              [
-                -48.79,
-                -24.49
-              ],
-              [
-                -48.79,
-                -24.42
-              ],
-              [
-                -48.81,
-                -24.42
-              ],
-              [
-                -48.81,
-                -24.4
-              ],
-              [
-                -48.79,
-                -24.4
-              ],
-              [
-                -48.79,
-                -24.36
-              ],
-              [
-                -48.77,
-                -24.36
-              ],
-              [
-                -48.77,
-                -24.31
-              ],
-              [
-                -48.79,
-                -24.31
-              ],
-              [
-                -48.79,
-                -24.27
-              ],
-              [
-                -48.77,
-                -24.27
-              ],
-              [
-                -48.77,
-                -24.24
-              ]
-            ],
-            [
-              [
-                -48.72,
-                -24.56
               ],
               [
                 -48.72,
-                -24.58
-              ],
-              [
-                -48.68,
-                -24.58
-              ],
-              [
-                -48.68,
                 -24.61
               ],
               [
-                -48.63,
+                -48.72,
+                -24.63
+              ],
+              [
+                -48.7,
+                -24.63
+              ],
+              [
+                -48.7,
                 -24.61
               ],
               [
-                -48.63,
+                -48.64,
+                -24.61
+              ],
+              [
+                -48.64,
                 -24.59
               ],
               [
@@ -1805,32 +1949,178 @@
               ],
               [
                 -48.66,
+                -24.58
+              ],
+              [
+                -48.68,
+                -24.58
+              ],
+              [
+                -48.68,
                 -24.56
               ],
               [
+                -48.66,
+                -24.56
+              ],
+              [
+                -48.66,
+                -24.54
+              ],
+              [
+                -48.7,
+                -24.54
+              ],
+              [
+                -48.7,
+                -24.5
+              ],
+              [
+                -48.68,
+                -24.5
+              ],
+              [
+                -48.68,
+                -24.49
+              ],
+              [
                 -48.72,
+                -24.49
+              ],
+              [
+                -48.72,
+                -24.45
+              ],
+              [
+                -48.7,
+                -24.45
+              ],
+              [
+                -48.7,
+                -24.4
+              ],
+              [
+                -48.68,
+                -24.4
+              ],
+              [
+                -48.68,
+                -24.38
+              ],
+              [
+                -48.66,
+                -24.38
+              ],
+              [
+                -48.66,
+                -24.34
+              ],
+              [
+                -48.68,
+                -24.34
+              ],
+              [
+                -48.68,
+                -24.33
+              ],
+              [
+                -48.66,
+                -24.33
+              ],
+              [
+                -48.66,
+                -24.27
+              ],
+              [
+                -48.68,
+                -24.27
+              ],
+              [
+                -48.68,
+                -24.25
+              ]
+            ],
+            [
+              [
+                -48.59,
+                -24.56
+              ],
+              [
+                -48.59,
+                -24.59
+              ],
+              [
+                -48.57,
+                -24.59
+              ],
+              [
+                -48.57,
+                -24.61
+              ],
+              [
+                -48.52,
+                -24.61
+              ],
+              [
+                -48.52,
+                -24.63
+              ],
+              [
+                -48.5,
+                -24.63
+              ],
+              [
+                -48.5,
+                -24.59
+              ],
+              [
+                -48.54,
+                -24.59
+              ],
+              [
+                -48.54,
+                -24.58
+              ],
+              [
+                -48.57,
+                -24.58
+              ],
+              [
+                -48.57,
+                -24.56
+              ],
+              [
+                -48.59,
                 -24.56
               ]
             ],
             [
               [
-                -48.68,
+                -48.55,
                 -24.42
               ],
               [
-                -48.68,
+                -48.55,
                 -24.43
               ],
               [
-                -48.64,
+                -48.52,
                 -24.43
               ],
               [
-                -48.64,
+                -48.52,
+                -24.45
+              ],
+              [
+                -48.5,
+                -24.45
+              ],
+              [
+                -48.5,
                 -24.42
               ],
               [
-                -48.68,
+                -48.55,
                 -24.42
               ]
             ]
@@ -1839,18 +2129,18 @@
       },
       {
         "nome": "59a30ee5-5b6c-4243-aa56-54cb4b70af0e",
-        "timestamp_fonte": "2026-09-30 10:40:00",
+        "timestamp_fonte": "2026-09-30 10:50:00",
         "evento": "CONTINUITY",
         "fase": "Desintensificando",
-        "latitude": -25.0,
-        "longitude": -47.09,
+        "latitude": -25.01,
+        "longitude": -46.98,
         "metodo_posicao": "properties_Latitude_Longitude",
-        "distancia_comasa_km": 222.87,
-        "temperatura_minima_k": 226.2,
-        "taxa_resfriamento_k_10min": 0.8604,
+        "distancia_comasa_km": 230.83,
+        "temperatura_minima_k": 227.6,
+        "taxa_resfriamento_k_10min": 1.352,
         "velocidade_m_s": 0.0,
         "direcao_graus": 0.0,
-        "duracao_h": 2.833,
+        "duracao_h": 3.0,
         "fracao_convectiva_pct": 0.0,
         "previsao_dt_min": 0.0,
         "natureza": "diagnostico_tathu",
@@ -1859,560 +2149,520 @@
           "coordinates": [
             [
               [
-                -47.35,
-                -24.63
-              ],
-              [
-                -47.31,
-                -24.63
-              ],
-              [
-                -47.31,
-                -24.67
-              ],
-              [
-                -47.28,
-                -24.67
-              ],
-              [
-                -47.28,
-                -24.72
-              ],
-              [
-                -47.24,
-                -24.72
-              ],
-              [
-                -47.24,
-                -24.76
-              ],
-              [
-                -47.26,
-                -24.76
-              ],
-              [
-                -47.26,
-                -24.77
-              ],
-              [
                 -47.22,
-                -24.77
+                -24.61
               ],
               [
-                -47.22,
-                -24.81
+                -47.21,
+                -24.61
+              ],
+              [
+                -47.21,
+                -24.65
+              ],
+              [
+                -47.19,
+                -24.65
+              ],
+              [
+                -47.19,
+                -24.7
+              ],
+              [
+                -47.21,
+                -24.7
+              ],
+              [
+                -47.21,
+                -24.72
               ],
               [
                 -47.15,
-                -24.81
+                -24.72
               ],
               [
                 -47.15,
-                -24.77
-              ],
-              [
-                -47.17,
-                -24.77
-              ],
-              [
-                -47.17,
-                -24.76
-              ],
-              [
-                -47.13,
-                -24.76
-              ],
-              [
-                -47.13,
-                -24.77
-              ],
-              [
-                -47.08,
-                -24.77
-              ],
-              [
-                -47.08,
-                -24.76
-              ],
-              [
-                -47.1,
-                -24.76
-              ],
-              [
-                -47.1,
-                -24.72
-              ],
-              [
-                -47.08,
-                -24.72
-              ],
-              [
-                -47.08,
                 -24.74
               ],
               [
-                -47.06,
+                -47.12,
                 -24.74
               ],
               [
-                -47.06,
+                -47.12,
                 -24.79
               ],
               [
-                -47.03,
+                -47.08,
                 -24.79
+              ],
+              [
+                -47.08,
+                -24.81
               ],
               [
                 -47.03,
                 -24.81
               ],
               [
+                -47.03,
+                -24.85
+              ],
+              [
+                -47.01,
+                -24.85
+              ],
+              [
+                -47.01,
+                -24.86
+              ],
+              [
+                -46.99,
+                -24.86
+              ],
+              [
                 -46.99,
                 -24.81
               ],
               [
-                -46.99,
-                -24.88
+                -47.01,
+                -24.81
+              ],
+              [
+                -47.01,
+                -24.79
               ],
               [
                 -46.95,
-                -24.88
+                -24.79
               ],
               [
                 -46.95,
-                -24.9
+                -24.81
               ],
               [
                 -46.92,
-                -24.9
+                -24.81
               ],
               [
                 -46.92,
-                -24.92
-              ],
-              [
-                -46.9,
-                -24.92
-              ],
-              [
-                -46.9,
-                -24.94
-              ],
-              [
-                -46.88,
-                -24.94
-              ],
-              [
-                -46.88,
-                -24.99
-              ],
-              [
-                -46.9,
-                -24.99
-              ],
-              [
-                -46.9,
-                -25.03
-              ],
-              [
-                -46.87,
-                -25.03
-              ],
-              [
-                -46.87,
-                -25.06
-              ],
-              [
-                -46.83,
-                -25.06
-              ],
-              [
-                -46.83,
-                -25.1
-              ],
-              [
-                -46.81,
-                -25.1
-              ],
-              [
-                -46.81,
-                -25.15
-              ],
-              [
-                -46.79,
-                -25.15
-              ],
-              [
-                -46.79,
-                -25.17
-              ],
-              [
-                -46.78,
-                -25.17
-              ],
-              [
-                -46.78,
-                -25.19
-              ],
-              [
-                -46.79,
-                -25.19
-              ],
-              [
-                -46.79,
-                -25.21
-              ],
-              [
-                -46.78,
-                -25.21
-              ],
-              [
-                -46.78,
-                -25.24
-              ],
-              [
-                -46.83,
-                -25.24
-              ],
-              [
-                -46.83,
-                -25.26
-              ],
-              [
-                -46.81,
-                -25.26
-              ],
-              [
-                -46.81,
-                -25.28
-              ],
-              [
-                -46.85,
-                -25.28
-              ],
-              [
-                -46.85,
-                -25.26
-              ],
-              [
-                -46.9,
-                -25.26
-              ],
-              [
-                -46.9,
-                -25.21
-              ],
-              [
-                -46.94,
-                -25.21
-              ],
-              [
-                -46.94,
-                -25.17
-              ],
-              [
-                -46.95,
-                -25.17
-              ],
-              [
-                -46.95,
-                -25.15
-              ],
-              [
-                -46.99,
-                -25.15
-              ],
-              [
-                -46.99,
-                -25.21
-              ],
-              [
-                -46.97,
-                -25.21
-              ],
-              [
-                -46.97,
-                -25.26
-              ],
-              [
-                -46.95,
-                -25.26
-              ],
-              [
-                -46.95,
-                -25.28
-              ],
-              [
-                -46.99,
-                -25.28
-              ],
-              [
-                -46.99,
-                -25.3
-              ],
-              [
-                -46.97,
-                -25.3
-              ],
-              [
-                -46.97,
-                -25.31
-              ],
-              [
-                -46.99,
-                -25.31
-              ],
-              [
-                -46.99,
-                -25.33
-              ],
-              [
-                -47.01,
-                -25.33
-              ],
-              [
-                -47.01,
-                -25.35
-              ],
-              [
-                -46.99,
-                -25.35
-              ],
-              [
-                -46.99,
-                -25.37
-              ],
-              [
-                -46.97,
-                -25.37
-              ],
-              [
-                -46.97,
-                -25.42
-              ],
-              [
-                -46.99,
-                -25.42
-              ],
-              [
-                -46.99,
-                -25.39
-              ],
-              [
-                -47.01,
-                -25.39
-              ],
-              [
-                -47.01,
-                -25.37
-              ],
-              [
-                -47.04,
-                -25.37
-              ],
-              [
-                -47.04,
-                -25.39
-              ],
-              [
-                -47.1,
-                -25.39
-              ],
-              [
-                -47.1,
-                -25.37
-              ],
-              [
-                -47.08,
-                -25.37
-              ],
-              [
-                -47.08,
-                -25.33
-              ],
-              [
-                -47.1,
-                -25.33
-              ],
-              [
-                -47.1,
-                -25.28
-              ],
-              [
-                -47.08,
-                -25.28
-              ],
-              [
-                -47.08,
-                -25.26
-              ],
-              [
-                -47.12,
-                -25.26
-              ],
-              [
-                -47.12,
-                -25.24
-              ],
-              [
-                -47.15,
-                -25.24
-              ],
-              [
-                -47.15,
-                -25.22
-              ],
-              [
-                -47.13,
-                -25.22
-              ],
-              [
-                -47.13,
-                -25.19
-              ],
-              [
-                -47.12,
-                -25.19
-              ],
-              [
-                -47.12,
-                -25.15
-              ],
-              [
-                -47.15,
-                -25.15
-              ],
-              [
-                -47.15,
-                -25.1
-              ],
-              [
-                -47.17,
-                -25.1
-              ],
-              [
-                -47.17,
-                -25.06
-              ],
-              [
-                -47.21,
-                -25.06
-              ],
-              [
-                -47.21,
-                -25.03
-              ],
-              [
-                -47.24,
-                -25.03
-              ],
-              [
-                -47.24,
-                -24.99
-              ],
-              [
-                -47.26,
-                -24.99
-              ],
-              [
-                -47.26,
-                -24.97
-              ],
-              [
-                -47.28,
-                -24.97
-              ],
-              [
-                -47.28,
-                -24.94
-              ],
-              [
-                -47.31,
-                -24.94
-              ],
-              [
-                -47.31,
-                -24.88
-              ],
-              [
-                -47.33,
-                -24.88
-              ],
-              [
-                -47.33,
                 -24.85
               ],
               [
-                -47.35,
+                -46.88,
                 -24.85
               ],
               [
-                -47.35,
+                -46.88,
+                -24.92
+              ],
+              [
+                -46.87,
+                -24.92
+              ],
+              [
+                -46.87,
+                -24.97
+              ],
+              [
+                -46.83,
+                -24.97
+              ],
+              [
+                -46.83,
+                -25.01
+              ],
+              [
+                -46.81,
+                -25.01
+              ],
+              [
+                -46.81,
+                -25.03
+              ],
+              [
+                -46.79,
+                -25.03
+              ],
+              [
+                -46.79,
+                -25.04
+              ],
+              [
+                -46.78,
+                -25.04
+              ],
+              [
+                -46.78,
+                -25.08
+              ],
+              [
+                -46.74,
+                -25.08
+              ],
+              [
+                -46.74,
+                -25.15
+              ],
+              [
+                -46.72,
+                -25.15
+              ],
+              [
+                -46.72,
+                -25.17
+              ],
+              [
+                -46.7,
+                -25.17
+              ],
+              [
+                -46.7,
+                -25.19
+              ],
+              [
+                -46.72,
+                -25.19
+              ],
+              [
+                -46.72,
+                -25.21
+              ],
+              [
+                -46.7,
+                -25.21
+              ],
+              [
+                -46.7,
+                -25.26
+              ],
+              [
+                -46.72,
+                -25.26
+              ],
+              [
+                -46.72,
+                -25.28
+              ],
+              [
+                -46.78,
+                -25.28
+              ],
+              [
+                -46.78,
+                -25.21
+              ],
+              [
+                -46.83,
+                -25.21
+              ],
+              [
+                -46.83,
+                -25.19
+              ],
+              [
+                -46.85,
+                -25.19
+              ],
+              [
+                -46.85,
+                -25.15
+              ],
+              [
+                -46.87,
+                -25.15
+              ],
+              [
+                -46.87,
+                -25.19
+              ],
+              [
+                -46.88,
+                -25.19
+              ],
+              [
+                -46.88,
+                -25.24
+              ],
+              [
+                -46.87,
+                -25.24
+              ],
+              [
+                -46.87,
+                -25.3
+              ],
+              [
+                -46.85,
+                -25.3
+              ],
+              [
+                -46.85,
+                -25.31
+              ],
+              [
+                -46.87,
+                -25.31
+              ],
+              [
+                -46.87,
+                -25.33
+              ],
+              [
+                -46.9,
+                -25.33
+              ],
+              [
+                -46.9,
+                -25.35
+              ],
+              [
+                -46.88,
+                -25.35
+              ],
+              [
+                -46.88,
+                -25.37
+              ],
+              [
+                -46.9,
+                -25.37
+              ],
+              [
+                -46.9,
+                -25.4
+              ],
+              [
+                -46.92,
+                -25.4
+              ],
+              [
+                -46.92,
+                -25.39
+              ],
+              [
+                -46.94,
+                -25.39
+              ],
+              [
+                -46.94,
+                -25.33
+              ],
+              [
+                -46.95,
+                -25.33
+              ],
+              [
+                -46.95,
+                -25.31
+              ],
+              [
+                -46.92,
+                -25.31
+              ],
+              [
+                -46.92,
+                -25.3
+              ],
+              [
+                -46.94,
+                -25.3
+              ],
+              [
+                -46.94,
+                -25.24
+              ],
+              [
+                -46.97,
+                -25.24
+              ],
+              [
+                -46.97,
+                -25.26
+              ],
+              [
+                -46.99,
+                -25.26
+              ],
+              [
+                -46.99,
+                -25.24
+              ],
+              [
+                -47.03,
+                -25.24
+              ],
+              [
+                -47.03,
+                -25.22
+              ],
+              [
+                -47.01,
+                -25.22
+              ],
+              [
+                -47.01,
+                -25.17
+              ],
+              [
+                -47.03,
+                -25.17
+              ],
+              [
+                -47.03,
+                -25.12
+              ],
+              [
+                -47.04,
+                -25.12
+              ],
+              [
+                -47.04,
+                -25.1
+              ],
+              [
+                -47.06,
+                -25.1
+              ],
+              [
+                -47.06,
+                -25.06
+              ],
+              [
+                -47.08,
+                -25.06
+              ],
+              [
+                -47.08,
+                -25.04
+              ],
+              [
+                -47.1,
+                -25.04
+              ],
+              [
+                -47.1,
+                -25.03
+              ],
+              [
+                -47.13,
+                -25.03
+              ],
+              [
+                -47.13,
+                -24.99
+              ],
+              [
+                -47.15,
+                -24.99
+              ],
+              [
+                -47.15,
+                -24.94
+              ],
+              [
+                -47.17,
+                -24.94
+              ],
+              [
+                -47.17,
+                -24.9
+              ],
+              [
+                -47.21,
+                -24.9
+              ],
+              [
+                -47.21,
+                -24.88
+              ],
+              [
+                -47.22,
+                -24.88
+              ],
+              [
+                -47.22,
                 -24.86
               ],
               [
-                -47.39,
+                -47.26,
                 -24.86
               ],
               [
-                -47.39,
+                -47.26,
+                -24.88
+              ],
+              [
+                -47.3,
+                -24.88
+              ],
+              [
+                -47.3,
+                -24.86
+              ],
+              [
+                -47.31,
+                -24.86
+              ],
+              [
+                -47.31,
+                -24.85
+              ],
+              [
+                -47.26,
+                -24.85
+              ],
+              [
+                -47.26,
                 -24.83
               ],
               [
-                -47.37,
+                -47.24,
                 -24.83
               ],
               [
-                -47.37,
+                -47.24,
+                -24.81
+              ],
+              [
+                -47.22,
+                -24.81
+              ],
+              [
+                -47.22,
                 -24.77
               ],
               [
-                -47.4,
+                -47.24,
                 -24.77
               ],
               [
-                -47.4,
-                -24.74
-              ],
-              [
-                -47.42,
-                -24.74
-              ],
-              [
-                -47.42,
-                -24.68
-              ],
-              [
-                -47.37,
-                -24.68
-              ],
-              [
-                -47.37,
+                -47.24,
                 -24.7
               ],
               [
-                -47.35,
+                -47.26,
                 -24.7
               ],
               [
-                -47.35,
-                -24.67
+                -47.26,
+                -24.68
               ],
               [
-                -47.37,
-                -24.67
+                -47.24,
+                -24.68
               ],
               [
-                -47.37,
-                -24.65
-              ],
-              [
-                -47.35,
-                -24.65
-              ],
-              [
-                -47.35,
+                -47.24,
                 -24.63
+              ],
+              [
+                -47.22,
+                -24.63
+              ],
+              [
+                -47.22,
+                -24.61
               ]
             ]
           ]
@@ -2483,7 +2733,7 @@
     "residual_cm": -9.5,
     "nmm_cm": 103.1,
     "horario": "2026-09-30T07:30:00-03:00",
-    "idade_min": 26.2,
+    "idade_min": 40.3,
     "frescor": "atual",
     "residual_aritmetica_validada": true,
     "uso_no_risco": false,
@@ -2506,8 +2756,8 @@
     "versao": "#164",
     "fonte": "EPAGRI/CIRAM",
     "tipo": "pico_mare_previsto_janela_24h",
-    "janela_inicio": "2026-09-30T08:00",
-    "janela_fim_exclusivo": "2026-10-01T08:00:00-03:00",
+    "janela_inicio": "2026-09-30T09:00",
+    "janela_fim_exclusivo": "2026-10-01T09:00:00-03:00",
     "datas_cobertas_fonte": [
       "2026-01-01",
       "2026-01-02",
@@ -4381,9 +4631,9 @@
     "versao": "166-v0.2-historico-integrado",
     "status": "historico_em_formacao",
     "arquivo_historico": "historico_guaxanduva_166.json",
-    "gerado_em": "2026-09-30T07:56:12.233355-03:00",
-    "quantidade_registros": 597,
-    "quantidade_chuva_horaria": 258,
+    "gerado_em": "2026-09-30T08:10:20.072389-03:00",
+    "quantidade_registros": 599,
+    "quantidade_chuva_horaria": 260,
     "quantidade_mare_observada": 339,
     "chuva_por_estacao": [
       {
@@ -4396,7 +4646,7 @@
           "valor_mm": 0.0,
           "horas_necessarias": 1,
           "horas_validas": 1,
-          "horario_final": "2026-09-30T07:00:00-03:00",
+          "horario_final": "2026-09-30T08:00:00-03:00",
           "motivo": null
         },
         "P3h": {
@@ -4404,7 +4654,7 @@
           "valor_mm": 0.0,
           "horas_necessarias": 3,
           "horas_validas": 3,
-          "horario_final": "2026-09-30T07:00:00-03:00",
+          "horario_final": "2026-09-30T08:00:00-03:00",
           "motivo": null
         },
         "P6h": {
@@ -4412,7 +4662,7 @@
           "valor_mm": 0.0,
           "horas_necessarias": 6,
           "horas_validas": 6,
-          "horario_final": "2026-09-30T07:00:00-03:00",
+          "horario_final": "2026-09-30T08:00:00-03:00",
           "motivo": null
         },
         "P24h": {
@@ -4420,7 +4670,7 @@
           "valor_mm": 11.8,
           "horas_necessarias": 24,
           "horas_validas": 24,
-          "horario_final": "2026-09-30T07:00:00-03:00",
+          "horario_final": "2026-09-30T08:00:00-03:00",
           "motivo": null
         }
       },
@@ -4434,7 +4684,7 @@
           "valor_mm": 0.0,
           "horas_necessarias": 1,
           "horas_validas": 1,
-          "horario_final": "2026-09-30T07:00:00-03:00",
+          "horario_final": "2026-09-30T08:00:00-03:00",
           "motivo": null
         },
         "P3h": {
@@ -4442,7 +4692,7 @@
           "valor_mm": 0.0,
           "horas_necessarias": 3,
           "horas_validas": 3,
-          "horario_final": "2026-09-30T07:00:00-03:00",
+          "horario_final": "2026-09-30T08:00:00-03:00",
           "motivo": null
         },
         "P6h": {
@@ -4450,7 +4700,7 @@
           "valor_mm": 0.2,
           "horas_necessarias": 6,
           "horas_validas": 6,
-          "horario_final": "2026-09-30T07:00:00-03:00",
+          "horario_final": "2026-09-30T08:00:00-03:00",
           "motivo": null
         },
         "P24h": {
@@ -4458,7 +4708,7 @@
           "valor_mm": 10.2,
           "horas_necessarias": 24,
           "horas_validas": 24,
-          "horario_final": "2026-09-30T07:00:00-03:00",
+          "horario_final": "2026-09-30T08:00:00-03:00",
           "motivo": null
         }
       }
@@ -4505,7 +4755,7 @@
   },
   "modelo_computacional_guaxanduva_v01": {
     "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
-    "gerado_em": "2026-09-30T07:56:12.244692-03:00",
+    "gerado_em": "2026-09-30T08:10:20.082836-03:00",
     "status": "grafo_hidrografico_integrado",
     "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
     "microbacia": "44-0",
@@ -4522,7 +4772,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-09-30T07:56:14.672405-03:00"
+      "instante": "2026-09-30T08:10:24.248165-03:00"
     },
     "parametros_hidraulicos_documentados": {
       "bypass_montezuma_odilon": {
@@ -4585,7 +4835,7 @@
             "valor_mm": 0.0,
             "horas_necessarias": 1,
             "horas_validas": 1,
-            "horario_final": "2026-09-30T07:00:00-03:00",
+            "horario_final": "2026-09-30T08:00:00-03:00",
             "motivo": null
           },
           "P3h": {
@@ -4593,7 +4843,7 @@
             "valor_mm": 0.0,
             "horas_necessarias": 3,
             "horas_validas": 3,
-            "horario_final": "2026-09-30T07:00:00-03:00",
+            "horario_final": "2026-09-30T08:00:00-03:00",
             "motivo": null
           },
           "P6h": {
@@ -4601,7 +4851,7 @@
             "valor_mm": 0.0,
             "horas_necessarias": 6,
             "horas_validas": 6,
-            "horario_final": "2026-09-30T07:00:00-03:00",
+            "horario_final": "2026-09-30T08:00:00-03:00",
             "motivo": null
           },
           "P24h": {
@@ -4609,7 +4859,7 @@
             "valor_mm": 11.8,
             "horas_necessarias": 24,
             "horas_validas": 24,
-            "horario_final": "2026-09-30T07:00:00-03:00",
+            "horario_final": "2026-09-30T08:00:00-03:00",
             "motivo": null
           }
         },
@@ -4623,7 +4873,7 @@
             "valor_mm": 0.0,
             "horas_necessarias": 1,
             "horas_validas": 1,
-            "horario_final": "2026-09-30T07:00:00-03:00",
+            "horario_final": "2026-09-30T08:00:00-03:00",
             "motivo": null
           },
           "P3h": {
@@ -4631,7 +4881,7 @@
             "valor_mm": 0.0,
             "horas_necessarias": 3,
             "horas_validas": 3,
-            "horario_final": "2026-09-30T07:00:00-03:00",
+            "horario_final": "2026-09-30T08:00:00-03:00",
             "motivo": null
           },
           "P6h": {
@@ -4639,7 +4889,7 @@
             "valor_mm": 0.2,
             "horas_necessarias": 6,
             "horas_validas": 6,
-            "horario_final": "2026-09-30T07:00:00-03:00",
+            "horario_final": "2026-09-30T08:00:00-03:00",
             "motivo": null
           },
           "P24h": {
@@ -4647,7 +4897,7 @@
             "valor_mm": 10.2,
             "horas_necessarias": 24,
             "horas_validas": 24,
-            "horario_final": "2026-09-30T07:00:00-03:00",
+            "horario_final": "2026-09-30T08:00:00-03:00",
             "motivo": null
           }
         }
@@ -15052,7 +15302,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-09-30T07:56:14.672405-03:00",
+      "instante": "2026-09-30T08:10:24.248165-03:00",
       "uso_operacional": false,
       "alerta_operacional_liberado": false,
       "representa_medicao_instrumental": false,
@@ -16691,7 +16941,7 @@
     "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
     "status": "nivel_modelado_calculado",
     "natureza": "MODELADO_NAO_INSTRUMENTAL",
-    "instante": "2026-09-30T07:56:14.692334-03:00",
+    "instante": "2026-09-30T08:10:24.285296-03:00",
     "referencia_forcantes": "2026-09-30T07:30:00-03:00",
     "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
     "nivel_estimado_m": 2.272,
@@ -16818,27 +17068,27 @@
     "fonte": "Open-Meteo",
     "modelo": "Best Match",
     "atual": {
-      "horario": "2026-09-30T07:45",
-      "temperatura_c": 20.2,
-      "sensacao_termica_c": 23.5,
-      "codigo_tempo_wmo": 51,
-      "cobertura_nuvens_pct": 100,
-      "precipitacao_mm": 0.1,
-      "vento_kmh": 2.9,
-      "direcao_graus": 137,
-      "rajada_kmh": 10.8
-    },
-    "proxima_hora": {
       "horario": "2026-09-30T08:00",
       "temperatura_c": 20.4,
       "sensacao_termica_c": 23.7,
       "codigo_tempo_wmo": 51,
       "cobertura_nuvens_pct": 100,
-      "probabilidade_chuva_pct": 38,
-      "precipitacao_mm": 0.3,
+      "precipitacao_mm": 0.1,
       "vento_kmh": 3.4,
       "direcao_graus": 137,
       "rajada_kmh": 13.0
+    },
+    "proxima_hora": {
+      "horario": "2026-09-30T09:00",
+      "temperatura_c": 21.3,
+      "sensacao_termica_c": 24.4,
+      "codigo_tempo_wmo": 51,
+      "cobertura_nuvens_pct": 100,
+      "probabilidade_chuva_pct": 47,
+      "precipitacao_mm": 0.2,
+      "vento_kmh": 5.5,
+      "direcao_graus": 117,
+      "rajada_kmh": 15.8
     },
     "proximas_24h": {
       "status": "online_completo",
@@ -16846,12 +17096,12 @@
       "modelo": "Best Match",
       "tipo": "previsao_horaria_acumulada",
       "janela_horas": 24,
-      "inicio": "2026-09-30T08:00",
-      "fim": "2026-10-01T07:00",
-      "fim_exclusivo": "2026-10-01T08:00:00-03:00",
+      "inicio": "2026-09-30T09:00",
+      "fim": "2026-10-01T08:00",
+      "fim_exclusivo": "2026-10-01T09:00:00-03:00",
       "horas_esperadas": 24,
       "horas_validas": 24,
-      "precipitacao_acumulada_mm": 32.5,
+      "precipitacao_acumulada_mm": 33.1,
       "integridade": true,
       "uso_no_risco": false,
       "observacao": "Janela movel das proximas 24 horas. Nesta etapa, o valor e diagnostico e nao alimenta classificacao automatica de risco."
@@ -17055,15 +17305,15 @@
     "plancon_oficial": false,
     "uso_como_plancon_oficial": false,
     "entradas": {
-      "chuva_prevista_24h_mm": 32.5,
+      "chuva_prevista_24h_mm": 33.1,
       "chuva_24h_integra": true,
       "mare_observada_m": 1.345,
       "mare_observada_fresca": true,
       "mare_fonte": "EPAGRI/CIRAM",
-      "janela_inicio": "2026-09-30T08:00",
-      "janela_fim_exclusivo": "2026-10-01T08:00:00-03:00",
+      "janela_inicio": "2026-09-30T09:00",
+      "janela_fim_exclusivo": "2026-10-01T09:00:00-03:00",
       "mare_horario": "2026-09-30T07:30:00-03:00",
-      "mare_idade_min": 26.2
+      "mare_idade_min": 40.3
     },
     "criterios": {
       "mobilizacao_chuva_superior_20mm_24h": true,
@@ -17096,8 +17346,8 @@
     "quadros_png_validos": 7,
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
-    "horario_ultimo_quadro": "2026-09-30T07:50:00-03:00",
-    "idade_ultimo_quadro_min": 7.0,
+    "horario_ultimo_quadro": "2026-09-30T08:00:00-03:00",
+    "idade_ultimo_quadro_min": 11.2,
     "dados_frescos": true,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -17399,18 +17649,6 @@
       "quadros_avaliados": 7,
       "por_quadro": [
         {
-          "arquivo": "2026093009500000dBZ.cappi_top.png",
-          "classes_legenda_presentes": 1,
-          "classes_legenda_total": 16,
-          "rgb_correspondentes": [
-            [
-              255,
-              255,
-              0
-            ]
-          ]
-        },
-        {
           "arquivo": "2026093010000000dBZ.cappi_top.png",
           "classes_legenda_presentes": 2,
           "classes_legenda_total": 16,
@@ -17505,6 +17743,18 @@
               0,
               255
             ],
+            [
+              255,
+              255,
+              0
+            ]
+          ]
+        },
+        {
+          "arquivo": "2026093011000000dBZ.cappi_top.png",
+          "classes_legenda_presentes": 1,
+          "classes_legenda_total": 16,
+          "rgb_correspondentes": [
             [
               255,
               255,
@@ -17867,7 +18117,7 @@
         "distancia_comasa_km": 5.559,
         "pixel_x": 739,
         "pixel_y": 117,
-        "indice_p": 3,
+        "indice_p": 1,
         "rgb": [
           165,
           255,
@@ -17881,9 +18131,9 @@
         "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
       },
       "eco_oficial_mais_proximo_no_quadro": {
-        "distancia_comasa_km": 199.279,
-        "pixel_x": 700,
-        "pixel_y": 258,
+        "distancia_comasa_km": 224.421,
+        "pixel_x": 681,
+        "pixel_y": 272,
         "indice_p": 11,
         "rgb": [
           255,
@@ -17891,10 +18141,10 @@
           0
         ],
         "classe_oficial": 10,
-        "latitude": -28.01767,
-        "longitude": -49.255995
+        "latitude": -28.194152,
+        "longitude": -49.4951
       },
-      "diferenca_distancias_oficial_menos_legado_km": 193.72,
+      "diferenca_distancias_oficial_menos_legado_km": 218.862,
       "contagem_local_por_raio": {
         "2": {
           "legado": 0,
@@ -17942,26 +18192,6 @@
       "validacao_rgb": "compatibilidade_rgb_observada"
     },
     "serie_espacial": [
-      {
-        "horario_local": "2026-09-30T06:50:00-03:00",
-        "pixels_candidatos": 40,
-        "componentes": 3,
-        "eco_mais_proximo": {
-          "pixel_x": 683,
-          "pixel_y": 270,
-          "latitude": -28.16894,
-          "longitude": -49.46993,
-          "distancia_comasa_km": 221.0,
-          "direcao_graus": 197.0,
-          "direcao_cardinal": "S"
-        },
-        "pixels_por_raio": {
-          "ate_10_km": 0,
-          "ate_25_km": 0,
-          "ate_50_km": 0,
-          "ate_100_km": 0
-        }
-      },
       {
         "horario_local": "2026-09-30T07:00:00-03:00",
         "pixels_candidatos": 17,
@@ -18081,6 +18311,26 @@
           "ate_50_km": 0,
           "ate_100_km": 0
         }
+      },
+      {
+        "horario_local": "2026-09-30T08:00:00-03:00",
+        "pixels_candidatos": 45,
+        "componentes": 4,
+        "eco_mais_proximo": {
+          "pixel_x": 681,
+          "pixel_y": 272,
+          "latitude": -28.19415,
+          "longitude": -49.4951,
+          "distancia_comasa_km": 224.42,
+          "direcao_graus": 197.4,
+          "direcao_cardinal": "S"
+        },
+        "pixels_por_raio": {
+          "ate_10_km": 0,
+          "ate_25_km": 0,
+          "ate_50_km": 0,
+          "ate_100_km": 0
+        }
       }
     ],
     "rastreamento_temporal": {
@@ -18100,26 +18350,16 @@
       },
       "diagnostico_por_par": [
         {
-          "de": "2026-09-30T06:50:00-03:00",
-          "para": "2026-09-30T07:00:00-03:00",
-          "candidatos": 1,
+          "de": "2026-09-30T07:00:00-03:00",
+          "para": "2026-09-30T07:10:00-03:00",
+          "candidatos": 2,
           "casamentos_aceitos": 1,
           "metodo": "assinatura_sem_historico_inicial"
         },
         {
-          "de": "2026-09-30T07:00:00-03:00",
-          "para": "2026-09-30T07:10:00-03:00",
-          "trilhas_com_memoria": 1,
-          "candidatos_com_memoria": 1,
-          "casamentos_aceitos": 1,
-          "conflitos_rejeitados": 0,
-          "novas_trilhas_iniciadas": 1,
-          "metodo": "identidade_temporal_com_memoria"
-        },
-        {
           "de": "2026-09-30T07:10:00-03:00",
           "para": "2026-09-30T07:20:00-03:00",
-          "trilhas_com_memoria": 2,
+          "trilhas_com_memoria": 1,
           "candidatos_com_memoria": 0,
           "casamentos_aceitos": 0,
           "conflitos_rejeitados": 0,
@@ -18155,13 +18395,23 @@
           "conflitos_rejeitados": 0,
           "novas_trilhas_iniciadas": 3,
           "metodo": "identidade_temporal_com_memoria"
+        },
+        {
+          "de": "2026-09-30T07:50:00-03:00",
+          "para": "2026-09-30T08:00:00-03:00",
+          "trilhas_com_memoria": 4,
+          "candidatos_com_memoria": 1,
+          "casamentos_aceitos": 1,
+          "conflitos_rejeitados": 0,
+          "novas_trilhas_iniciadas": 2,
+          "metodo": "identidade_temporal_com_memoria"
         }
       ],
-      "quantidade_trilhas": 12,
+      "quantidade_trilhas": 13,
       "quantidade_trilhas_elegiveis": 0,
       "trilhas": [
         {
-          "id_trilha": 5,
+          "id_trilha": 4,
           "transicoes": 2,
           "elegivel_para_analise": false,
           "score_medio": 0.794,
@@ -18260,6 +18510,102 @@
           "id_trilha": 9,
           "transicoes": 2,
           "elegivel_para_analise": false,
+          "score_medio": 0.788,
+          "velocidade_media_kmh": 18.1,
+          "similaridade_cores_media": 1.0,
+          "direcao_media_graus": 177.8,
+          "direcao_media_cardinal": "S",
+          "dispersao_direcao_media_graus": 16.4,
+          "dispersao_direcao_max_graus": 17.5,
+          "tendencia_relativa_comasa": "afastando",
+          "passos_aproximando": 0,
+          "passos_afastando": 2,
+          "passos_estaveis": 0,
+          "ultima_distancia_comasa_km": 245.08,
+          "ultima_direcao_movimento": "S",
+          "passos": [
+            {
+              "de": "2026-09-30T07:40:00-03:00",
+              "para": "2026-09-30T07:50:00-03:00",
+              "componente_anterior": 2,
+              "componente_atual": 3,
+              "score": 0.839,
+              "deslocamento_centroide_km": 2.19,
+              "velocidade_estimada_kmh": 13.1,
+              "direcao_movimento_graus": 162.5,
+              "direcao_movimento_cardinal": "S",
+              "razao_tamanho": 0.556,
+              "sobreposicao_caixas": 0.75,
+              "similaridade_cores": 1.0,
+              "diferenca_direcao_historica_graus": null,
+              "coerencia_direcao": null,
+              "distancia_comasa_anterior_km": 239.42,
+              "distancia_comasa_atual_km": 241.23,
+              "variacao_distancia_comasa_km": 1.81,
+              "tendencia_relativa_comasa": "afastando",
+              "centroide_anterior": {
+                "pixel_x": 680.7,
+                "pixel_y": 283.1,
+                "latitude": -28.33422,
+                "longitude": -49.49929,
+                "distancia_comasa_km": 239.42,
+                "direcao_graus": 196.4,
+                "direcao_cardinal": "S"
+              },
+              "centroide_atual": {
+                "pixel_x": 681.2,
+                "pixel_y": 284.6,
+                "latitude": -28.35298,
+                "longitude": -49.49258,
+                "distancia_comasa_km": 241.23,
+                "direcao_graus": 196.1,
+                "direcao_cardinal": "S"
+              }
+            },
+            {
+              "de": "2026-09-30T07:50:00-03:00",
+              "para": "2026-09-30T08:00:00-03:00",
+              "componente_anterior": 3,
+              "componente_atual": 1,
+              "score": 0.738,
+              "deslocamento_centroide_km": 3.85,
+              "velocidade_estimada_kmh": 23.1,
+              "direcao_movimento_graus": 195.3,
+              "direcao_movimento_cardinal": "S",
+              "razao_tamanho": 0.625,
+              "sobreposicao_caixas": 0.333,
+              "similaridade_cores": 1.0,
+              "diferenca_direcao_historica_graus": 32.8,
+              "coerencia_direcao": 0.672,
+              "distancia_comasa_anterior_km": 241.23,
+              "distancia_comasa_atual_km": 245.08,
+              "variacao_distancia_comasa_km": 3.85,
+              "tendencia_relativa_comasa": "afastando",
+              "centroide_anterior": {
+                "pixel_x": 681.2,
+                "pixel_y": 284.6,
+                "latitude": -28.35298,
+                "longitude": -49.49258,
+                "distancia_comasa_km": 241.23,
+                "direcao_graus": 196.1,
+                "direcao_cardinal": "S"
+              },
+              "centroide_atual": {
+                "pixel_x": 680.4,
+                "pixel_y": 287.2,
+                "latitude": -28.38639,
+                "longitude": -49.50296,
+                "distancia_comasa_km": 245.08,
+                "direcao_graus": 196.1,
+                "direcao_cardinal": "S"
+              }
+            }
+          ]
+        },
+        {
+          "id_trilha": 8,
+          "transicoes": 2,
+          "elegivel_para_analise": false,
           "score_medio": 0.622,
           "velocidade_media_kmh": 76.2,
           "similaridade_cores_media": 1.0,
@@ -18353,103 +18699,65 @@
           ]
         },
         {
-          "id_trilha": 1,
-          "transicoes": 2,
+          "id_trilha": 12,
+          "transicoes": 1,
           "elegivel_para_analise": false,
-          "score_medio": 0.577,
-          "velocidade_media_kmh": 83.1,
+          "score_medio": 0.849,
+          "velocidade_media_kmh": 9.7,
           "similaridade_cores_media": 1.0,
-          "direcao_media_graus": 11.4,
-          "direcao_media_cardinal": "N",
-          "dispersao_direcao_media_graus": 6.0,
-          "dispersao_direcao_max_graus": 7.0,
-          "tendencia_relativa_comasa": "aproximando",
-          "passos_aproximando": 2,
-          "passos_afastando": 0,
+          "direcao_media_graus": 232.3,
+          "direcao_media_cardinal": "SO",
+          "dispersao_direcao_media_graus": 0,
+          "dispersao_direcao_max_graus": 0,
+          "tendencia_relativa_comasa": "afastando",
+          "passos_aproximando": 0,
+          "passos_afastando": 1,
           "passos_estaveis": 0,
-          "ultima_distancia_comasa_km": 226.0,
-          "ultima_direcao_movimento": "N",
+          "ultima_distancia_comasa_km": 231.13,
+          "ultima_direcao_movimento": "SO",
           "passos": [
             {
-              "de": "2026-09-30T06:50:00-03:00",
-              "para": "2026-09-30T07:00:00-03:00",
-              "componente_anterior": 2,
-              "componente_atual": 1,
-              "score": 0.677,
-              "deslocamento_centroide_km": 7.67,
-              "velocidade_estimada_kmh": 46.0,
-              "direcao_movimento_graus": 16.3,
-              "direcao_movimento_cardinal": "N",
+              "de": "2026-09-30T07:50:00-03:00",
+              "para": "2026-09-30T08:00:00-03:00",
+              "componente_anterior": 1,
+              "componente_atual": 2,
+              "score": 0.849,
+              "deslocamento_centroide_km": 1.62,
+              "velocidade_estimada_kmh": 9.7,
+              "direcao_movimento_graus": 232.3,
+              "direcao_movimento_cardinal": "SO",
               "razao_tamanho": 0.75,
-              "sobreposicao_caixas": 0.0,
+              "sobreposicao_caixas": 0.5,
               "similaridade_cores": 1.0,
               "diferenca_direcao_historica_graus": null,
               "coerencia_direcao": null,
-              "distancia_comasa_anterior_km": 253.22,
-              "distancia_comasa_atual_km": 245.55,
-              "variacao_distancia_comasa_km": -7.67,
-              "tendencia_relativa_comasa": "aproximando",
+              "distancia_comasa_anterior_km": 229.8,
+              "distancia_comasa_atual_km": 231.13,
+              "variacao_distancia_comasa_km": 1.33,
+              "tendencia_relativa_comasa": "afastando",
               "centroide_anterior": {
-                "pixel_x": 678.2,
-                "pixel_y": 292.8,
-                "latitude": -28.45572,
-                "longitude": -49.52971,
-                "distancia_comasa_km": 253.22,
-                "direcao_graus": 196.1,
+                "pixel_x": 681.4,
+                "pixel_y": 276.1,
+                "latitude": -28.24615,
+                "longitude": -49.49038,
+                "distancia_comasa_km": 229.8,
+                "direcao_graus": 196.9,
                 "direcao_cardinal": "S"
               },
               "centroide_atual": {
-                "pixel_x": 680.0,
-                "pixel_y": 287.5,
-                "latitude": -28.38954,
-                "longitude": -49.50768,
-                "distancia_comasa_km": 245.55,
-                "direcao_graus": 196.1,
-                "direcao_cardinal": "S"
-              }
-            },
-            {
-              "de": "2026-09-30T07:00:00-03:00",
-              "para": "2026-09-30T07:10:00-03:00",
-              "componente_anterior": 1,
-              "componente_atual": 2,
-              "score": 0.476,
-              "deslocamento_centroide_km": 20.03,
-              "velocidade_estimada_kmh": 120.2,
-              "direcao_movimento_graus": 4.4,
-              "direcao_movimento_cardinal": "N",
-              "razao_tamanho": 0.667,
-              "sobreposicao_caixas": 0.0,
-              "similaridade_cores": 1.0,
-              "diferenca_direcao_historica_graus": 11.9,
-              "coerencia_direcao": 0.881,
-              "distancia_comasa_anterior_km": 245.55,
-              "distancia_comasa_atual_km": 226.0,
-              "variacao_distancia_comasa_km": -19.55,
-              "tendencia_relativa_comasa": "aproximando",
-              "centroide_anterior": {
-                "pixel_x": 680.0,
-                "pixel_y": 287.5,
-                "latitude": -28.38954,
-                "longitude": -49.50768,
-                "distancia_comasa_km": 245.55,
-                "direcao_graus": 196.1,
-                "direcao_cardinal": "S"
-              },
-              "centroide_atual": {
-                "pixel_x": 681.2,
-                "pixel_y": 273.2,
-                "latitude": -28.20991,
-                "longitude": -49.49195,
-                "distancia_comasa_km": 226.0,
-                "direcao_graus": 197.2,
+                "pixel_x": 680.3,
+                "pixel_y": 276.8,
+                "latitude": -28.25508,
+                "longitude": -49.50349,
+                "distancia_comasa_km": 231.13,
+                "direcao_graus": 197.1,
                 "direcao_cardinal": "S"
               }
             }
           ]
         },
         {
-          "id_trilha": 3,
+          "id_trilha": 2,
           "transicoes": 1,
           "elegivel_para_analise": false,
           "score_medio": 0.847,
@@ -18507,52 +18815,43 @@
           ]
         },
         {
-          "id_trilha": 10,
+          "id_trilha": 13,
           "transicoes": 1,
           "elegivel_para_analise": false,
-          "score_medio": 0.839,
-          "velocidade_media_kmh": 13.1,
+          "score_medio": 0.814,
+          "velocidade_media_kmh": 24.9,
           "similaridade_cores_media": 1.0,
-          "direcao_media_graus": 162.5,
-          "direcao_media_cardinal": "S",
+          "direcao_media_graus": 331.6,
+          "direcao_media_cardinal": "NO",
           "dispersao_direcao_media_graus": 0,
           "dispersao_direcao_max_graus": 0,
-          "tendencia_relativa_comasa": "afastando",
-          "passos_aproximando": 0,
-          "passos_afastando": 1,
+          "tendencia_relativa_comasa": "aproximando",
+          "passos_aproximando": 1,
+          "passos_afastando": 0,
           "passos_estaveis": 0,
-          "ultima_distancia_comasa_km": 241.23,
-          "ultima_direcao_movimento": "S",
+          "ultima_distancia_comasa_km": 238.31,
+          "ultima_direcao_movimento": "NO",
           "passos": [
             {
-              "de": "2026-09-30T07:40:00-03:00",
-              "para": "2026-09-30T07:50:00-03:00",
-              "componente_anterior": 2,
-              "componente_atual": 3,
-              "score": 0.839,
-              "deslocamento_centroide_km": 2.19,
-              "velocidade_estimada_kmh": 13.1,
-              "direcao_movimento_graus": 162.5,
-              "direcao_movimento_cardinal": "S",
-              "razao_tamanho": 0.556,
-              "sobreposicao_caixas": 0.75,
+              "de": "2026-09-30T07:50:00-03:00",
+              "para": "2026-09-30T08:00:00-03:00",
+              "componente_anterior": 3,
+              "componente_atual": 4,
+              "score": 0.814,
+              "deslocamento_centroide_km": 4.14,
+              "velocidade_estimada_kmh": 24.9,
+              "direcao_movimento_graus": 331.6,
+              "direcao_movimento_cardinal": "NO",
+              "razao_tamanho": 1.0,
+              "sobreposicao_caixas": 0.2,
               "similaridade_cores": 1.0,
               "diferenca_direcao_historica_graus": null,
               "coerencia_direcao": null,
-              "distancia_comasa_anterior_km": 239.42,
-              "distancia_comasa_atual_km": 241.23,
-              "variacao_distancia_comasa_km": 1.81,
-              "tendencia_relativa_comasa": "afastando",
+              "distancia_comasa_anterior_km": 241.23,
+              "distancia_comasa_atual_km": 238.31,
+              "variacao_distancia_comasa_km": -2.92,
+              "tendencia_relativa_comasa": "aproximando",
               "centroide_anterior": {
-                "pixel_x": 680.7,
-                "pixel_y": 283.1,
-                "latitude": -28.33422,
-                "longitude": -49.49929,
-                "distancia_comasa_km": 239.42,
-                "direcao_graus": 196.4,
-                "direcao_cardinal": "S"
-              },
-              "centroide_atual": {
                 "pixel_x": 681.2,
                 "pixel_y": 284.6,
                 "latitude": -28.35298,
@@ -18560,12 +18859,21 @@
                 "distancia_comasa_km": 241.23,
                 "direcao_graus": 196.1,
                 "direcao_cardinal": "S"
+              },
+              "centroide_atual": {
+                "pixel_x": 679.6,
+                "pixel_y": 282.0,
+                "latitude": -28.32021,
+                "longitude": -49.51272,
+                "distancia_comasa_km": 238.31,
+                "direcao_graus": 196.8,
+                "direcao_cardinal": "S"
               }
             }
           ]
         },
         {
-          "id_trilha": 11,
+          "id_trilha": 10,
           "transicoes": 1,
           "elegivel_para_analise": false,
           "score_medio": 0.803,
@@ -18623,7 +18931,7 @@
           ]
         },
         {
-          "id_trilha": 2,
+          "id_trilha": 1,
           "transicoes": 1,
           "elegivel_para_analise": false,
           "score_medio": 0.797,
@@ -18681,7 +18989,7 @@
           ]
         },
         {
-          "id_trilha": 4,
+          "id_trilha": 3,
           "transicoes": 1,
           "elegivel_para_analise": false,
           "score_medio": 0.751,
@@ -18739,7 +19047,7 @@
           ]
         },
         {
-          "id_trilha": 8,
+          "id_trilha": 7,
           "transicoes": 1,
           "elegivel_para_analise": false,
           "score_medio": 0.716,
@@ -18797,7 +19105,7 @@
           ]
         },
         {
-          "id_trilha": 6,
+          "id_trilha": 5,
           "transicoes": 1,
           "elegivel_para_analise": false,
           "score_medio": 0.701,
@@ -18855,7 +19163,7 @@
           ]
         },
         {
-          "id_trilha": 12,
+          "id_trilha": 11,
           "transicoes": 1,
           "elegivel_para_analise": false,
           "score_medio": 0.648,
@@ -18913,7 +19221,7 @@
           ]
         },
         {
-          "id_trilha": 7,
+          "id_trilha": 6,
           "transicoes": 1,
           "elegivel_para_analise": false,
           "score_medio": 0.581,
@@ -19028,26 +19336,16 @@
       },
       "diagnostico_por_par": [
         {
-          "de": "2026-09-30T06:50:00-03:00",
-          "para": "2026-09-30T07:00:00-03:00",
-          "candidatos": 1,
+          "de": "2026-09-30T07:00:00-03:00",
+          "para": "2026-09-30T07:10:00-03:00",
+          "candidatos": 2,
           "casamentos_aceitos": 1,
           "metodo": "assinatura_sem_historico_inicial"
         },
         {
-          "de": "2026-09-30T07:00:00-03:00",
-          "para": "2026-09-30T07:10:00-03:00",
-          "trilhas_com_memoria": 1,
-          "candidatos_com_memoria": 1,
-          "casamentos_aceitos": 1,
-          "conflitos_rejeitados": 0,
-          "novas_trilhas_iniciadas": 1,
-          "metodo": "identidade_temporal_com_memoria"
-        },
-        {
           "de": "2026-09-30T07:10:00-03:00",
           "para": "2026-09-30T07:20:00-03:00",
-          "trilhas_com_memoria": 2,
+          "trilhas_com_memoria": 1,
           "candidatos_com_memoria": 0,
           "casamentos_aceitos": 0,
           "conflitos_rejeitados": 0,
@@ -19083,6 +19381,16 @@
           "conflitos_rejeitados": 0,
           "novas_trilhas_iniciadas": 3,
           "metodo": "identidade_temporal_com_memoria"
+        },
+        {
+          "de": "2026-09-30T07:50:00-03:00",
+          "para": "2026-09-30T08:00:00-03:00",
+          "trilhas_com_memoria": 4,
+          "candidatos_com_memoria": 1,
+          "casamentos_aceitos": 1,
+          "conflitos_rejeitados": 0,
+          "novas_trilhas_iniciadas": 2,
+          "metodo": "identidade_temporal_com_memoria"
         }
       ],
       "quantidade_trilhas": 0,
@@ -19113,697 +19421,6 @@
       "eta": null
     },
     "quadros": [
-      {
-        "arquivo": "2026093009500000dBZ.cappi_top.png",
-        "horario_utc": "2026-09-30T09:50:00+00:00",
-        "horario_local": "2026-09-30T06:50:00-03:00",
-        "download": "ok",
-        "bytes": 19375,
-        "sha256": "e5e98c3ddf815568bb26b5c2ec157edda697ffa6aa8e2c33cdcd6a60899f37cd",
-        "largura_px": 920,
-        "altura_px": 719,
-        "modo_png_original": "P",
-        "diagnostico_paleta_png": {
-          "status": "online",
-          "modo_original": "P",
-          "largura_px": 920,
-          "altura_px": 719,
-          "total_pixels": 661480,
-          "pixels_transparentes": 619779,
-          "pixels_visiveis": 41701,
-          "pixels_cinza_nao_validado": 5826,
-          "pixels_candidatos_meteorologicos": 35875,
-          "indices_usados": [
-            {
-              "indice_p": 0,
-              "rgb": [
-                0,
-                0,
-                0
-              ],
-              "alpha": 0,
-              "pixels": 619779,
-              "visivel": false,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": false
-            },
-            {
-              "indice_p": 1,
-              "rgb": [
-                165,
-                255,
-                255
-              ],
-              "alpha": 255,
-              "pixels": 6271,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 2,
-              "rgb": [
-                110,
-                200,
-                255
-              ],
-              "alpha": 255,
-              "pixels": 6700,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 3,
-              "rgb": [
-                55,
-                145,
-                255
-              ],
-              "alpha": 255,
-              "pixels": 7478,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 4,
-              "rgb": [
-                0,
-                90,
-                255
-              ],
-              "alpha": 255,
-              "pixels": 7568,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 5,
-              "rgb": [
-                200,
-                200,
-                200
-              ],
-              "alpha": 255,
-              "pixels": 5826,
-              "visivel": true,
-              "cinza_nao_validado": true,
-              "candidato_meteorologico": false
-            },
-            {
-              "indice_p": 6,
-              "rgb": [
-                170,
-                255,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 4454,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 7,
-              "rgb": [
-                128,
-                206,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 2182,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 8,
-              "rgb": [
-                85,
-                156,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 816,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 9,
-              "rgb": [
-                43,
-                107,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 270,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 10,
-              "rgb": [
-                0,
-                57,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 79,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 11,
-              "rgb": [
-                255,
-                255,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 40,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 12,
-              "rgb": [
-                255,
-                192,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 4,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 13,
-              "rgb": [
-                190,
-                0,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 1,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 14,
-              "rgb": [
-                255,
-                128,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 8,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            },
-            {
-              "indice_p": 15,
-              "rgb": [
-                255,
-                64,
-                0
-              ],
-              "alpha": 255,
-              "pixels": 4,
-              "visivel": true,
-              "cinza_nao_validado": false,
-              "candidato_meteorologico": true
-            }
-          ]
-        },
-        "analise_espacial": {
-          "status": "diagnostico_espacial_ativo",
-          "metodo": "componentes_conectados_8_vizinhos_rgb_oficial_#133",
-          "fonte_mascara": "somente_rgb_exato_da_legenda_oficial_radarsc",
-          "dbz_numerico_validado": false,
-          "eta_liberado": false,
-          "pixel_comasa": {
-            "x": 735,
-            "y": 119,
-            "latitude_aproximada": -26.27,
-            "longitude_aproximada": -48.81
-          },
-          "pixels_candidatos": 40,
-          "indices_candidatos": [
-            {
-              "indice_p": 11,
-              "rgb": [
-                255,
-                255,
-                0
-              ],
-              "classe_oficial": 10
-            }
-          ],
-          "eco_mais_proximo": {
-            "pixel_x": 683,
-            "pixel_y": 270,
-            "latitude": -28.16894,
-            "longitude": -49.46993,
-            "distancia_comasa_km": 221.0,
-            "direcao_graus": 197.0,
-            "direcao_cardinal": "S"
-          },
-          "pixels_por_raio": {
-            "ate_10_km": 0,
-            "ate_25_km": 0,
-            "ate_50_km": 0,
-            "ate_100_km": 0
-          },
-          "quantidade_componentes_3px_ou_mais": 3,
-          "maiores_componentes": [
-            {
-              "id_quadro": 1,
-              "pixels": 15,
-              "centroide": {
-                "pixel_x": 681.9,
-                "pixel_y": 272.8,
-                "latitude": -28.20424,
-                "longitude": -49.48419,
-                "distancia_comasa_km": 225.17,
-                "direcao_graus": 197.1,
-                "direcao_cardinal": "S"
-              },
-              "ponto_mais_proximo_comasa": {
-                "pixel_x": 683,
-                "pixel_y": 270,
-                "latitude": -28.16894,
-                "longitude": -49.46993,
-                "distancia_comasa_km": 221.0,
-                "direcao_graus": 197.0,
-                "direcao_cardinal": "S"
-              },
-              "caixa_pixels": {
-                "x_min": 681,
-                "x_max": 683,
-                "y_min": 270,
-                "y_max": 278
-              },
-              "cores": [
-                {
-                  "rgb": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "pixels": 15
-                }
-              ],
-              "dbz": null,
-              "classificacao": "candidato_a_area_de_eco"
-            },
-            {
-              "id_quadro": 2,
-              "pixels": 8,
-              "centroide": {
-                "pixel_x": 678.2,
-                "pixel_y": 292.8,
-                "latitude": -28.45572,
-                "longitude": -49.52971,
-                "distancia_comasa_km": 253.22,
-                "direcao_graus": 196.1,
-                "direcao_cardinal": "S"
-              },
-              "ponto_mais_proximo_comasa": {
-                "pixel_x": 679,
-                "pixel_y": 291,
-                "latitude": -28.43366,
-                "longitude": -49.52027,
-                "distancia_comasa_km": 250.6,
-                "direcao_graus": 196.1,
-                "direcao_cardinal": "S"
-              },
-              "caixa_pixels": {
-                "x_min": 677,
-                "x_max": 679,
-                "y_min": 291,
-                "y_max": 294
-              },
-              "cores": [
-                {
-                  "rgb": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "pixels": 8
-                }
-              ],
-              "dbz": null,
-              "classificacao": "candidato_a_area_de_eco"
-            },
-            {
-              "id_quadro": 3,
-              "pixels": 5,
-              "centroide": {
-                "pixel_x": 730.4,
-                "pixel_y": 308.2,
-                "latitude": -28.65048,
-                "longitude": -48.87343,
-                "distancia_comasa_km": 264.77,
-                "direcao_graus": 181.3,
-                "direcao_cardinal": "S"
-              },
-              "ponto_mais_proximo_comasa": {
-                "pixel_x": 732,
-                "pixel_y": 307,
-                "latitude": -28.63536,
-                "longitude": -48.85329,
-                "distancia_comasa_km": 263.05,
-                "direcao_graus": 180.9,
-                "direcao_cardinal": "S"
-              },
-              "caixa_pixels": {
-                "x_min": 729,
-                "x_max": 732,
-                "y_min": 307,
-                "y_max": 309
-              },
-              "cores": [
-                {
-                  "rgb": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "pixels": 5
-                }
-              ],
-              "dbz": null,
-              "classificacao": "candidato_a_area_de_eco"
-            }
-          ],
-          "componentes_mais_proximos_comasa": [
-            {
-              "id_quadro": 1,
-              "pixels": 15,
-              "centroide": {
-                "pixel_x": 681.9,
-                "pixel_y": 272.8,
-                "latitude": -28.20424,
-                "longitude": -49.48419,
-                "distancia_comasa_km": 225.17,
-                "direcao_graus": 197.1,
-                "direcao_cardinal": "S"
-              },
-              "ponto_mais_proximo_comasa": {
-                "pixel_x": 683,
-                "pixel_y": 270,
-                "latitude": -28.16894,
-                "longitude": -49.46993,
-                "distancia_comasa_km": 221.0,
-                "direcao_graus": 197.0,
-                "direcao_cardinal": "S"
-              },
-              "caixa_pixels": {
-                "x_min": 681,
-                "x_max": 683,
-                "y_min": 270,
-                "y_max": 278
-              },
-              "cores": [
-                {
-                  "rgb": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "pixels": 15
-                }
-              ],
-              "dbz": null,
-              "classificacao": "candidato_a_area_de_eco"
-            },
-            {
-              "id_quadro": 2,
-              "pixels": 8,
-              "centroide": {
-                "pixel_x": 678.2,
-                "pixel_y": 292.8,
-                "latitude": -28.45572,
-                "longitude": -49.52971,
-                "distancia_comasa_km": 253.22,
-                "direcao_graus": 196.1,
-                "direcao_cardinal": "S"
-              },
-              "ponto_mais_proximo_comasa": {
-                "pixel_x": 679,
-                "pixel_y": 291,
-                "latitude": -28.43366,
-                "longitude": -49.52027,
-                "distancia_comasa_km": 250.6,
-                "direcao_graus": 196.1,
-                "direcao_cardinal": "S"
-              },
-              "caixa_pixels": {
-                "x_min": 677,
-                "x_max": 679,
-                "y_min": 291,
-                "y_max": 294
-              },
-              "cores": [
-                {
-                  "rgb": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "pixels": 8
-                }
-              ],
-              "dbz": null,
-              "classificacao": "candidato_a_area_de_eco"
-            },
-            {
-              "id_quadro": 3,
-              "pixels": 5,
-              "centroide": {
-                "pixel_x": 730.4,
-                "pixel_y": 308.2,
-                "latitude": -28.65048,
-                "longitude": -48.87343,
-                "distancia_comasa_km": 264.77,
-                "direcao_graus": 181.3,
-                "direcao_cardinal": "S"
-              },
-              "ponto_mais_proximo_comasa": {
-                "pixel_x": 732,
-                "pixel_y": 307,
-                "latitude": -28.63536,
-                "longitude": -48.85329,
-                "distancia_comasa_km": 263.05,
-                "direcao_graus": 180.9,
-                "direcao_cardinal": "S"
-              },
-              "caixa_pixels": {
-                "x_min": 729,
-                "x_max": 732,
-                "y_min": 307,
-                "y_max": 309
-              },
-              "cores": [
-                {
-                  "rgb": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "pixels": 5
-                }
-              ],
-              "dbz": null,
-              "classificacao": "candidato_a_area_de_eco"
-            }
-          ]
-        },
-        "eco_oficial_local_129": {
-          "status": "diagnostico_ativo",
-          "metodo": "pixels_rgb_exatos_legenda_oficial_#129",
-          "referencia": "Comasa - coordenada pública aproximada",
-          "raios_km": [
-            2,
-            5,
-            10,
-            25
-          ],
-          "classes_legenda_total": 16,
-          "dbz_numerico_validado": false,
-          "equivale_chuva_medida": false,
-          "eta_liberado": false,
-          "por_raio": {
-            "2": {
-              "pixels_classes_oficiais": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": []
-            },
-            "5": {
-              "pixels_classes_oficiais": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": []
-            },
-            "10": {
-              "pixels_classes_oficiais": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": []
-            },
-            "25": {
-              "pixels_classes_oficiais": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": []
-            }
-          },
-          "eco_oficial_mais_proximo": null,
-          "regra_seguranca": "Detecção significa pixel com RGB idêntico a uma classe da legenda oficial RadarSC. Não significa chuva medida no solo e não atribui dBZ enquanto a escala numérica não for validada."
-        },
-        "classificacao_qualitativa_local_130": {
-          "versao": "#130",
-          "referencia": "Comasa - coordenada pública aproximada",
-          "raios_km": [
-            2,
-            5,
-            10,
-            25
-          ],
-          "dbz_numerico_validado": false,
-          "equivale_chuva_medida": false,
-          "eta_liberado": false,
-          "status": "diagnostico_qualitativo_ativo",
-          "por_raio": {
-            "2": {
-              "pixels_oficiais_classificados": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": [],
-              "familias_cor": []
-            },
-            "5": {
-              "pixels_oficiais_classificados": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": [],
-              "familias_cor": []
-            },
-            "10": {
-              "pixels_oficiais_classificados": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": [],
-              "familias_cor": []
-            },
-            "25": {
-              "pixels_oficiais_classificados": 0,
-              "eco_oficial_detectado": false,
-              "classes_presentes": [],
-              "familias_cor": []
-            }
-          },
-          "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
-        },
-        "auditoria_espacial_132": {
-          "versao": "#133",
-          "status": "auditoria_espacial_ativa",
-          "referencia": "Comasa - coordenada pública aproximada",
-          "coordenada_referencia": {
-            "latitude": -26.27,
-            "longitude": -48.81
-          },
-          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
-          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
-          "dbz_numerico_validado": false,
-          "equivale_chuva_medida": false,
-          "eta_liberado": false,
-          "transformacao_geografica": {
-            "pixel_comasa": {
-              "x": 735,
-              "y": 119
-            },
-            "coordenada_recalculada_do_pixel": {
-              "latitude": -26.265462,
-              "longitude": -48.815538
-            },
-            "erro_roundtrip_km": 0.748,
-            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
-          },
-          "pixel_exato_comasa": {
-            "indice_p": 0,
-            "rgb": [
-              0,
-              0,
-              0
-            ],
-            "alpha": 0,
-            "visivel": false,
-            "rgb_pertence_legenda_oficial": false,
-            "classe_oficial": null
-          },
-          "candidato_legado_mais_proximo": {
-            "distancia_comasa_km": 9.324,
-            "pixel_x": 735,
-            "pixel_y": 126,
-            "indice_p": 3,
-            "rgb": [
-              55,
-              145,
-              255
-            ],
-            "alpha": 255,
-            "rgb_pertence_legenda_oficial": false,
-            "classe_oficial": null,
-            "latitude": -26.353703,
-            "longitude": -48.815538,
-            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
-          },
-          "eco_oficial_mais_proximo_no_quadro": {
-            "distancia_comasa_km": 221.005,
-            "pixel_x": 683,
-            "pixel_y": 270,
-            "indice_p": 11,
-            "rgb": [
-              255,
-              255,
-              0
-            ],
-            "classe_oficial": 10,
-            "latitude": -28.16894,
-            "longitude": -49.469931
-          },
-          "diferenca_distancias_oficial_menos_legado_km": 211.681,
-          "contagem_local_por_raio": {
-            "2": {
-              "legado": 0,
-              "oficial": 0,
-              "legado_nao_oficial": 0
-            },
-            "5": {
-              "legado": 0,
-              "oficial": 0,
-              "legado_nao_oficial": 0
-            },
-            "10": {
-              "legado": 1,
-              "oficial": 0,
-              "legado_nao_oficial": 1
-            },
-            "25": {
-              "legado": 138,
-              "oficial": 0,
-              "legado_nao_oficial": 138
-            }
-          },
-          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
-          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
-        }
-      },
       {
         "arquivo": "2026093010000000dBZ.cappi_top.png",
         "horario_utc": "2026-09-30T10:00:00+00:00",
@@ -24401,15 +24018,773 @@
           "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
           "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
         }
+      },
+      {
+        "arquivo": "2026093011000000dBZ.cappi_top.png",
+        "horario_utc": "2026-09-30T11:00:00+00:00",
+        "horario_local": "2026-09-30T08:00:00-03:00",
+        "download": "ok",
+        "bytes": 19502,
+        "sha256": "a644834a47db346c8df4c0ddd67f96d25c5648eb0f8e8744d68377b4bd1d33f9",
+        "largura_px": 920,
+        "altura_px": 719,
+        "modo_png_original": "P",
+        "diagnostico_paleta_png": {
+          "status": "online",
+          "modo_original": "P",
+          "largura_px": 920,
+          "altura_px": 719,
+          "total_pixels": 661480,
+          "pixels_transparentes": 621573,
+          "pixels_visiveis": 39907,
+          "pixels_cinza_nao_validado": 8224,
+          "pixels_candidatos_meteorologicos": 31683,
+          "indices_usados": [
+            {
+              "indice_p": 0,
+              "rgb": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "pixels": 621573,
+              "visivel": false,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": false
+            },
+            {
+              "indice_p": 1,
+              "rgb": [
+                165,
+                255,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 7046,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 2,
+              "rgb": [
+                110,
+                200,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 7505,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 3,
+              "rgb": [
+                55,
+                145,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 8098,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 4,
+              "rgb": [
+                0,
+                90,
+                255
+              ],
+              "alpha": 255,
+              "pixels": 5030,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 5,
+              "rgb": [
+                170,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 2183,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 6,
+              "rgb": [
+                128,
+                206,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 975,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 7,
+              "rgb": [
+                200,
+                200,
+                200
+              ],
+              "alpha": 255,
+              "pixels": 8224,
+              "visivel": true,
+              "cinza_nao_validado": true,
+              "candidato_meteorologico": false
+            },
+            {
+              "indice_p": 8,
+              "rgb": [
+                85,
+                156,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 396,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 9,
+              "rgb": [
+                43,
+                107,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 226,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 10,
+              "rgb": [
+                0,
+                57,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 168,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 11,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 45,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 12,
+              "rgb": [
+                255,
+                192,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 6,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 13,
+              "rgb": [
+                255,
+                128,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 4,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            },
+            {
+              "indice_p": 14,
+              "rgb": [
+                190,
+                0,
+                0
+              ],
+              "alpha": 255,
+              "pixels": 1,
+              "visivel": true,
+              "cinza_nao_validado": false,
+              "candidato_meteorologico": true
+            }
+          ]
+        },
+        "analise_espacial": {
+          "status": "diagnostico_espacial_ativo",
+          "metodo": "componentes_conectados_8_vizinhos_rgb_oficial_#133",
+          "fonte_mascara": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "eta_liberado": false,
+          "pixel_comasa": {
+            "x": 735,
+            "y": 119,
+            "latitude_aproximada": -26.27,
+            "longitude_aproximada": -48.81
+          },
+          "pixels_candidatos": 45,
+          "indices_candidatos": [
+            {
+              "indice_p": 11,
+              "rgb": [
+                255,
+                255,
+                0
+              ],
+              "classe_oficial": 10
+            }
+          ],
+          "eco_mais_proximo": {
+            "pixel_x": 681,
+            "pixel_y": 272,
+            "latitude": -28.19415,
+            "longitude": -49.4951,
+            "distancia_comasa_km": 224.42,
+            "direcao_graus": 197.4,
+            "direcao_cardinal": "S"
+          },
+          "pixels_por_raio": {
+            "ate_10_km": 0,
+            "ate_25_km": 0,
+            "ate_50_km": 0,
+            "ate_100_km": 0
+          },
+          "quantidade_componentes_3px_ou_mais": 4,
+          "maiores_componentes": [
+            {
+              "id_quadro": 1,
+              "pixels": 8,
+              "centroide": {
+                "pixel_x": 680.4,
+                "pixel_y": 287.2,
+                "latitude": -28.38639,
+                "longitude": -49.50296,
+                "distancia_comasa_km": 245.08,
+                "direcao_graus": 196.1,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 681,
+                "pixel_y": 285,
+                "latitude": -28.35803,
+                "longitude": -49.4951,
+                "distancia_comasa_km": 241.84,
+                "direcao_graus": 196.1,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 680,
+                "x_max": 681,
+                "y_min": 285,
+                "y_max": 290
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 8
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            },
+            {
+              "id_quadro": 2,
+              "pixels": 6,
+              "centroide": {
+                "pixel_x": 680.3,
+                "pixel_y": 276.8,
+                "latitude": -28.25508,
+                "longitude": -49.50349,
+                "distancia_comasa_km": 231.13,
+                "direcao_graus": 197.1,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 681,
+                "pixel_y": 276,
+                "latitude": -28.24457,
+                "longitude": -49.4951,
+                "distancia_comasa_km": 229.77,
+                "direcao_graus": 197.0,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 679,
+                "x_max": 682,
+                "y_min": 276,
+                "y_max": 278
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 6
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            },
+            {
+              "id_quadro": 3,
+              "pixels": 6,
+              "centroide": {
+                "pixel_x": 647.0,
+                "pixel_y": 323.5,
+                "latitude": -28.84335,
+                "longitude": -49.92297,
+                "distancia_comasa_km": 306.45,
+                "direcao_graus": 200.7,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 647,
+                "pixel_y": 323,
+                "latitude": -28.83705,
+                "longitude": -49.92297,
+                "distancia_comasa_km": 305.8,
+                "direcao_graus": 200.8,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 645,
+                "x_max": 649,
+                "y_min": 323,
+                "y_max": 324
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 6
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            },
+            {
+              "id_quadro": 4,
+              "pixels": 5,
+              "centroide": {
+                "pixel_x": 679.6,
+                "pixel_y": 282.0,
+                "latitude": -28.32021,
+                "longitude": -49.51272,
+                "distancia_comasa_km": 238.31,
+                "direcao_graus": 196.8,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 680,
+                "pixel_y": 280,
+                "latitude": -28.295,
+                "longitude": -49.50768,
+                "distancia_comasa_km": 235.49,
+                "direcao_graus": 196.9,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 679,
+                "x_max": 680,
+                "y_min": 280,
+                "y_max": 284
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 5
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            }
+          ],
+          "componentes_mais_proximos_comasa": [
+            {
+              "id_quadro": 2,
+              "pixels": 6,
+              "centroide": {
+                "pixel_x": 680.3,
+                "pixel_y": 276.8,
+                "latitude": -28.25508,
+                "longitude": -49.50349,
+                "distancia_comasa_km": 231.13,
+                "direcao_graus": 197.1,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 681,
+                "pixel_y": 276,
+                "latitude": -28.24457,
+                "longitude": -49.4951,
+                "distancia_comasa_km": 229.77,
+                "direcao_graus": 197.0,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 679,
+                "x_max": 682,
+                "y_min": 276,
+                "y_max": 278
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 6
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            },
+            {
+              "id_quadro": 4,
+              "pixels": 5,
+              "centroide": {
+                "pixel_x": 679.6,
+                "pixel_y": 282.0,
+                "latitude": -28.32021,
+                "longitude": -49.51272,
+                "distancia_comasa_km": 238.31,
+                "direcao_graus": 196.8,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 680,
+                "pixel_y": 280,
+                "latitude": -28.295,
+                "longitude": -49.50768,
+                "distancia_comasa_km": 235.49,
+                "direcao_graus": 196.9,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 679,
+                "x_max": 680,
+                "y_min": 280,
+                "y_max": 284
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 5
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            },
+            {
+              "id_quadro": 1,
+              "pixels": 8,
+              "centroide": {
+                "pixel_x": 680.4,
+                "pixel_y": 287.2,
+                "latitude": -28.38639,
+                "longitude": -49.50296,
+                "distancia_comasa_km": 245.08,
+                "direcao_graus": 196.1,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 681,
+                "pixel_y": 285,
+                "latitude": -28.35803,
+                "longitude": -49.4951,
+                "distancia_comasa_km": 241.84,
+                "direcao_graus": 196.1,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 680,
+                "x_max": 681,
+                "y_min": 285,
+                "y_max": 290
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 8
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            },
+            {
+              "id_quadro": 3,
+              "pixels": 6,
+              "centroide": {
+                "pixel_x": 647.0,
+                "pixel_y": 323.5,
+                "latitude": -28.84335,
+                "longitude": -49.92297,
+                "distancia_comasa_km": 306.45,
+                "direcao_graus": 200.7,
+                "direcao_cardinal": "S"
+              },
+              "ponto_mais_proximo_comasa": {
+                "pixel_x": 647,
+                "pixel_y": 323,
+                "latitude": -28.83705,
+                "longitude": -49.92297,
+                "distancia_comasa_km": 305.8,
+                "direcao_graus": 200.8,
+                "direcao_cardinal": "S"
+              },
+              "caixa_pixels": {
+                "x_min": 645,
+                "x_max": 649,
+                "y_min": 323,
+                "y_max": 324
+              },
+              "cores": [
+                {
+                  "rgb": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "pixels": 6
+                }
+              ],
+              "dbz": null,
+              "classificacao": "candidato_a_area_de_eco"
+            }
+          ]
+        },
+        "eco_oficial_local_129": {
+          "status": "diagnostico_ativo",
+          "metodo": "pixels_rgb_exatos_legenda_oficial_#129",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "raios_km": [
+            2,
+            5,
+            10,
+            25
+          ],
+          "classes_legenda_total": 16,
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "por_raio": {
+            "2": {
+              "pixels_classes_oficiais": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": []
+            },
+            "5": {
+              "pixels_classes_oficiais": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": []
+            },
+            "10": {
+              "pixels_classes_oficiais": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": []
+            },
+            "25": {
+              "pixels_classes_oficiais": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": []
+            }
+          },
+          "eco_oficial_mais_proximo": null,
+          "regra_seguranca": "Detecção significa pixel com RGB idêntico a uma classe da legenda oficial RadarSC. Não significa chuva medida no solo e não atribui dBZ enquanto a escala numérica não for validada."
+        },
+        "classificacao_qualitativa_local_130": {
+          "versao": "#130",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "raios_km": [
+            2,
+            5,
+            10,
+            25
+          ],
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "status": "diagnostico_qualitativo_ativo",
+          "por_raio": {
+            "2": {
+              "pixels_oficiais_classificados": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": [],
+              "familias_cor": []
+            },
+            "5": {
+              "pixels_oficiais_classificados": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": [],
+              "familias_cor": []
+            },
+            "10": {
+              "pixels_oficiais_classificados": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": [],
+              "familias_cor": []
+            },
+            "25": {
+              "pixels_oficiais_classificados": 0,
+              "eco_oficial_detectado": false,
+              "classes_presentes": [],
+              "familias_cor": []
+            }
+          },
+          "regra_seguranca": "Presença de cor oficial é detecção por radar, não medição de chuva no solo. As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+        },
+        "auditoria_espacial_132": {
+          "versao": "#133",
+          "status": "auditoria_espacial_ativa",
+          "referencia": "Comasa - coordenada pública aproximada",
+          "coordenada_referencia": {
+            "latitude": -26.27,
+            "longitude": -48.81
+          },
+          "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
+          "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+          "dbz_numerico_validado": false,
+          "equivale_chuva_medida": false,
+          "eta_liberado": false,
+          "transformacao_geografica": {
+            "pixel_comasa": {
+              "x": 735,
+              "y": 119
+            },
+            "coordenada_recalculada_do_pixel": {
+              "latitude": -26.265462,
+              "longitude": -48.815538
+            },
+            "erro_roundtrip_km": 0.748,
+            "observacao": "Erro pequeno confirma consistencia matematica interna; nao prova sozinho que EXT representa perfeitamente o PNG do RadarSC."
+          },
+          "pixel_exato_comasa": {
+            "indice_p": 0,
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visivel": false,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null
+          },
+          "candidato_legado_mais_proximo": {
+            "distancia_comasa_km": 5.559,
+            "pixel_x": 739,
+            "pixel_y": 117,
+            "indice_p": 1,
+            "rgb": [
+              165,
+              255,
+              255
+            ],
+            "alpha": 255,
+            "rgb_pertence_legenda_oficial": false,
+            "classe_oficial": null,
+            "latitude": -26.240251,
+            "longitude": -48.7652,
+            "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
+          },
+          "eco_oficial_mais_proximo_no_quadro": {
+            "distancia_comasa_km": 224.421,
+            "pixel_x": 681,
+            "pixel_y": 272,
+            "indice_p": 11,
+            "rgb": [
+              255,
+              255,
+              0
+            ],
+            "classe_oficial": 10,
+            "latitude": -28.194152,
+            "longitude": -49.4951
+          },
+          "diferenca_distancias_oficial_menos_legado_km": 218.862,
+          "contagem_local_por_raio": {
+            "2": {
+              "legado": 0,
+              "oficial": 0,
+              "legado_nao_oficial": 0
+            },
+            "5": {
+              "legado": 0,
+              "oficial": 0,
+              "legado_nao_oficial": 0
+            },
+            "10": {
+              "legado": 4,
+              "oficial": 0,
+              "legado_nao_oficial": 4
+            },
+            "25": {
+              "legado": 99,
+              "oficial": 0,
+              "legado_nao_oficial": 99
+            }
+          },
+          "conclusao_automatica": "criterio_legado_inclui_cor_nao_oficial",
+          "regra_seguranca": "A #132 e auditoria diagnostica. Candidatos do metodo legado nao devem ser tratados como chuva quando o RGB nao pertence a legenda oficial. dBZ numerico e ETA permanecem bloqueados."
+        }
       }
     ],
     "ultimo_quadro": {
-      "arquivo": "2026093010500000dBZ.cappi_top.png",
-      "horario_utc": "2026-09-30T10:50:00+00:00",
-      "horario_local": "2026-09-30T07:50:00-03:00",
+      "arquivo": "2026093011000000dBZ.cappi_top.png",
+      "horario_utc": "2026-09-30T11:00:00+00:00",
+      "horario_local": "2026-09-30T08:00:00-03:00",
       "download": "ok",
-      "bytes": 20157,
-      "sha256": "5a171062a772f3aab566d39659acc262422d6a90cb7640e8e6cf66361c411f7e",
+      "bytes": 19502,
+      "sha256": "a644834a47db346c8df4c0ddd67f96d25c5648eb0f8e8744d68377b4bd1d33f9",
       "largura_px": 920,
       "altura_px": 719,
       "modo_png_original": "P",
@@ -24419,10 +24794,10 @@
         "largura_px": 920,
         "altura_px": 719,
         "total_pixels": 661480,
-        "pixels_transparentes": 622562,
-        "pixels_visiveis": 38918,
-        "pixels_cinza_nao_validado": 7815,
-        "pixels_candidatos_meteorologicos": 31103,
+        "pixels_transparentes": 621573,
+        "pixels_visiveis": 39907,
+        "pixels_cinza_nao_validado": 8224,
+        "pixels_candidatos_meteorologicos": 31683,
         "indices_usados": [
           {
             "indice_p": 0,
@@ -24432,7 +24807,7 @@
               0
             ],
             "alpha": 0,
-            "pixels": 622562,
+            "pixels": 621573,
             "visivel": false,
             "cinza_nao_validado": false,
             "candidato_meteorologico": false
@@ -24440,12 +24815,12 @@
           {
             "indice_p": 1,
             "rgb": [
-              110,
-              200,
+              165,
+              255,
               255
             ],
             "alpha": 255,
-            "pixels": 7518,
+            "pixels": 7046,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -24453,12 +24828,12 @@
           {
             "indice_p": 2,
             "rgb": [
-              55,
-              145,
+              110,
+              200,
               255
             ],
             "alpha": 255,
-            "pixels": 8202,
+            "pixels": 7505,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -24466,12 +24841,12 @@
           {
             "indice_p": 3,
             "rgb": [
-              165,
-              255,
+              55,
+              145,
               255
             ],
             "alpha": 255,
-            "pixels": 7045,
+            "pixels": 8098,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -24484,7 +24859,7 @@
               255
             ],
             "alpha": 255,
-            "pixels": 4977,
+            "pixels": 5030,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -24497,7 +24872,7 @@
               0
             ],
             "alpha": 255,
-            "pixels": 1946,
+            "pixels": 2183,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -24505,28 +24880,28 @@
           {
             "indice_p": 6,
             "rgb": [
-              200,
-              200,
-              200
-            ],
-            "alpha": 255,
-            "pixels": 7815,
-            "visivel": true,
-            "cinza_nao_validado": true,
-            "candidato_meteorologico": false
-          },
-          {
-            "indice_p": 7,
-            "rgb": [
               128,
               206,
               0
             ],
             "alpha": 255,
-            "pixels": 795,
+            "pixels": 975,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
+          },
+          {
+            "indice_p": 7,
+            "rgb": [
+              200,
+              200,
+              200
+            ],
+            "alpha": 255,
+            "pixels": 8224,
+            "visivel": true,
+            "cinza_nao_validado": true,
+            "candidato_meteorologico": false
           },
           {
             "indice_p": 8,
@@ -24536,7 +24911,7 @@
               0
             ],
             "alpha": 255,
-            "pixels": 296,
+            "pixels": 396,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -24549,7 +24924,7 @@
               0
             ],
             "alpha": 255,
-            "pixels": 168,
+            "pixels": 226,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -24562,7 +24937,7 @@
               0
             ],
             "alpha": 255,
-            "pixels": 99,
+            "pixels": 168,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -24575,7 +24950,7 @@
               0
             ],
             "alpha": 255,
-            "pixels": 34,
+            "pixels": 45,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -24588,7 +24963,7 @@
               0
             ],
             "alpha": 255,
-            "pixels": 7,
+            "pixels": 6,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -24597,7 +24972,7 @@
             "indice_p": 13,
             "rgb": [
               255,
-              64,
+              128,
               0
             ],
             "alpha": 255,
@@ -24609,38 +24984,12 @@
           {
             "indice_p": 14,
             "rgb": [
-              255,
-              128,
-              0
-            ],
-            "alpha": 255,
-            "pixels": 7,
-            "visivel": true,
-            "cinza_nao_validado": false,
-            "candidato_meteorologico": true
-          },
-          {
-            "indice_p": 15,
-            "rgb": [
               190,
               0,
               0
             ],
             "alpha": 255,
-            "pixels": 3,
-            "visivel": true,
-            "cinza_nao_validado": false,
-            "candidato_meteorologico": true
-          },
-          {
-            "indice_p": 16,
-            "rgb": [
-              255,
-              0,
-              255
-            ],
-            "alpha": 255,
-            "pixels": 2,
+            "pixels": 1,
             "visivel": true,
             "cinza_nao_validado": false,
             "candidato_meteorologico": true
@@ -24659,7 +25008,7 @@
           "latitude_aproximada": -26.27,
           "longitude_aproximada": -48.81
         },
-        "pixels_candidatos": 36,
+        "pixels_candidatos": 45,
         "indices_candidatos": [
           {
             "indice_p": 11,
@@ -24669,24 +25018,15 @@
               0
             ],
             "classe_oficial": 10
-          },
-          {
-            "indice_p": 16,
-            "rgb": [
-              255,
-              0,
-              255
-            ],
-            "classe_oficial": 4
           }
         ],
         "eco_mais_proximo": {
-          "pixel_x": 700,
-          "pixel_y": 258,
-          "latitude": -28.01767,
-          "longitude": -49.25599,
-          "distancia_comasa_km": 199.28,
-          "direcao_graus": 192.7,
+          "pixel_x": 681,
+          "pixel_y": 272,
+          "latitude": -28.19415,
+          "longitude": -49.4951,
+          "distancia_comasa_km": 224.42,
+          "direcao_graus": 197.4,
           "direcao_cardinal": "S"
         },
         "pixels_por_raio": {
@@ -24695,34 +25035,34 @@
           "ate_50_km": 0,
           "ate_100_km": 0
         },
-        "quantidade_componentes_3px_ou_mais": 5,
+        "quantidade_componentes_3px_ou_mais": 4,
         "maiores_componentes": [
           {
             "id_quadro": 1,
             "pixels": 8,
             "centroide": {
-              "pixel_x": 681.4,
-              "pixel_y": 276.1,
-              "latitude": -28.24615,
-              "longitude": -49.49038,
-              "distancia_comasa_km": 229.8,
-              "direcao_graus": 196.9,
+              "pixel_x": 680.4,
+              "pixel_y": 287.2,
+              "latitude": -28.38639,
+              "longitude": -49.50296,
+              "distancia_comasa_km": 245.08,
+              "direcao_graus": 196.1,
               "direcao_cardinal": "S"
             },
             "ponto_mais_proximo_comasa": {
               "pixel_x": 681,
-              "pixel_y": 273,
-              "latitude": -28.20676,
+              "pixel_y": 285,
+              "latitude": -28.35803,
               "longitude": -49.4951,
-              "distancia_comasa_km": 225.76,
-              "direcao_graus": 197.3,
+              "distancia_comasa_km": 241.84,
+              "direcao_graus": 196.1,
               "direcao_cardinal": "S"
             },
             "caixa_pixels": {
-              "x_min": 681,
-              "x_max": 682,
-              "y_min": 273,
-              "y_max": 279
+              "x_min": 680,
+              "x_max": 681,
+              "y_min": 285,
+              "y_max": 290
             },
             "cores": [
               {
@@ -24741,28 +25081,28 @@
             "id_quadro": 2,
             "pixels": 6,
             "centroide": {
-              "pixel_x": 679.3,
-              "pixel_y": 287.8,
-              "latitude": -28.39374,
-              "longitude": -49.51607,
-              "distancia_comasa_km": 246.23,
-              "direcao_graus": 196.3,
+              "pixel_x": 680.3,
+              "pixel_y": 276.8,
+              "latitude": -28.25508,
+              "longitude": -49.50349,
+              "distancia_comasa_km": 231.13,
+              "direcao_graus": 197.1,
               "direcao_cardinal": "S"
             },
             "ponto_mais_proximo_comasa": {
-              "pixel_x": 679,
-              "pixel_y": 286,
-              "latitude": -28.37063,
-              "longitude": -49.52027,
-              "distancia_comasa_km": 243.89,
-              "direcao_graus": 196.6,
+              "pixel_x": 681,
+              "pixel_y": 276,
+              "latitude": -28.24457,
+              "longitude": -49.4951,
+              "distancia_comasa_km": 229.77,
+              "direcao_graus": 197.0,
               "direcao_cardinal": "S"
             },
             "caixa_pixels": {
               "x_min": 679,
-              "x_max": 680,
-              "y_min": 286,
-              "y_max": 289
+              "x_max": 682,
+              "y_min": 276,
+              "y_max": 278
             },
             "cores": [
               {
@@ -24779,30 +25119,70 @@
           },
           {
             "id_quadro": 3,
+            "pixels": 6,
+            "centroide": {
+              "pixel_x": 647.0,
+              "pixel_y": 323.5,
+              "latitude": -28.84335,
+              "longitude": -49.92297,
+              "distancia_comasa_km": 306.45,
+              "direcao_graus": 200.7,
+              "direcao_cardinal": "S"
+            },
+            "ponto_mais_proximo_comasa": {
+              "pixel_x": 647,
+              "pixel_y": 323,
+              "latitude": -28.83705,
+              "longitude": -49.92297,
+              "distancia_comasa_km": 305.8,
+              "direcao_graus": 200.8,
+              "direcao_cardinal": "S"
+            },
+            "caixa_pixels": {
+              "x_min": 645,
+              "x_max": 649,
+              "y_min": 323,
+              "y_max": 324
+            },
+            "cores": [
+              {
+                "rgb": [
+                  255,
+                  255,
+                  0
+                ],
+                "pixels": 6
+              }
+            ],
+            "dbz": null,
+            "classificacao": "candidato_a_area_de_eco"
+          },
+          {
+            "id_quadro": 4,
             "pixels": 5,
             "centroide": {
-              "pixel_x": 681.2,
-              "pixel_y": 284.6,
-              "latitude": -28.35298,
-              "longitude": -49.49258,
-              "distancia_comasa_km": 241.23,
-              "direcao_graus": 196.1,
+              "pixel_x": 679.6,
+              "pixel_y": 282.0,
+              "latitude": -28.32021,
+              "longitude": -49.51272,
+              "distancia_comasa_km": 238.31,
+              "direcao_graus": 196.8,
               "direcao_cardinal": "S"
             },
             "ponto_mais_proximo_comasa": {
               "pixel_x": 680,
-              "pixel_y": 283,
-              "latitude": -28.33282,
+              "pixel_y": 280,
+              "latitude": -28.295,
               "longitude": -49.50768,
-              "distancia_comasa_km": 239.51,
-              "direcao_graus": 196.6,
+              "distancia_comasa_km": 235.49,
+              "direcao_graus": 196.9,
               "direcao_cardinal": "S"
             },
             "caixa_pixels": {
-              "x_min": 680,
-              "x_max": 682,
-              "y_min": 283,
-              "y_max": 286
+              "x_min": 679,
+              "x_max": 680,
+              "y_min": 280,
+              "y_max": 284
             },
             "cores": [
               {
@@ -24812,86 +25192,6 @@
                   0
                 ],
                 "pixels": 5
-              }
-            ],
-            "dbz": null,
-            "classificacao": "candidato_a_area_de_eco"
-          },
-          {
-            "id_quadro": 4,
-            "pixels": 4,
-            "centroide": {
-              "pixel_x": 700.0,
-              "pixel_y": 259.5,
-              "latitude": -28.03658,
-              "longitude": -49.25599,
-              "distancia_comasa_km": 201.33,
-              "direcao_graus": 192.6,
-              "direcao_cardinal": "S"
-            },
-            "ponto_mais_proximo_comasa": {
-              "pixel_x": 700,
-              "pixel_y": 258,
-              "latitude": -28.01767,
-              "longitude": -49.25599,
-              "distancia_comasa_km": 199.28,
-              "direcao_graus": 192.7,
-              "direcao_cardinal": "S"
-            },
-            "caixa_pixels": {
-              "x_min": 700,
-              "x_max": 700,
-              "y_min": 258,
-              "y_max": 261
-            },
-            "cores": [
-              {
-                "rgb": [
-                  255,
-                  255,
-                  0
-                ],
-                "pixels": 4
-              }
-            ],
-            "dbz": null,
-            "classificacao": "candidato_a_area_de_eco"
-          },
-          {
-            "id_quadro": 5,
-            "pixels": 4,
-            "centroide": {
-              "pixel_x": 679.8,
-              "pixel_y": 292.5,
-              "latitude": -28.45257,
-              "longitude": -49.51083,
-              "distancia_comasa_km": 252.36,
-              "direcao_graus": 195.8,
-              "direcao_cardinal": "S"
-            },
-            "ponto_mais_proximo_comasa": {
-              "pixel_x": 679,
-              "pixel_y": 291,
-              "latitude": -28.43366,
-              "longitude": -49.52027,
-              "distancia_comasa_km": 250.6,
-              "direcao_graus": 196.1,
-              "direcao_cardinal": "S"
-            },
-            "caixa_pixels": {
-              "x_min": 679,
-              "x_max": 680,
-              "y_min": 291,
-              "y_max": 294
-            },
-            "cores": [
-              {
-                "rgb": [
-                  255,
-                  255,
-                  0
-                ],
-                "pixels": 4
               }
             ],
             "dbz": null,
@@ -24900,31 +25200,31 @@
         ],
         "componentes_mais_proximos_comasa": [
           {
-            "id_quadro": 4,
-            "pixels": 4,
+            "id_quadro": 2,
+            "pixels": 6,
             "centroide": {
-              "pixel_x": 700.0,
-              "pixel_y": 259.5,
-              "latitude": -28.03658,
-              "longitude": -49.25599,
-              "distancia_comasa_km": 201.33,
-              "direcao_graus": 192.6,
+              "pixel_x": 680.3,
+              "pixel_y": 276.8,
+              "latitude": -28.25508,
+              "longitude": -49.50349,
+              "distancia_comasa_km": 231.13,
+              "direcao_graus": 197.1,
               "direcao_cardinal": "S"
             },
             "ponto_mais_proximo_comasa": {
-              "pixel_x": 700,
-              "pixel_y": 258,
-              "latitude": -28.01767,
-              "longitude": -49.25599,
-              "distancia_comasa_km": 199.28,
-              "direcao_graus": 192.7,
+              "pixel_x": 681,
+              "pixel_y": 276,
+              "latitude": -28.24457,
+              "longitude": -49.4951,
+              "distancia_comasa_km": 229.77,
+              "direcao_graus": 197.0,
               "direcao_cardinal": "S"
             },
             "caixa_pixels": {
-              "x_min": 700,
-              "x_max": 700,
-              "y_min": 258,
-              "y_max": 261
+              "x_min": 679,
+              "x_max": 682,
+              "y_min": 276,
+              "y_max": 278
             },
             "cores": [
               {
@@ -24933,7 +25233,47 @@
                   255,
                   0
                 ],
-                "pixels": 4
+                "pixels": 6
+              }
+            ],
+            "dbz": null,
+            "classificacao": "candidato_a_area_de_eco"
+          },
+          {
+            "id_quadro": 4,
+            "pixels": 5,
+            "centroide": {
+              "pixel_x": 679.6,
+              "pixel_y": 282.0,
+              "latitude": -28.32021,
+              "longitude": -49.51272,
+              "distancia_comasa_km": 238.31,
+              "direcao_graus": 196.8,
+              "direcao_cardinal": "S"
+            },
+            "ponto_mais_proximo_comasa": {
+              "pixel_x": 680,
+              "pixel_y": 280,
+              "latitude": -28.295,
+              "longitude": -49.50768,
+              "distancia_comasa_km": 235.49,
+              "direcao_graus": 196.9,
+              "direcao_cardinal": "S"
+            },
+            "caixa_pixels": {
+              "x_min": 679,
+              "x_max": 680,
+              "y_min": 280,
+              "y_max": 284
+            },
+            "cores": [
+              {
+                "rgb": [
+                  255,
+                  255,
+                  0
+                ],
+                "pixels": 5
               }
             ],
             "dbz": null,
@@ -24943,28 +25283,28 @@
             "id_quadro": 1,
             "pixels": 8,
             "centroide": {
-              "pixel_x": 681.4,
-              "pixel_y": 276.1,
-              "latitude": -28.24615,
-              "longitude": -49.49038,
-              "distancia_comasa_km": 229.8,
-              "direcao_graus": 196.9,
+              "pixel_x": 680.4,
+              "pixel_y": 287.2,
+              "latitude": -28.38639,
+              "longitude": -49.50296,
+              "distancia_comasa_km": 245.08,
+              "direcao_graus": 196.1,
               "direcao_cardinal": "S"
             },
             "ponto_mais_proximo_comasa": {
               "pixel_x": 681,
-              "pixel_y": 273,
-              "latitude": -28.20676,
+              "pixel_y": 285,
+              "latitude": -28.35803,
               "longitude": -49.4951,
-              "distancia_comasa_km": 225.76,
-              "direcao_graus": 197.3,
+              "distancia_comasa_km": 241.84,
+              "direcao_graus": 196.1,
               "direcao_cardinal": "S"
             },
             "caixa_pixels": {
-              "x_min": 681,
-              "x_max": 682,
-              "y_min": 273,
-              "y_max": 279
+              "x_min": 680,
+              "x_max": 681,
+              "y_min": 285,
+              "y_max": 290
             },
             "cores": [
               {
@@ -24981,70 +25321,30 @@
           },
           {
             "id_quadro": 3,
-            "pixels": 5,
-            "centroide": {
-              "pixel_x": 681.2,
-              "pixel_y": 284.6,
-              "latitude": -28.35298,
-              "longitude": -49.49258,
-              "distancia_comasa_km": 241.23,
-              "direcao_graus": 196.1,
-              "direcao_cardinal": "S"
-            },
-            "ponto_mais_proximo_comasa": {
-              "pixel_x": 680,
-              "pixel_y": 283,
-              "latitude": -28.33282,
-              "longitude": -49.50768,
-              "distancia_comasa_km": 239.51,
-              "direcao_graus": 196.6,
-              "direcao_cardinal": "S"
-            },
-            "caixa_pixels": {
-              "x_min": 680,
-              "x_max": 682,
-              "y_min": 283,
-              "y_max": 286
-            },
-            "cores": [
-              {
-                "rgb": [
-                  255,
-                  255,
-                  0
-                ],
-                "pixels": 5
-              }
-            ],
-            "dbz": null,
-            "classificacao": "candidato_a_area_de_eco"
-          },
-          {
-            "id_quadro": 2,
             "pixels": 6,
             "centroide": {
-              "pixel_x": 679.3,
-              "pixel_y": 287.8,
-              "latitude": -28.39374,
-              "longitude": -49.51607,
-              "distancia_comasa_km": 246.23,
-              "direcao_graus": 196.3,
+              "pixel_x": 647.0,
+              "pixel_y": 323.5,
+              "latitude": -28.84335,
+              "longitude": -49.92297,
+              "distancia_comasa_km": 306.45,
+              "direcao_graus": 200.7,
               "direcao_cardinal": "S"
             },
             "ponto_mais_proximo_comasa": {
-              "pixel_x": 679,
-              "pixel_y": 286,
-              "latitude": -28.37063,
-              "longitude": -49.52027,
-              "distancia_comasa_km": 243.89,
-              "direcao_graus": 196.6,
+              "pixel_x": 647,
+              "pixel_y": 323,
+              "latitude": -28.83705,
+              "longitude": -49.92297,
+              "distancia_comasa_km": 305.8,
+              "direcao_graus": 200.8,
               "direcao_cardinal": "S"
             },
             "caixa_pixels": {
-              "x_min": 679,
-              "x_max": 680,
-              "y_min": 286,
-              "y_max": 289
+              "x_min": 645,
+              "x_max": 649,
+              "y_min": 323,
+              "y_max": 324
             },
             "cores": [
               {
@@ -25054,46 +25354,6 @@
                   0
                 ],
                 "pixels": 6
-              }
-            ],
-            "dbz": null,
-            "classificacao": "candidato_a_area_de_eco"
-          },
-          {
-            "id_quadro": 5,
-            "pixels": 4,
-            "centroide": {
-              "pixel_x": 679.8,
-              "pixel_y": 292.5,
-              "latitude": -28.45257,
-              "longitude": -49.51083,
-              "distancia_comasa_km": 252.36,
-              "direcao_graus": 195.8,
-              "direcao_cardinal": "S"
-            },
-            "ponto_mais_proximo_comasa": {
-              "pixel_x": 679,
-              "pixel_y": 291,
-              "latitude": -28.43366,
-              "longitude": -49.52027,
-              "distancia_comasa_km": 250.6,
-              "direcao_graus": 196.1,
-              "direcao_cardinal": "S"
-            },
-            "caixa_pixels": {
-              "x_min": 679,
-              "x_max": 680,
-              "y_min": 291,
-              "y_max": 294
-            },
-            "cores": [
-              {
-                "rgb": [
-                  255,
-                  255,
-                  0
-                ],
-                "pixels": 4
               }
             ],
             "dbz": null,
@@ -25222,7 +25482,7 @@
           "distancia_comasa_km": 5.559,
           "pixel_x": 739,
           "pixel_y": 117,
-          "indice_p": 3,
+          "indice_p": 1,
           "rgb": [
             165,
             255,
@@ -25236,9 +25496,9 @@
           "diagnostico": "falso_candidato_pelo_criterio_legado_para_fins_meteorologicos"
         },
         "eco_oficial_mais_proximo_no_quadro": {
-          "distancia_comasa_km": 199.279,
-          "pixel_x": 700,
-          "pixel_y": 258,
+          "distancia_comasa_km": 224.421,
+          "pixel_x": 681,
+          "pixel_y": 272,
           "indice_p": 11,
           "rgb": [
             255,
@@ -25246,10 +25506,10 @@
             0
           ],
           "classe_oficial": 10,
-          "latitude": -28.01767,
-          "longitude": -49.255995
+          "latitude": -28.194152,
+          "longitude": -49.4951
         },
-        "diferenca_distancias_oficial_menos_legado_km": 193.72,
+        "diferenca_distancias_oficial_menos_legado_km": 218.862,
         "contagem_local_por_raio": {
           "2": {
             "legado": 0,
@@ -25291,7 +25551,7 @@
           "latitude_aproximada": -26.27,
           "longitude_aproximada": -48.81
         },
-        "pixels_candidatos": 36,
+        "pixels_candidatos": 45,
         "indices_candidatos": [
           {
             "indice_p": 11,
@@ -25301,24 +25561,15 @@
               0
             ],
             "classe_oficial": 10
-          },
-          {
-            "indice_p": 16,
-            "rgb": [
-              255,
-              0,
-              255
-            ],
-            "classe_oficial": 4
           }
         ],
         "eco_mais_proximo": {
-          "pixel_x": 700,
-          "pixel_y": 258,
-          "latitude": -28.01767,
-          "longitude": -49.25599,
-          "distancia_comasa_km": 199.28,
-          "direcao_graus": 192.7,
+          "pixel_x": 681,
+          "pixel_y": 272,
+          "latitude": -28.19415,
+          "longitude": -49.4951,
+          "distancia_comasa_km": 224.42,
+          "direcao_graus": 197.4,
           "direcao_cardinal": "S"
         },
         "pixels_por_raio": {
@@ -25327,34 +25578,34 @@
           "ate_50_km": 0,
           "ate_100_km": 0
         },
-        "quantidade_componentes_3px_ou_mais": 5,
+        "quantidade_componentes_3px_ou_mais": 4,
         "maiores_componentes": [
           {
             "id_quadro": 1,
             "pixels": 8,
             "centroide": {
-              "pixel_x": 681.4,
-              "pixel_y": 276.1,
-              "latitude": -28.24615,
-              "longitude": -49.49038,
-              "distancia_comasa_km": 229.8,
-              "direcao_graus": 196.9,
+              "pixel_x": 680.4,
+              "pixel_y": 287.2,
+              "latitude": -28.38639,
+              "longitude": -49.50296,
+              "distancia_comasa_km": 245.08,
+              "direcao_graus": 196.1,
               "direcao_cardinal": "S"
             },
             "ponto_mais_proximo_comasa": {
               "pixel_x": 681,
-              "pixel_y": 273,
-              "latitude": -28.20676,
+              "pixel_y": 285,
+              "latitude": -28.35803,
               "longitude": -49.4951,
-              "distancia_comasa_km": 225.76,
-              "direcao_graus": 197.3,
+              "distancia_comasa_km": 241.84,
+              "direcao_graus": 196.1,
               "direcao_cardinal": "S"
             },
             "caixa_pixels": {
-              "x_min": 681,
-              "x_max": 682,
-              "y_min": 273,
-              "y_max": 279
+              "x_min": 680,
+              "x_max": 681,
+              "y_min": 285,
+              "y_max": 290
             },
             "cores": [
               {
@@ -25373,28 +25624,28 @@
             "id_quadro": 2,
             "pixels": 6,
             "centroide": {
-              "pixel_x": 679.3,
-              "pixel_y": 287.8,
-              "latitude": -28.39374,
-              "longitude": -49.51607,
-              "distancia_comasa_km": 246.23,
-              "direcao_graus": 196.3,
+              "pixel_x": 680.3,
+              "pixel_y": 276.8,
+              "latitude": -28.25508,
+              "longitude": -49.50349,
+              "distancia_comasa_km": 231.13,
+              "direcao_graus": 197.1,
               "direcao_cardinal": "S"
             },
             "ponto_mais_proximo_comasa": {
-              "pixel_x": 679,
-              "pixel_y": 286,
-              "latitude": -28.37063,
-              "longitude": -49.52027,
-              "distancia_comasa_km": 243.89,
-              "direcao_graus": 196.6,
+              "pixel_x": 681,
+              "pixel_y": 276,
+              "latitude": -28.24457,
+              "longitude": -49.4951,
+              "distancia_comasa_km": 229.77,
+              "direcao_graus": 197.0,
               "direcao_cardinal": "S"
             },
             "caixa_pixels": {
               "x_min": 679,
-              "x_max": 680,
-              "y_min": 286,
-              "y_max": 289
+              "x_max": 682,
+              "y_min": 276,
+              "y_max": 278
             },
             "cores": [
               {
@@ -25411,30 +25662,70 @@
           },
           {
             "id_quadro": 3,
+            "pixels": 6,
+            "centroide": {
+              "pixel_x": 647.0,
+              "pixel_y": 323.5,
+              "latitude": -28.84335,
+              "longitude": -49.92297,
+              "distancia_comasa_km": 306.45,
+              "direcao_graus": 200.7,
+              "direcao_cardinal": "S"
+            },
+            "ponto_mais_proximo_comasa": {
+              "pixel_x": 647,
+              "pixel_y": 323,
+              "latitude": -28.83705,
+              "longitude": -49.92297,
+              "distancia_comasa_km": 305.8,
+              "direcao_graus": 200.8,
+              "direcao_cardinal": "S"
+            },
+            "caixa_pixels": {
+              "x_min": 645,
+              "x_max": 649,
+              "y_min": 323,
+              "y_max": 324
+            },
+            "cores": [
+              {
+                "rgb": [
+                  255,
+                  255,
+                  0
+                ],
+                "pixels": 6
+              }
+            ],
+            "dbz": null,
+            "classificacao": "candidato_a_area_de_eco"
+          },
+          {
+            "id_quadro": 4,
             "pixels": 5,
             "centroide": {
-              "pixel_x": 681.2,
-              "pixel_y": 284.6,
-              "latitude": -28.35298,
-              "longitude": -49.49258,
-              "distancia_comasa_km": 241.23,
-              "direcao_graus": 196.1,
+              "pixel_x": 679.6,
+              "pixel_y": 282.0,
+              "latitude": -28.32021,
+              "longitude": -49.51272,
+              "distancia_comasa_km": 238.31,
+              "direcao_graus": 196.8,
               "direcao_cardinal": "S"
             },
             "ponto_mais_proximo_comasa": {
               "pixel_x": 680,
-              "pixel_y": 283,
-              "latitude": -28.33282,
+              "pixel_y": 280,
+              "latitude": -28.295,
               "longitude": -49.50768,
-              "distancia_comasa_km": 239.51,
-              "direcao_graus": 196.6,
+              "distancia_comasa_km": 235.49,
+              "direcao_graus": 196.9,
               "direcao_cardinal": "S"
             },
             "caixa_pixels": {
-              "x_min": 680,
-              "x_max": 682,
-              "y_min": 283,
-              "y_max": 286
+              "x_min": 679,
+              "x_max": 680,
+              "y_min": 280,
+              "y_max": 284
             },
             "cores": [
               {
@@ -25444,86 +25735,6 @@
                   0
                 ],
                 "pixels": 5
-              }
-            ],
-            "dbz": null,
-            "classificacao": "candidato_a_area_de_eco"
-          },
-          {
-            "id_quadro": 4,
-            "pixels": 4,
-            "centroide": {
-              "pixel_x": 700.0,
-              "pixel_y": 259.5,
-              "latitude": -28.03658,
-              "longitude": -49.25599,
-              "distancia_comasa_km": 201.33,
-              "direcao_graus": 192.6,
-              "direcao_cardinal": "S"
-            },
-            "ponto_mais_proximo_comasa": {
-              "pixel_x": 700,
-              "pixel_y": 258,
-              "latitude": -28.01767,
-              "longitude": -49.25599,
-              "distancia_comasa_km": 199.28,
-              "direcao_graus": 192.7,
-              "direcao_cardinal": "S"
-            },
-            "caixa_pixels": {
-              "x_min": 700,
-              "x_max": 700,
-              "y_min": 258,
-              "y_max": 261
-            },
-            "cores": [
-              {
-                "rgb": [
-                  255,
-                  255,
-                  0
-                ],
-                "pixels": 4
-              }
-            ],
-            "dbz": null,
-            "classificacao": "candidato_a_area_de_eco"
-          },
-          {
-            "id_quadro": 5,
-            "pixels": 4,
-            "centroide": {
-              "pixel_x": 679.8,
-              "pixel_y": 292.5,
-              "latitude": -28.45257,
-              "longitude": -49.51083,
-              "distancia_comasa_km": 252.36,
-              "direcao_graus": 195.8,
-              "direcao_cardinal": "S"
-            },
-            "ponto_mais_proximo_comasa": {
-              "pixel_x": 679,
-              "pixel_y": 291,
-              "latitude": -28.43366,
-              "longitude": -49.52027,
-              "distancia_comasa_km": 250.6,
-              "direcao_graus": 196.1,
-              "direcao_cardinal": "S"
-            },
-            "caixa_pixels": {
-              "x_min": 679,
-              "x_max": 680,
-              "y_min": 291,
-              "y_max": 294
-            },
-            "cores": [
-              {
-                "rgb": [
-                  255,
-                  255,
-                  0
-                ],
-                "pixels": 4
               }
             ],
             "dbz": null,
@@ -25532,31 +25743,31 @@
         ],
         "componentes_mais_proximos_comasa": [
           {
-            "id_quadro": 4,
-            "pixels": 4,
+            "id_quadro": 2,
+            "pixels": 6,
             "centroide": {
-              "pixel_x": 700.0,
-              "pixel_y": 259.5,
-              "latitude": -28.03658,
-              "longitude": -49.25599,
-              "distancia_comasa_km": 201.33,
-              "direcao_graus": 192.6,
+              "pixel_x": 680.3,
+              "pixel_y": 276.8,
+              "latitude": -28.25508,
+              "longitude": -49.50349,
+              "distancia_comasa_km": 231.13,
+              "direcao_graus": 197.1,
               "direcao_cardinal": "S"
             },
             "ponto_mais_proximo_comasa": {
-              "pixel_x": 700,
-              "pixel_y": 258,
-              "latitude": -28.01767,
-              "longitude": -49.25599,
-              "distancia_comasa_km": 199.28,
-              "direcao_graus": 192.7,
+              "pixel_x": 681,
+              "pixel_y": 276,
+              "latitude": -28.24457,
+              "longitude": -49.4951,
+              "distancia_comasa_km": 229.77,
+              "direcao_graus": 197.0,
               "direcao_cardinal": "S"
             },
             "caixa_pixels": {
-              "x_min": 700,
-              "x_max": 700,
-              "y_min": 258,
-              "y_max": 261
+              "x_min": 679,
+              "x_max": 682,
+              "y_min": 276,
+              "y_max": 278
             },
             "cores": [
               {
@@ -25565,7 +25776,47 @@
                   255,
                   0
                 ],
-                "pixels": 4
+                "pixels": 6
+              }
+            ],
+            "dbz": null,
+            "classificacao": "candidato_a_area_de_eco"
+          },
+          {
+            "id_quadro": 4,
+            "pixels": 5,
+            "centroide": {
+              "pixel_x": 679.6,
+              "pixel_y": 282.0,
+              "latitude": -28.32021,
+              "longitude": -49.51272,
+              "distancia_comasa_km": 238.31,
+              "direcao_graus": 196.8,
+              "direcao_cardinal": "S"
+            },
+            "ponto_mais_proximo_comasa": {
+              "pixel_x": 680,
+              "pixel_y": 280,
+              "latitude": -28.295,
+              "longitude": -49.50768,
+              "distancia_comasa_km": 235.49,
+              "direcao_graus": 196.9,
+              "direcao_cardinal": "S"
+            },
+            "caixa_pixels": {
+              "x_min": 679,
+              "x_max": 680,
+              "y_min": 280,
+              "y_max": 284
+            },
+            "cores": [
+              {
+                "rgb": [
+                  255,
+                  255,
+                  0
+                ],
+                "pixels": 5
               }
             ],
             "dbz": null,
@@ -25575,28 +25826,28 @@
             "id_quadro": 1,
             "pixels": 8,
             "centroide": {
-              "pixel_x": 681.4,
-              "pixel_y": 276.1,
-              "latitude": -28.24615,
-              "longitude": -49.49038,
-              "distancia_comasa_km": 229.8,
-              "direcao_graus": 196.9,
+              "pixel_x": 680.4,
+              "pixel_y": 287.2,
+              "latitude": -28.38639,
+              "longitude": -49.50296,
+              "distancia_comasa_km": 245.08,
+              "direcao_graus": 196.1,
               "direcao_cardinal": "S"
             },
             "ponto_mais_proximo_comasa": {
               "pixel_x": 681,
-              "pixel_y": 273,
-              "latitude": -28.20676,
+              "pixel_y": 285,
+              "latitude": -28.35803,
               "longitude": -49.4951,
-              "distancia_comasa_km": 225.76,
-              "direcao_graus": 197.3,
+              "distancia_comasa_km": 241.84,
+              "direcao_graus": 196.1,
               "direcao_cardinal": "S"
             },
             "caixa_pixels": {
-              "x_min": 681,
-              "x_max": 682,
-              "y_min": 273,
-              "y_max": 279
+              "x_min": 680,
+              "x_max": 681,
+              "y_min": 285,
+              "y_max": 290
             },
             "cores": [
               {
@@ -25613,70 +25864,30 @@
           },
           {
             "id_quadro": 3,
-            "pixels": 5,
-            "centroide": {
-              "pixel_x": 681.2,
-              "pixel_y": 284.6,
-              "latitude": -28.35298,
-              "longitude": -49.49258,
-              "distancia_comasa_km": 241.23,
-              "direcao_graus": 196.1,
-              "direcao_cardinal": "S"
-            },
-            "ponto_mais_proximo_comasa": {
-              "pixel_x": 680,
-              "pixel_y": 283,
-              "latitude": -28.33282,
-              "longitude": -49.50768,
-              "distancia_comasa_km": 239.51,
-              "direcao_graus": 196.6,
-              "direcao_cardinal": "S"
-            },
-            "caixa_pixels": {
-              "x_min": 680,
-              "x_max": 682,
-              "y_min": 283,
-              "y_max": 286
-            },
-            "cores": [
-              {
-                "rgb": [
-                  255,
-                  255,
-                  0
-                ],
-                "pixels": 5
-              }
-            ],
-            "dbz": null,
-            "classificacao": "candidato_a_area_de_eco"
-          },
-          {
-            "id_quadro": 2,
             "pixels": 6,
             "centroide": {
-              "pixel_x": 679.3,
-              "pixel_y": 287.8,
-              "latitude": -28.39374,
-              "longitude": -49.51607,
-              "distancia_comasa_km": 246.23,
-              "direcao_graus": 196.3,
+              "pixel_x": 647.0,
+              "pixel_y": 323.5,
+              "latitude": -28.84335,
+              "longitude": -49.92297,
+              "distancia_comasa_km": 306.45,
+              "direcao_graus": 200.7,
               "direcao_cardinal": "S"
             },
             "ponto_mais_proximo_comasa": {
-              "pixel_x": 679,
-              "pixel_y": 286,
-              "latitude": -28.37063,
-              "longitude": -49.52027,
-              "distancia_comasa_km": 243.89,
-              "direcao_graus": 196.6,
+              "pixel_x": 647,
+              "pixel_y": 323,
+              "latitude": -28.83705,
+              "longitude": -49.92297,
+              "distancia_comasa_km": 305.8,
+              "direcao_graus": 200.8,
               "direcao_cardinal": "S"
             },
             "caixa_pixels": {
-              "x_min": 679,
-              "x_max": 680,
-              "y_min": 286,
-              "y_max": 289
+              "x_min": 645,
+              "x_max": 649,
+              "y_min": 323,
+              "y_max": 324
             },
             "cores": [
               {
@@ -25686,46 +25897,6 @@
                   0
                 ],
                 "pixels": 6
-              }
-            ],
-            "dbz": null,
-            "classificacao": "candidato_a_area_de_eco"
-          },
-          {
-            "id_quadro": 5,
-            "pixels": 4,
-            "centroide": {
-              "pixel_x": 679.8,
-              "pixel_y": 292.5,
-              "latitude": -28.45257,
-              "longitude": -49.51083,
-              "distancia_comasa_km": 252.36,
-              "direcao_graus": 195.8,
-              "direcao_cardinal": "S"
-            },
-            "ponto_mais_proximo_comasa": {
-              "pixel_x": 679,
-              "pixel_y": 291,
-              "latitude": -28.43366,
-              "longitude": -49.52027,
-              "distancia_comasa_km": 250.6,
-              "direcao_graus": 196.1,
-              "direcao_cardinal": "S"
-            },
-            "caixa_pixels": {
-              "x_min": 679,
-              "x_max": 680,
-              "y_min": 291,
-              "y_max": 294
-            },
-            "cores": [
-              {
-                "rgb": [
-                  255,
-                  255,
-                  0
-                ],
-                "pixels": 4
               }
             ],
             "dbz": null,
@@ -27551,7 +27722,7 @@
     "consultas_temporais": [
       {
         "dias": 2,
-        "datetime": "2026-09-28T10:55:46Z/2026-09-30T10:55:46Z",
+        "datetime": "2026-09-28T11:09:53Z/2026-09-30T11:09:53Z",
         "http_status": 200,
         "quantidade_features": 22,
         "quantidade_data_alerta": 22,
@@ -27560,7 +27731,7 @@
       },
       {
         "dias": 7,
-        "datetime": "2026-09-23T10:55:46Z/2026-09-30T10:55:46Z",
+        "datetime": "2026-09-23T11:09:53Z/2026-09-30T11:09:53Z",
         "http_status": 200,
         "quantidade_features": 61,
         "quantidade_data_alerta": 61,
@@ -27569,7 +27740,7 @@
       },
       {
         "dias": 30,
-        "datetime": "2026-08-31T10:55:46Z/2026-09-30T10:55:46Z",
+        "datetime": "2026-08-31T11:09:53Z/2026-09-30T11:09:53Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,
@@ -27578,7 +27749,7 @@
       },
       {
         "dias": 90,
-        "datetime": "2026-07-02T10:55:46Z/2026-09-30T10:55:46Z",
+        "datetime": "2026-07-02T11:09:53Z/2026-09-30T11:09:53Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,

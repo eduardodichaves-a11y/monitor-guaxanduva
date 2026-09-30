@@ -1645,140 +1645,73 @@ def investigar_fonte_radarsc():
 # =========================================================
  
 def legenda():
+    """Extrai a legenda RadarSC e aplica RGB→faixa dBZ somente se #169 validar integralmente."""
     try:
-        bruto = get(
-            LEGENDA,
-            radar=True,
-        ).content
- 
-        imagem = Image.open(
-            io.BytesIO(bruto)
-        ).convert("RGBA")
- 
+        bruto = get(LEGENDA, radar=True).content
+        imagem = Image.open(io.BytesIO(bruto)).convert("RGBA")
+        sha = hashlib.sha256(bruto).hexdigest()
         melhor = []
- 
         for y in range(imagem.height):
             segmentos = []
- 
-            cor = imagem.getpixel(
-                (0, y)
-            )
- 
-            inicio = 0
- 
-            for x in range(
-                1,
-                imagem.width,
-            ):
-                atual = imagem.getpixel(
-                    (x, y)
-                )
- 
+            cor = imagem.getpixel((0, y)); inicio = 0
+            for x in range(1, imagem.width):
+                atual = imagem.getpixel((x, y))
                 if atual != cor:
                     largura = x - inicio
- 
-                    if (
-                        largura >= 10
-                        and cor[3] > 0
-                        and cor[:3]
-                        not in (
-                            (255, 255, 255),
-                            (0, 0, 0),
-                        )
-                    ):
-                        segmentos.append(
-                            (
-                                inicio,
-                                x - 1,
-                                cor,
-                            )
-                        )
- 
-                    inicio = x
-                    cor = atual
- 
-            largura = (
-                imagem.width
-                - inicio
-            )
- 
-            if (
-                largura >= 10
-                and cor[3] > 0
-                and cor[:3]
-                not in (
-                    (255, 255, 255),
-                    (0, 0, 0),
-                )
-            ):
-                segmentos.append(
-                    (
-                        inicio,
-                        imagem.width - 1,
-                        cor,
-                    )
-                )
- 
-            if (
-                len(segmentos)
-                > len(melhor)
-            ):
-                melhor = segmentos
- 
-        classes = []
- 
-        for i, segmento in enumerate(
-            melhor[:16]
-        ):
-            classes.append({
-                "classe": i + 1,
-                "rgb": list(segmento[2][:3]),
-                "x_inicio": segmento[0],
-                "x_fim": segmento[1],
-                "largura_px": segmento[1] - segmento[0] + 1,
-                "dbz": None,
-            })
- 
-        return {
-            "status":
-                "online",
- 
-            "fonte":
-                "legenda oficial RadarSC",
- 
-            "dimensoes_px": {"largura": imagem.width, "altura": imagem.height},
- 
-            "diagnostico_128": "RGB e geometria extraídos diretamente da legenda oficial; dBZ continua sem atribuição até evidência textual oficial.",
- 
-            "sha256":
-                hashlib
-                .sha256(bruto)
-                .hexdigest(),
- 
-            "quantidade_classes":
-                len(classes),
- 
-            "classes":
-                classes,
- 
-            "dbz_numerico":
-                "aguardando_validacao",
-        }
- 
+                    if largura >= 10 and cor[3] > 0 and cor[:3] not in ((255,255,255),(0,0,0)):
+                        segmentos.append((inicio, x - 1, cor))
+                    inicio = x; cor = atual
+            largura = imagem.width - inicio
+            if largura >= 10 and cor[3] > 0 and cor[:3] not in ((255,255,255),(0,0,0)):
+                segmentos.append((inicio, imagem.width - 1, cor))
+            if len(segmentos) > len(melhor): melhor = segmentos
+
+        esperado = [
+            ((255,224,255),98,175,73.0,78.0), ((255,200,255),192,262,68.0,73.0),
+            ((254,128,254),288,350,63.0,68.0), ((255,0,254),368,431,58.0,63.0),
+            ((255,1,100),464,527,53.0,58.0), ((254,0,0),546,623,48.0,53.0),
+            ((255,85,0),640,703,43.0,48.0), ((255,170,1),737,799,38.0,43.0),
+            ((255,200,1),816,891,33.0,38.0), ((255,255,0),913,975,28.0,33.0),
+            ((0,150,50),1008,1071,23.0,28.0), ((1,175,0),1088,1151,18.0,23.0),
+            ((0,255,1),1180,1246,13.0,18.0), ((0,254,129),1276,1337,10.0,13.0),
+            ((0,255,255),1360,1425,-10.0,10.0), ((0,0,254),1456,1535,-31.5,-10.0),
+        ]
+        extraidos = melhor[:16]
+        sha_esperado = "59f3855538d71fae41d5211314dc5b0bfc88a477273ec1ddc6c3556f3443e061"
+        estrutura_ok = (
+            sha == sha_esperado and (imagem.width, imagem.height) == (1536,152)
+            and len(extraidos) == 16
+            and all(tuple(seg[2][:3]) == exp[0] and seg[0] == exp[1] and seg[1] == exp[2]
+                    for seg, exp in zip(extraidos, esperado))
+        )
+        classes=[]
+        for i,seg in enumerate(extraidos):
+            item={"classe":i+1,"classe_tipo":"indice_interno_monitor","rgb":list(seg[2][:3]),
+                  "x_inicio":seg[0],"x_fim":seg[1],"largura_px":seg[1]-seg[0]+1,
+                  "dbz":None,"dbz_min":None,"dbz_max":None}
+            if estrutura_ok:
+                lo,hi=esperado[i][3],esperado[i][4]
+                item.update({"dbz":{"min":lo,"max":hi,"unidade":"dBZ"},"dbz_min":lo,"dbz_max":hi})
+            classes.append(item)
+        return {"status":"online","fonte":"legenda oficial RadarSC","produto":"COMP / C-MAX",
+                "dimensoes_px":{"largura":imagem.width,"altura":imagem.height},"sha256":sha,
+                "quantidade_classes":len(classes),"classes":classes,
+                "validacao_169":{"status":"validada" if estrutura_ok else "invalidada_fail_closed",
+                    "rgb_para_faixa_dbz_validado":estrutura_ok,"sha256_esperado":sha_esperado,
+                    "dimensoes_esperadas_px":{"largura":1536,"altura":152},"classes_esperadas":16,
+                    "regra":"Mudança de SHA, dimensões, RGB ou geometria invalida a associação numérica até nova revisão."},
+                "diagnostico_128":("RGB, geometria e faixas dBZ validados; C1-C16 são IDs internos do Monitor."
+                    if estrutura_ok else "Legenda mudou; dBZ bloqueado por fail-closed #169."),
+                "dbz_numerico":"validado_por_faixa" if estrutura_ok else "bloqueado_fail_closed",
+                "dbz_numerico_validado":estrutura_ok,"mm_h_validado":False,"equivale_chuva_medida":False}
     except Exception as e:
-        return {
-            "status":
-                "indisponivel",
- 
-            "erro":
-                str(e),
-        }
- 
- 
+        return {"status":"indisponivel","erro":str(e),"dbz_numerico_validado":False}
+
+
 # =========================================================
 # #127 - VALIDACAO CRUZADA LEGENDA x PALETA DO RADAR
 # =========================================================
- 
+
 def validar_paleta_radar(legenda_oficial, quadros_validos):
     """
     #127
@@ -5358,45 +5291,19 @@ def significado_qualitativo_familia(familia):
  
  
 def construir_dicionario_cores_130(legenda_oficial):
-    classes = (legenda_oficial or {}).get("classes") or []
-    saida = []
+    classes=(legenda_oficial or {}).get("classes") or []
+    dbz_ok=bool((legenda_oficial or {}).get("dbz_numerico_validado")); saida=[]
     for item in classes:
-        rgb = item.get("rgb")
-        familia = familia_cor_radar(rgb)
-        significado = significado_qualitativo_familia(familia)
-        saida.append({
-            "classe": item.get("classe"),
-            "rgb": rgb,
-            "familia_cor": familia,
-            **significado,
-            "dbz": None,
-            "mm_h": None,
-        })
-    return {
-        "versao": "#130",
-        "status": "dicionario_qualitativo_ativo" if saida else "sem_classes",
-        "fonte_cores": "legenda oficial RadarSC baixada em cada execução",
-        "produto_monitor": "COMP / C-MAX",
-        "classes": saida,
-        "fontes_documentais": [
-            {
-                "fonte": "SIMEPAR - Informações dos mapas de Radar",
-                "regra": "vermelho/rosa: chuvas mais intensas/tempestades; amarelo/verde: chuvas de menor intensidade",
-            },
-            {
-                "fonte": "Defesa Civil SC - publicações CMAX (dBZ)",
-                "regra": "vermelho/rosa aparecem documentados em instabilidades/temporais intensos",
-            },
-        ],
-        "regra_seguranca": (
-            "A #130 ensina famílias qualitativas usando somente RGBs da legenda oficial RadarSC. "
-            "Não converte cor em dBZ, mm/h ou chuva medida no solo. ETA permanece bloqueado."
-        ),
-        "dbz_numerico_validado": False,
-        "eta_liberado": False,
-    }
- 
- 
+        rgb=item.get("rgb"); familia=familia_cor_radar(rgb); significado=significado_qualitativo_familia(familia)
+        saida.append({"classe":item.get("classe"),"classe_tipo":"indice_interno_monitor","rgb":rgb,
+            "familia_cor":familia,**significado,"dbz":item.get("dbz") if dbz_ok else None,
+            "dbz_min":item.get("dbz_min") if dbz_ok else None,"dbz_max":item.get("dbz_max") if dbz_ok else None,"mm_h":None})
+    return {"versao":"#130+#169","status":"dicionario_rgb_dbz_ativo" if saida and dbz_ok else ("dicionario_qualitativo_ativo" if saida else "sem_classes"),
+        "fonte_cores":"legenda oficial RadarSC baixada em cada execução","produto_monitor":"COMP / C-MAX","classes":saida,
+        "regra_seguranca":"RGB→faixa dBZ só é publicado com #169 íntegra. dBZ é refletividade; não é chuva medida. mm/h permanece bloqueado sem relação Z-R validada.",
+        "dbz_numerico_validado":dbz_ok,"mm_h_validado":False,"equivale_chuva_medida":False,"eta_liberado":False}
+
+
 def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
     dicionario = construir_dicionario_cores_130(legenda_oficial)
     mapa = {tuple(x["rgb"]): x for x in dicionario.get("classes", []) if x.get("rgb")}
@@ -5404,7 +5311,7 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
         "versao": "#130",
         "referencia": "Comasa - coordenada pública aproximada",
         "raios_km": [2, 5, 10, 25],
-        "dbz_numerico_validado": False,
+        "dbz_numerico_validado": bool((legenda_oficial or {}).get("dbz_numerico_validado")),
         "equivale_chuva_medida": False,
         "eta_liberado": False,
     }
@@ -5454,7 +5361,7 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
         "por_raio": por_raio,
         "regra_seguranca": (
             "Presença de cor oficial é detecção por radar, não medição de chuva no solo. "
-            "As categorias de intensidade são qualitativas e documentais; dBZ e mm/h continuam não atribuídos."
+            "Faixa dBZ disponível somente quando #169 está íntegra; mm/h continua não atribuído e dBZ não equivale a chuva medida no solo."
         ),
     }
  
@@ -12941,52 +12848,35 @@ def _bearing168(lat1, lon1, lat2, lon2):
 
 
 def estimativa_radar_quantitativa_168(radar):
-    """Estimativa matematica por classe ordinal do RadarSC; nao e medicao."""
-    base = {
-        "versao": "#168", "status": "indisponivel",
-        "natureza": "ESTIMATIVA_MATEMATICA_EXPERIMENTAL_NAO_INSTRUMENTAL",
-        "equivale_chuva_medida": False, "dbz_oficial_atribuido": False,
-        "metodo": "classe_ordinal_RadarSC_para_faixa_ampla_de_intensidade",
-        "faixa_mm_h_experimental": None, "indice_intensidade_0_100": None,
-        "classe_radar": None,
-        "aviso": "Faixa experimental do Monitor. Nao e dBZ oficial nem leitura de pluviometro."
-    }
+    """Usa faixa dBZ validada #169; não converte refletividade em mm/h."""
+    base={"versao":"#168+#169","status":"indisponivel","natureza":"REFLETIVIDADE_RADAR_OFICIAL_COM_INTERPRETACAO_EXPERIMENTAL",
+        "equivale_chuva_medida":False,"dbz_oficial_atribuido":False,"metodo":"RGB_oficial_RadarSC_para_faixa_dBZ_validada_#169",
+        "faixa_dbz":None,"faixa_mm_h_experimental":None,"indice_intensidade_0_100":None,"classe_radar":None,
+        "aviso":"dBZ é refletividade do radar. Conversão para mm/h bloqueada sem relação Z-R validada."}
     try:
-        quadros = (radar or {}).get("quadros") or []
-        if not quadros:
-            return base
-        q = quadros[-1]
-        d = q.get("classificacao_qualitativa_local_130") or q.get("eco_oficial_local_129") or {}
-        eco = d.get("eco_oficial_mais_proximo") or {}
-        classe = eco.get("classe")
+        leg=(radar or {}).get("legenda_oficial") or {}
+        if not leg.get("dbz_numerico_validado"):
+            base["status"]="bloqueado_sem_validacao_dbz_169"; return base
+        mapa={int(x.get("classe")):x for x in (leg.get("classes") or []) if isinstance(x,dict) and _num168(x.get("classe"))}
+        quadros=(radar or {}).get("quadros") or []
+        if not quadros:return base
+        q=quadros[-1]; d=q.get("classificacao_qualitativa_local_130") or q.get("eco_oficial_local_129") or {}
+        eco=d.get("eco_oficial_mais_proximo") or {}; classe=eco.get("classe")
         if not _num168(classe):
-            # fallback: maior classe presente no raio de 25 km
-            por = d.get("por_raio") or {}
-            r25 = por.get("25") or por.get(25) or {}
-            presentes = r25.get("classes_presentes") or r25.get("classes") or []
-            cs = [x.get("classe") for x in presentes if isinstance(x, dict) and _num168(x.get("classe"))]
-            classe = max(cs) if cs else None
-        if not _num168(classe):
-            return base
-        c = max(1, min(16, int(classe)))
-        # Hipotese ordinal deliberadamente larga. Evita fingir uma calibracao RGB->dBZ inexistente.
-        faixas = {
-            1:(0.0,0.5), 2:(0.1,1.0), 3:(0.2,2.0), 4:(0.5,3.0),
-            5:(1.0,5.0), 6:(2.0,7.5), 7:(3.0,10.0), 8:(5.0,15.0),
-            9:(7.5,20.0), 10:(10.0,30.0), 11:(15.0,40.0), 12:(20.0,50.0),
-            13:(30.0,65.0), 14:(40.0,80.0), 15:(50.0,100.0), 16:(60.0,120.0),
-        }
-        lo, hi = faixas[c]
-        base.update({
-            "status":"estimativa_disponivel", "classe_radar":c,
-            "indice_intensidade_0_100":round((c-1)/15*100,1),
-            "faixa_mm_h_experimental":{"min":lo,"max":hi},
-            "hipotese_calibracao":"faixas_ordinais_amplas_definidas_pelo_modelo_168; nao derivadas de dBZ oficial",
-        })
+            r25=(d.get("por_raio") or {}).get("25") or {}; presentes=r25.get("classes_presentes") or r25.get("classes") or []
+            cs=[x.get("classe") for x in presentes if isinstance(x,dict) and _num168(x.get("classe"))]
+            classe=min(cs) if cs else None  # C1 é a maior refletividade.
+        if not _num168(classe):return base
+        c=max(1,min(16,int(classe))); info=mapa.get(c) or {}; lo,hi=info.get("dbz_min"),info.get("dbz_max")
+        if not (_num168(lo) and _num168(hi)):
+            base["status"]="bloqueado_faixa_dbz_ausente"; return base
+        base.update({"status":"estimativa_disponivel","classe_radar":c,"classe_tipo":"indice_interno_monitor",
+            "dbz_oficial_atribuido":True,"faixa_dbz":{"min":float(lo),"max":float(hi),"unidade":"dBZ"},
+            "indice_intensidade_0_100":round((16-c)/15*100,1),"faixa_mm_h_experimental":None,"hipotese_calibracao":None,
+            "regra_seguranca":"Sem conversão dBZ→mm/h; nenhuma leitura de pluviômetro é inferida do radar."})
         return base
     except Exception as e:
-        base["erro"] = str(e)[:180]
-        return base
+        base["erro"]=str(e)[:180]; return base
 
 
 def eta_fortracc_tathu_168(tathu):

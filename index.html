@@ -112,7 +112,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div class="dash-summary"><b>EM RESUMO:</b> <span id="dashResumoLinha">Os dados acima preservam a diferença entre observação, previsão e modelagem. Ausência nunca vira zero.</span></div>
  
 <div class="dash-row">
-<div class="dash-panel"><h3>📡 Radar meteorológico • Santa Catarina</h3><div class="dash-statgrid"><div class="dash-stat">Estado<b id="dashRadarEstado">--</b></div><div class="dash-stat">Último quadro<b id="dashRadarHora">--</b></div><div class="dash-stat">Idade<b id="dashRadarIdade">--</b></div><div class="dash-stat">Quadros válidos<b id="dashRadarValidos">--</b></div></div><div id="dashRadarLegenda" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"><span class="dash-muted">Carregando legenda oficial RadarSC...</span></div><div id="dashRadarEco" class="dash-muted" style="margin-top:8px">Aguardando classificação qualitativa local...</div><div class="dash-muted" style="margin-top:8px">Leitura qualitativa das cores: verde/amarelo = precipitação de menor intensidade documentada; laranja = precipitação/temporal sem faixa numérica validada; vermelho/rosa/magenta/roxo = precipitação intensa ou tempestade documentada; azul/ciano/outras = sem interpretação meteorológica validada. Eco de radar ≠ chuva medida no solo; dBZ e mm/h continuam sem atribuição numérica validada.</div></div>
+<div class="dash-panel"><h3>📡 Radar meteorológico • Santa Catarina</h3><div class="dash-statgrid"><div class="dash-stat">Estado<b id="dashRadarEstado">--</b></div><div class="dash-stat">Último quadro<b id="dashRadarHora">--</b></div><div class="dash-stat">Idade<b id="dashRadarIdade">--</b></div><div class="dash-stat">Quadros válidos<b id="dashRadarValidos">--</b></div></div><div id="dashRadarLegenda" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:14px"><span class="dash-muted" style="grid-column:1/-1">Carregando escala RadarSC...</span></div><div id="dashRadarEco" class="dash-muted" style="margin-top:10px">Aguardando classificação local...</div><div class="dash-muted" style="margin-top:8px">C1–C16 = índices internos do Monitor. A faixa dBZ vem da legenda RadarSC validada pela #169. dBZ representa refletividade do radar; não é chuva medida no solo e não é convertido automaticamente em mm/h.</div></div>
 <div class="dash-panel"><h3>🌧️ Rede pluviométrica • medições numéricas</h3><div id="dashEstacoes" class="station-list"><div class="station-line"><span>Carregando estações...</span><b>--</b></div></div><div class="dash-muted" style="margin-top:8px">EPAGRI/CIRAM: precipitação horária (1 h). CEMADEN: acumulado de 24 h. Cada estação representa seu próprio ponto; grandezas de janelas diferentes não são somadas nem comparadas como equivalentes.</div></div>
 <div class="dash-panel"><h3>🌦️ Previsão • curto prazo</h3><div class="forecast-strip"><div class="forecast-cell">Agora<b id="dashPrevAgora">--</b><span id="dashPrevAgoraDet">--</span></div><div class="forecast-cell">Próx. h<b id="dashPrev1h">--</b><span id="dashPrev1hDet">--</span></div><div class="forecast-cell">Vento<b id="dashPrevVento">--</b><span id="dashPrevVentoDet">--</span></div><div class="forecast-cell">Nuvens<b id="dashPrevNuvens">--</b><span id="dashPrevNuvensDet">--</span></div></div><div class="dash-muted" style="margin-top:8px">Previsão/modelo meteorológico; não é observação instrumental local.</div></div>
 </div>
@@ -807,30 +807,28 @@ async function carregar(){
     return '<div class="station-line"><span><b>'+String(e.nome||e.codigo||"Estação")+'</b><br><small>'+fonte+(e.codigo?" • "+e.codigo:"")+horario+dist+'</small></span><b>'+f(x.valor,2)+' '+x.unidade+'</b></div>';
   }).join(""):'<div class="station-line"><span>Rede integrada</span><b>SEM MEDIÇÃO NUMÉRICA VÁLIDA</b></div>';
  
-  function significadoRadar(familia){
-    const fam=String(familia||"").toLowerCase();
-    if(fam==="verde"||fam==="amarelo") return "precipitação de menor intensidade";
-    if(fam==="laranja") return "precipitação/temporal sem faixa numérica validada";
-    if(fam==="vermelho"||fam==="rosa_magenta_roxo"||fam.includes("magenta")||fam.includes("roxo")) return "precipitação intensa ou tempestade";
-    if(fam==="azul_ciano"||fam.includes("azul")||fam.includes("ciano")) return "sem interpretação meteorológica validada";
-    return "sem interpretação meteorológica validada";
-  }
-  const classesDetectadas=escolhido?new Set((escolhido.classes_presentes||[]).map(x=>String(x.classe))):new Set();
+  const classesDetectadas=escolhido?(escolhido.classes_presentes||[]).map(x=>Number(x.classe)).filter(Number.isFinite):[];
+  const classeAtual=classesDetectadas.length?Math.min(...classesDetectadas):null;
   const dicRadar=(rad.dicionario_cores_130||{}).classes||[];
+  const legRadar=rad.legenda_oficial||{}, v169Dash=legRadar.validacao_169||{};
+  const dbz169Dash=legRadar.dbz_numerico_validado===true&&v169Dash.rgb_para_faixa_dbz_validado===true;
+  const mapaLegDash={};
+  (legRadar.classes||[]).forEach(x=>{if(x&&x.classe!=null)mapaLegDash[Number(x.classe)]=x});
+  function faixaDbzDash(x){
+    const l=mapaLegDash[Number(x.classe)]||x||{};
+    return dbz169Dash&&l.dbz_min!=null&&l.dbz_max!=null?f(l.dbz_min,1)+"–"+f(l.dbz_max,1)+" dBZ":"dBZ bloqueado";
+  }
   $("dashRadarLegenda").innerHTML=dicRadar.length?dicRadar.map(x=>{
     const rgb=Array.isArray(x.rgb)&&x.rgb.length===3?"rgb("+x.rgb.join(",")+")":"transparent";
-    const fam=x.familia_cor||"outra";
-    const cat=textoCategoria(x.categoria||x.intensidade||fam||"classe qualitativa");
-    const ativa=classesDetectadas.has(String(x.classe));
-    return '<span title="Classe '+String(x.classe??"--")+' • '+cat+'" style="display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border:'+(ativa?'2px solid #7ee787':'1px solid #315564')+';border-radius:8px;font-size:11px;'+(ativa?'box-shadow:0 0 0 1px rgba(126,231,135,.18);':'')+'"><i style="display:inline-block;width:14px;height:14px;border-radius:3px;background:'+rgb+';border:1px solid rgba(255,255,255,.35)"></i><span><b>C'+String(x.classe??"--")+'</b> • '+nomeFamilia(fam)+'<br><small>'+significadoRadar(fam)+'</small></span></span>';
-  }).join(""):'<span class="dash-muted">Legenda oficial indisponível nesta coleta</span>';
-  if(escolhido){
-    const fams=(escolhido.familias_cor||[]);
-    const famDash=fams[0]||{};
-    const classes=(escolhido.classes_presentes||[]).map(x=>"C"+String(x.classe)).join(", ");
-    $("dashRadarEco").innerHTML='<span class="ok">● ECO OFICIAL DETECTADO ≤ '+escolhido.raio+' km</span> • '+nomeFamilia(famDash.familia||"família não informada")+(classes?' • '+classes:'')+'<br><small>'+significadoRadar(famDash.familia)+'</small>';
+    const atual=classeAtual!==null&&Number(x.classe)===classeAtual;
+    return '<div title="C'+String(x.classe??"--")+' • '+faixaDbzDash(x)+'" style="position:relative;min-width:0;text-align:center;padding:9px 2px 6px;border:'+(atual?'2px solid #7ee787':'1px solid #315564')+';border-radius:8px;background:rgba(255,255,255,.025);'+(atual?'box-shadow:0 0 0 2px rgba(126,231,135,.16);':'')+'">'+(atual?'<span style="position:absolute;left:50%;top:-11px;transform:translateX(-50%);padding:1px 4px;border-radius:5px;background:#7ee787;color:#07150d;font-size:8px;font-weight:900;white-space:nowrap">▼ ECO AGORA</span>':'')+'<i style="display:block;width:24px;height:24px;margin:0 auto 4px;border-radius:5px;background:'+rgb+';border:1px solid rgba(255,255,255,.45)"></i><b style="font-size:12px">C'+String(x.classe??"--")+'</b><small style="display:block;font-size:8px;line-height:1.15;margin-top:2px">'+faixaDbzDash(x)+'</small></div>';
+  }).join(""):'<span class="dash-muted" style="grid-column:1/-1">Escala RadarSC indisponível nesta coleta</span>';
+  if(escolhido&&classeAtual!==null){
+    const atualInfo=dicRadar.find(x=>Number(x.classe)===classeAtual)||{classe:classeAtual};
+    const famAtual=atualInfo.familia_cor||((escolhido.familias_cor||[])[0]||{}).familia||"não informada";
+    $("dashRadarEco").innerHTML='<span class="ok">▼ ECO AGORA • C'+classeAtual+' • '+faixaDbzDash(atualInfo)+'</span><br><small>Cor: '+nomeFamilia(famAtual)+' • eco RadarSC detectado em até '+escolhido.raio+' km da referência. A faixa em dBZ descreve refletividade do radar; não confirma chuva no ponto e não equivale a mm/h.</small>';
   }else if(cq.status){
-    $("dashRadarEco").innerHTML='<span class="aviso">○ SEM ECO OFICIAL DETECTADO ≤ 25 km</span> • nenhum índice interno C1–C16 detectado';
+    $("dashRadarEco").innerHTML='<span class="aviso">○ SEM ECO OFICIAL DETECTADO ≤ 25 km</span><br><small>Nenhum índice interno C1–C16 foi detectado nesta busca. Isso não prova ausência de chuva no solo.</small>';
   }else{
     $("dashRadarEco").innerHTML='<span class="erro">Classificação qualitativa #130 indisponível</span>';
   }

@@ -13010,6 +13010,108 @@ def _diagnostico_espacial_estacao_170_b3(imagem, lat, lon, classes, raio_max_px=
     }
 
 
+
+def _diagnostico_espacial_estacao_170_c(imagem, lat, lon, classes, raios_km=(2, 5, 10, 25)):
+    """#170-C: diagnostico espacial por distancia geografica real, somente pesquisa."""
+    x0, y0 = geo2px(lon, lat, imagem.width, imagem.height)
+    rgb_para_classe = {info["rgb"]: c for c, info in classes.items()}
+    raios = tuple(sorted(float(r) for r in raios_km if float(r) > 0))
+    if not raios:
+        raios = (2.0, 5.0, 10.0, 25.0)
+    raio_max_km = max(raios)
+
+    km_por_px_lat = abs((EXT[3] - EXT[1]) * 111.32 / max(1, imagem.height - 1))
+    km_por_px_lon = abs(
+        (EXT[2] - EXT[0]) * 111.32 * math.cos(math.radians(lat))
+        / max(1, imagem.width - 1)
+    )
+    passo_min_km = max(0.01, min(km_por_px_lat, km_por_px_lon))
+    alcance_px = int(math.ceil(raio_max_km / passo_min_km)) + 2
+
+    contagens = {r: Counter() for r in raios}
+    mais_proximo = None
+    for y in range(max(0, y0 - alcance_px), min(imagem.height, y0 + alcance_px + 1)):
+        for x in range(max(0, x0 - alcance_px), min(imagem.width, x0 + alcance_px + 1)):
+            c = rgb_para_classe.get(tuple(imagem.getpixel((x, y))[:3]))
+            if c is None:
+                continue
+            latp, lonp = px2geo(x, y, imagem.width, imagem.height)
+            dist_km = hav(lat, lon, latp, lonp)
+            if dist_km > raio_max_km:
+                continue
+            for r in raios:
+                if dist_km <= r:
+                    contagens[r][c] += 1
+            if (
+                mais_proximo is None
+                or dist_km < mais_proximo[0]
+                or (abs(dist_km - mais_proximo[0]) < 1e-9 and c < mais_proximo[1])
+            ):
+                mais_proximo = (dist_km, c, x, y, x - x0, y - y0, latp, lonp)
+
+    por_raio = {}
+    for r in raios:
+        total = sum(contagens[r].values())
+        classes_presentes = []
+        for c, n in sorted(contagens[r].items()):
+            info = classes[c]
+            classes_presentes.append({
+                "classe_interna_monitor": c,
+                "pixels_oficiais": n,
+                "faixa_dbz": {
+                    "min": info["dbz_min"], "max": info["dbz_max"], "unidade": "dBZ"
+                },
+            })
+        por_raio[str(int(r) if r.is_integer() else r)] = {
+            "raio_km": r,
+            "pixels_oficiais_classificados": total,
+            "eco_oficial_detectado": total > 0,
+            "classes_presentes": classes_presentes,
+            "classe_mais_forte": min(contagens[r]) if contagens[r] else None,
+        }
+
+    base = {
+        "versao": "#170-C",
+        "natureza": "DIAGNOSTICO_ESPACIAL_GEOGRAFICO_PESQUISA_NAO_OPERACIONAL",
+        "metodo": "pixel->coordenada_por_px2geo_e_distancia_haversine",
+        "pixel_estacao": {"x": x0, "y": y0},
+        "dimensoes_png_px": {"largura": imagem.width, "altura": imagem.height},
+        "escala_local_aprox_km_por_px": {
+            "latitude": round(km_por_px_lat, 6),
+            "longitude": round(km_por_px_lon, 6),
+            "uso": "somente_para_limitar_caixa_de_busca; inclusao_decidida_por_haversine",
+        },
+        "raios_geograficos_km": list(raios),
+        "por_raio": por_raio,
+        "eco_oficial_proximo_encontrado_ate_raio_maximo": mais_proximo is not None,
+        "libera_pareamento_temporal": False,
+        "libera_calibracao_zr": False,
+        "libera_conversao_dbz_mm_h": False,
+        "regra_seguranca": (
+            "#170-C mede proximidade espacial em km por coordenadas geograficas. "
+            "Presenca de eco RadarSC nao equivale a chuva medida no solo e, isoladamente, "
+            "nao torna o registro elegivel para ajuste Z-R."
+        ),
+    }
+    if mais_proximo is None:
+        return {**base, "eco_oficial_mais_proximo": None}
+
+    dist_km, c, x, y, dx, dy, latp, lonp = mais_proximo
+    info = classes[c]
+    return {
+        **base,
+        "eco_oficial_mais_proximo": {
+            "classe_interna_monitor": c,
+            "faixa_dbz": {"min": info["dbz_min"], "max": info["dbz_max"], "unidade": "dBZ"},
+            "pixel": {"x": x, "y": y},
+            "deslocamento_px": {"dx": dx, "dy": dy},
+            "distancia_px": round(math.hypot(dx, dy), 3),
+            "distancia_geografica_km": round(dist_km, 3),
+            "latitude_aprox": round(latp, 6),
+            "longitude_aprox": round(lonp, 6),
+        },
+    }
+
 def _amostrar_estacao_no_quadro_170(nome, lat, lon, classes):
     """Compatibilidade #170-A: baixa um quadro e amostra a estacao."""
     bruto = get(
@@ -13023,9 +13125,9 @@ def _amostrar_estacao_no_quadro_170(nome, lat, lon, classes):
     return _amostrar_estacao_na_imagem_170(imagem, lat, lon, classes)
 
 
-def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
+def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
     """
-    #170-B3 - coleta Z-R multirrede CEMADEN + EPAGRI/CIRAM, fail-closed.
+    #170-C - coleta Z-R multirrede + contexto Open-Meteo, fail-closed.
 
     Preserva a #144 e a #165 operacionais. Para pesquisa Z-R, coleta candidatos
     CEMADEN que passam pela #144 e candidatos EPAGRI/CIRAM do produto horario
@@ -13033,7 +13135,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
     para todas as estacoes. Nenhum par e elegivel para ajuste Z-R nesta etapa.
     """
     base = {
-        "versao": "#170-B3",
+        "versao": "#170-C",
         "status": "bloqueado_sem_candidatos_multirrede",
         "modo": "COLETA_MULTIRREDE_PARA_CALIBRACAO_ZR",
         "redes": ["CEMADEN", "EPAGRI/CIRAM"],
@@ -13047,12 +13149,28 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
         "natureza_radar": "REFLETIVIDADE_RADARSC_DBZ",
         "raio_maximo_estacoes_cemaden_comasa_km": 10.0,
         "regra_seguranca": (
-            "#170-B3 amplia a coleta para CEMADEN + EPAGRI/CIRAM sem misturar "
+            "#170-C amplia a coleta espacial em km e preserva contexto Open-Meteo sem misturar "
             "as semanticas das fontes. Nao converte dBZ em mm/h, nao trata "
             "radar como pluviometro e nao libera Z-R. Cada leitura pertence a "
             "sua propria estacao. Os limites temporais exatos dos produtos "
             "horarios ainda nao estao validados para pareamento Z-R."
         ),
+    }
+    atual_om = (previsao or {}).get("atual") if isinstance(previsao, dict) else None
+    base["contexto_meteorologico_comasa_170_c"] = {
+        "fonte": (previsao or {}).get("fonte") if isinstance(previsao, dict) else None,
+        "modelo": (previsao or {}).get("modelo") if isinstance(previsao, dict) else None,
+        "referencia": "Comasa - coordenada publica aproximada do Monitor",
+        "latitude": LAT,
+        "longitude": LON,
+        "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
+        "horario": (atual_om or {}).get("horario") if isinstance(atual_om, dict) else None,
+        "codigo_tempo_wmo": (atual_om or {}).get("codigo_tempo_wmo") if isinstance(atual_om, dict) else None,
+        "precipitacao_mm": (atual_om or {}).get("precipitacao_mm") if isinstance(atual_om, dict) else None,
+        "cobertura_nuvens_pct": (atual_om or {}).get("cobertura_nuvens_pct") if isinstance(atual_om, dict) else None,
+        "temperatura_c": (atual_om or {}).get("temperatura_c") if isinstance(atual_om, dict) else None,
+        "sensacao_termica_c": (atual_om or {}).get("sensacao_termica_c") if isinstance(atual_om, dict) else None,
+        "uso": "evidencia_contextual_independente; nao substitui pluviometro e nao libera Z-R",
     }
     try:
         classes = _mapa_classes_dbz_170(radar)
@@ -13103,12 +13221,16 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
                     espacial = _diagnostico_espacial_estacao_170_b3(
                         imagens[nome], lat, lon, classes, raio_max_px=40
                     )
+                    espacial_c = _diagnostico_espacial_estacao_170_c(
+                        imagens[nome], lat, lon, classes, raios_km=(2, 5, 10, 25)
+                    )
                     amostras.append({
                         "arquivo": nome,
                         "horario_utc": q.get("horario_utc"),
                         "horario_local": q.get("horario_local"),
                         **a,
                         "diagnostico_espacial_170_b3": espacial,
+                        "diagnostico_espacial_170_c": espacial_c,
                     })
                 except Exception as e:
                     amostras.append({
@@ -13311,7 +13433,7 @@ def registrar_historico_zr_170(coleta):
     try:
         if not isinstance(coleta, dict) or coleta.get("status") != "candidatos_multirrede_coletados":
             return {
-                "versao": "#170-B3", "status": "sem_registro_novo",
+                "versao": "#170-C", "status": "sem_registro_novo",
                 "arquivo": HISTORICO_ZR_170_ARQUIVO,
                 "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             }
@@ -13334,7 +13456,7 @@ def registrar_historico_zr_170(coleta):
             ])
             registro = {
                 "chave": chave, "registrado_em": agora().isoformat(),
-                "versao": "#170-B3", "rede": rede,
+                "versao": "#170-C", "rede": rede,
                 "pareamento_temporal_validado": False,
                 "elegivel_calibracao_zr": False, "zr_validada": False,
                 "conversao_dbz_mm_h_liberada": False,
@@ -13342,6 +13464,7 @@ def registrar_historico_zr_170(coleta):
                 "estacao_cemaden": candidato.get("estacao_cemaden"),
                 "estacao_epagri": candidato.get("estacao_epagri"),
                 "chuva_observada": chuva, "radar": candidato.get("radar"),
+                "contexto_meteorologico_comasa_170_c": coleta.get("contexto_meteorologico_comasa_170_c"),
             }
             # Compatibilidade: remove duplicata B1 da mesma estacao/hora CEMADEN.
             def mesma_amostra_antiga(x):
@@ -13368,7 +13491,7 @@ def registrar_historico_zr_170(coleta):
         documento = {
             "monitor": "Monitor Guaxanduva",
             "tipo": "historico_candidatos_calibracao_zr_multirrede",
-            "versao": "#170-B3", "atualizado_em": agora().isoformat(),
+            "versao": "#170-C", "atualizado_em": agora().isoformat(),
             "maximo_registros": HISTORICO_ZR_170_MAX_REGISTROS,
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             "pareamento_temporal_validado": False, "uso_operacional": False,
@@ -13383,7 +13506,7 @@ def registrar_historico_zr_170(coleta):
                 "registros_elegiveis_calibracao_zr": 0,
             },
             "regra_seguranca": (
-                "Historico #170-B3 multirrede. CEMADEN e EPAGRI/CIRAM sao "
+                "Historico #170-C multirrede. CEMADEN e EPAGRI/CIRAM sao "
                 "preservados separadamente. Nenhum registro e elegivel para "
                 "ajuste Z-R ate validacao explicita da semantica temporal por rede."
             ),
@@ -13392,14 +13515,14 @@ def registrar_historico_zr_170(coleta):
         with open(HISTORICO_ZR_170_ARQUIVO, "w", encoding="utf-8") as f:
             json.dump(documento, f, ensure_ascii=False, indent=2)
         return {
-            "versao": "#170-B3", "status": "historico_multirrede_atualizado",
+            "versao": "#170-C", "status": "historico_multirrede_atualizado",
             "arquivo": HISTORICO_ZR_170_ARQUIVO, **documento["resumo"],
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             "pareamento_temporal_validado": False,
         }
     except Exception as e:
         return {
-            "versao": "#170-B3", "status": "falha_historico_fail_closed",
+            "versao": "#170-C", "status": "falha_historico_fail_closed",
             "arquivo": HISTORICO_ZR_170_ARQUIVO, "erro": str(e)[:300],
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
         }
@@ -13614,7 +13737,7 @@ def main():
     nivel_guaxanduva_v021 = calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_guaxanduva_v019)
     goes19_tathu167 = buscar_goes19_tathu_167()
     radar_atual = buscar_radar()
-    coleta_zr170 = coletar_zr_170_b2(chuva_cemaden, chuva_epagri165, radar_atual)
+    coleta_zr170 = coletar_zr_170_b2(chuva_cemaden, chuva_epagri165, radar_atual, previsao)
     historico_zr170 = registrar_historico_zr_170(coleta_zr170)
     liberacao168 = construir_liberacao_experimental_168(
         radar_atual, goes19_tathu167, nivel_guaxanduva_v021, mare_observada160, mare_prevista164

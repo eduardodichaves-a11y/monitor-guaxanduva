@@ -12943,6 +12943,73 @@ def _amostrar_estacao_na_imagem_170(imagem, lat, lon, classes):
     }
 
 
+def _diagnostico_espacial_estacao_170_b3(imagem, lat, lon, classes, raio_max_px=40):
+    """#170-B3: procura eco oficial proximo ao pluviometro sem alterar o dado operacional."""
+    x0, y0 = geo2px(lon, lat, imagem.width, imagem.height)
+    rgb_para_classe = {info["rgb"]: c for c, info in classes.items()}
+    raios_lado = (5, 11, 21, 41, 81)
+    contagens = {}
+    melhor = None
+
+    for lado in raios_lado:
+        r = (lado - 1) // 2
+        n = 0
+        for dy in range(-r, r + 1):
+            for dx in range(-r, r + 1):
+                x = x0 + dx
+                y = y0 + dy
+                if not (0 <= x < imagem.width and 0 <= y < imagem.height):
+                    continue
+                if rgb_para_classe.get(tuple(imagem.getpixel((x, y))[:3])) is not None:
+                    n += 1
+        contagens[f"{lado}x{lado}"] = n
+
+    r = int(raio_max_px)
+    for dy in range(-r, r + 1):
+        for dx in range(-r, r + 1):
+            x = x0 + dx
+            y = y0 + dy
+            if not (0 <= x < imagem.width and 0 <= y < imagem.height):
+                continue
+            c = rgb_para_classe.get(tuple(imagem.getpixel((x, y))[:3]))
+            if c is None:
+                continue
+            dpx = math.hypot(dx, dy)
+            if melhor is None or dpx < melhor[0] or (abs(dpx - melhor[0]) < 1e-9 and c < melhor[1]):
+                melhor = (dpx, c, x, y, dx, dy)
+
+    base = {
+        "versao": "#170-B3",
+        "natureza": "DIAGNOSTICO_ESPACIAL_PESQUISA_NAO_OPERACIONAL",
+        "pixel_estacao": {"x": x0, "y": y0},
+        "raio_maximo_busca_px": r,
+        "janelas_pixels_oficiais": contagens,
+        "eco_oficial_proximo_encontrado": melhor is not None,
+        "libera_pareamento_temporal": False,
+        "libera_calibracao_zr": False,
+        "libera_conversao_dbz_mm_h": False,
+    }
+    if melhor is None:
+        return {**base, "eco_oficial_mais_proximo": None}
+
+    dpx, c, x, y, dx, dy = melhor
+    latp, lonp = px2geo(x, y, imagem.width, imagem.height)
+    info = classes[c]
+    return {
+        **base,
+        "eco_oficial_mais_proximo": {
+            "classe_interna_monitor": c,
+            "faixa_dbz": {"min": info["dbz_min"], "max": info["dbz_max"], "unidade": "dBZ"},
+            "pixel": {"x": x, "y": y},
+            "deslocamento_px": {"dx": dx, "dy": dy},
+            "distancia_px": round(dpx, 3),
+            "distancia_aprox_km": round(hav(lat, lon, latp, lonp), 3),
+            "latitude_aprox": round(latp, 6),
+            "longitude_aprox": round(lonp, 6),
+        },
+    }
+
+
 def _amostrar_estacao_no_quadro_170(nome, lat, lon, classes):
     """Compatibilidade #170-A: baixa um quadro e amostra a estacao."""
     bruto = get(
@@ -12958,7 +13025,7 @@ def _amostrar_estacao_no_quadro_170(nome, lat, lon, classes):
 
 def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
     """
-    #170-B2 - coleta Z-R multirrede CEMADEN + EPAGRI/CIRAM, fail-closed.
+    #170-B3 - coleta Z-R multirrede CEMADEN + EPAGRI/CIRAM, fail-closed.
 
     Preserva a #144 e a #165 operacionais. Para pesquisa Z-R, coleta candidatos
     CEMADEN que passam pela #144 e candidatos EPAGRI/CIRAM do produto horario
@@ -12966,7 +13033,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
     para todas as estacoes. Nenhum par e elegivel para ajuste Z-R nesta etapa.
     """
     base = {
-        "versao": "#170-B2",
+        "versao": "#170-B3",
         "status": "bloqueado_sem_candidatos_multirrede",
         "modo": "COLETA_MULTIRREDE_PARA_CALIBRACAO_ZR",
         "redes": ["CEMADEN", "EPAGRI/CIRAM"],
@@ -12980,7 +13047,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
         "natureza_radar": "REFLETIVIDADE_RADARSC_DBZ",
         "raio_maximo_estacoes_cemaden_comasa_km": 10.0,
         "regra_seguranca": (
-            "#170-B2 amplia a coleta para CEMADEN + EPAGRI/CIRAM sem misturar "
+            "#170-B3 amplia a coleta para CEMADEN + EPAGRI/CIRAM sem misturar "
             "as semanticas das fontes. Nao converte dBZ em mm/h, nao trata "
             "radar como pluviometro e nao libera Z-R. Cada leitura pertence a "
             "sua propria estacao. Os limites temporais exatos dos produtos "
@@ -13012,7 +13079,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
                     True,
                 ).content
                 if not bruto.startswith(b"\x89PNG\r\n\x1a\n"):
-                    raise ValueError("Quadro RadarSC #170-B2 nao e PNG valido.")
+                    raise ValueError("Quadro RadarSC #170-B3 nao e PNG valido.")
                 imagens[nome] = Image.open(io.BytesIO(bruto)).convert("RGB")
             except Exception as e:
                 erros_quadro[nome] = str(e)[:180]
@@ -13033,11 +13100,15 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
                     a = _amostrar_estacao_na_imagem_170(
                         imagens[nome], lat, lon, classes
                     )
+                    espacial = _diagnostico_espacial_estacao_170_b3(
+                        imagens[nome], lat, lon, classes, raio_max_px=40
+                    )
                     amostras.append({
                         "arquivo": nome,
                         "horario_utc": q.get("horario_utc"),
                         "horario_local": q.get("horario_local"),
                         **a,
+                        "diagnostico_espacial_170_b3": espacial,
                     })
                 except Exception as e:
                     amostras.append({
@@ -13106,7 +13177,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
             except Exception:
                 continue
             candidatos.append({
-                "versao": "#170-B2",
+                "versao": "#170-B3",
                 "rede": "CEMADEN",
                 "pareamento_temporal_validado": False,
                 "elegivel_calibracao_zr": False,
@@ -13133,7 +13204,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
                     "rotulo_ultima_celula_local": obs.get("horario_ultima_celula_local"),
                     "dados_frescos": obs.get("dados_frescos"),
                     "idade_leitura_min": obs.get("idade_leitura_min"),
-                    "fonte": "CEMADEN #144 reaplicada por estacao na #170-B2",
+                    "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
                     "produto_temporal": "horario_CEMADEN_#144",
                 },
                 "radar": amostras_radar(lat, lon),
@@ -13172,7 +13243,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
             except Exception:
                 pass
             candidatos.append({
-                "versao": "#170-B2",
+                "versao": "#170-B3",
                 "rede": "EPAGRI/CIRAM",
                 "pareamento_temporal_validado": False,
                 "elegivel_calibracao_zr": False,
@@ -13226,7 +13297,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar):
             "observacao_temporal": (
                 "CEMADEN e EPAGRI/CIRAM permanecem fontes separadas. O historico "
                 "preserva o rotulo/horario de cada produto, mas nenhuma borda "
-                "temporal e assumida como validada para ajuste Z-R na #170-B2."
+                "temporal e assumida como validada para ajuste Z-R na #170-B3."
             ),
         })
         return base
@@ -13240,7 +13311,7 @@ def registrar_historico_zr_170(coleta):
     try:
         if not isinstance(coleta, dict) or coleta.get("status") != "candidatos_multirrede_coletados":
             return {
-                "versao": "#170-B2", "status": "sem_registro_novo",
+                "versao": "#170-B3", "status": "sem_registro_novo",
                 "arquivo": HISTORICO_ZR_170_ARQUIVO,
                 "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             }
@@ -13263,7 +13334,7 @@ def registrar_historico_zr_170(coleta):
             ])
             registro = {
                 "chave": chave, "registrado_em": agora().isoformat(),
-                "versao": "#170-B2", "rede": rede,
+                "versao": "#170-B3", "rede": rede,
                 "pareamento_temporal_validado": False,
                 "elegivel_calibracao_zr": False, "zr_validada": False,
                 "conversao_dbz_mm_h_liberada": False,
@@ -13297,7 +13368,7 @@ def registrar_historico_zr_170(coleta):
         documento = {
             "monitor": "Monitor Guaxanduva",
             "tipo": "historico_candidatos_calibracao_zr_multirrede",
-            "versao": "#170-B2", "atualizado_em": agora().isoformat(),
+            "versao": "#170-B3", "atualizado_em": agora().isoformat(),
             "maximo_registros": HISTORICO_ZR_170_MAX_REGISTROS,
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             "pareamento_temporal_validado": False, "uso_operacional": False,
@@ -13312,7 +13383,7 @@ def registrar_historico_zr_170(coleta):
                 "registros_elegiveis_calibracao_zr": 0,
             },
             "regra_seguranca": (
-                "Historico #170-B2 multirrede. CEMADEN e EPAGRI/CIRAM sao "
+                "Historico #170-B3 multirrede. CEMADEN e EPAGRI/CIRAM sao "
                 "preservados separadamente. Nenhum registro e elegivel para "
                 "ajuste Z-R ate validacao explicita da semantica temporal por rede."
             ),
@@ -13321,14 +13392,14 @@ def registrar_historico_zr_170(coleta):
         with open(HISTORICO_ZR_170_ARQUIVO, "w", encoding="utf-8") as f:
             json.dump(documento, f, ensure_ascii=False, indent=2)
         return {
-            "versao": "#170-B2", "status": "historico_multirrede_atualizado",
+            "versao": "#170-B3", "status": "historico_multirrede_atualizado",
             "arquivo": HISTORICO_ZR_170_ARQUIVO, **documento["resumo"],
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             "pareamento_temporal_validado": False,
         }
     except Exception as e:
         return {
-            "versao": "#170-B2", "status": "falha_historico_fail_closed",
+            "versao": "#170-B3", "status": "falha_historico_fail_closed",
             "arquivo": HISTORICO_ZR_170_ARQUIVO, "erro": str(e)[:300],
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
         }
@@ -13659,6 +13730,9 @@ def main():
         "radar":
             radar_atual,
 
+        "calibracao_zr_170_b3":
+            coleta_zr170,
+
         "calibracao_zr_170_b2":
             coleta_zr170,
 
@@ -13667,6 +13741,9 @@ def main():
 
         "calibracao_zr_170_a":
             coleta_zr170,
+
+        "historico_zr_170_b3":
+            historico_zr170,
 
         "historico_zr_170_b2":
             historico_zr170,

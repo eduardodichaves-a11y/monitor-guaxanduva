@@ -13230,9 +13230,109 @@ def _amostrar_estacao_no_quadro_170(nome, lat, lon, classes):
     return _amostrar_estacao_na_imagem_170(imagem, lat, lon, classes)
 
 
+def _parse_instante_170_e(valor):
+    """Converte rotulo ISO para datetime consciente; nao inventa fuso ausente."""
+    if valor is None:
+        return None
+    try:
+        dt = datetime.fromisoformat(str(valor).strip().replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            return None
+        return dt
+    except Exception:
+        return None
+
+
+def _diagnostico_temporal_170_e(rede, chuva_observada, radar_amostras):
+    """
+    #170-E - auditoria temporal fail-closed para futura calibracao Z-R.
+
+    Nao escolhe automaticamente se o rotulo horario representa inicio ou fim
+    do intervalo. Mede as duas hipoteses contra os timestamps reais dos frames
+    RadarSC e registra a evidencia documental disponivel por rede.
+    """
+    chuva = chuva_observada if isinstance(chuva_observada, dict) else {}
+    amostras = radar_amostras if isinstance(radar_amostras, list) else []
+    rotulo = chuva.get("rotulo_ultima_celula_utc") or chuva.get("rotulo_ultima_celula_local")
+    dt_ref = _parse_instante_170_e(rotulo)
+    frames = []
+    for a in amostras:
+        if not isinstance(a, dict) or a.get("erro"):
+            continue
+        dt = _parse_instante_170_e(a.get("horario_utc") or a.get("horario_local"))
+        if dt is None:
+            continue
+        frames.append({
+            "arquivo": a.get("arquivo"),
+            "horario_utc": dt.astimezone(UTC).isoformat(),
+            "delta_min_em_relacao_rotulo": (
+                round((dt - dt_ref).total_seconds() / 60.0, 1)
+                if dt_ref is not None else None
+            ),
+        })
+
+    antes = [x for x in frames if isinstance(x.get("delta_min_em_relacao_rotulo"),(int,float)) and -60.0 <= x["delta_min_em_relacao_rotulo"] <= 0.0]
+    depois = [x for x in frames if isinstance(x.get("delta_min_em_relacao_rotulo"),(int,float)) and 0.0 <= x["delta_min_em_relacao_rotulo"] <= 60.0]
+    rede_txt = str(rede or "")
+
+    if rede_txt == "CEMADEN":
+        evidencia = {
+            "status_documental": "parcialmente_validado",
+            "horarios_fonte_em_utc": True,
+            "cadencia_chuva_documentada_min": 10,
+            "cadencia_sem_chuva_documentada_min": 60,
+            "zero_seco_documentado_como_acumulado_ultimos_60_min": True,
+            "fonte_documental": "CEMADEN - Pluviometros Automaticos / Mapa Interativo",
+            "observacao": (
+                "A documentacao oficial confirma UTC e transmissao de acumulados a cada 10 min durante chuva; "
+                "sem chuva, transmite 0 mm dos ultimos 60 min. O endpoint horario #144, porem, nao declara "
+                "inequivocamente se o rotulo da celula e inicio ou fim da hora para todos os casos."
+            ),
+        }
+    elif rede_txt == "EPAGRI/CIRAM":
+        evidencia = {
+            "status_documental": "produto_horario_confirmado_borda_nao_documentada",
+            "produto": "Agroconnect variavel 271 / produto horario / grupo 4 / nhoras 1",
+            "fonte_documental": "EPAGRI/CIRAM Agroconnect",
+            "observacao": (
+                "O produto horario e a variavel de precipitacao estao confirmados na integracao #165; "
+                "a documentacao publica examinada nao prova se o horario retornado marca inicio ou fim do acumulado."
+            ),
+        }
+    else:
+        evidencia = {"status_documental": "rede_nao_reconhecida"}
+
+    return {
+        "versao": "#170-E",
+        "rede": rede_txt or None,
+        "rotulo_referencia": rotulo,
+        "rotulo_parseavel_com_fuso": dt_ref is not None,
+        "quadros_radar_com_timestamp_valido": len(frames),
+        "hipotese_rotulo_como_fim_da_hora": {
+            "janela": "(rotulo-60min, rotulo]",
+            "quadros_radar_na_janela": len(antes),
+            "arquivos": [x["arquivo"] for x in antes],
+        },
+        "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": len(depois),
+            "arquivos": [x["arquivo"] for x in depois],
+        },
+        "deltas_frames_min": frames,
+        "evidencia_semantica_fonte": evidencia,
+        "borda_horaria_inequivoca": False,
+        "pareamento_temporal_validado": False,
+        "elegivel_calibracao_zr": False,
+        "regra_seguranca": (
+            "#170-E mede sobreposicao temporal sob duas hipoteses, mas nao escolhe uma borda sem evidencia inequivoca. "
+            "Nenhum frame e pareado a chuva horaria para ajuste Z-R nesta etapa."
+        ),
+    }
+
+
 def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
     """
-    #170-D - coleta Z-R multirrede + autopsia de pixels RadarSC, fail-closed.
+    #170-E - coleta Z-R multirrede + auditoria temporal explicita, fail-closed.
 
     Preserva a #144 e a #165 operacionais. Para pesquisa Z-R, coleta candidatos
     CEMADEN que passam pela #144 e candidatos EPAGRI/CIRAM do produto horario
@@ -13240,7 +13340,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
     para todas as estacoes. Nenhum par e elegivel para ajuste Z-R nesta etapa.
     """
     base = {
-        "versao": "#170-D",
+        "versao": "#170-E",
         "status": "bloqueado_sem_candidatos_multirrede",
         "modo": "COLETA_MULTIRREDE_PARA_CALIBRACAO_ZR",
         "redes": ["CEMADEN", "EPAGRI/CIRAM"],
@@ -13254,11 +13354,11 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
         "natureza_radar": "REFLETIVIDADE_RADARSC_DBZ",
         "raio_maximo_estacoes_cemaden_comasa_km": 10.0,
         "regra_seguranca": (
-            "#170-D preserva a coleta geografica #170-C e acrescenta autopsia de cores brutas do PNG RadarSC, "
+            "#170-E preserva a coleta geografica #170-C e a autopsia #170-D e acrescenta auditoria temporal por rede, "
             "as semanticas das fontes. Nao converte dBZ em mm/h, nao trata "
             "radar como pluviometro e nao libera Z-R. Cada leitura pertence a "
-            "sua propria estacao. Os limites temporais exatos dos produtos "
-            "horarios ainda nao estao validados para pareamento Z-R."
+            "sua propria estacao. A #170-E registra a evidencia documental e testa as "
+            "hipoteses de borda inicio/fim, mas mantem o pareamento Z-R bloqueado sem prova inequivoca."
         ),
     }
     atual_om = (previsao or {}).get("atual") if isinstance(previsao, dict) else None
@@ -13408,7 +13508,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
             except Exception:
                 continue
             candidatos.append({
-                "versao": "#170-B3",
+                "versao": "#170-E",
                 "rede": "CEMADEN",
                 "pareamento_temporal_validado": False,
                 "elegivel_calibracao_zr": False,
@@ -13474,7 +13574,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
             except Exception:
                 pass
             candidatos.append({
-                "versao": "#170-B3",
+                "versao": "#170-E",
                 "rede": "EPAGRI/CIRAM",
                 "pareamento_temporal_validado": False,
                 "elegivel_calibracao_zr": False,
@@ -13506,6 +13606,19 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
                 "radar": amostras_radar(lat, lon),
             })
 
+        # #170-E: audita explicitamente as duas hipoteses de borda horaria
+        # usando os timestamps reais ja coletados. Nao libera pareamento.
+        for candidato in candidatos:
+            radar_c = candidato.get("radar") or {}
+            candidato["versao"] = "#170-E"
+            candidato["diagnostico_temporal_170_e"] = _diagnostico_temporal_170_e(
+                candidato.get("rede"),
+                candidato.get("chuva_observada") or {},
+                radar_c.get("amostras") or [],
+            )
+            candidato["pareamento_temporal_validado"] = False
+            candidato["elegivel_calibracao_zr"] = False
+
         if not candidatos:
             base["motivo"] = "nenhuma_estacao_cemaden_ou_epagri_passou_gates"
             base["diagnostico_estacoes"] = diagnosticos
@@ -13514,7 +13627,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
         redes_validas = sorted({str(c.get("rede")) for c in candidatos})
         base.update({
             "status": "candidatos_multirrede_coletados",
-            "motivo": "aguardando_validacao_semantica_temporal_por_rede",
+            "motivo": "auditoria_temporal_170_e_ativa_borda_horaria_ainda_fail_closed",
             "redes_com_candidatos": redes_validas,
             "quantidade_estacoes_avaliadas": len(diagnosticos),
             "quantidade_candidatos_validos": len(candidatos),
@@ -13528,7 +13641,8 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
             "observacao_temporal": (
                 "CEMADEN e EPAGRI/CIRAM permanecem fontes separadas. O historico "
                 "preserva o rotulo/horario de cada produto, mas nenhuma borda "
-                "temporal e assumida como validada para ajuste Z-R na #170-B3."
+                "temporal e assumida como validada para ajuste Z-R na #170-E. O diagnostico registra "
+                "quantos frames caem na hora anterior e na hora posterior ao rotulo de cada pluviometro."
             ),
         })
         return base
@@ -13542,7 +13656,7 @@ def registrar_historico_zr_170(coleta):
     try:
         if not isinstance(coleta, dict) or coleta.get("status") != "candidatos_multirrede_coletados":
             return {
-                "versao": "#170-D", "status": "sem_registro_novo",
+                "versao": "#170-E", "status": "sem_registro_novo",
                 "arquivo": HISTORICO_ZR_170_ARQUIVO,
                 "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             }
@@ -13565,7 +13679,7 @@ def registrar_historico_zr_170(coleta):
             ])
             registro = {
                 "chave": chave, "registrado_em": agora().isoformat(),
-                "versao": "#170-D", "rede": rede,
+                "versao": "#170-E", "rede": rede,
                 "pareamento_temporal_validado": False,
                 "elegivel_calibracao_zr": False, "zr_validada": False,
                 "conversao_dbz_mm_h_liberada": False,
@@ -13573,6 +13687,7 @@ def registrar_historico_zr_170(coleta):
                 "estacao_cemaden": candidato.get("estacao_cemaden"),
                 "estacao_epagri": candidato.get("estacao_epagri"),
                 "chuva_observada": chuva, "radar": candidato.get("radar"),
+                "diagnostico_temporal_170_e": candidato.get("diagnostico_temporal_170_e"),
                 "contexto_meteorologico_comasa_170_c": coleta.get("contexto_meteorologico_comasa_170_c"),
             }
             # Compatibilidade: remove duplicata B1 da mesma estacao/hora CEMADEN.
@@ -13600,7 +13715,7 @@ def registrar_historico_zr_170(coleta):
         documento = {
             "monitor": "Monitor Guaxanduva",
             "tipo": "historico_candidatos_calibracao_zr_multirrede",
-            "versao": "#170-D", "atualizado_em": agora().isoformat(),
+            "versao": "#170-E", "atualizado_em": agora().isoformat(),
             "maximo_registros": HISTORICO_ZR_170_MAX_REGISTROS,
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             "pareamento_temporal_validado": False, "uso_operacional": False,
@@ -13615,23 +13730,23 @@ def registrar_historico_zr_170(coleta):
                 "registros_elegiveis_calibracao_zr": 0,
             },
             "regra_seguranca": (
-                "Historico #170-D multirrede com autopsia de pixels RadarSC. CEMADEN e EPAGRI/CIRAM sao "
+                "Historico #170-E multirrede com autopsia de pixels RadarSC e auditoria temporal inicio/fim. CEMADEN e EPAGRI/CIRAM sao "
                 "preservados separadamente. Nenhum registro e elegivel para "
-                "ajuste Z-R ate validacao explicita da semantica temporal por rede."
+                "ajuste Z-R ate validacao inequivoca da borda temporal por rede; a evidencia documental CEMADEN e registrada separadamente da inferencia de pareamento."
             ),
             "registros": registros,
         }
         with open(HISTORICO_ZR_170_ARQUIVO, "w", encoding="utf-8") as f:
             json.dump(documento, f, ensure_ascii=False, indent=2)
         return {
-            "versao": "#170-D", "status": "historico_multirrede_atualizado",
+            "versao": "#170-E", "status": "historico_multirrede_atualizado",
             "arquivo": HISTORICO_ZR_170_ARQUIVO, **documento["resumo"],
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             "pareamento_temporal_validado": False,
         }
     except Exception as e:
         return {
-            "versao": "#170-D", "status": "falha_historico_fail_closed",
+            "versao": "#170-E", "status": "falha_historico_fail_closed",
             "arquivo": HISTORICO_ZR_170_ARQUIVO, "erro": str(e)[:300],
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
         }
@@ -13962,6 +14077,9 @@ def main():
         "radar":
             radar_atual,
 
+        "calibracao_zr_170_e":
+            coleta_zr170,
+
         "calibracao_zr_170_d":
             coleta_zr170,
 
@@ -13976,6 +14094,9 @@ def main():
 
         "calibracao_zr_170_a":
             coleta_zr170,
+
+        "historico_zr_170_e":
+            historico_zr170,
 
         "historico_zr_170_d":
             historico_zr170,

@@ -13334,12 +13334,19 @@ def _diagnostico_temporal_170_e(rede, chuva_observada, radar_amostras):
 
 
 def _autopsia_paleta_png_170_j(imagem_original, classes):
-    """#170-J: preserva indice P -> RGB -> alpha do PNG bruto, sem inferir dBZ por proximidade."""
+    """#170-J.5: autopsia PLTE completa do PNG bruto, sem inferir dBZ por proximidade.
+
+    Alem dos indices efetivamente usados na imagem, registra todos os slots RGB
+    presentes na PLTE. O objetivo e testar se o RadarSC transporta uma tabela de
+    cores estavel, inclusive para niveis ausentes no quadro. Nenhum slot e
+    convertido em dBZ sem igualdade RGB exata com a legenda oficial validada.
+    """
     base = {
-        "versao": "#170-J",
-        "natureza": "AUTOPSIA_PALETA_INDEXADA_PNG_RADARSC_NAO_OPERACIONAL",
+        "versao": "#170-J.5",
+        "natureza": "AUTOPSIA_PLTE_COMPLETA_PNG_RADARSC_NAO_OPERACIONAL",
         "modo_png_original": getattr(imagem_original, "mode", None),
         "elegivel_calibracao_zr": False,
+        "dbz_numerico_validado": False,
         "zr_validada": False,
         "conversao_dbz_mm_h_liberada": False,
         "mm_h_radar_operacional": None,
@@ -13349,47 +13356,75 @@ def _autopsia_paleta_png_170_j(imagem_original, classes):
             **base,
             "status": "modo_png_nao_indexado",
             "indices_usados": [],
-            "regra_seguranca": "Sem modo P, #170-J nao interpreta paleta nem promove RGB a dBZ.",
+            "plte_completa": [],
+            "regra_seguranca": "Sem modo P, #170-J.5 nao interpreta PLTE nem promove RGB a dBZ.",
         }
 
-    paleta = imagem_original.getpalette()
+    paleta = imagem_original.getpalette() or []
     transparencia = imagem_original.info.get("transparency")
     contagem = Counter(imagem_original.getdata())
+    total_slots = len(paleta) // 3
+
     rgb_para_classe = {
         tuple(info["rgb"]): classe
         for classe, info in (classes or {}).items()
-        if isinstance(info, dict) and isinstance(info.get("rgb"), (list, tuple))
+        if isinstance(info, dict)
+        and isinstance(info.get("rgb"), (list, tuple))
         and len(info.get("rgb")) == 3
     }
 
-    itens = []
-    oficiais = 0
-    nao_oficiais = 0
-    transparentes = 0
-    for indice, quantidade in sorted(contagem.items()):
+    def item_slot(indice):
         rgb = rgb_idx(paleta, indice)
         alpha = alpha_idx(transparencia, indice)
+        quantidade = int(contagem.get(indice, 0))
         classe = rgb_para_classe.get(tuple(rgb)) if rgb is not None else None
-        if alpha <= 0:
-            transparentes += quantidade
-        if classe is None:
-            nao_oficiais += quantidade
-        else:
-            oficiais += quantidade
         info = (classes or {}).get(classe) if classe is not None else None
-        itens.append({
+        return {
             "indice_p": int(indice),
             "rgb": list(rgb) if rgb is not None else None,
             "alpha": int(alpha),
-            "pixels": int(quantidade),
-            "visivel": bool(alpha > 0),
+            "pixels": quantidade,
+            "usado_no_quadro": bool(quantidade > 0),
+            "visivel_se_usado": bool(alpha > 0),
             "cor_oficial_exata": classe is not None,
             "classe_interna_monitor": classe,
             "faixa_dbz": (
                 {"min": info.get("dbz_min"), "max": info.get("dbz_max"), "unidade": "dBZ"}
                 if isinstance(info, dict) else None
             ),
-        })
+        }
+
+    plte_completa = [item_slot(i) for i in range(total_slots)]
+    indices_usados = [x for x in plte_completa if x["usado_no_quadro"]]
+
+    oficiais = sum(
+        x["pixels"] for x in indices_usados if x["cor_oficial_exata"]
+    )
+    nao_oficiais = sum(
+        x["pixels"] for x in indices_usados if not x["cor_oficial_exata"]
+    )
+    transparentes = sum(
+        x["pixels"] for x in indices_usados if x["alpha"] <= 0
+    )
+
+    # Assinaturas independentes do uso de pixels: permitem comparar a PLTE
+    # integral entre quadros sem assumir que indice P tenha significado fisico.
+    bytes_rgb = bytes(int(v) & 0xFF for v in paleta[: total_slots * 3])
+    alphas = bytes(alpha_idx(transparencia, i) & 0xFF for i in range(total_slots))
+    assinatura_rgb = hashlib.sha256(bytes_rgb).hexdigest()
+    assinatura_rgba = hashlib.sha256(bytes_rgb + alphas).hexdigest()
+
+    cores_distintas_plte = {
+        tuple(x["rgb"])
+        for x in plte_completa
+        if isinstance(x.get("rgb"), list) and len(x["rgb"]) == 3
+    }
+    cores_usadas = {
+        tuple(x["rgb"])
+        for x in indices_usados
+        if isinstance(x.get("rgb"), list) and len(x["rgb"]) == 3
+    }
+    cores_nao_usadas = cores_distintas_plte - cores_usadas
 
     return {
         **base,
@@ -13398,19 +13433,25 @@ def _autopsia_paleta_png_170_j(imagem_original, classes):
             "largura": imagem_original.width,
             "altura": imagem_original.height,
         },
-        "indices_usados_quantidade": len(itens),
+        "plte_slots_quantidade": total_slots,
+        "plte_cores_rgb_distintas": len(cores_distintas_plte),
+        "plte_cores_rgb_distintas_nao_usadas_no_quadro": len(cores_nao_usadas),
+        "assinatura_sha256_plte_rgb": assinatura_rgb,
+        "assinatura_sha256_plte_rgba": assinatura_rgba,
+        "indices_usados_quantidade": len(indices_usados),
         "pixels_total": imagem_original.width * imagem_original.height,
         "pixels_indices_rgb_oficiais_exatos": oficiais,
         "pixels_indices_rgb_nao_oficiais": nao_oficiais,
         "pixels_alpha_zero": transparentes,
-        "indices_usados": itens,
+        "indices_usados": indices_usados,
+        "plte_completa": plte_completa,
         "regra_seguranca": (
-            "#170-J preserva a codificacao bruta do PNG indexado. Somente igualdade RGB exata "
-            "com classe oficial e registrada como oficial; distancia cromatica nao promove cor a dBZ. "
-            "A camada e observacional e nao libera Z-R nem dBZ->mm/h."
+            "#170-J.5 preserva todos os slots RGB/alpha da PLTE, inclusive slots com zero pixels. "
+            "Indice P e posicao de paleta, nao codigo fisico de dBZ. Somente igualdade RGB exata "
+            "com classe oficial e registrada como oficial; distancia cromatica, ordem da paleta e "
+            "interpolacao nao promovem cor a dBZ. A camada e observacional e nao libera Z-R nem dBZ->mm/h."
         ),
     }
-
 
 def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
     """

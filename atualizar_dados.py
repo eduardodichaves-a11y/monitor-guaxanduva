@@ -14211,6 +14211,117 @@ def salvar_auditoria_espacial_170i(radar_atual):
         json.dump(base, f, ensure_ascii=False, indent=2)
     return base
 
+def _censo_paleta_radarsc_170_j6(registros):
+    """#170-J.6: censo longitudinal fail-closed das PLTE observadas pela #170-J.5.
+
+    Deduplica o mesmo quadro RadarSC por nome de arquivo. A posicao P e tratada
+    apenas como indice local do PNG; RGB recorrente nao e promovido a dBZ por
+    ordem, aparencia, distancia cromatica ou frequencia.
+    """
+    try:
+        quadros = {}
+        for reg in registros or []:
+            for amostra in (((reg.get("radar") or {}).get("amostras")) or []):
+                j5 = amostra.get("autopsia_paleta_png_170_j") or {}
+                plte = j5.get("plte_completa") or []
+                if not isinstance(plte, list) or not plte:
+                    continue
+                chave = str(amostra.get("arquivo") or amostra.get("horario_utc") or j5.get("assinatura_sha256_plte_rgb") or "")
+                if not chave:
+                    continue
+                quadros[chave] = {"amostra": amostra, "j5": j5}
+
+        rgb_stats = {}
+        assinaturas = {}
+        slots_dist = {}
+        for chave, pacote in quadros.items():
+            j5 = pacote["j5"]
+            nslots = j5.get("plte_slots_quantidade")
+            if isinstance(nslots, int):
+                slots_dist[str(nslots)] = slots_dist.get(str(nslots), 0) + 1
+            sha = j5.get("assinatura_sha256_plte_rgb")
+            if sha:
+                assinaturas[str(sha)] = assinaturas.get(str(sha), 0) + 1
+            for slot in j5.get("plte_completa") or []:
+                rgb = slot.get("rgb")
+                if not (isinstance(rgb, list) and len(rgb) == 3 and all(isinstance(v, int) for v in rgb)):
+                    continue
+                rk = ",".join(str(v) for v in rgb)
+                st = rgb_stats.setdefault(rk, {
+                    "rgb": list(rgb), "quadros_com_rgb": 0, "quadros_usado": 0,
+                    "pixels_somados": 0, "indices_p_observados": {},
+                    "alpha_observado": {}, "cor_oficial_exata_em_algum_quadro": False,
+                    "classes_oficiais_exatas_observadas": [], "faixas_dbz_exatas_observadas": [],
+                })
+                st["quadros_com_rgb"] += 1
+                if slot.get("usado_no_quadro"):
+                    st["quadros_usado"] += 1
+                px = slot.get("pixels")
+                if isinstance(px, int):
+                    st["pixels_somados"] += px
+                ip = slot.get("indice_p")
+                if isinstance(ip, int):
+                    st["indices_p_observados"][str(ip)] = st["indices_p_observados"].get(str(ip), 0) + 1
+                al = slot.get("alpha")
+                if isinstance(al, int):
+                    st["alpha_observado"][str(al)] = st["alpha_observado"].get(str(al), 0) + 1
+                if slot.get("cor_oficial_exata") is True:
+                    st["cor_oficial_exata_em_algum_quadro"] = True
+                    cl = slot.get("classe_interna_monitor")
+                    if isinstance(cl, int) and cl not in st["classes_oficiais_exatas_observadas"]:
+                        st["classes_oficiais_exatas_observadas"].append(cl)
+                    fd = slot.get("faixa_dbz")
+                    if isinstance(fd, dict) and fd not in st["faixas_dbz_exatas_observadas"]:
+                        st["faixas_dbz_exatas_observadas"].append(fd)
+
+        total = len(quadros)
+        cores = sorted(rgb_stats.values(), key=lambda x: (-x["quadros_com_rgb"], x["rgb"]))
+        for st in cores:
+            st["presenca_pct_quadros"] = round(100.0 * st["quadros_com_rgb"] / total, 3) if total else None
+            st["indice_p_estavel"] = len(st["indices_p_observados"]) == 1
+
+        return {
+            "versao": "#170-J.6",
+            "status": "CENSO_LONGITUDINAL_PLTE_ATUALIZADO" if total else "EVIDENCIA_INSUFICIENTE",
+            "natureza": "CENSO_HISTORICO_PALETA_PNG_RADARSC_PESQUISA_NAO_OPERACIONAL",
+            "produto": "RadarSC COMP C-MAX",
+            "quadros_unicos_com_plte": total,
+            "quantidades_slots_observadas": slots_dist,
+            "assinaturas_plte_rgb_distintas": len(assinaturas),
+            "assinaturas_plte_rgb": assinaturas,
+            "rgb_distintos_observados": len(cores),
+            "cores": cores,
+            "conclusoes_automaticas": {
+                "quantidade_slots_constante": len(slots_dist) == 1 if total else None,
+                "assinatura_plte_constante": len(assinaturas) == 1 if total else None,
+                "indice_p_tem_significado_fisico_demonstrado": False,
+                "rgb_nao_canonico_promovido_a_dbz": False,
+            },
+            "proibicoes": [
+                "nao_promover_rgb_por_aparencia_visual",
+                "nao_promover_rgb_por_distancia_cromatica",
+                "nao_promover_rgb_por_ordem_indice_p",
+                "nao_promover_rgb_por_frequencia_historica",
+                "nao_liberar_zr_ou_dbz_para_mm_h",
+            ],
+            "regra_seguranca": (
+                "#170-J.6 mede recorrencia, estabilidade e posicao dos RGB da PLTE em quadros historicos. "
+                "A evidencia pode demonstrar uma paleta estrutural, mas nao atribui faixa dBZ a RGB nao canonico. "
+                "Somente prova independente posterior pode promover uma cor alternativa a classe fisica."
+            ),
+            "elegivel_calibracao_zr": False,
+            "zr_validada": False,
+            "conversao_dbz_mm_h_liberada": False,
+            "uso_operacional": False,
+        }
+    except Exception as e:
+        return {
+            "versao": "#170-J.6", "status": "FALHA_CENSO_FAIL_CLOSED", "erro": str(e)[:300],
+            "elegivel_calibracao_zr": False, "zr_validada": False,
+            "conversao_dbz_mm_h_liberada": False, "uso_operacional": False,
+        }
+
+
 def registrar_historico_zr_170(coleta):
     try:
         if not isinstance(coleta, dict) or coleta.get("status") != "candidatos_multirrede_coletados":
@@ -14272,6 +14383,7 @@ def registrar_historico_zr_170(coleta):
         })
         redes_hist = sorted({str(x.get("rede") or (x.get("estacao") or {}).get("rede") or "CEMADEN_LEGADO") for x in registros})
         resumo_temporal_170_f = _resumo_temporal_historico_170_f(registros)
+        censo_paleta_170_j6 = _censo_paleta_radarsc_170_j6(registros)
         documento = {
             "monitor": "Monitor Guaxanduva",
             "tipo": "historico_candidatos_calibracao_zr_multirrede",
@@ -14290,6 +14402,7 @@ def registrar_historico_zr_170(coleta):
                 "registros_elegiveis_calibracao_zr": 0,
             },
             "auditoria_temporal_compacta_170_f": resumo_temporal_170_f,
+            "censo_paleta_radarsc_170_j6": censo_paleta_170_j6,
             "regra_seguranca": (
                 "Historico #170-F multirrede com autopsia de pixels RadarSC e auditoria temporal inicio/fim. CEMADEN e EPAGRI/CIRAM sao "
                 "preservados separadamente. Nenhum registro e elegivel para "
@@ -14303,6 +14416,7 @@ def registrar_historico_zr_170(coleta):
             "versao": "#170-F", "status": "historico_multirrede_atualizado",
             "arquivo": HISTORICO_ZR_170_ARQUIVO, **documento["resumo"],
             "auditoria_temporal_compacta_170_f": resumo_temporal_170_f,
+            "censo_paleta_radarsc_170_j6": censo_paleta_170_j6,
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             "pareamento_temporal_validado": False,
         }

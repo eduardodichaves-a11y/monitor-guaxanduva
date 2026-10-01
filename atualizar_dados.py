@@ -14324,12 +14324,12 @@ def _censo_paleta_radarsc_170_j6(registros):
 
 def registrar_historico_zr_170(coleta):
     try:
-        if not isinstance(coleta, dict) or coleta.get("status") != "candidatos_multirrede_coletados":
-            return {
-                "versao": "#170-F", "status": "sem_registro_novo",
-                "arquivo": HISTORICO_ZR_170_ARQUIVO,
-                "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
-            }
+        # #170-J.6.1 — o censo longitudinal da PLTE deve continuar sendo
+        # recalculado/persistido mesmo quando a execucao atual nao produzir
+        # candidato pluviometrico novo. Isso NAO cria candidato, NAO altera
+        # gates e NAO promove RGB nao canonico a dBZ.
+        coleta = coleta if isinstance(coleta, dict) else {}
+        coleta_tem_candidatos = coleta.get("status") == "candidatos_multirrede_coletados"
         try:
             with open(HISTORICO_ZR_170_ARQUIVO, "r", encoding="utf-8") as f:
                 anterior = json.load(f)
@@ -14339,7 +14339,8 @@ def registrar_historico_zr_170(coleta):
             registros = []
 
         novos = 0
-        for candidato in coleta.get("candidatos") or []:
+        candidatos_execucao = (coleta.get("candidatos") or []) if coleta_tem_candidatos else []
+        for candidato in candidatos_execucao:
             est = candidato.get("estacao") or candidato.get("estacao_cemaden") or {}
             chuva = candidato.get("chuva_observada") or {}
             rede = candidato.get("rede") or est.get("rede") or "CEMADEN_LEGADO"
@@ -14413,7 +14414,8 @@ def registrar_historico_zr_170(coleta):
         with open(HISTORICO_ZR_170_ARQUIVO, "w", encoding="utf-8") as f:
             json.dump(documento, f, ensure_ascii=False, indent=2)
         return {
-            "versao": "#170-F", "status": "historico_multirrede_atualizado",
+            "versao": "#170-F",
+            "status": "historico_multirrede_atualizado" if coleta_tem_candidatos else "historico_preservado_censo_plte_j6_1_atualizado",
             "arquivo": HISTORICO_ZR_170_ARQUIVO, **documento["resumo"],
             "auditoria_temporal_compacta_170_f": resumo_temporal_170_f,
             "censo_paleta_radarsc_170_j6": censo_paleta_170_j6,

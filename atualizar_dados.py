@@ -13112,6 +13112,111 @@ def _diagnostico_espacial_estacao_170_c(imagem, lat, lon, classes, raios_km=(2, 
         },
     }
 
+def _autopsia_pixels_radarsc_170_d(imagem, lat, lon, classes, raios_km=(2, 5, 10, 25), top_cores=12):
+    """#170-D: autopsia das cores brutas do PNG RadarSC; pesquisa, sem inferir chuva."""
+    x0, y0 = geo2px(lon, lat, imagem.width, imagem.height)
+    raios = tuple(sorted(float(r) for r in raios_km if float(r) > 0)) or (2.0, 5.0, 10.0, 25.0)
+    raio_max_km = max(raios)
+    canonicas = {c: tuple(info["rgb"]) for c, info in classes.items()}
+    rgb_para_classe = {rgb: c for c, rgb in canonicas.items()}
+
+    km_por_px_lat = abs((EXT[3] - EXT[1]) * 111.32 / max(1, imagem.height - 1))
+    km_por_px_lon = abs(
+        (EXT[2] - EXT[0]) * 111.32 * math.cos(math.radians(lat))
+        / max(1, imagem.width - 1)
+    )
+    passo_min_km = max(0.01, min(km_por_px_lat, km_por_px_lon))
+    alcance_px = int(math.ceil(raio_max_km / passo_min_km)) + 2
+
+    stats = {
+        r: {
+            "cores": Counter(), "oficiais": Counter(), "total": 0,
+            "transparentes": 0, "nao_oficiais": 0,
+        }
+        for r in raios
+    }
+
+    for y in range(max(0, y0 - alcance_px), min(imagem.height, y0 + alcance_px + 1)):
+        for x in range(max(0, x0 - alcance_px), min(imagem.width, x0 + alcance_px + 1)):
+            latp, lonp = px2geo(x, y, imagem.width, imagem.height)
+            dist_km = hav(lat, lon, latp, lonp)
+            if dist_km > raio_max_km:
+                continue
+            px = imagem.getpixel((x, y))
+            rgb = tuple(px[:3])
+            alpha = int(px[3]) if len(px) >= 4 else 255
+            classe = rgb_para_classe.get(rgb)
+            for r in raios:
+                if dist_km > r:
+                    continue
+                st = stats[r]
+                st["total"] += 1
+                st["cores"][rgb] += 1
+                if alpha < 255:
+                    st["transparentes"] += 1
+                if classe is None:
+                    st["nao_oficiais"] += 1
+                else:
+                    st["oficiais"][classe] += 1
+
+    def distancia_rgb(a, b):
+        return math.sqrt(sum((int(a[i]) - int(b[i])) ** 2 for i in range(3)))
+
+    por_raio = {}
+    for r in raios:
+        st = stats[r]
+        top = []
+        for rgb, n in st["cores"].most_common(max(1, int(top_cores))):
+            classe_exata = rgb_para_classe.get(rgb)
+            candidatos = sorted(
+                ((distancia_rgb(rgb, crgb), c, crgb) for c, crgb in canonicas.items()),
+                key=lambda z: (z[0], z[1]),
+            )
+            d, cprox, rgbprox = candidatos[0] if candidatos else (None, None, None)
+            top.append({
+                "rgb": list(rgb),
+                "pixels": n,
+                "fracao_pct": round(100.0 * n / st["total"], 4) if st["total"] else None,
+                "classe_oficial_exata": classe_exata,
+                "classe_canonica_mais_proxima": cprox,
+                "rgb_canonico_mais_proximo": list(rgbprox) if rgbprox else None,
+                "distancia_rgb_euclidiana": round(d, 3) if d is not None else None,
+            })
+        chave = str(int(r) if r.is_integer() else r)
+        por_raio[chave] = {
+            "raio_km": r,
+            "pixels_analisados": st["total"],
+            "pixels_paleta_oficial_exata": sum(st["oficiais"].values()),
+            "pixels_fora_paleta_oficial": st["nao_oficiais"],
+            "pixels_alpha_menor_255": st["transparentes"],
+            "classes_oficiais_exatas": [
+                {"classe_interna_monitor": c, "pixels": n}
+                for c, n in sorted(st["oficiais"].items())
+            ],
+            "cores_brutas_mais_frequentes": top,
+        }
+
+    return {
+        "versao": "#170-D",
+        "natureza": "AUTOPSIA_PIXEL_PNG_RADARSC_PESQUISA_NAO_OPERACIONAL",
+        "produto": "RadarSC COMP C-MAX",
+        "pixel_estacao": {"x": x0, "y": y0},
+        "dimensoes_png_px": {"largura": imagem.width, "altura": imagem.height},
+        "modo_imagem": imagem.mode,
+        "raios_geograficos_km": list(raios),
+        "por_raio": por_raio,
+        "metodo_distancia_cor": "RGB_euclidiano_apenas_diagnostico; nao_converte_cor_em_dbz_sem_cor_canonica_exata",
+        "libera_pareamento_temporal": False,
+        "libera_calibracao_zr": False,
+        "libera_conversao_dbz_mm_h": False,
+        "regra_seguranca": (
+            "#170-D registra cores brutas, transparencia e proximidade cromatica da paleta. "
+            "Cor parecida nao e promovida a classe dBZ; somente correspondencia canonica exata "
+            "continua sendo eco oficial classificado. O diagnostico nao prova ausencia de chuva no solo."
+        ),
+    }
+
+
 def _amostrar_estacao_no_quadro_170(nome, lat, lon, classes):
     """Compatibilidade #170-A: baixa um quadro e amostra a estacao."""
     bruto = get(
@@ -13127,7 +13232,7 @@ def _amostrar_estacao_no_quadro_170(nome, lat, lon, classes):
 
 def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
     """
-    #170-C - coleta Z-R multirrede + contexto Open-Meteo, fail-closed.
+    #170-D - coleta Z-R multirrede + autopsia de pixels RadarSC, fail-closed.
 
     Preserva a #144 e a #165 operacionais. Para pesquisa Z-R, coleta candidatos
     CEMADEN que passam pela #144 e candidatos EPAGRI/CIRAM do produto horario
@@ -13135,7 +13240,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
     para todas as estacoes. Nenhum par e elegivel para ajuste Z-R nesta etapa.
     """
     base = {
-        "versao": "#170-C",
+        "versao": "#170-D",
         "status": "bloqueado_sem_candidatos_multirrede",
         "modo": "COLETA_MULTIRREDE_PARA_CALIBRACAO_ZR",
         "redes": ["CEMADEN", "EPAGRI/CIRAM"],
@@ -13149,7 +13254,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
         "natureza_radar": "REFLETIVIDADE_RADARSC_DBZ",
         "raio_maximo_estacoes_cemaden_comasa_km": 10.0,
         "regra_seguranca": (
-            "#170-C amplia a coleta espacial em km e preserva contexto Open-Meteo sem misturar "
+            "#170-D preserva a coleta geografica #170-C e acrescenta autopsia de cores brutas do PNG RadarSC, "
             "as semanticas das fontes. Nao converte dBZ em mm/h, nao trata "
             "radar como pluviometro e nao libera Z-R. Cada leitura pertence a "
             "sua propria estacao. Os limites temporais exatos dos produtos "
@@ -13198,7 +13303,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
                 ).content
                 if not bruto.startswith(b"\x89PNG\r\n\x1a\n"):
                     raise ValueError("Quadro RadarSC #170-B3 nao e PNG valido.")
-                imagens[nome] = Image.open(io.BytesIO(bruto)).convert("RGB")
+                imagens[nome] = Image.open(io.BytesIO(bruto)).convert("RGBA")
             except Exception as e:
                 erros_quadro[nome] = str(e)[:180]
 
@@ -13224,6 +13329,9 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
                     espacial_c = _diagnostico_espacial_estacao_170_c(
                         imagens[nome], lat, lon, classes, raios_km=(2, 5, 10, 25)
                     )
+                    autopsia_d = _autopsia_pixels_radarsc_170_d(
+                        imagens[nome], lat, lon, classes, raios_km=(2, 5, 10, 25)
+                    )
                     amostras.append({
                         "arquivo": nome,
                         "horario_utc": q.get("horario_utc"),
@@ -13231,6 +13339,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
                         **a,
                         "diagnostico_espacial_170_b3": espacial,
                         "diagnostico_espacial_170_c": espacial_c,
+                        "autopsia_pixels_radarsc_170_d": autopsia_d,
                     })
                 except Exception as e:
                     amostras.append({
@@ -13433,7 +13542,7 @@ def registrar_historico_zr_170(coleta):
     try:
         if not isinstance(coleta, dict) or coleta.get("status") != "candidatos_multirrede_coletados":
             return {
-                "versao": "#170-C", "status": "sem_registro_novo",
+                "versao": "#170-D", "status": "sem_registro_novo",
                 "arquivo": HISTORICO_ZR_170_ARQUIVO,
                 "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             }
@@ -13456,7 +13565,7 @@ def registrar_historico_zr_170(coleta):
             ])
             registro = {
                 "chave": chave, "registrado_em": agora().isoformat(),
-                "versao": "#170-C", "rede": rede,
+                "versao": "#170-D", "rede": rede,
                 "pareamento_temporal_validado": False,
                 "elegivel_calibracao_zr": False, "zr_validada": False,
                 "conversao_dbz_mm_h_liberada": False,
@@ -13491,7 +13600,7 @@ def registrar_historico_zr_170(coleta):
         documento = {
             "monitor": "Monitor Guaxanduva",
             "tipo": "historico_candidatos_calibracao_zr_multirrede",
-            "versao": "#170-C", "atualizado_em": agora().isoformat(),
+            "versao": "#170-D", "atualizado_em": agora().isoformat(),
             "maximo_registros": HISTORICO_ZR_170_MAX_REGISTROS,
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             "pareamento_temporal_validado": False, "uso_operacional": False,
@@ -13506,7 +13615,7 @@ def registrar_historico_zr_170(coleta):
                 "registros_elegiveis_calibracao_zr": 0,
             },
             "regra_seguranca": (
-                "Historico #170-C multirrede. CEMADEN e EPAGRI/CIRAM sao "
+                "Historico #170-D multirrede com autopsia de pixels RadarSC. CEMADEN e EPAGRI/CIRAM sao "
                 "preservados separadamente. Nenhum registro e elegivel para "
                 "ajuste Z-R ate validacao explicita da semantica temporal por rede."
             ),
@@ -13515,14 +13624,14 @@ def registrar_historico_zr_170(coleta):
         with open(HISTORICO_ZR_170_ARQUIVO, "w", encoding="utf-8") as f:
             json.dump(documento, f, ensure_ascii=False, indent=2)
         return {
-            "versao": "#170-C", "status": "historico_multirrede_atualizado",
+            "versao": "#170-D", "status": "historico_multirrede_atualizado",
             "arquivo": HISTORICO_ZR_170_ARQUIVO, **documento["resumo"],
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             "pareamento_temporal_validado": False,
         }
     except Exception as e:
         return {
-            "versao": "#170-C", "status": "falha_historico_fail_closed",
+            "versao": "#170-D", "status": "falha_historico_fail_closed",
             "arquivo": HISTORICO_ZR_170_ARQUIVO, "erro": str(e)[:300],
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
         }
@@ -13853,6 +13962,9 @@ def main():
         "radar":
             radar_atual,
 
+        "calibracao_zr_170_d":
+            coleta_zr170,
+
         "calibracao_zr_170_b3":
             coleta_zr170,
 
@@ -13864,6 +13976,9 @@ def main():
 
         "calibracao_zr_170_a":
             coleta_zr170,
+
+        "historico_zr_170_d":
+            historico_zr170,
 
         "historico_zr_170_b3":
             historico_zr170,

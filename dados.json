@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-10-01T00:44:03.693033-03:00",
+  "gerado_em": "2026-10-01T00:47:10.871517-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -143,7 +143,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-10-01T00:42:46.041339-03:00"
+    "coletado_em": "2026-10-01T00:45:44.788806-03:00"
   },
   "chuva_observada_epagri_165": {
     "status": "online",
@@ -163,7 +163,7 @@
         "longitude": -48.9708,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-10-01T00:00:00-03:00",
-        "idade_leitura_min": 43.1,
+        "idade_leitura_min": 46.0,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -179,7 +179,7 @@
         "longitude": -48.9889,
         "precipitacao_1h_mm": 0.4,
         "horario_medicao": "2026-10-01T00:00:00-03:00",
-        "idade_leitura_min": 43.1,
+        "idade_leitura_min": 46.0,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -348,7 +348,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-10-01T00:00:00-03:00",
-        "idade_leitura_min": 43.1,
+        "idade_leitura_min": 46.0,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -367,7 +367,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.4,
         "horario_medicao": "2026-10-01T00:00:00-03:00",
-        "idade_leitura_min": 43.1,
+        "idade_leitura_min": 46.0,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -548,7 +548,7 @@
     "observacao": "Resultado bruto para auditoria. A #138 nao interpreta nem publica serie temporal automaticamente."
   },
   "investigacao_cemaden_139": {
-    "status": "resposta_com_estrutura_para_revisao",
+    "status": "indisponivel",
     "versao": "#139",
     "tipo": "sonda_diagnostica_endpoint_grafico_pcds",
     "fonte": "CEMADEN",
@@ -559,61 +559,21 @@
       "uf": "SC"
     },
     "endpoint": "https://resources.cemaden.gov.br/graficos/interativo/grafico_pcds.php?idpcd=6259",
-    "http_status": 200,
-    "content_type": "text/html; charset=UTF-8",
-    "bytes_resposta": 28947,
-    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-30 23h00 UTC','2026-10-01 00h00 UTC','2026-10-01 01h00 UTC','2026-10-01 02h00 UTC','2026-10-01 03h00 UTC'],'2026-09-30 ',[0,null,null,null,null],'Acumulada',[0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA",
-    "referencias_encontradas": [
-      {
-        "referencia_bruta": "css/estilo_.css",
-        "url_resolvida": "https://resources.cemaden.gov.br/graficos/interativo/css/estilo_.css"
-      },
-      {
-        "referencia_bruta": "../js/jquery.min.js",
-        "url_resolvida": "https://resources.cemaden.gov.br/graficos/js/jquery.min.js"
-      },
-      {
-        "referencia_bruta": "../js/highcharts.new.js",
-        "url_resolvida": "https://resources.cemaden.gov.br/graficos/js/highcharts.new.js"
-      },
-      {
-        "referencia_bruta": "../js/exporting.new.js",
-        "url_resolvida": "https://resources.cemaden.gov.br/graficos/js/exporting.new.js"
-      },
-      {
-        "referencia_bruta": "css/bootstrap.min.css",
-        "url_resolvida": "https://resources.cemaden.gov.br/graficos/interativo/css/bootstrap.min.css"
-      },
-      {
-        "referencia_bruta": "css/personalizacao.css",
-        "url_resolvida": "https://resources.cemaden.gov.br/graficos/interativo/css/personalizacao.css"
-      },
-      {
-        "referencia_bruta": "js/bootstrap.min.js",
-        "url_resolvida": "https://resources.cemaden.gov.br/graficos/interativo/js/bootstrap.min.js"
-      },
-      {
-        "referencia_bruta": "img/logo.png",
-        "url_resolvida": "https://resources.cemaden.gov.br/graficos/interativo/img/logo.png"
-      }
-    ],
+    "http_status": null,
+    "content_type": null,
+    "bytes_resposta": null,
+    "amostra_textual": null,
+    "referencias_encontradas": [],
     "padroes_temporais": [],
     "estruturas_tabela": [],
     "serie_temporal_integrada": false,
     "publicacao_automatica": false,
     "regra_seguranca": "A #139 apenas audita a resposta do endpoint grafico_pcds.php. Nenhum numero e publicado como chuva, horario, acumulado ou intensidade sem validacao explicita da estrutura e unidade.",
-    "sinais_estruturais": {
-      "tem_tabela_html": false,
-      "tem_timestamp": false,
-      "tem_referencias": true,
-      "menciona_mm": true,
-      "menciona_chuva": true,
-      "menciona_acumulado": true
-    },
-    "observacao": "Resultado bruto para auditoria. A #139 nao converte a resposta em chuva recente; primeiro precisamos confirmar campos, unidade, timezone e significado temporal."
+    "erro": "HTTPSConnectionPool(host='resources.cemaden.gov.br', port=443): Read timed out. (read timeout=30)",
+    "observacao": "Falha da sonda #139 nao altera a integracao CEMADEN #136 nem a sonda #138."
   },
   "investigacao_cemaden_140": {
-    "status": "indisponivel",
+    "status": "chamadas_encontradas_para_revisao",
     "versao": "#140",
     "tipo": "descoberta_chamada_mapainterativows",
     "fonte": "CEMADEN",
@@ -625,14 +585,78 @@
     },
     "pagina_origem": "https://resources.cemaden.gov.br/graficos/interativo/grafico_pcds.php?idpcd=6259",
     "base_mapservices": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/",
-    "chamadas_identificadas": [],
-    "contextos_mapservices": [],
-    "requisicoes_teste": [],
+    "chamadas_identificadas": [
+      {
+        "expressao": "geral"
+      },
+      {
+        "expressao": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/"
+      }
+    ],
+    "contextos_mapservices": [
+      {
+        "termo": "mapainterativows",
+        "trecho": "} else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643','#4B8F56','#C9C473','#DA9054'); var geral = [ //['area','chart_tipo','tipo','titulo','medida','valor_atual'] [0,'chartHorario','horario','Precipitação','mm',null], [1,'chartDiario','diario','Precipitação','mm',null] ]; $(document).ready(function() { // selects $(\"#selhorario\").change(function() { select_hr = $(this).val(); //captura valor hr (reload) cria_grafico_horario($(this).val()); }); $(\"#seldiario\").change(function() { select_dia = $(this).val(); //captura valor dia (reload) cria_grafico_diario($(this).val()); }); // cria_grafico for (var i=0; i<geral.length; i++) { if (i < 2) { eval(\"cria_grafico_\"+geral[i][2]+\"($(\\\"#sel\"+geral[i][2]+\"\\\").val());\"); } } // reload (a cada 2 minutos) setTimeout(function () { window.location = location.pathname + '?idpcd='+idEstacao+'&hr=' +select_hr+'&dia='+select_dia;}, 120000); }); $(window).resize({charts:charts}, function(event) { for(var i=0; i<geral.length; i++) { eval(\"event.data.charts.\"+geral[i][1]+\".options.exporting.width=$(\\\"#container\"+geral[i][0]+\"\\\").width()+200;\"); } }); function roundNumber(num, dec) { var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec); return result; } /********************************************************************** G"
+      },
+      {
+        "termo": "mapainterativows",
+        "trecho": "> 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643','#4B8F56','#C9C473','#DA9054'); var geral = [ //['area','chart_tipo','tipo','titulo','medida','valor_atual'] [0,'chartHorario','horario','Precipitação','mm',null], [1,'chartDiario','diario','Precipitação','mm',null] ]; $(document).ready(function() { // selects $(\"#selhorario\").change(function() { select_hr = $(this).val(); //captura valor hr (reload) cria_grafico_horario($(this).val()); }); $(\"#seldiario\").change(function() { select_dia = $(this).val(); //captura valor dia (reload) cria_grafico_diario($(this).val()); }); // cria_grafico for (var i=0; i<geral.length; i++) { if (i < 2) { eval(\"cria_grafico_\"+geral[i][2]+\"($(\\\"#sel\"+geral[i][2]+\"\\\").val());\"); } } // reload (a cada 2 minutos) setTimeout(function () { window.location = location.pathname + '?idpcd='+idEstacao+'&hr=' +select_hr+'&dia='+select_dia;}, 120000); }); $(window).resize({charts:charts}, function(event) { for(var i=0; i<geral.length; i++) { eval(\"event.data.charts.\"+geral[i][1]+\".options.exporting.width=$(\\\"#container\"+geral[i][0]+\"\\\").width()+200;\"); } }); function roundNumber(num, dec) { var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec); return result; } /********************************************************************** GRAFICO HORARIO *****************************************************************"
+      },
+      {
+        "termo": "mapservices.cemaden.gov.br",
+        "trecho": "} if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643','#4B8F56','#C9C473','#DA9054'); var geral = [ //['area','chart_tipo','tipo','titulo','medida','valor_atual'] [0,'chartHorario','horario','Precipitação','mm',null], [1,'chartDiario','diario','Precipitação','mm',null] ]; $(document).ready(function() { // selects $(\"#selhorario\").change(function() { select_hr = $(this).val(); //captura valor hr (reload) cria_grafico_horario($(this).val()); }); $(\"#seldiario\").change(function() { select_dia = $(this).val(); //captura valor dia (reload) cria_grafico_diario($(this).val()); }); // cria_grafico for (var i=0; i<geral.length; i++) { if (i < 2) { eval(\"cria_grafico_\"+geral[i][2]+\"($(\\\"#sel\"+geral[i][2]+\"\\\").val());\"); } } // reload (a cada 2 minutos) setTimeout(function () { window.location = location.pathname + '?idpcd='+idEstacao+'&hr=' +select_hr+'&dia='+select_dia;}, 120000); }); $(window).resize({charts:charts}, function(event) { for(var i=0; i<geral.length; i++) { eval(\"event.data.charts.\"+geral[i][1]+\".options.exporting.width=$(\\\"#container\"+geral[i][0]+\"\\\").width()+200;\"); } }); function roundNumber(num, dec) { var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec); return result; } /********************************************************************** GRAFICO HORARIO **************************************"
+      },
+      {
+        "termo": "var path",
+        "trecho": ").split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643','#4B8F56','#C9C473','#DA9054'); var geral = [ //['area','chart_tipo','tipo','titulo','medida','valor_atual'] [0,'chartHorario','horario','Precipitação','mm',null], [1,'chartDiario','diario','Precipitação','mm',null] ]; $(document).ready(function() { // selects $(\"#selhorario\").change(function() { select_hr = $(this).val(); //captura valor hr (reload) cria_grafico_horario($(this).val()); }); $(\"#seldiario\").change(function() { select_dia = $(this).val(); //captura valor dia (reload) cria_grafico_diario($(this).val()); }); // cria_grafico for (var i=0; i<geral.length; i++) { if (i < 2) { eval(\"cria_grafico_\"+geral[i][2]+\"($(\\\"#sel\"+geral[i][2]+\"\\\").val());\"); } } // reload (a cada 2 minutos) setTimeout(function () { window.location = location.pathname + '?idpcd='+idEstacao+'&hr=' +select_hr+'&dia='+select_dia;}, 120000); }); $(window).resize({charts:charts}, function(event) { for(var i=0; i<geral.length; i++) { eval(\"event.data.charts.\"+geral[i][1]+\".options.exporting.width=$(\\\"#container\"+geral[i][0]+\"\\\").width()+200;\"); } }); function roundNumber(num, dec) { var result = Math.round(num*Math."
+      },
+      {
+        "termo": "var path",
+        "trecho": "= url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643','#4B8F56','#C9C473','#DA9054'); var geral = [ //['area','chart_tipo','tipo','titulo','medida','valor_atual'] [0,'chartHorario','horario','Precipitação','mm',null], [1,'chartDiario','diario','Precipitação','mm',null] ]; $(document).ready(function() { // selects $(\"#selhorario\").change(function() { select_hr = $(this).val(); //captura valor hr (reload) cria_grafico_horario($(this).val()); }); $(\"#seldiario\").change(function() { select_dia = $(this).val(); //captura valor dia (reload) cria_grafico_diario($(this).val()); }); // cria_grafico for (var i=0; i<geral.length; i++) { if (i < 2) { eval(\"cria_grafico_\"+geral[i][2]+\"($(\\\"#sel\"+geral[i][2]+\"\\\").val());\"); } } // reload (a cada 2 minutos) setTimeout(function () { window.location = location.pathname + '?idpcd='+idEstacao+'&hr=' +select_hr+'&dia='+select_dia;}, 120000); }); $(window).resize({charts:charts}, function(event) { for(var i=0; i<geral.length; i++) { eval(\"event.data.charts.\"+geral[i][1]+\".options.exporting.width=$(\\\"#container\"+geral[i][0]+\"\\\").width()+200;\"); } }); function roundNumber(num, dec) { var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec); return result; } /***********************"
+      },
+      {
+        "termo": "var path",
+        "trecho": "24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643','#4B8F56','#C9C473','#DA9054'); var geral = [ //['area','chart_tipo','tipo','titulo','medida','valor_atual'] [0,'chartHorario','horario','Precipitação','mm',null], [1,'chartDiario','diario','Precipitação','mm',null] ]; $(document).ready(function() { // selects $(\"#selhorario\").change(function() { select_hr = $(this).val(); //captura valor hr (reload) cria_grafico_horario($(this).val()); }); $(\"#seldiario\").change(function() { select_dia = $(this).val(); //captura valor dia (reload) cria_grafico_diario($(this).val()); }); // cria_grafico for (var i=0; i<geral.length; i++) { if (i < 2) { eval(\"cria_grafico_\"+geral[i][2]+\"($(\\\"#sel\"+geral[i][2]+\"\\\").val());\"); } } // reload (a cada 2 minutos) setTimeout(function () { window.location = location.pathname + '?idpcd='+idEstacao+'&hr=' +select_hr+'&dia='+select_dia;}, 120000); }); $(window).resize({charts:charts}, function(event) { for(var i=0; i<geral.length; i++) { eval(\"event.data.charts.\"+geral[i][1]+\".options.exporting.width=$(\\\"#container\"+geral[i][0]+\"\\\").width()+200;\"); } }); function roundNumber(num, dec) { var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec); return result; } /********************************************************************** GRAFICO HORARIO ******************"
+      },
+      {
+        "termo": "$.ajax",
+        "trecho": "}, 120000); }); $(window).resize({charts:charts}, function(event) { for(var i=0; i<geral.length; i++) { eval(\"event.data.charts.\"+geral[i][1]+\".options.exporting.width=$(\\\"#container\"+geral[i][0]+\"\\\").width()+200;\"); } }); function roundNumber(num, dec) { var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec); return result; } /********************************************************************** GRAFICO HORARIO ******************************************************************************/ function cria_grafico_horario(horas){ var url = path+geral[0][2]+\"/\"+idEstacao+\"/\"+(horas-1); //console.log(\"url \"+url); $.ajax({ url: url, context: this, crossDomain: true, // cache: false, dataType: 'json', async: false, success: function(dados){ plota_grafico_horario(dados); } }); } function plota_grafico_horario(dados) { var horas = dados.horarios.length; var fonte = dados.estacao.idRede.sigla; var idRede = dados.estacao.idRede.idRede; var area = geral[0][0]; var titulo = geral[area][3]; var medida = geral[area][4]; //INEA: de local para GMT var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; var i = dados.datas.length-1; var stopHr = dados.acumulados[0].length-1; for (var j=stopHr; j>=fuso; j--) { //console.log(\"StopHr \" + j + \"Data Inicial - \"+dados.datas[i]+\" - \"+dados.horarios[j]+\" : \"+dados.acumulados[i][j]); var hrLocal = dados.horarios[j-fuso].split(\"h\"); if (hrLocal[0] > (23-fuso)){ a = i - 1; } else { a = i; } dados.acumulados[i][j] = dados.acumulados[a][j-fuso]; //console.log(\"StopHr \" + j + \"Data Final - \"+dados.datas[i]+\" - \"+dados.horarios[j]+\" : \"+dados.acumulados[i][j]); if (dados.horarios[j] == '0h') { i--; } } // Return if (Dados == NULL) var a = 0; var iniI = 0; var iniJ = fuso; for (var j=iniJ; j<stopHr; j++) { for (var i=iniI; i<dados.acumulados.length; i++) { if (dados.acumulados[i][j] != null) { a = 1; } } } if (a == 0){ $(\"#container\"+area+\"\").text(\"Sem Dados (\"+titulo+\" Acumulada em \"+(horas-fuso)+\"h)\"); return; } // SERIES E DIAS (grafico pie) // Calcula Acumulado das Series e Dias: Elimina os valores nulos var arrHorarios = []; var arrValores = []; for (var z=0; z<dados.acumu"
+      },
+      {
+        "termo": "$.ajax",
+        "trecho": "subtitulo = geral[i][3]+': '+geral[i][5]+' '+geral[i][4]+''; } } } $( '#div_subtitulo' ).text( subtitulo ); //FIM: div_subtitulo //*-- FIM: Cabecalho - Imprime } /******************************************************************** FIM - GRAFICO HORARIO ****************************************************************************/ /********************************************************************** GRAFICO DIARIO ******************************************************************************/ function cria_grafico_diario(dias){ //console.log(\"dias \"+dias); var url = path+geral[0][2]+\"/\"+idEstacao+\"/\"+dias; $.ajax({ url: url, context: this, crossDomain: true, // cache: false, dataType: 'json', async: false, success: function(dados){ plota_grafico_diario(dados); } }); } function plota_grafico_diario(dados) { var fonte = dados.estacao.idRede.sigla; var idRede = dados.estacao.idRede.idRede; var dias = (dados.datas.length)-1; //(nao soma a dta a ser convertida: ANA e nem a dta atual) var area = geral[1][0]; var medida = geral[area][4]; var titulo = geral[area][3]; // Definindo: stopDia for (var i=0; i<=dados.datas.length; i++){ var month = todayGMT.getMonth()+1; var monthWithZero = month; if(month<10){ monthWithZero = \"0\"+month; } var day = todayGMT.getDate(); var dayWithZero = day; if(day<10){ dayWithZero = \"0\"+day; } var dta_end_with_zero = (dayWithZero)+\"/\"+(monthWithZero)+\"/\"+todayGMT.getFullYear(); var dta_end = todayGMT.getDate()+\"/\"+(todayGMT.getMonth()+1)+\"/\"+todayGMT.getFullYear(); if (dta_end == dados.datas[i] || dta_end_with_zero == dados.datas[i]){ var stopDia = i; } } // FIM: stopDia //ANA: de local para GMT var iniI = 0; var iniJ = 0; var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; if (dados.horarios[0].split(\"h\")[0] >= 21){ var iniI = 1; } var stopHr = (dados.acumulados[0].length-1)-fuso; if (idRede == 1) { var i = 0; for (var j=0; j<stopHr; j++) { var dtaLocal = dados.datas[i].split(\"/\"); //console.log(\"valor \"+dados.acumulados[i][j]); var hrLocal = dados.horarios[j].split(\"h\"); var dateGMT = new Date(dtaLocal[2],(dtaLocal[1]-1),dtaLocal[0],hrLocal[0],0,0); //new Date(year, month, day, hours, min"
+      },
+      {
+        "termo": "$.ajax",
+        "trecho": "lOpacity: 0.5 } }, credits: { enabled: false }, series: [{ name: nome1, type: 'column', data: valores1 },{ name: nome2, type: 'column', data: valores2 },{ name: nome3, type: 'spline', data: valores3 }] }); }); }); } /********************************************************************** GRAFICO PERMANENCIA ******************************************************************************/ function cria_grafico_permanencia(){ $(document).ready(function() { var url = \"http://resources.cemaden.gov.br/graficos/json_inea/\"+idEstacao+\".json\"; $.ajax({ url: url, context: this, crossDomain: true, // cache: false, dataType: 'json', async: false, success: function(dados){ plota_grafico_permanencia(dados); } }); }); } function plota_grafico_permanencia(dados) { var niveis = dados.nivel_inea_ind.length; if (niveis == 0) { $(\"#container\").text(\"Sem Dados (\"+titulo+\")\"); return; } var fonte = dados.estacao.idRede.sigla; var titulo = 'Curva de Permanência'; var medida = 'Nível [m]'; //var limiar = 0.6; //valor a ser capturado do JSON var limiar = dados.estacao.limiar; var arrPermanencia = new Array(); var arrNivel = new Array(); var arrDatas = new Array(); var maxNivel = 0; for (var i=0; i<niveis; i++) { arrPermanencia[i] = Highcharts.numberFormat(dados.nivel_inea_ind[i]['p'], 4); arrNivel[i] = Math.round(dados.nivel_inea_ind[i]['nivel']*Math.pow(10,2))/Math.pow(10,2); if (maxNivel < arrNivel[i]) maxNivel = arrNivel[i]; //captura valor maximo do eixo y var dta = dados.nivel_inea_ind[i]['datahora'].split(\"-\"); var cc = dta[2].split(\" \"); arrDatas[arrNivel[i]] = cc[0]+\"/\"+dta[1]+\"/\"+dta[0]+\" \"+cc[1]; } if (maxNivel < limiar) maxNivel = limiar; // PRINCIPAL var chart = new Highcharts.Chart({ chart: { renderTo: 'container', zoomType: 'x', spacingRight: 20 }, title: { text: titulo+' | Estação: '+dados.estacao.nome+' ('+dados.estacao.codEstacao+')' }, subtitle: { text: 'Fonte: '+fonte+\" | Elaboração: CEMADEN\", floating: true, align: 'right', verticalAlign: 'bottom',"
+      }
+    ],
+    "requisicoes_teste": [
+      {
+        "url": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/cria_grafico_",
+        "status": "erro",
+        "erro": "404 Client Error: Not Found for url: https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/cria_grafico_"
+      },
+      {
+        "url": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/?idpcd=",
+        "status": "erro",
+        "erro": "404 Client Error: Not Found for url: https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/?idpcd="
+      },
+      {
+        "url": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/idpcd=",
+        "status": "erro",
+        "erro": "404 Client Error: Not Found for url: https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/idpcd="
+      }
+    ],
     "serie_temporal_integrada": false,
     "publicacao_automatica": false,
     "regra_seguranca": "A #140 investiga chamadas estruturadas do servico usado pelo grafico oficial CEMADEN. Respostas de teste nao sao publicadas como chuva sem validacao de campos, unidade e referencia temporal.",
-    "erro": "HTTPSConnectionPool(host='resources.cemaden.gov.br', port=443): Read timed out. (read timeout=30)",
-    "observacao": "Falha da #140 nao altera as integracoes CEMADEN anteriores."
+    "rotas_literais_candidatas": [
+      "cria_grafico_",
+      "?idpcd=",
+      "idpcd="
+    ],
+    "observacao": "A #140 preserva expressoes e contextos do codigo oficial para descobrir a rota exata. Nenhuma resposta e promovida a dado operacional nesta etapa."
   },
   "investigacao_cemaden_141": {
     "status": "json_horario_recebido_para_validacao",
@@ -965,7 +989,7 @@
       "data_fonte": "01/10/2026",
       "hora_fonte": "3h"
     },
-    "idade_ultima_leitura_min": 44.7,
+    "idade_ultima_leitura_min": 47.8,
     "dados_frescos_diagnostico": true,
     "limite_frescor_diagnostico_min": 120,
     "acumulados_diagnosticos": {
@@ -1193,7 +1217,7 @@
     "24h_mm": 0.0,
     "horario_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
     "horario_ultima_celula_local": "2026-10-01T00:00:00-03:00",
-    "idade_leitura_min": 43.1,
+    "idade_leitura_min": 46.0,
     "dados_frescos": true,
     "limite_frescor_min": 120,
     "granularidade": "horaria",
@@ -1229,7 +1253,7 @@
     "leitura_horaria_mm": 0.2,
     "horario_medicao_utc": "2026-10-01T03:00:00+00:00",
     "horario_medicao_local": "2026-10-01T00:00:00-03:00",
-    "idade_leitura_min": 44.8,
+    "idade_leitura_min": 47.9,
     "dados_frescos": true,
     "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
     "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
@@ -1553,7 +1577,7 @@
     "residual_cm": 26.4,
     "nmm_cm": 103.1,
     "horario": "2026-10-01T00:15:00-03:00",
-    "idade_min": 28.5,
+    "idade_min": 31.6,
     "frescor": "atual",
     "residual_aritmetica_validada": true,
     "uso_no_risco": false,
@@ -3451,7 +3475,7 @@
     "versao": "166-v0.2-historico-integrado",
     "status": "historico_em_formacao",
     "arquivo_historico": "historico_guaxanduva_166.json",
-    "gerado_em": "2026-10-01T00:43:29.005897-03:00",
+    "gerado_em": "2026-10-01T00:46:36.425317-03:00",
     "quantidade_registros": 676,
     "quantidade_chuva_horaria": 292,
     "quantidade_mare_observada": 384,
@@ -3575,7 +3599,7 @@
   },
   "modelo_computacional_guaxanduva_v01": {
     "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
-    "gerado_em": "2026-10-01T00:43:29.017387-03:00",
+    "gerado_em": "2026-10-01T00:46:36.436969-03:00",
     "status": "grafo_hidrografico_integrado",
     "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
     "microbacia": "44-0",
@@ -3592,7 +3616,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-10-01T00:43:31.229018-03:00"
+      "instante": "2026-10-01T00:46:38.767898-03:00"
     },
     "parametros_hidraulicos_documentados": {
       "bypass_montezuma_odilon": {
@@ -14122,7 +14146,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-10-01T00:43:31.229018-03:00",
+      "instante": "2026-10-01T00:46:38.767898-03:00",
       "uso_operacional": false,
       "alerta_operacional_liberado": false,
       "representa_medicao_instrumental": false,
@@ -15761,7 +15785,7 @@
     "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
     "status": "nivel_modelado_calculado",
     "natureza": "MODELADO_NAO_INSTRUMENTAL",
-    "instante": "2026-10-01T00:43:31.257128-03:00",
+    "instante": "2026-10-01T00:46:38.787326-03:00",
     "referencia_forcantes": "2026-10-01T00:15:00-03:00",
     "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
     "nivel_estimado_m": 2.197,
@@ -15890,15 +15914,15 @@
     "fonte": "Open-Meteo",
     "modelo": "Best Match",
     "atual": {
-      "horario": "2026-10-01T00:30",
-      "temperatura_c": 17.9,
-      "sensacao_termica_c": 19.5,
+      "horario": "2026-10-01T00:45",
+      "temperatura_c": 17.8,
+      "sensacao_termica_c": 19.4,
       "codigo_tempo_wmo": 55,
       "cobertura_nuvens_pct": 100,
       "precipitacao_mm": 0.3,
-      "vento_kmh": 7.0,
-      "direcao_graus": 226,
-      "rajada_kmh": 15.8
+      "vento_kmh": 6.9,
+      "direcao_graus": 233,
+      "rajada_kmh": 16.2
     },
     "proxima_hora": {
       "horario": "2026-10-01T01:00",
@@ -16020,7 +16044,7 @@
     ]
   },
   "astronomia_joinville": {
-    "status": "online",
+    "status": "online_parcial",
     "fontes": [
       "USNO Astronomical Applications Department",
       "OPALE/IMCCE"
@@ -16059,49 +16083,10 @@
     },
     "eclipses": {
       "solar": {
-        "status": "online",
-        "fonte": "OPALE/IMCCE",
-        "body_opale": 10,
-        "data_evento": "2027-02-06",
-        "tipo": "ObserverPartialEclipse",
-        "magnitude": 0.85835,
-        "obscuracao_pct": 79.4,
-        "maximo_utc": "2027-02-06T16:10:37+00:00",
-        "maximo_local": "2027-02-06T13:10:37-03:00",
-        "inicio_utc": "2027-02-06T14:20:13+00:00",
-        "inicio_local": "2027-02-06T11:20:13-03:00",
-        "fim_utc": "2027-02-06T17:50:20+00:00",
-        "fim_local": "2027-02-06T14:50:20-03:00",
-        "url_consulta": "https://opale.imcce.fr/api/v1/phenomena/eclipses/10/gregorian,2027-02-06?observer=-26.270000%2C-48.810000%2C0.000000"
+        "status": "indisponivel"
       },
       "lunar": {
-        "status": "online",
-        "fonte": "OPALE/IMCCE",
-        "body_opale": 301,
-        "data_evento": "2027-02-20",
-        "tipo": "PenumbralEclipse",
-        "magnitude": 0.9265,
-        "obscuracao_pct": null,
-        "maximo_utc": "2027-02-20T23:12:56+00:00",
-        "maximo_local": "2027-02-20T20:12:56-03:00",
-        "inicio_utc": "2027-02-20T21:12:23+00:00",
-        "inicio_local": "2027-02-20T18:12:23-03:00",
-        "fim_utc": "2027-02-21T01:13:25+00:00",
-        "fim_local": "2027-02-20T22:13:25-03:00",
-        "url_consulta": "https://opale.imcce.fr/api/v1/phenomena/eclipses/301/gregorian,2027",
-        "duracao": {
-          "penumbral": "04:01:01"
-        },
-        "observacao_opale": "Evento lunar OPALE é global/geocêntrico; visibilidade local é avaliada separadamente pela altitude da Lua no USNO.",
-        "visibilidade_local_no_maximo": {
-          "status": "online",
-          "altura_graus": 18.59226,
-          "azimute_graus": 68.528473,
-          "acima_horizonte_geometrico": true,
-          "criterio": "hc_USNO_maior_que_0_grau"
-        },
-        "visivel_geometricamente_no_maximo": true,
-        "observacao_visibilidade": "Criterio geometrico no maximo do eclipse. Nao considera nuvens, relevo nem obstrucoes locais."
+        "status": "indisponivel"
       }
     },
     "regras_seguranca": [
@@ -16110,7 +16095,10 @@
       "Eclipse lunar OPALE e global; visibilidade local exige Lua acima do horizonte em Joinville.",
       "Visibilidade geometrica nao garante observacao pratica: nuvens, relevo e obstrucoes locais podem impedir a visualizacao."
     ],
-    "erros_parciais": []
+    "erros_parciais": [
+      "OPALE solar: HTTPSConnectionPool(host='opale.imcce.fr', port=443): Max retries exceeded with url: /api/v1/phenomena/eclipses/10/gregorian,2026 (Caused by ConnectTimeoutError(<HTTPSConnection(host='opale.imcce.fr', port=443) at 0x7fe54d2f8aa0>, 'Connection to opale.imcce.fr timed out. (connect timeout=10)'))",
+      "OPALE/USNO lunar: HTTPSConnectionPool(host='opale.imcce.fr', port=443): Max retries exceeded with url: /api/v1/phenomena/eclipses/301/gregorian,2026 (Caused by ConnectTimeoutError(<HTTPSConnection(host='opale.imcce.fr', port=443) at 0x7fe54d431610>, 'Connection to opale.imcce.fr timed out. (connect timeout=10)'))"
+    ]
   },
   "criterio_hidrometeorologico_plancon_163": {
     "status": "calculado",
@@ -16129,7 +16117,7 @@
       "janela_inicio": "2026-10-01T01:00",
       "janela_fim_exclusivo": "2026-10-02T01:00:00-03:00",
       "mare_horario": "2026-10-01T00:15:00-03:00",
-      "mare_idade_min": 28.5
+      "mare_idade_min": 31.6
     },
     "criterios": {
       "mobilizacao_chuva_superior_20mm_24h": false,
@@ -16163,7 +16151,7 @@
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
     "horario_ultimo_quadro": "2026-10-01T00:40:00-03:00",
-    "idade_ultimo_quadro_min": 3.8,
+    "idade_ultimo_quadro_min": 6.9,
     "dados_frescos": true,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -27272,12 +27260,12 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T00:30",
+      "horario": "2026-10-01T00:45",
       "codigo_tempo_wmo": 55,
       "precipitacao_mm": 0.3,
       "cobertura_nuvens_pct": 100,
-      "temperatura_c": 17.9,
-      "sensacao_termica_c": 19.5,
+      "temperatura_c": 17.8,
+      "sensacao_termica_c": 19.4,
       "uso": "evidencia_contextual_independente; nao substitui pluviometro e nao libera Z-R"
     },
     "motivo": "auditoria_temporal_170_e_ativa_borda_horaria_ainda_fail_closed",
@@ -27388,7 +27376,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -30289,7 +30277,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -33071,7 +33059,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.1,
+          "idade_leitura_min": 47.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -35782,7 +35770,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -38252,7 +38240,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -40956,12 +40944,12 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T00:30",
+      "horario": "2026-10-01T00:45",
       "codigo_tempo_wmo": 55,
       "precipitacao_mm": 0.3,
       "cobertura_nuvens_pct": 100,
-      "temperatura_c": 17.9,
-      "sensacao_termica_c": 19.5,
+      "temperatura_c": 17.8,
+      "sensacao_termica_c": 19.4,
       "uso": "evidencia_contextual_independente; nao substitui pluviometro e nao libera Z-R"
     },
     "motivo": "auditoria_temporal_170_e_ativa_borda_horaria_ainda_fail_closed",
@@ -41072,7 +41060,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -43973,7 +43961,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -46755,7 +46743,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.1,
+          "idade_leitura_min": 47.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -49466,7 +49454,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -51936,7 +51924,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -54640,12 +54628,12 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T00:30",
+      "horario": "2026-10-01T00:45",
       "codigo_tempo_wmo": 55,
       "precipitacao_mm": 0.3,
       "cobertura_nuvens_pct": 100,
-      "temperatura_c": 17.9,
-      "sensacao_termica_c": 19.5,
+      "temperatura_c": 17.8,
+      "sensacao_termica_c": 19.4,
       "uso": "evidencia_contextual_independente; nao substitui pluviometro e nao libera Z-R"
     },
     "motivo": "auditoria_temporal_170_e_ativa_borda_horaria_ainda_fail_closed",
@@ -54756,7 +54744,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -57657,7 +57645,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -60439,7 +60427,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.1,
+          "idade_leitura_min": 47.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -63150,7 +63138,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -65620,7 +65608,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -68324,12 +68312,12 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T00:30",
+      "horario": "2026-10-01T00:45",
       "codigo_tempo_wmo": 55,
       "precipitacao_mm": 0.3,
       "cobertura_nuvens_pct": 100,
-      "temperatura_c": 17.9,
-      "sensacao_termica_c": 19.5,
+      "temperatura_c": 17.8,
+      "sensacao_termica_c": 19.4,
       "uso": "evidencia_contextual_independente; nao substitui pluviometro e nao libera Z-R"
     },
     "motivo": "auditoria_temporal_170_e_ativa_borda_horaria_ainda_fail_closed",
@@ -68440,7 +68428,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -71341,7 +71329,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -74123,7 +74111,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.1,
+          "idade_leitura_min": 47.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -76834,7 +76822,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -79304,7 +79292,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -82008,12 +81996,12 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T00:30",
+      "horario": "2026-10-01T00:45",
       "codigo_tempo_wmo": 55,
       "precipitacao_mm": 0.3,
       "cobertura_nuvens_pct": 100,
-      "temperatura_c": 17.9,
-      "sensacao_termica_c": 19.5,
+      "temperatura_c": 17.8,
+      "sensacao_termica_c": 19.4,
       "uso": "evidencia_contextual_independente; nao substitui pluviometro e nao libera Z-R"
     },
     "motivo": "auditoria_temporal_170_e_ativa_borda_horaria_ainda_fail_closed",
@@ -82124,7 +82112,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -85025,7 +85013,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -87807,7 +87795,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.1,
+          "idade_leitura_min": 47.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -90518,7 +90506,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -92988,7 +92976,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -95692,12 +95680,12 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T00:30",
+      "horario": "2026-10-01T00:45",
       "codigo_tempo_wmo": 55,
       "precipitacao_mm": 0.3,
       "cobertura_nuvens_pct": 100,
-      "temperatura_c": 17.9,
-      "sensacao_termica_c": 19.5,
+      "temperatura_c": 17.8,
+      "sensacao_termica_c": 19.4,
       "uso": "evidencia_contextual_independente; nao substitui pluviometro e nao libera Z-R"
     },
     "motivo": "auditoria_temporal_170_e_ativa_borda_horaria_ainda_fail_closed",
@@ -95808,7 +95796,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -98709,7 +98697,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -101491,7 +101479,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.1,
+          "idade_leitura_min": 47.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -104202,7 +104190,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -106672,7 +106660,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -109376,12 +109364,12 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T00:30",
+      "horario": "2026-10-01T00:45",
       "codigo_tempo_wmo": 55,
       "precipitacao_mm": 0.3,
       "cobertura_nuvens_pct": 100,
-      "temperatura_c": 17.9,
-      "sensacao_termica_c": 19.5,
+      "temperatura_c": 17.8,
+      "sensacao_termica_c": 19.4,
       "uso": "evidencia_contextual_independente; nao substitui pluviometro e nao libera Z-R"
     },
     "motivo": "auditoria_temporal_170_e_ativa_borda_horaria_ainda_fail_closed",
@@ -109492,7 +109480,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -112393,7 +112381,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.0,
+          "idade_leitura_min": 47.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -115175,7 +115163,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 44.1,
+          "idade_leitura_min": 47.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -117886,7 +117874,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -120356,7 +120344,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 43.1,
+          "idade_leitura_min": 46.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -123750,7 +123738,7 @@
       "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
       "status": "nivel_modelado_calculado",
       "natureza": "MODELADO_NAO_INSTRUMENTAL",
-      "instante": "2026-10-01T00:43:31.257128-03:00",
+      "instante": "2026-10-01T00:46:38.787326-03:00",
       "referencia_forcantes": "2026-10-01T00:15:00-03:00",
       "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
       "nivel_estimado_m": 2.197,
@@ -125726,7 +125714,7 @@
     "consultas_temporais": [
       {
         "dias": 2,
-        "datetime": "2026-09-29T03:43:05Z/2026-10-01T03:43:05Z",
+        "datetime": "2026-09-29T03:46:00Z/2026-10-01T03:46:00Z",
         "http_status": 200,
         "quantidade_features": 18,
         "quantidade_data_alerta": 18,
@@ -125735,7 +125723,7 @@
       },
       {
         "dias": 7,
-        "datetime": "2026-09-24T03:43:05Z/2026-10-01T03:43:05Z",
+        "datetime": "2026-09-24T03:46:00Z/2026-10-01T03:46:00Z",
         "http_status": 200,
         "quantidade_features": 62,
         "quantidade_data_alerta": 62,
@@ -125744,7 +125732,7 @@
       },
       {
         "dias": 30,
-        "datetime": "2026-09-01T03:43:05Z/2026-10-01T03:43:05Z",
+        "datetime": "2026-09-01T03:46:00Z/2026-10-01T03:46:00Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,
@@ -125753,7 +125741,7 @@
       },
       {
         "dias": 90,
-        "datetime": "2026-07-03T03:43:05Z/2026-10-01T03:43:05Z",
+        "datetime": "2026-07-03T03:46:00Z/2026-10-01T03:46:00Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,

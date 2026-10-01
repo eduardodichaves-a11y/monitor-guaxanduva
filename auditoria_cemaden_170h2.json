@@ -3,13 +3,13 @@
   "versao": "#170-H2",
   "tipo": "auditoria_empirica_subhoraria_cemaden",
   "natureza": "DIAGNOSTICO_FAIL_CLOSED",
-  "atualizado_em": "2026-10-01T10:02:04.539675-03:00",
+  "atualizado_em": "2026-10-01T10:26:01.314210-03:00",
   "status": "borda_temporal_cemaden_confirmada",
   "hipotese_testada": "O acumulado CEMADEN de 1h rotulado em T corresponde a soma dos incrementos sub-horarios em (T-60min,T].",
   "fonte_subhoraria": "grafico_pcds.php publico do CEMADEN; serie server-side Precipitacao Acumulada nas Ultimas 4 horas, timestamps UTC.",
   "tolerancia_mm": 0.01,
-  "confirmacoes_nesta_execucao": 9,
-  "confirmacoes_historicas_distintas": 13,
+  "confirmacoes_nesta_execucao": 10,
+  "confirmacoes_historicas_distintas": 14,
   "borda_horaria_retrospectiva_empiricamente_confirmada": true,
   "pareamento_temporal_validado": true,
   "elegivel_calibracao_zr": false,
@@ -178,15 +178,8 @@
       "janela_testada": "(T-60min,T]",
       "soma_subhoraria_mm": 0.2,
       "diferenca_mm": 0.0,
-      "quantidade_pontos_na_janela": 2,
+      "quantidade_pontos_na_janela": 1,
       "pontos_na_janela": [
-        {
-          "instante_utc": "2026-10-01T08:10:00+00:00",
-          "instante_local": "2026-10-01T05:10:00-03:00",
-          "rotulo_fonte": "2026-10-01  08h10 UTC",
-          "incremento_mm": 0.0,
-          "acumulada_exibida_mm": 0.0
-        },
         {
           "instante_utc": "2026-10-01T08:50:00+00:00",
           "instante_local": "2026-10-01T05:50:00-03:00",
@@ -451,6 +444,42 @@
       "motivo": "soma_subhoraria_fecha_exatamente_com_1h"
     },
     {
+      "chave_h1": "6258|2026-10-01T13:00:00+00:00",
+      "estacao": {
+        "id": 6258,
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim",
+        "cidade": "JOINVILLE",
+        "uf": "SC",
+        "distancia_comasa_aprox_km": 9.04
+      },
+      "rotulo_horario_utc": "2026-10-01T13:00:00+00:00",
+      "acumulado_1h_h1_mm": 0.4,
+      "janela_testada": "(T-60min,T]",
+      "soma_subhoraria_mm": 0.4,
+      "diferenca_mm": 0.0,
+      "quantidade_pontos_na_janela": 2,
+      "pontos_na_janela": [
+        {
+          "instante_utc": "2026-10-01T12:20:00+00:00",
+          "instante_local": "2026-10-01T09:20:00-03:00",
+          "rotulo_fonte": "2026-10-01  12h20 UTC",
+          "incremento_mm": 0.2,
+          "acumulada_exibida_mm": 1.2
+        },
+        {
+          "instante_utc": "2026-10-01T12:50:00+00:00",
+          "instante_local": "2026-10-01T09:50:00-03:00",
+          "rotulo_fonte": "2026-10-01  12h50 UTC",
+          "incremento_mm": 0.2,
+          "acumulada_exibida_mm": 1.4
+        }
+      ],
+      "coincide_tolerancia_0_01_mm": true,
+      "evidencia_temporal_positiva": true,
+      "motivo": "soma_subhoraria_fecha_exatamente_com_1h"
+    },
+    {
       "chave_h1": "6960|2026-10-01T13:00:00+00:00",
       "estacao": {
         "id": 6960,
@@ -461,11 +490,11 @@
         "distancia_comasa_aprox_km": 9.37
       },
       "rotulo_horario_utc": "2026-10-01T13:00:00+00:00",
-      "acumulado_1h_h1_mm": 0.2,
+      "acumulado_1h_h1_mm": 0.4,
       "janela_testada": "(T-60min,T]",
-      "soma_subhoraria_mm": 0.2,
+      "soma_subhoraria_mm": 0.4,
       "diferenca_mm": 0.0,
-      "quantidade_pontos_na_janela": 1,
+      "quantidade_pontos_na_janela": 2,
       "pontos_na_janela": [
         {
           "instante_utc": "2026-10-01T12:10:00+00:00",
@@ -473,6 +502,13 @@
           "rotulo_fonte": "2026-10-01  12h10 UTC",
           "incremento_mm": 0.2,
           "acumulada_exibida_mm": 7.8
+        },
+        {
+          "instante_utc": "2026-10-01T12:30:00+00:00",
+          "instante_local": "2026-10-01T09:30:00-03:00",
+          "rotulo_fonte": "2026-10-01  12h30 UTC",
+          "incremento_mm": 0.2,
+          "acumulada_exibida_mm": 8.0
         }
       ],
       "coincide_tolerancia_0_01_mm": true,

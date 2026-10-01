@@ -498,24 +498,22 @@ relogio();setInterval(relogio,1000);
 async function carregarAuditoria170(){
  try{
   const [rh2,re]=await Promise.all([
-   fetch("historico_cemaden_subhorario_170h2.json?"+Date.now(),{cache:"no-store"}),
+   fetch("auditoria_cemaden_170h2.json?"+Date.now(),{cache:"no-store"}),
    fetch("auditoria_espacial_170i.json?"+Date.now(),{cache:"no-store"})
   ]);
   if(!rh2.ok)throw Error("H2 HTTP "+rh2.status);
   if(!re.ok)throw Error("ESP HTTP "+re.status);
   const h2=await rh2.json(),esp=await re.json(),r=esp.resumo||{};
-  const hist=Array.isArray(h2)?h2:(h2.registros||h2.historico||h2.confirmacoes||[]);
-  const positivos=hist.filter(x=>x&&x.evidencia_temporal_positiva===true).length;
-  const nH2=r.episodios_h2??positivos??"--";
-  const temporal=nH2>0;
+  const nH2=h2.confirmacoes_historicas_distintas??"--";
+  const temporal=h2.pareamento_temporal_validado===true;
   const espacial=esp.pareamento_espacial_validado===true;
-  $("a170Temporal").textContent=temporal?"VALIDADO":"SEM EVIDÊNCIA";
+  $("a170Temporal").textContent=temporal?"VALIDADO":"EM VALIDAÇÃO";
   $("a170Confirmacoes").textContent=nH2;
   $("a170Espacial").textContent=espacial?"VALIDADA":"EM INVESTIGAÇÃO";
   $("a170Pareamentos").textContent=r.pareamento_espacial_valido??0;
   $("a170ZR").textContent=esp.zr_validada===true?"VALIDADA":"BLOQUEADA";
   $("a170MMH").textContent=esp.conversao_dbz_mm_h_liberada===true?"LIBERADA":"BLOQUEADA";
-  $("a170Estado").innerHTML=(temporal?'<span class="ok">🟢 TEMPORAL H2 COM EVIDÊNCIA VALIDADA</span>':'<span class="aviso">🟡 TEMPORAL SEM EVIDÊNCIA DISPONÍVEL</span>')+' • '+(espacial?'<span class="ok">ESPACIAL VALIDADO</span>':'<span class="aviso">ESPACIAL EM INVESTIGAÇÃO</span>')+'<br><small>Status global: '+(esp.status||"--")+' • nenhum gate científico é inferido por ausência de dados.</small>';
+  $("a170Estado").innerHTML=(temporal?'<span class="ok">🟢 TEMPORAL H2 VALIDADO • '+nH2+' CONFIRMAÇÕES HISTÓRICAS</span>':'<span class="aviso">🟡 TEMPORAL EM VALIDAÇÃO</span>')+' • '+(espacial?'<span class="ok">ESPACIAL VALIDADO</span>':'<span class="aviso">ESPACIAL EM INVESTIGAÇÃO</span>')+'<br><small>Status espacial: '+(esp.status||"--")+' • Z–R e dBZ → mm/h permanecem fail-closed enquanto os respectivos gates não forem validados.</small>';
  }catch(e){
   $("a170Estado").innerHTML='<span class="erro">🔴 Auditoria #170 indisponível</span><br><small>'+e.message+'</small>';
  }

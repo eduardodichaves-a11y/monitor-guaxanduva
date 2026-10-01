@@ -29,6 +29,7 @@ HISTORICO_MAX_REGISTROS = 2880
 HISTORICO_ZR_170_ARQUIVO = "historico_zr_170.json"
 HISTORICO_ZR_170_MAX_REGISTROS = 4320
 AUDITORIA_TEMPORAL_170_ARQUIVO = "auditoria_temporal_170.json"
+AUDITORIA_ESPACIAL_170I_ARQUIVO = "auditoria_espacial_170i.json"
  
 # Coordenada pública aproximada do Comasa.
 # NÃO representa endereço residencial.
@@ -13776,6 +13777,252 @@ def salvar_auditoria_temporal_170_g(historico):
     return documento
 
 
+
+# =========================================================
+# #170-I - VALIDACAO ESPACIAL RADARSC x CEMADEN (FAIL-CLOSED)
+# =========================================================
+# Camada derivada e compacta. Usa somente os quatro fechamentos CEMADEN
+# validados empiricamente pela #170-H2 e reaproveita os diagnosticos espaciais
+# #170-C/#170-D ja persistidos no historico bruto. Nao recalcula o nucleo,
+# nao aproxima RGB e nao libera Z-R nem dBZ->mm/h.
+
+H2_170I_EPISODIOS = (
+    {"estacao_id": "6960", "nome": "Nova Brasilia", "t_utc": "2026-10-01T01:00:00+00:00", "chuva_1h_mm": 0.2},
+    {"estacao_id": "6960", "nome": "Nova Brasilia", "t_utc": "2026-10-01T02:00:00+00:00", "chuva_1h_mm": 0.6},
+    {"estacao_id": "6960", "nome": "Nova Brasilia", "t_utc": "2026-10-01T03:00:00+00:00", "chuva_1h_mm": 0.6},
+    {"estacao_id": "6258", "nome": "Paranaguamirim", "t_utc": "2026-10-01T04:00:00+00:00", "chuva_1h_mm": 0.2},
+)
+
+
+def _utc_170i(valor):
+    dt = _parse_instante_170_e(valor)
+    return dt.astimezone(UTC) if dt is not None else None
+
+
+def _id_estacao_170i(est):
+    if not isinstance(est, dict):
+        return None
+    candidatos = (est.get("id"), est.get("codigo"), est.get("idestacao"))
+    return [str(x) for x in candidatos if x is not None]
+
+
+def _registro_h2_170i(registros, episodio):
+    alvo_t = _utc_170i(episodio.get("t_utc"))
+    alvo_id = str(episodio.get("estacao_id"))
+    if alvo_t is None:
+        return None
+    achados = []
+    for r in registros if isinstance(registros, list) else []:
+        if not isinstance(r, dict) or str(r.get("rede") or "") != "CEMADEN":
+            continue
+        est = r.get("estacao") or r.get("estacao_cemaden") or {}
+        if alvo_id not in _id_estacao_170i(est):
+            continue
+        chuva = r.get("chuva_observada") or {}
+        t = _utc_170i(chuva.get("rotulo_ultima_celula_utc") or chuva.get("rotulo_ultima_celula_local"))
+        if t is None or abs((t - alvo_t).total_seconds()) > 1:
+            continue
+        mm = chuva.get("acumulado_1h_mm")
+        if not isinstance(mm, (int, float)) or isinstance(mm, bool):
+            continue
+        if abs(float(mm) - float(episodio["chuva_1h_mm"])) > 1e-9:
+            continue
+        achados.append(r)
+    return achados[-1] if achados else None
+
+
+def _limite_celula_170i(diag_c):
+    """Meia diagonal geografica aproximada da celula do raster no ponto da estacao."""
+    escala = (diag_c or {}).get("escala_local_aprox_km_por_px") or {}
+    a = escala.get("latitude")
+    b = escala.get("longitude")
+    if not all(isinstance(x, (int, float)) and not isinstance(x, bool) and x > 0 for x in (a, b)):
+        return None
+    return 0.5 * math.hypot(float(a), float(b))
+
+
+def _resumir_frame_170i(amostra, t_inicio, t_fim, mapa_classes):
+    if not isinstance(amostra, dict):
+        return None
+    t = _utc_170i(amostra.get("horario_utc") or amostra.get("horario_local"))
+    if t is None or not (t_inicio < t <= t_fim):
+        return None
+    saida = {
+        "arquivo": amostra.get("arquivo"),
+        "horario_utc": t.isoformat(),
+        "erro": amostra.get("erro"),
+        "diagnostico": None,
+    }
+    if amostra.get("erro"):
+        saida["diagnostico"] = "EVIDENCIA_INSUFICIENTE"
+        return saida
+
+    c = amostra.get("diagnostico_espacial_170_c") or {}
+    d = amostra.get("autopsia_pixels_radarsc_170_d") or {}
+    eco = c.get("eco_oficial_mais_proximo") or {}
+    limite = _limite_celula_170i(c)
+    dist = eco.get("distancia_geografica_km")
+    classe = eco.get("classe_interna_monitor")
+    info = mapa_classes.get(int(classe)) if isinstance(classe, (int, float)) and not isinstance(classe, bool) else None
+    dentro = (
+        isinstance(dist, (int, float)) and not isinstance(dist, bool)
+        and isinstance(limite, (int, float)) and dist <= limite + 1e-9
+        and info is not None
+    )
+    if eco and info is None:
+        diagnostico = "EVIDENCIA_INSUFICIENTE"
+    elif limite is None:
+        diagnostico = "EVIDENCIA_INSUFICIENTE"
+    elif dentro:
+        diagnostico = "PAREAMENTO_ESPACIAL_VALIDO"
+    else:
+        diagnostico = "SEM_PAREAMENTO_ESPACIAL_VALIDO"
+
+    saida.update({
+        "pixel_estacao": c.get("pixel_estacao"),
+        "dimensoes_png_px": c.get("dimensoes_png_px"),
+        "escala_local_aprox_km_por_px": c.get("escala_local_aprox_km_por_px"),
+        "limite_fisico_meia_diagonal_celula_km": round(limite, 6) if isinstance(limite, (int, float)) else None,
+        "eco_oficial_mais_proximo": eco or None,
+        "distancia_eco_oficial_km": dist,
+        "classe_interna_monitor": int(classe) if isinstance(classe, (int, float)) and not isinstance(classe, bool) else None,
+        "rgb_canonico_oficial_da_classe": list(info["rgb"]) if info else None,
+        "faixa_dbz": (
+            {"min": info["dbz_min"], "max": info["dbz_max"], "unidade": "dBZ"}
+            if info else None
+        ),
+        "correspondencia_rgb": "CANONICA_EXATA" if info is not None else "NAO_DEMONSTRADA",
+        "eco_na_celula_geografica_da_estacao": bool(dentro),
+        "autopsia_170_d_por_raio": d.get("por_raio"),
+        "diagnostico": diagnostico,
+    })
+    return saida
+
+
+def salvar_auditoria_espacial_170i(radar_atual):
+    """#170-I: publica auditoria compacta dos quatro episodios #170-H2."""
+    base = {
+        "monitor": "Monitor Guaxanduva",
+        "tipo": "auditoria_espacial_radarsc_cemaden",
+        "versao": "#170-I",
+        "atualizado_em": agora().isoformat(),
+        "arquivo_fonte_bruto": HISTORICO_ZR_170_ARQUIVO,
+        "arquivo_saida": AUDITORIA_ESPACIAL_170I_ARQUIVO,
+        "base_temporal": {
+            "versao": "#170-H2",
+            "status": "VALIDADO",
+            "semantica_cemaden": "valor horario rotulado em T = acumulado em (T-60min,T]",
+            "episodios_exigidos": len(H2_170I_EPISODIOS),
+            "observacao_170_g": (
+                "auditoria_temporal_170.json permanece registro legado #170-G. "
+                "Para estes quatro episodios CEMADEN, #170-H2 e a evidencia temporal posterior e vigente."
+            ),
+        },
+        "criterio_espacial": {
+            "distancia": "haversine_em_km",
+            "tolerancia": "meia_diagonal_geografica_da_celula_do_raster_no_ponto_da_estacao",
+            "rgb": "somente_cor_canonica_exata_da_paleta_oficial_validada",
+            "janela_radar": "(T-60min,T]",
+            "proibicoes": [
+                "nao_usar_janela_arbitraria_de_pixels_para_validar",
+                "nao_usar_cor_mais_proxima",
+                "nao_interpolar_rgb",
+                "nao_converter_ausencia_de_eco_em_0_dbz_ou_sem_chuva",
+            ],
+        },
+        "episodios": [],
+        "placar_gates": {
+            "temporal_cemaden_h2": "VALIDADO",
+            "espacial_radarsc_cemaden": "EM_VALIDACAO",
+            "zr": "BLOQUEADO",
+            "dbz_para_mm_h": "BLOQUEADO",
+        },
+        "pareamento_temporal_validado": True,
+        "elegivel_calibracao_zr": False,
+        "zr_validada": False,
+        "conversao_dbz_mm_h_liberada": False,
+        "mm_h_radar_operacional": None,
+        "uso_operacional": False,
+    }
+
+    try:
+        with open(HISTORICO_ZR_170_ARQUIVO, "r", encoding="utf-8") as f:
+            hist = json.load(f)
+        registros = hist.get("registros", []) if isinstance(hist, dict) else []
+    except Exception as e:
+        base["status"] = "EVIDENCIA_INSUFICIENTE"
+        base["erro"] = "historico_zr_170_indisponivel: " + str(e)[:220]
+        with open(AUDITORIA_ESPACIAL_170I_ARQUIVO, "w", encoding="utf-8") as f:
+            json.dump(base, f, ensure_ascii=False, indent=2)
+        return base
+
+    mapa_classes = _mapa_classes_dbz_170(radar_atual) or {}
+    for ep in H2_170I_EPISODIOS:
+        t_fim = _utc_170i(ep["t_utc"])
+        t_inicio = t_fim - timedelta(minutes=60)
+        r = _registro_h2_170i(registros, ep)
+        item = {
+            "estacao": {"id": ep["estacao_id"], "nome": ep["nome"]},
+            "t_utc": t_fim.isoformat(),
+            "janela_radar_utc": {"inicio_exclusivo": t_inicio.isoformat(), "fim_inclusivo": t_fim.isoformat()},
+            "chuva_cemaden_1h_mm_h2": ep["chuva_1h_mm"],
+            "chave_historico": r.get("chave") if isinstance(r, dict) else None,
+            "coordenadas_estacao": None,
+            "frames": [],
+            "resultado": "EVIDENCIA_INSUFICIENTE",
+        }
+        if not isinstance(r, dict):
+            item["motivo"] = "registro_exato_h2_nao_encontrado_no_historico_zr_170"
+            base["episodios"].append(item)
+            continue
+
+        est = r.get("estacao") or r.get("estacao_cemaden") or {}
+        item["coordenadas_estacao"] = {
+            "latitude": est.get("latitude") if est.get("latitude") is not None else est.get("lat"),
+            "longitude": est.get("longitude") if est.get("longitude") is not None else est.get("lon"),
+        }
+        amostras = ((r.get("radar") or {}).get("amostras") or [])
+        for a in amostras:
+            fr = _resumir_frame_170i(a, t_inicio, t_fim, mapa_classes)
+            if fr is not None:
+                item["frames"].append(fr)
+
+        if not item["frames"]:
+            item["motivo"] = "nenhum_frame_radarsc_persistido_na_janela_h2"
+        elif any(x.get("diagnostico") == "PAREAMENTO_ESPACIAL_VALIDO" for x in item["frames"]):
+            item["resultado"] = "PAREAMENTO_ESPACIAL_VALIDO"
+        elif all(x.get("diagnostico") == "SEM_PAREAMENTO_ESPACIAL_VALIDO" for x in item["frames"]):
+            item["resultado"] = "SEM_PAREAMENTO_ESPACIAL_VALIDO"
+        else:
+            item["motivo"] = "frames_com_evidencia_espacial_incompleta"
+        base["episodios"].append(item)
+
+    resultados = [x.get("resultado") for x in base["episodios"]]
+    n_validos = resultados.count("PAREAMENTO_ESPACIAL_VALIDO")
+    n_sem = resultados.count("SEM_PAREAMENTO_ESPACIAL_VALIDO")
+    n_insuf = resultados.count("EVIDENCIA_INSUFICIENTE")
+    base["resumo"] = {
+        "episodios_h2": len(base["episodios"]),
+        "pareamento_espacial_valido": n_validos,
+        "sem_pareamento_espacial_valido": n_sem,
+        "evidencia_insuficiente": n_insuf,
+    }
+    if len(base["episodios"]) == len(H2_170I_EPISODIOS) and n_insuf == 0 and n_validos > 0:
+        base["status"] = "AUDITORIA_ESPACIAL_CONCLUIDA"
+        base["placar_gates"]["espacial_radarsc_cemaden"] = "VALIDADO_COM_EVIDENCIA_MISTA" if n_sem else "VALIDADO_NOS_4_EPISODIOS_H2"
+    elif n_insuf > 0:
+        base["status"] = "EVIDENCIA_INSUFICIENTE"
+    else:
+        base["status"] = "SEM_PAREAMENTO_ESPACIAL_VALIDO_NOS_EPISODIOS_H2"
+
+    base["proximo_gate"] = (
+        "Z-R permanece bloqueado. Somente uma etapa posterior, explicitamente separada, pode avaliar elegibilidade "
+        "de pares espaciais e temporais para calibracao; #170-I nao ajusta nem libera relacao Z-R."
+    )
+    with open(AUDITORIA_ESPACIAL_170I_ARQUIVO, "w", encoding="utf-8") as f:
+        json.dump(base, f, ensure_ascii=False, indent=2)
+    return base
+
 def registrar_historico_zr_170(coleta):
     try:
         if not isinstance(coleta, dict) or coleta.get("status") != "candidatos_multirrede_coletados":
@@ -14091,6 +14338,7 @@ def main():
     coleta_zr170 = coletar_zr_170_b2(chuva_cemaden, chuva_epagri165, radar_atual, previsao)
     historico_zr170 = registrar_historico_zr_170(coleta_zr170)
     auditoria_temporal170g = salvar_auditoria_temporal_170_g(historico_zr170)
+    auditoria_espacial170i = salvar_auditoria_espacial_170i(radar_atual)
     liberacao168 = construir_liberacao_experimental_168(
         radar_atual, goes19_tathu167, nivel_guaxanduva_v021, mare_observada160, mare_prevista164
     )
@@ -14252,6 +14500,9 @@ def main():
 
         "auditoria_temporal_zr_170_g":
             auditoria_temporal170g,
+
+        "auditoria_espacial_zr_170_i":
+            auditoria_espacial170i,
 
         "liberacao_experimental_168":
             liberacao168,

@@ -144,6 +144,23 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 <div id="previsao7dias" class="box">Carregando previsão dos próximos dias...</div>
 <div class="box"><small>☔ <b>Maior probabilidade de chuva</b> = maior porcentagem prevista no dia, acompanhada do horário ou faixa de horários em que esse pico ocorre.<br><br>🌧️ <b>Total previsto no dia</b> = soma estimada de precipitação do dia em milímetros (mm).<br><br>Por isso a porcentagem diária pode ser diferente da previsão para a próxima hora. As previsões podem mudar conforme o modelo recebe novas informações.</small></div>
 </section>
+ <section class="card"><div class="local">PAINEL HIDROMETEOROLÓGICO • #163</div><h2>Correspondência aos critérios hidrológicos do PLANCON</h2><div class="sub">Cálculo técnico do Monitor Guaxanduva • não representa ativação oficial do PLANCON pela Defesa Civil</div><div class="risco"><div>🟢<br>Sem gatilho superior</div><div>🟡<br>Mobilização*</div><div>🟠<br>Atenção</div><div>🔴<br>Alerta</div></div><div id="riscoEstado" class="box aviso">⚪ Carregando cálculo hidrometeorológico...</div><div class="radar-grid"><div class="radar-item">🌧️ Chuva prevista • 24 h<b id="riscoChuva24">--</b></div><div class="radar-item">🌊 Maré observada • EPAGRI<b id="riscoMare">--</b></div><div class="radar-item">🕐 Janela da previsão<b id="riscoJanela">--</b></div><div class="radar-item">🏛️ PLANCON oficial<b id="riscoOficial">NÃO INFERIDO</b></div></div><div id="riscoCriterios" class="box"><small>Aguardando critérios calculados...</small></div><div class="box"><small>* O Monitor não declara Mobilização apenas pela chuva &gt; 20 mm/24 h porque o quadro oficial também exige a deflagração de uma ou mais ocorrências. Crise não é calculada automaticamente. A maré utilizada neste diagnóstico é a observada atual e não representa automaticamente o pico de toda a janela futura de 24 h.</small></div></section>
+
+<section class="card" id="auditoria170Card">
+<div class="local">📡 VALIDAÇÃO RADAR × PLUVIÔMETRO • #170</div>
+<h2>Auditoria científica RadarSC × CEMADEN</h2>
+<div class="sub">Validação experimental • não altera o cálculo operacional do Monitor</div>
+<div class="radar-grid">
+<div class="radar-item">⏱️ Temporal CEMADEN H2<b id="a170Temporal">--</b></div>
+<div class="radar-item">🧪 Episódios H2<b id="a170Confirmacoes">--</b></div>
+<div class="radar-item">📍 Validação espacial<b id="a170Espacial">--</b></div>
+<div class="radar-item">📡 Pareamentos válidos<b id="a170Pareamentos">--</b></div>
+<div class="radar-item">🧮 Calibração Z–R<b id="a170ZR">BLOQUEADA</b></div>
+<div class="radar-item">🌧️ dBZ → mm/h<b id="a170MMH">BLOQUEADA</b></div>
+</div>
+<div id="a170Estado" class="box aviso">Carregando auditoria #170...</div>
+<div class="box"><small><b>Fail-closed:</b> validação temporal não libera automaticamente a espacial. Pixels RGB não canônicos do RadarSC não são promovidos a dBZ por aproximação. A investigação da codificação PNG (índice P → RGB → alpha) permanece científica; Z–R e dBZ → mm/h continuam bloqueados enquanto os gates não forem fechados.</small></div>
+</section>
  
 <section class="card" id="liberacao168Card">
 <div class="local">🧪 LIBERAÇÃO EXPERIMENTAL • #168</div>
@@ -448,7 +465,7 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 </section>
  
 <section class="card"><div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2><div id="sistema" class="box aviso">Carregando dados.json...</div><p><small id="coleta">Última coleta: --</small></p></section>
-<section class="card"><div class="local">PAINEL HIDROMETEOROLÓGICO • #163</div><h2>Correspondência aos critérios hidrológicos do PLANCON</h2><div class="sub">Cálculo técnico do Monitor Guaxanduva • não representa ativação oficial do PLANCON pela Defesa Civil</div><div class="risco"><div>🟢<br>Sem gatilho superior</div><div>🟡<br>Mobilização*</div><div>🟠<br>Atenção</div><div>🔴<br>Alerta</div></div><div id="riscoEstado" class="box aviso">⚪ Carregando cálculo hidrometeorológico...</div><div class="radar-grid"><div class="radar-item">🌧️ Chuva prevista • 24 h<b id="riscoChuva24">--</b></div><div class="radar-item">🌊 Maré observada • EPAGRI<b id="riscoMare">--</b></div><div class="radar-item">🕐 Janela da previsão<b id="riscoJanela">--</b></div><div class="radar-item">🏛️ PLANCON oficial<b id="riscoOficial">NÃO INFERIDO</b></div></div><div id="riscoCriterios" class="box"><small>Aguardando critérios calculados...</small></div><div class="box"><small>* O Monitor não declara Mobilização apenas pela chuva &gt; 20 mm/24 h porque o quadro oficial também exige a deflagração de uma ou mais ocorrências. Crise não é calculada automaticamente. A maré utilizada neste diagnóstico é a observada atual e não representa automaticamente o pico de toda a janela futura de 24 h.</small></div></section>
+
 <section class="card"><h2>🚨 Emergência</h2><div class="em"><div>Defesa Civil<div class="num">199</div></div><div>Bombeiros<div class="num">193</div></div></div></section>
  
 <script>
@@ -478,6 +495,32 @@ function textoCategoria(v){
 }
 relogio();setInterval(relogio,1000);
  
+async function carregarAuditoria170(){
+ try{
+  const [rh2,re]=await Promise.all([
+   fetch("historico_cemaden_subhorario_170h2.json?"+Date.now(),{cache:"no-store"}),
+   fetch("auditoria_espacial_170i.json?"+Date.now(),{cache:"no-store"})
+  ]);
+  if(!rh2.ok)throw Error("H2 HTTP "+rh2.status);
+  if(!re.ok)throw Error("ESP HTTP "+re.status);
+  const h2=await rh2.json(),esp=await re.json(),r=esp.resumo||{};
+  const hist=Array.isArray(h2)?h2:(h2.registros||h2.historico||h2.confirmacoes||[]);
+  const positivos=hist.filter(x=>x&&x.evidencia_temporal_positiva===true).length;
+  const nH2=r.episodios_h2??positivos??"--";
+  const temporal=nH2>0;
+  const espacial=esp.pareamento_espacial_validado===true;
+  $("a170Temporal").textContent=temporal?"VALIDADO":"SEM EVIDÊNCIA";
+  $("a170Confirmacoes").textContent=nH2;
+  $("a170Espacial").textContent=espacial?"VALIDADA":"EM INVESTIGAÇÃO";
+  $("a170Pareamentos").textContent=r.pareamento_espacial_valido??0;
+  $("a170ZR").textContent=esp.zr_validada===true?"VALIDADA":"BLOQUEADA";
+  $("a170MMH").textContent=esp.conversao_dbz_mm_h_liberada===true?"LIBERADA":"BLOQUEADA";
+  $("a170Estado").innerHTML=(temporal?'<span class="ok">🟢 TEMPORAL H2 COM EVIDÊNCIA VALIDADA</span>':'<span class="aviso">🟡 TEMPORAL SEM EVIDÊNCIA DISPONÍVEL</span>')+' • '+(espacial?'<span class="ok">ESPACIAL VALIDADO</span>':'<span class="aviso">ESPACIAL EM INVESTIGAÇÃO</span>')+'<br><small>Status global: '+(esp.status||"--")+' • nenhum gate científico é inferido por ausência de dados.</small>';
+ }catch(e){
+  $("a170Estado").innerHTML='<span class="erro">🔴 Auditoria #170 indisponível</span><br><small>'+e.message+'</small>';
+ }
+}
+
 async function carregarHistorico(){
  try{
   const r=await fetch("historico_validacao.json?"+Date.now(),{cache:"no-store"}); if(!r.ok)throw Error("HTTP "+r.status);
@@ -1003,10 +1046,10 @@ async function carregar(){
   $("ecoQualEstado").innerHTML='<span class="erro">🔴 Falha ao carregar classificação qualitativa</span>';
  }
 }
-carregar();carregarHistorico();setInterval(carregar,60000);setInterval(carregarHistorico,60000);
+carregar();carregarHistorico();carregarAuditoria170();setInterval(carregar,60000);setInterval(carregarHistorico,60000);setInterval(carregarAuditoria170,60000);
  
 function iniciarCardsRecolhiveis(){
- const manterAbertos=["🌊 SITUAÇÃO DO GUAXANDUVA AGORA","🌧️ PREVISÃO DE CHUVA • PRÓXIMOS 7 DIAS","📡 SISTEMA AUTOMÁTICO","PAINEL HIDROMETEOROLÓGICO"];
+ const manterAbertos=["🌊 SITUAÇÃO DO GUAXANDUVA AGORA","🌧️ PREVISÃO DE CHUVA • PRÓXIMOS 7 DIAS","📡 SISTEMA AUTOMÁTICO","PAINEL HIDROMETEOROLÓGICO","📡 VALIDAÇÃO RADAR × PLUVIÔMETRO • #170"];
  document.querySelectorAll(".card").forEach((card)=>{
   const local=card.querySelector(":scope > .local");
   const h2=card.querySelector(":scope > h2");

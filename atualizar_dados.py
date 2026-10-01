@@ -13333,9 +13333,88 @@ def _diagnostico_temporal_170_e(rede, chuva_observada, radar_amostras):
     }
 
 
+def _autopsia_paleta_png_170_j(imagem_original, classes):
+    """#170-J: preserva indice P -> RGB -> alpha do PNG bruto, sem inferir dBZ por proximidade."""
+    base = {
+        "versao": "#170-J",
+        "natureza": "AUTOPSIA_PALETA_INDEXADA_PNG_RADARSC_NAO_OPERACIONAL",
+        "modo_png_original": getattr(imagem_original, "mode", None),
+        "elegivel_calibracao_zr": False,
+        "zr_validada": False,
+        "conversao_dbz_mm_h_liberada": False,
+        "mm_h_radar_operacional": None,
+    }
+    if getattr(imagem_original, "mode", None) != "P":
+        return {
+            **base,
+            "status": "modo_png_nao_indexado",
+            "indices_usados": [],
+            "regra_seguranca": "Sem modo P, #170-J nao interpreta paleta nem promove RGB a dBZ.",
+        }
+
+    paleta = imagem_original.getpalette()
+    transparencia = imagem_original.info.get("transparency")
+    contagem = Counter(imagem_original.getdata())
+    rgb_para_classe = {
+        tuple(info["rgb"]): classe
+        for classe, info in (classes or {}).items()
+        if isinstance(info, dict) and isinstance(info.get("rgb"), (list, tuple))
+        and len(info.get("rgb")) == 3
+    }
+
+    itens = []
+    oficiais = 0
+    nao_oficiais = 0
+    transparentes = 0
+    for indice, quantidade in sorted(contagem.items()):
+        rgb = rgb_idx(paleta, indice)
+        alpha = alpha_idx(transparencia, indice)
+        classe = rgb_para_classe.get(tuple(rgb)) if rgb is not None else None
+        if alpha <= 0:
+            transparentes += quantidade
+        if classe is None:
+            nao_oficiais += quantidade
+        else:
+            oficiais += quantidade
+        info = (classes or {}).get(classe) if classe is not None else None
+        itens.append({
+            "indice_p": int(indice),
+            "rgb": list(rgb) if rgb is not None else None,
+            "alpha": int(alpha),
+            "pixels": int(quantidade),
+            "visivel": bool(alpha > 0),
+            "cor_oficial_exata": classe is not None,
+            "classe_interna_monitor": classe,
+            "faixa_dbz": (
+                {"min": info.get("dbz_min"), "max": info.get("dbz_max"), "unidade": "dBZ"}
+                if isinstance(info, dict) else None
+            ),
+        })
+
+    return {
+        **base,
+        "status": "observado",
+        "dimensoes_png_px": {
+            "largura": imagem_original.width,
+            "altura": imagem_original.height,
+        },
+        "indices_usados_quantidade": len(itens),
+        "pixels_total": imagem_original.width * imagem_original.height,
+        "pixels_indices_rgb_oficiais_exatos": oficiais,
+        "pixels_indices_rgb_nao_oficiais": nao_oficiais,
+        "pixels_alpha_zero": transparentes,
+        "indices_usados": itens,
+        "regra_seguranca": (
+            "#170-J preserva a codificacao bruta do PNG indexado. Somente igualdade RGB exata "
+            "com classe oficial e registrada como oficial; distancia cromatica nao promove cor a dBZ. "
+            "A camada e observacional e nao libera Z-R nem dBZ->mm/h."
+        ),
+    }
+
+
 def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
     """
-    #170-E - coleta Z-R multirrede + auditoria temporal explicita, fail-closed.
+    #170-J - coleta Z-R multirrede + auditoria temporal + autopsia da paleta PNG, fail-closed.
 
     Preserva a #144 e a #165 operacionais. Para pesquisa Z-R, coleta candidatos
     CEMADEN que passam pela #144 e candidatos EPAGRI/CIRAM do produto horario
@@ -13357,7 +13436,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
         "natureza_radar": "REFLETIVIDADE_RADARSC_DBZ",
         "raio_maximo_estacoes_cemaden_comasa_km": 10.0,
         "regra_seguranca": (
-            "#170-E preserva a coleta geografica #170-C e a autopsia #170-D e acrescenta auditoria temporal por rede, "
+            "#170-J preserva #170-C/#170-D/#170-E e acrescenta autopsia observacional da paleta indexada PNG, "
             "as semanticas das fontes. Nao converte dBZ em mm/h, nao trata "
             "radar como pluviometro e nao libera Z-R. Cada leitura pertence a "
             "sua propria estacao. A #170-E registra a evidencia documental e testa as "
@@ -13406,7 +13485,12 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
                 ).content
                 if not bruto.startswith(b"\x89PNG\r\n\x1a\n"):
                     raise ValueError("Quadro RadarSC #170-B3 nao e PNG valido.")
-                imagens[nome] = Image.open(io.BytesIO(bruto)).convert("RGBA")
+                imagem_original = Image.open(io.BytesIO(bruto))
+                autopsia_paleta_j = _autopsia_paleta_png_170_j(imagem_original, classes)
+                imagens[nome] = {
+                    "rgba": imagem_original.convert("RGBA"),
+                    "autopsia_paleta_170_j": autopsia_paleta_j,
+                }
             except Exception as e:
                 erros_quadro[nome] = str(e)[:180]
 
@@ -13424,16 +13508,16 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
                     continue
                 try:
                     a = _amostrar_estacao_na_imagem_170(
-                        imagens[nome], lat, lon, classes
+                        imagens[nome]["rgba"], lat, lon, classes
                     )
                     espacial = _diagnostico_espacial_estacao_170_b3(
-                        imagens[nome], lat, lon, classes, raio_max_px=40
+                        imagens[nome]["rgba"], lat, lon, classes, raio_max_px=40
                     )
                     espacial_c = _diagnostico_espacial_estacao_170_c(
-                        imagens[nome], lat, lon, classes, raios_km=(2, 5, 10, 25)
+                        imagens[nome]["rgba"], lat, lon, classes, raios_km=(2, 5, 10, 25)
                     )
                     autopsia_d = _autopsia_pixels_radarsc_170_d(
-                        imagens[nome], lat, lon, classes, raios_km=(2, 5, 10, 25)
+                        imagens[nome]["rgba"], lat, lon, classes, raios_km=(2, 5, 10, 25)
                     )
                     amostras.append({
                         "arquivo": nome,
@@ -13443,6 +13527,7 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
                         "diagnostico_espacial_170_b3": espacial,
                         "diagnostico_espacial_170_c": espacial_c,
                         "autopsia_pixels_radarsc_170_d": autopsia_d,
+                        "autopsia_paleta_png_170_j": imagens[nome]["autopsia_paleta_170_j"],
                     })
                 except Exception as e:
                     amostras.append({

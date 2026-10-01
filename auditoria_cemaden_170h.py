@@ -9,6 +9,8 @@ UTC = ZoneInfo("UTC")
 FUSO = ZoneInfo("America/Sao_Paulo")
 ARQUIVO_DADOS = "dados.json"
 ARQUIVO_SAIDA = "auditoria_cemaden_170h.json"
+ARQUIVO_HISTORICO_ZR = "historico_zr_170.json"
+ARQUIVO_HISTORICO_CHUVA = "historico_cemaden_chuva_170h1.json"
 BASE_HORARIO = "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/horario/"
 
 
@@ -148,6 +150,135 @@ def consultar_horario(idestacao, parametro=23):
     }
 
 
+
+def salvar_historico_chuva_cemaden_170h1():
+    """
+    #170-H1 - extrai somente episódios CEMADEN com chuva > 0 do histórico Z-R.
+
+    O arquivo de saída é propositalmente compacto: não copia imagens, radar,
+    autópsias RGB ou outras estruturas pesadas. Ele serve para auditoria
+    temporal humana e permanece totalmente fail-closed.
+    """
+    documento = {
+        "monitor": "Monitor Guaxanduva",
+        "versao": "#170-H1",
+        "tipo": "historico_compacto_episodios_chuvosos_cemaden",
+        "natureza": "DIAGNOSTICO_FAIL_CLOSED",
+        "atualizado_em": agora().isoformat(),
+        "arquivo_fonte": ARQUIVO_HISTORICO_ZR,
+        "status": "indisponivel",
+        "quantidade_episodios": 0,
+        "pareamento_temporal_validado": False,
+        "borda_horaria_inequivoca": False,
+        "elegivel_calibracao_zr": False,
+        "zr_validada": False,
+        "conversao_dbz_mm_h_liberada": False,
+        "regra_seguranca": (
+            "Este arquivo apenas torna legiveis os episodios CEMADEN com chuva "
+            "ja preservados no historico #170. Nao reinterpreta timestamps, nao "
+            "pareia radar e pluviometro e nao libera Z-R."
+        ),
+        "episodios": [],
+    }
+
+    try:
+        with open(ARQUIVO_HISTORICO_ZR, "r", encoding="utf-8") as f:
+            bruto = json.load(f)
+        registros = bruto.get("registros") if isinstance(bruto, dict) else None
+        if not isinstance(registros, list):
+            raise ValueError("historico Z-R sem lista de registros")
+
+        por_chave = {}
+        for registro in registros:
+            if not isinstance(registro, dict):
+                continue
+            est = (
+                registro.get("estacao")
+                or registro.get("estacao_cemaden")
+                or {}
+            )
+            rede = str(registro.get("rede") or est.get("rede") or "")
+            if rede != "CEMADEN":
+                continue
+
+            chuva = registro.get("chuva_observada") or {}
+            mm1 = numero(chuva.get("acumulado_1h_mm"))
+            if mm1 is None or mm1 <= 0:
+                continue
+
+            hora_utc = chuva.get("rotulo_ultima_celula_utc")
+            hora_local = chuva.get("rotulo_ultima_celula_local")
+            ident = est.get("id") or est.get("codigo")
+            chave = "|".join([
+                str(ident or "sem_estacao"),
+                str(hora_utc or hora_local or "sem_hora"),
+            ])
+
+            diag = registro.get("diagnostico_temporal_170_e") or {}
+            fim = diag.get("hipotese_rotulo_como_fim_da_hora") or {}
+            inicio = diag.get("hipotese_rotulo_como_inicio_da_hora") or {}
+
+            por_chave[chave] = {
+                "chave": chave,
+                "registrado_em": registro.get("registrado_em"),
+                "estacao": {
+                    "id": est.get("id"),
+                    "codigo": est.get("codigo"),
+                    "nome": est.get("nome"),
+                    "cidade": est.get("cidade"),
+                    "uf": est.get("uf"),
+                    "distancia_comasa_aprox_km": est.get("distancia_comasa_aprox_km"),
+                },
+                "chuva_observada": {
+                    "acumulado_1h_mm": mm1,
+                    "acumulado_6h_mm": numero(chuva.get("acumulado_6h_mm")),
+                    "acumulado_24h_mm": numero(chuva.get("acumulado_24h_mm")),
+                    "rotulo_ultima_celula_utc": hora_utc,
+                    "rotulo_ultima_celula_local": hora_local,
+                    "dados_frescos": chuva.get("dados_frescos"),
+                    "idade_leitura_min": chuva.get("idade_leitura_min"),
+                    "produto_temporal": chuva.get("produto_temporal"),
+                },
+                "diagnostico_temporal": {
+                    "rotulo_referencia": diag.get("rotulo_referencia"),
+                    "quadros_radar_com_timestamp_valido": diag.get(
+                        "quadros_radar_com_timestamp_valido"
+                    ),
+                    "quadros_na_janela_rotulo_como_fim": fim.get(
+                        "quadros_radar_na_janela"
+                    ),
+                    "quadros_na_janela_rotulo_como_inicio": inicio.get(
+                        "quadros_radar_na_janela"
+                    ),
+                    "borda_horaria_inequivoca": False,
+                    "pareamento_temporal_validado": False,
+                },
+            }
+
+        episodios = sorted(
+            por_chave.values(),
+            key=lambda x: (
+                str((x.get("chuva_observada") or {}).get("rotulo_ultima_celula_utc") or ""),
+                str((x.get("estacao") or {}).get("codigo") or ""),
+            ),
+        )
+        documento["episodios"] = episodios
+        documento["quantidade_episodios"] = len(episodios)
+        documento["status"] = (
+            "episodios_chuvosos_compactados"
+            if episodios
+            else "sem_episodio_chuvoso_no_historico"
+        )
+    except Exception as e:
+        documento["status"] = "falha_extracao_fail_closed"
+        documento["erro"] = str(e)[:500]
+
+    with open(ARQUIVO_HISTORICO_CHUVA, "w", encoding="utf-8") as f:
+        json.dump(documento, f, ensure_ascii=False, indent=2)
+
+    return documento
+
+
 def main():
     base = {
         "monitor": "Monitor Guaxanduva",
@@ -252,6 +383,8 @@ def main():
     with open(ARQUIVO_SAIDA, "w", encoding="utf-8") as f:
         json.dump(base, f, ensure_ascii=False, indent=2)
 
+    historico_chuva = salvar_historico_chuva_cemaden_170h1()
+
     print(json.dumps({
         "arquivo": ARQUIVO_SAIDA,
         "versao": base.get("versao"),
@@ -259,6 +392,8 @@ def main():
         "pareamento_temporal_validado": base.get("pareamento_temporal_validado"),
         "zr_validada": base.get("zr_validada"),
         "conversao_dbz_mm_h_liberada": base.get("conversao_dbz_mm_h_liberada"),
+        "historico_chuva_170h1_status": historico_chuva.get("status"),
+        "historico_chuva_170h1_episodios": historico_chuva.get("quantidade_episodios"),
     }, ensure_ascii=False))
 
 

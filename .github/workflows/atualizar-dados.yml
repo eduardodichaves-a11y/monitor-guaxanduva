@@ -9,8 +9,6 @@ on:
 permissions:
   contents: write
 
-# Impede duas execuções deste workflow de tentarem gravar
-# dados.json, historicos, auditorias e grafo ao mesmo tempo.
 concurrency:
   group: monitor-guaxanduva-atualizacao
   cancel-in-progress: false
@@ -41,38 +39,37 @@ jobs:
       - name: Auditar proveniência temporal CEMADEN
         run: python auditoria_cemaden_170h.py
 
+      - name: Auditar série sub-horária CEMADEN
+        run: python auditoria_cemaden_170h2.py
+
       - name: Salvar dados, históricos, auditorias e grafo atualizados
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add dados.json historico_validacao.json historico_guaxanduva_166.json historico_zr_170.json auditoria_temporal_170.json auditoria_cemaden_170h.json historico_cemaden_chuva_170h1.json grafo_guaxanduva.json
+          ARQUIVOS="dados.json historico_validacao.json historico_guaxanduva_166.json historico_zr_170.json auditoria_temporal_170.json auditoria_cemaden_170h.json historico_cemaden_chuva_170h1.json auditoria_cemaden_170h2.json historico_cemaden_subhorario_170h2.json grafo_guaxanduva.json"
+
+          git add $ARQUIVOS
 
           if git diff --cached --quiet; then
             echo "Nenhuma alteração nos dados, históricos, auditorias ou grafo."
             exit 0
           fi
 
-          cp dados.json /tmp/dados-monitor-guaxanduva.json
-          cp historico_validacao.json /tmp/historico-validacao-monitor-guaxanduva.json
-          cp historico_guaxanduva_166.json /tmp/historico-guaxanduva-166.json
-          cp historico_zr_170.json /tmp/historico-zr-170.json
-          cp auditoria_temporal_170.json /tmp/auditoria-temporal-170.json
-          cp auditoria_cemaden_170h.json /tmp/auditoria-cemaden-170h.json
-          cp historico_cemaden_chuva_170h1.json /tmp/historico-cemaden-chuva-170h1.json
-          cp grafo_guaxanduva.json /tmp/grafo-guaxanduva.json
+          mkdir -p /tmp/monitor-guaxanduva
+          for arquivo in $ARQUIVOS; do
+            cp "$arquivo" "/tmp/monitor-guaxanduva/$arquivo"
+          done
+
           git reset --hard HEAD
           git fetch origin main
           git reset --hard origin/main
-          cp /tmp/dados-monitor-guaxanduva.json dados.json
-          cp /tmp/historico-validacao-monitor-guaxanduva.json historico_validacao.json
-          cp /tmp/historico-guaxanduva-166.json historico_guaxanduva_166.json
-          cp /tmp/historico-zr-170.json historico_zr_170.json
-          cp /tmp/auditoria-temporal-170.json auditoria_temporal_170.json
-          cp /tmp/auditoria-cemaden-170h.json auditoria_cemaden_170h.json
-          cp /tmp/historico-cemaden-chuva-170h1.json historico_cemaden_chuva_170h1.json
-          cp /tmp/grafo-guaxanduva.json grafo_guaxanduva.json
-          git add dados.json historico_validacao.json historico_guaxanduva_166.json historico_zr_170.json auditoria_temporal_170.json auditoria_cemaden_170h.json historico_cemaden_chuva_170h1.json grafo_guaxanduva.json
+
+          for arquivo in $ARQUIVOS; do
+            cp "/tmp/monitor-guaxanduva/$arquivo" "$arquivo"
+          done
+
+          git add $ARQUIVOS
 
           if git diff --cached --quiet; then
             echo "Os dados, históricos, auditorias e grafo mais recentes já estão publicados."
@@ -89,25 +86,18 @@ jobs:
 
             echo "Conflito de atualização na tentativa ${tentativa}. Sincronizando novamente..."
 
-            cp dados.json /tmp/dados-monitor-guaxanduva.json
-            cp historico_validacao.json /tmp/historico-validacao-monitor-guaxanduva.json
-            cp historico_guaxanduva_166.json /tmp/historico-guaxanduva-166.json
-            cp historico_zr_170.json /tmp/historico-zr-170.json
-            cp auditoria_temporal_170.json /tmp/auditoria-temporal-170.json
-            cp auditoria_cemaden_170h.json /tmp/auditoria-cemaden-170h.json
-          cp historico_cemaden_chuva_170h1.json /tmp/historico-cemaden-chuva-170h1.json
-            cp grafo_guaxanduva.json /tmp/grafo-guaxanduva.json
+            for arquivo in $ARQUIVOS; do
+              cp "$arquivo" "/tmp/monitor-guaxanduva/$arquivo"
+            done
+
             git fetch origin main
             git reset --hard origin/main
-            cp /tmp/dados-monitor-guaxanduva.json dados.json
-            cp /tmp/historico-validacao-monitor-guaxanduva.json historico_validacao.json
-            cp /tmp/historico-guaxanduva-166.json historico_guaxanduva_166.json
-            cp /tmp/historico-zr-170.json historico_zr_170.json
-            cp /tmp/auditoria-temporal-170.json auditoria_temporal_170.json
-            cp /tmp/auditoria-cemaden-170h.json auditoria_cemaden_170h.json
-          cp /tmp/historico-cemaden-chuva-170h1.json historico_cemaden_chuva_170h1.json
-            cp /tmp/grafo-guaxanduva.json grafo_guaxanduva.json
-            git add dados.json historico_validacao.json historico_guaxanduva_166.json historico_zr_170.json auditoria_temporal_170.json auditoria_cemaden_170h.json historico_cemaden_chuva_170h1.json grafo_guaxanduva.json
+
+            for arquivo in $ARQUIVOS; do
+              cp "/tmp/monitor-guaxanduva/$arquivo" "$arquivo"
+            done
+
+            git add $ARQUIVOS
 
             if git diff --cached --quiet; then
               echo "Os dados, históricos, auditorias e grafo já foram publicados por outra execução."

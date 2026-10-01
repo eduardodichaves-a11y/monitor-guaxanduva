@@ -13652,11 +13652,101 @@ def coletar_zr_170_b2(chuva_cemaden, chuva_epagri, radar, previsao=None):
         return base
 
 
+
+def _resumo_temporal_historico_170_f(registros):
+    """#170-F - consolida a evidencia temporal sem escolher/liberar borda horaria."""
+    regs = registros if isinstance(registros, list) else []
+
+    def novo_grupo():
+        return {
+            "registros_total": 0,
+            "registros_com_diagnostico_temporal": 0,
+            "registros_com_chuva_1h_maior_que_zero": 0,
+            "registros_secos_1h_igual_zero": 0,
+            "quadros_validos_somados": 0,
+            "quadros_na_hipotese_rotulo_como_fim_somados": 0,
+            "quadros_na_hipotese_rotulo_como_inicio_somados": 0,
+            "casos_com_mais_quadros_na_hipotese_fim": 0,
+            "casos_com_mais_quadros_na_hipotese_inicio": 0,
+            "casos_com_empate_de_quadros": 0,
+            "casos_sem_quadro_em_ambas_hipoteses": 0,
+            "borda_horaria_inequivoca_confirmada": 0,
+            "pareamento_temporal_validado": 0,
+        }
+
+    grupos = {}
+    total = novo_grupo()
+
+    for r in regs:
+        if not isinstance(r, dict):
+            continue
+        rede = str(r.get("rede") or (r.get("estacao") or {}).get("rede") or "CEMADEN_LEGADO")
+        g = grupos.setdefault(rede, novo_grupo())
+        chuva = (r.get("chuva_observada") or {}).get("acumulado_1h_mm")
+        diag = r.get("diagnostico_temporal_170_e") or r.get("diagnostico_temporal_170_f")
+
+        for alvo in (g, total):
+            alvo["registros_total"] += 1
+            if isinstance(chuva, (int, float)) and not isinstance(chuva, bool):
+                if chuva > 0:
+                    alvo["registros_com_chuva_1h_maior_que_zero"] += 1
+                elif chuva == 0:
+                    alvo["registros_secos_1h_igual_zero"] += 1
+
+        if not isinstance(diag, dict):
+            continue
+
+        fim = (diag.get("hipotese_rotulo_como_fim_da_hora") or {}).get("quadros_radar_na_janela")
+        inicio = (diag.get("hipotese_rotulo_como_inicio_da_hora") or {}).get("quadros_radar_na_janela")
+        validos = diag.get("quadros_radar_com_timestamp_valido")
+        fim = int(fim) if isinstance(fim, (int, float)) and not isinstance(fim, bool) else 0
+        inicio = int(inicio) if isinstance(inicio, (int, float)) and not isinstance(inicio, bool) else 0
+        validos = int(validos) if isinstance(validos, (int, float)) and not isinstance(validos, bool) else 0
+
+        for alvo in (g, total):
+            alvo["registros_com_diagnostico_temporal"] += 1
+            alvo["quadros_validos_somados"] += validos
+            alvo["quadros_na_hipotese_rotulo_como_fim_somados"] += fim
+            alvo["quadros_na_hipotese_rotulo_como_inicio_somados"] += inicio
+            if fim == 0 and inicio == 0:
+                alvo["casos_sem_quadro_em_ambas_hipoteses"] += 1
+            elif fim > inicio:
+                alvo["casos_com_mais_quadros_na_hipotese_fim"] += 1
+            elif inicio > fim:
+                alvo["casos_com_mais_quadros_na_hipotese_inicio"] += 1
+            else:
+                alvo["casos_com_empate_de_quadros"] += 1
+            if diag.get("borda_horaria_inequivoca") is True:
+                alvo["borda_horaria_inequivoca_confirmada"] += 1
+            if diag.get("pareamento_temporal_validado") is True:
+                alvo["pareamento_temporal_validado"] += 1
+
+    return {
+        "versao": "#170-F",
+        "status": "resumo_temporal_compacto_fail_closed",
+        "natureza": "ESTATISTICA_DESCRITIVA_DA_AUDITORIA_TEMPORAL",
+        "por_rede": grupos,
+        "total": total,
+        "borda_horaria_inequivoca": False,
+        "pareamento_temporal_validado": False,
+        "elegivel_calibracao_zr": False,
+        "zr_validada": False,
+        "conversao_dbz_mm_h_liberada": False,
+        "criterio_interpretacao": (
+            "Contagens de frames nas duas hipoteses servem para auditar cobertura temporal. "
+            "Maior contagem em uma janela nao prova a semantica do rotulo pluviometrico e nao libera pareamento."
+        ),
+        "proximo_gate": (
+            "Liberar somente com evidencia documental inequivoca por rede ou validacao empirica independente "
+            "capaz de demonstrar de forma estavel qual borda temporal corresponde ao acumulado horario."
+        ),
+    }
+
 def registrar_historico_zr_170(coleta):
     try:
         if not isinstance(coleta, dict) or coleta.get("status") != "candidatos_multirrede_coletados":
             return {
-                "versao": "#170-E", "status": "sem_registro_novo",
+                "versao": "#170-F", "status": "sem_registro_novo",
                 "arquivo": HISTORICO_ZR_170_ARQUIVO,
                 "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             }
@@ -13679,7 +13769,7 @@ def registrar_historico_zr_170(coleta):
             ])
             registro = {
                 "chave": chave, "registrado_em": agora().isoformat(),
-                "versao": "#170-E", "rede": rede,
+                "versao": "#170-F", "rede": rede,
                 "pareamento_temporal_validado": False,
                 "elegivel_calibracao_zr": False, "zr_validada": False,
                 "conversao_dbz_mm_h_liberada": False,
@@ -13712,10 +13802,11 @@ def registrar_historico_zr_170(coleta):
             for x in registros
         })
         redes_hist = sorted({str(x.get("rede") or (x.get("estacao") or {}).get("rede") or "CEMADEN_LEGADO") for x in registros})
+        resumo_temporal_170_f = _resumo_temporal_historico_170_f(registros)
         documento = {
             "monitor": "Monitor Guaxanduva",
             "tipo": "historico_candidatos_calibracao_zr_multirrede",
-            "versao": "#170-E", "atualizado_em": agora().isoformat(),
+            "versao": "#170-F", "atualizado_em": agora().isoformat(),
             "maximo_registros": HISTORICO_ZR_170_MAX_REGISTROS,
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             "pareamento_temporal_validado": False, "uso_operacional": False,
@@ -13729,8 +13820,9 @@ def registrar_historico_zr_170(coleta):
                 "horas_estacao_secas_observadas": horas_secas,
                 "registros_elegiveis_calibracao_zr": 0,
             },
+            "auditoria_temporal_compacta_170_f": resumo_temporal_170_f,
             "regra_seguranca": (
-                "Historico #170-E multirrede com autopsia de pixels RadarSC e auditoria temporal inicio/fim. CEMADEN e EPAGRI/CIRAM sao "
+                "Historico #170-F multirrede com autopsia de pixels RadarSC e auditoria temporal inicio/fim. CEMADEN e EPAGRI/CIRAM sao "
                 "preservados separadamente. Nenhum registro e elegivel para "
                 "ajuste Z-R ate validacao inequivoca da borda temporal por rede; a evidencia documental CEMADEN e registrada separadamente da inferencia de pareamento."
             ),
@@ -13739,14 +13831,15 @@ def registrar_historico_zr_170(coleta):
         with open(HISTORICO_ZR_170_ARQUIVO, "w", encoding="utf-8") as f:
             json.dump(documento, f, ensure_ascii=False, indent=2)
         return {
-            "versao": "#170-E", "status": "historico_multirrede_atualizado",
+            "versao": "#170-F", "status": "historico_multirrede_atualizado",
             "arquivo": HISTORICO_ZR_170_ARQUIVO, **documento["resumo"],
+            "auditoria_temporal_compacta_170_f": resumo_temporal_170_f,
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
             "pareamento_temporal_validado": False,
         }
     except Exception as e:
         return {
-            "versao": "#170-E", "status": "falha_historico_fail_closed",
+            "versao": "#170-F", "status": "falha_historico_fail_closed",
             "arquivo": HISTORICO_ZR_170_ARQUIVO, "erro": str(e)[:300],
             "zr_validada": False, "conversao_dbz_mm_h_liberada": False,
         }
@@ -14077,6 +14170,9 @@ def main():
         "radar":
             radar_atual,
 
+        "calibracao_zr_170_f":
+            coleta_zr170,
+
         "calibracao_zr_170_e":
             coleta_zr170,
 
@@ -14095,6 +14191,9 @@ def main():
         "calibracao_zr_170_a":
             coleta_zr170,
 
+        "historico_zr_170_f":
+            historico_zr170,
+
         "historico_zr_170_e":
             historico_zr170,
 
@@ -14112,6 +14211,9 @@ def main():
 
         "historico_zr_170_a":
             historico_zr170,
+
+        "auditoria_temporal_zr_170_f":
+            historico_zr170.get("auditoria_temporal_compacta_170_f") if isinstance(historico_zr170, dict) else None,
 
         "liberacao_experimental_168":
             liberacao168,

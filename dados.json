@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-09-30T21:41:33.870349-03:00",
+  "gerado_em": "2026-09-30T22:01:09.121708-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -94,7 +94,7 @@
         "latitude": -26.347,
         "longitude": -48.781,
         "distancia_comasa_aprox_km": 9.04,
-        "acumulado_24h_mm": 2.4,
+        "acumulado_24h_mm": 2.2,
         "acumulado_disponivel": true
       },
       {
@@ -143,7 +143,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-09-30T21:40:38.517569-03:00"
+    "coletado_em": "2026-09-30T21:59:57.891023-03:00"
   },
   "chuva_observada_epagri_165": {
     "status": "online",
@@ -163,7 +163,7 @@
         "longitude": -48.9708,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-30T21:00:00-03:00",
-        "idade_leitura_min": 40.7,
+        "idade_leitura_min": 60.0,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -179,7 +179,7 @@
         "longitude": -48.9889,
         "precipitacao_1h_mm": 0.4,
         "horario_medicao": "2026-09-30T21:00:00-03:00",
-        "idade_leitura_min": 40.7,
+        "idade_leitura_min": 60.0,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -278,7 +278,7 @@
         "longitude": -48.781,
         "distancia_comasa_aprox_km": 9.04,
         "janela_acumulado_h": 24,
-        "acumulado_24h_mm": 2.4,
+        "acumulado_24h_mm": 2.2,
         "precipitacao_1h_mm": null,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -348,7 +348,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-09-30T21:00:00-03:00",
-        "idade_leitura_min": 40.7,
+        "idade_leitura_min": 60.0,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -367,7 +367,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.4,
         "horario_medicao": "2026-09-30T21:00:00-03:00",
-        "idade_leitura_min": 40.7,
+        "idade_leitura_min": 60.0,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -561,8 +561,8 @@
     "endpoint": "https://resources.cemaden.gov.br/graficos/interativo/grafico_pcds.php?idpcd=6259",
     "http_status": 200,
     "content_type": "text/html; charset=UTF-8",
-    "bytes_resposta": 28938,
-    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-30 20h00 UTC','2026-09-30 21h00 UTC','2026-09-30 22h00 UTC','2026-09-30 23h00 UTC','2026-10-01 00h00 UTC'],'2026-09-30 ',[0,0,0,0,null],'Acumulada',[0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643','#4",
+    "bytes_resposta": 28941,
+    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-09-30 21h00 UTC','2026-09-30 22h00 UTC','2026-09-30 23h00 UTC','2026-10-01 00h00 UTC','2026-10-01 01h00 UTC'],'2026-09-30 ',[0,0,0,null,null],'Acumulada',[0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643',",
     "referencias_encontradas": [
       {
         "referencia_bruta": "css/estilo_.css",
@@ -738,7 +738,6 @@
       "01/10/2026"
     ],
     "horarios": [
-      "1h",
       "2h",
       "3h",
       "4h",
@@ -761,7 +760,8 @@
       "21h",
       "22h",
       "23h",
-      "0h"
+      "0h",
+      "1h"
     ],
     "dimensoes_acumulados": {
       "linhas": 2,
@@ -794,7 +794,7 @@
         0.0,
         0.0,
         0.0,
-        0.0,
+        null,
         null
       ],
       [
@@ -820,7 +820,7 @@
         null,
         null,
         null,
-        null,
+        0.0,
         0.0
       ]
     ],
@@ -852,13 +852,6 @@
     "timezone_fonte": "UTC",
     "timezone_local": "America/Sao_Paulo",
     "leituras_validas": [
-      {
-        "instante_utc": "2026-09-30T01:00:00+00:00",
-        "instante_local": "2026-09-29T22:00:00-03:00",
-        "valor_mm": 0.0,
-        "data_fonte": "30/09/2026",
-        "hora_fonte": "1h"
-      },
       {
         "instante_utc": "2026-09-30T02:00:00+00:00",
         "instante_local": "2026-09-29T23:00:00-03:00",
@@ -1019,17 +1012,24 @@
         "valor_mm": 0.0,
         "data_fonte": "01/10/2026",
         "hora_fonte": "0h"
+      },
+      {
+        "instante_utc": "2026-10-01T01:00:00+00:00",
+        "instante_local": "2026-09-30T22:00:00-03:00",
+        "valor_mm": 0.0,
+        "data_fonte": "01/10/2026",
+        "hora_fonte": "1h"
       }
     ],
     "quantidade_leituras_validas": 24,
     "ultima_leitura": {
-      "instante_utc": "2026-10-01T00:00:00+00:00",
-      "instante_local": "2026-09-30T21:00:00-03:00",
+      "instante_utc": "2026-10-01T01:00:00+00:00",
+      "instante_local": "2026-09-30T22:00:00-03:00",
       "valor_mm": 0.0,
       "data_fonte": "01/10/2026",
-      "hora_fonte": "0h"
+      "hora_fonte": "1h"
     },
-    "idade_ultima_leitura_min": 41.7,
+    "idade_ultima_leitura_min": 1.3,
     "dados_frescos_diagnostico": true,
     "limite_frescor_diagnostico_min": 120,
     "acumulados_diagnosticos": {
@@ -1076,13 +1076,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 1,
         "primeira_celula": {
-          "instante_utc": "2026-10-01T00:00:00+00:00",
-          "instante_local": "2026-09-30T21:00:00-03:00",
+          "instante_utc": "2026-10-01T01:00:00+00:00",
+          "instante_local": "2026-09-30T22:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-10-01T00:00:00+00:00",
-          "instante_local": "2026-09-30T21:00:00-03:00",
+          "instante_utc": "2026-10-01T01:00:00+00:00",
+          "instante_local": "2026-09-30T22:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1094,13 +1094,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 2,
         "primeira_celula": {
-          "instante_utc": "2026-09-30T23:00:00+00:00",
-          "instante_local": "2026-09-30T20:00:00-03:00",
+          "instante_utc": "2026-10-01T00:00:00+00:00",
+          "instante_local": "2026-09-30T21:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-10-01T00:00:00+00:00",
-          "instante_local": "2026-09-30T21:00:00-03:00",
+          "instante_utc": "2026-10-01T01:00:00+00:00",
+          "instante_local": "2026-09-30T22:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1112,13 +1112,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 6,
         "primeira_celula": {
-          "instante_utc": "2026-09-30T19:00:00+00:00",
-          "instante_local": "2026-09-30T16:00:00-03:00",
+          "instante_utc": "2026-09-30T20:00:00+00:00",
+          "instante_local": "2026-09-30T17:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-10-01T00:00:00+00:00",
-          "instante_local": "2026-09-30T21:00:00-03:00",
+          "instante_utc": "2026-10-01T01:00:00+00:00",
+          "instante_local": "2026-09-30T22:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1130,13 +1130,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 24,
         "primeira_celula": {
-          "instante_utc": "2026-09-30T01:00:00+00:00",
-          "instante_local": "2026-09-29T22:00:00-03:00",
+          "instante_utc": "2026-09-30T02:00:00+00:00",
+          "instante_local": "2026-09-29T23:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-10-01T00:00:00+00:00",
-          "instante_local": "2026-09-30T21:00:00-03:00",
+          "instante_utc": "2026-10-01T01:00:00+00:00",
+          "instante_local": "2026-09-30T22:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1148,13 +1148,13 @@
         "http_status": 200,
         "quantidade_celulas_numericas": 48,
         "primeira_celula": {
-          "instante_utc": "2026-09-29T01:00:00+00:00",
-          "instante_local": "2026-09-28T22:00:00-03:00",
+          "instante_utc": "2026-09-29T02:00:00+00:00",
+          "instante_local": "2026-09-28T23:00:00-03:00",
           "valor_mm": 0.0
         },
         "ultima_celula": {
-          "instante_utc": "2026-10-01T00:00:00+00:00",
-          "instante_local": "2026-09-30T21:00:00-03:00",
+          "instante_utc": "2026-10-01T01:00:00+00:00",
+          "instante_local": "2026-09-30T22:00:00-03:00",
           "valor_mm": 0.0
         },
         "soma_mm": 0.0
@@ -1239,7 +1239,7 @@
     "observacao": "A #143 testa a propria regra do JavaScript oficial: pedir N horas usa parametro N-1. Ela exige que janelas maiores preservem os mesmos valores nos instantes sobrepostos e que a quantidade de celulas numericas corresponda a janela pedida. O teste nao estabelece granularidade sub-horaria."
   },
   "chuva_observada_cemaden_144": {
-    "status": "online_fresco_validado",
+    "status": "indisponivel",
     "versao": "#144",
     "tipo": "observacao_pluviometrica_horaria_estacao",
     "fonte": "CEMADEN",
@@ -1252,31 +1252,21 @@
       "uf": "SC",
       "distancia_comasa_aprox_km": 2.67
     },
-    "1h_mm": 0.0,
-    "6h_mm": 0.0,
-    "24h_mm": 0.0,
-    "horario_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
-    "horario_ultima_celula_local": "2026-09-30T21:00:00-03:00",
-    "idade_leitura_min": 40.7,
-    "dados_frescos": true,
+    "1h_mm": null,
+    "6h_mm": null,
+    "24h_mm": null,
+    "horario_ultima_celula_utc": null,
+    "horario_ultima_celula_local": null,
+    "idade_leitura_min": null,
+    "dados_frescos": false,
     "limite_frescor_min": 120,
     "granularidade": "horaria",
     "granularidade_10min_disponivel": false,
     "representatividade": "Medição observada na estação CEMADEN selecionada. Não equivale a medição no Comasa.",
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Valor zero significa zero somente na estação e nas janelas horárias informadas. Falha, atraso ou ausência de dado nunca é convertida em 0 mm. O bloco não infere chuva no Comasa.",
-    "validacao_24h": {
-      "produto_311_24_mm": 0.0,
-      "soma_24_celulas_mm": 0.0,
-      "diferenca_mm": 0.0,
-      "coincide_tolerancia_0_01_mm": true
-    },
-    "endpoints": {
-      "1h": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/horario/6259/0",
-      "6h": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/horario/6259/5",
-      "24h": "https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/horario/6259/23"
-    },
-    "observacao": "Bloco operacional baseado em janelas horarias coerentes validadas nas #141-#143. O horario exibido e o rotulo temporal da ultima celula fornecida pelo CEMADEN; a #144 nao afirma se ele representa inicio ou fechamento do intervalo horario. Granularidade de 10 minutos permanece indisponivel."
+    "erro": "Janelas 1h/6h/24h nao terminam no mesmo instante.",
+    "observacao": "Falha da #144 mantem 1h/6h/24h indisponiveis; nenhum valor ausente e convertido em zero."
   },
   "chuva_observada_inmet": {
     "status": "online_fresco",
@@ -1293,7 +1283,7 @@
     "leitura_horaria_mm": 0.2,
     "horario_medicao_utc": "2026-10-01T00:00:00+00:00",
     "horario_medicao_local": "2026-09-30T21:00:00-03:00",
-    "idade_leitura_min": 41.8,
+    "idade_leitura_min": 61.4,
     "dados_frescos": true,
     "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
     "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
@@ -1419,6 +1409,16 @@
     "janela_busca_retrospectiva_min": 240,
     "tentativas": [
       {
+        "horario_utc": "2026-10-01T01:00:00+00:00",
+        "http": 404,
+        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610010100.json"
+      },
+      {
+        "horario_utc": "2026-10-01T00:50:00+00:00",
+        "http": 404,
+        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610010050.json"
+      },
+      {
         "horario_utc": "2026-10-01T00:40:00+00:00",
         "http": 404,
         "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610010040.json"
@@ -1489,7 +1489,7 @@
     "url_produto": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/09/goes19_diagnostic_202609302250.json",
     "horario_produto_utc": "2026-09-30T22:50:00+00:00",
     "horario_produto_local": "2026-09-30T19:50:00-03:00",
-    "idade_dado_min": 111.1,
+    "idade_dado_min": 130.7,
     "limite_frescor_monitor_min": 40,
     "tipo_geojson": "FeatureCollection",
     "sistemas_detectados": 493,
@@ -1554,13 +1554,13 @@
     "local": "Joinville / Babitonga",
     "unidade": "cm",
     "url_fonte": "https://ciram.epagri.sc.gov.br/graficos/getDataMare11_2913.php",
-    "nivel_cm": 28.0,
-    "nivel_m": 0.28,
-    "mare_astronomica_cm": 25.0,
-    "residual_cm": 3.0,
+    "nivel_cm": 15.7,
+    "nivel_m": 0.157,
+    "mare_astronomica_cm": 14.0,
+    "residual_cm": 1.7,
     "nmm_cm": 103.1,
-    "horario": "2026-09-30T21:15:00-03:00",
-    "idade_min": 26.0,
+    "horario": "2026-09-30T21:30:00-03:00",
+    "idade_min": 30.6,
     "frescor": "atual",
     "residual_aritmetica_validada": true,
     "uso_no_risco": false,
@@ -1576,15 +1576,15 @@
     ],
     "estrutura_validada": true,
     "erro_residual_cm": 0.0,
-    "quantidade_observacoes_validas": 181
+    "quantidade_observacoes_validas": 182
   },
   "mare_prevista_24h_164": {
     "status": "online_completo",
     "versao": "#164",
     "fonte": "EPAGRI/CIRAM",
     "tipo": "pico_mare_previsto_janela_24h",
-    "janela_inicio": "2026-09-30T22:00",
-    "janela_fim_exclusivo": "2026-10-01T22:00:00-03:00",
+    "janela_inicio": "2026-09-30T23:00",
+    "janela_fim_exclusivo": "2026-10-01T23:00:00-03:00",
     "datas_cobertas_fonte": [
       "2026-01-01",
       "2026-01-02",
@@ -3415,10 +3415,6 @@
     ],
     "eventos_na_janela": [
       {
-        "horario": "2026-09-30T22:10:00-03:00",
-        "altura_m": 0.0
-      },
-      {
         "horario": "2026-10-01T01:16:00-03:00",
         "altura_m": 1.2
       },
@@ -3445,6 +3441,10 @@
       {
         "horario": "2026-10-01T19:14:00-03:00",
         "altura_m": 1.3
+      },
+      {
+        "horario": "2026-10-01T22:51:00-03:00",
+        "altura_m": 0.2
       }
     ],
     "quantidade_eventos": 8,
@@ -3458,10 +3458,10 @@
     "versao": "166-v0.2-historico-integrado",
     "status": "historico_em_formacao",
     "arquivo_historico": "historico_guaxanduva_166.json",
-    "gerado_em": "2026-09-30T21:41:02.162507-03:00",
-    "quantidade_registros": 661,
+    "gerado_em": "2026-09-30T22:00:37.758457-03:00",
+    "quantidade_registros": 662,
     "quantidade_chuva_horaria": 286,
-    "quantidade_mare_observada": 375,
+    "quantidade_mare_observada": 376,
     "chuva_por_estacao": [
       {
         "codigo": "2382",
@@ -3545,11 +3545,11 @@
       "fonte": "EPAGRI/CIRAM",
       "codigo_estacao": "maregrafo_joinville_2913",
       "nome_estacao": "Joinville / Babitonga",
-      "horario_medicao": "2026-09-30T21:15:00-03:00",
-      "nivel_cm": 28.0,
-      "nivel_m": 0.28,
-      "mare_astronomica_cm": 25.0,
-      "residual_cm": 3.0,
+      "horario_medicao": "2026-09-30T21:30:00-03:00",
+      "nivel_cm": 15.7,
+      "nivel_m": 0.157,
+      "mare_astronomica_cm": 14.0,
+      "residual_cm": 1.7,
       "nmm_cm": 103.1,
       "representa_nivel_rio_guaxanduva": false,
       "uso": "condicao_de_jusante_para_calibracao_futura"
@@ -3582,7 +3582,7 @@
   },
   "modelo_computacional_guaxanduva_v01": {
     "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
-    "gerado_em": "2026-09-30T21:41:02.173810-03:00",
+    "gerado_em": "2026-09-30T22:00:37.769868-03:00",
     "status": "grafo_hidrografico_integrado",
     "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
     "microbacia": "44-0",
@@ -3599,7 +3599,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-09-30T21:41:03.990935-03:00"
+      "instante": "2026-09-30T22:00:39.664273-03:00"
     },
     "parametros_hidraulicos_documentados": {
       "bypass_montezuma_odilon": {
@@ -3734,11 +3734,11 @@
         "fonte": "EPAGRI/CIRAM",
         "codigo_estacao": "maregrafo_joinville_2913",
         "nome_estacao": "Joinville / Babitonga",
-        "horario_medicao": "2026-09-30T21:15:00-03:00",
-        "nivel_cm": 28.0,
-        "nivel_m": 0.28,
-        "mare_astronomica_cm": 25.0,
-        "residual_cm": 3.0,
+        "horario_medicao": "2026-09-30T21:30:00-03:00",
+        "nivel_cm": 15.7,
+        "nivel_m": 0.157,
+        "mare_astronomica_cm": 14.0,
+        "residual_cm": 1.7,
         "nmm_cm": 103.1,
         "representa_nivel_rio_guaxanduva": false,
         "uso": "condicao_de_jusante_para_calibracao_futura"
@@ -14129,7 +14129,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-09-30T21:41:03.990935-03:00",
+      "instante": "2026-09-30T22:00:39.664273-03:00",
       "uso_operacional": false,
       "alerta_operacional_liberado": false,
       "representa_medicao_instrumental": false,
@@ -14140,7 +14140,7 @@
         "TW": {
           "observado_local": false,
           "forcante_jusante_disponivel": true,
-          "mare_joinville_babitonga_observada_m": 0.28,
+          "mare_joinville_babitonga_observada_m": 0.157,
           "TW_local_absoluto_m": null,
           "regra": "mare_e_forcante_de_jusante; sem_compatibilidade_de_datum_nao_e_convertida_diretamente_em_TW_local_absoluto",
           "modelo_previsto": "funcao_de_transferencia_com_atraso_tau_amortecimento_km_e_componente_fluvial_calibrados_pela_serie_visual"
@@ -15424,10 +15424,10 @@
           "regra": "estacoes_independentes_nao_somadas; maior_acumulado_valido_apenas_para_resumo_regional"
         },
         "mare_jusante": {
-          "nivel_m": 0.28,
+          "nivel_m": 0.157,
           "nmm_m": 1.031,
-          "anomalia_relativa_ao_nmm_m": -0.751,
-          "horario_medicao": "2026-09-30T21:15:00-03:00",
+          "anomalia_relativa_ao_nmm_m": -0.874,
+          "horario_medicao": "2026-09-30T21:30:00-03:00",
           "representa_nivel_rio_guaxanduva": false
         }
       }
@@ -15440,7 +15440,7 @@
       "TW": {
         "observado_local": false,
         "forcante_jusante_disponivel": true,
-        "mare_joinville_babitonga_observada_m": 0.28,
+        "mare_joinville_babitonga_observada_m": 0.157,
         "TW_local_absoluto_m": null,
         "regra": "mare_e_forcante_de_jusante; sem_compatibilidade_de_datum_nao_e_convertida_diretamente_em_TW_local_absoluto",
         "modelo_previsto": "funcao_de_transferencia_com_atraso_tau_amortecimento_km_e_componente_fluvial_calibrados_pela_serie_visual"
@@ -15768,24 +15768,24 @@
     "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
     "status": "nivel_modelado_calculado",
     "natureza": "MODELADO_NAO_INSTRUMENTAL",
-    "instante": "2026-09-30T21:41:04.010437-03:00",
-    "referencia_forcantes": "2026-09-30T21:15:00-03:00",
+    "instante": "2026-09-30T22:00:39.683450-03:00",
+    "referencia_forcantes": "2026-09-30T21:30:00-03:00",
     "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
-    "nivel_estimado_m": 1.74,
+    "nivel_estimado_m": 1.679,
     "faixa_estimativa_m": {
-      "min": 1.62,
-      "max": 1.86
+      "min": 1.589,
+      "max": 1.768
     },
-    "incerteza_aprox_m": 0.12,
+    "incerteza_aprox_m": 0.089,
     "confianca": "baixa_experimental",
     "tendencia": {
       "classe": "descendo",
-      "cm_h": -28.67,
+      "cm_h": -26.63,
       "janela_min": 30.0,
-      "nivel_modelado_inicio_m": 1.883,
-      "horario_inicio": "2026-09-30T20:45:00-03:00",
-      "mare_inicio_m": 0.567,
-      "mare_inicio_referencia": "2026-09-30T20:45:00-03:00",
+      "nivel_modelado_inicio_m": 1.812,
+      "horario_inicio": "2026-09-30T21:00:00-03:00",
+      "mare_inicio_m": 0.423,
+      "mare_inicio_referencia": "2026-09-30T21:00:00-03:00",
       "regra": "variacao_do_mesmo_modelo_entre_t_e_t_menos_30min"
     },
     "entradas": {
@@ -15797,42 +15797,42 @@
         {
           "horario": "2026-09-30T16:00:00-03:00",
           "chuva_mediana_mm": 0.3,
-          "idade_h": 5.25,
-          "peso_memoria": 0.003093
+          "idade_h": 5.5,
+          "peso_memoria": 0.002349
         },
         {
           "horario": "2026-09-30T17:00:00-03:00",
           "chuva_mediana_mm": 0.1,
-          "idade_h": 4.25,
-          "peso_memoria": 0.009298
+          "idade_h": 4.5,
+          "peso_memoria": 0.007061
         },
         {
           "horario": "2026-09-30T18:00:00-03:00",
           "chuva_mediana_mm": 0.0,
-          "idade_h": 3.25,
-          "peso_memoria": 0.027952
+          "idade_h": 3.5,
+          "peso_memoria": 0.021228
         },
         {
           "horario": "2026-09-30T19:00:00-03:00",
           "chuva_mediana_mm": 0.0,
-          "idade_h": 2.25,
-          "peso_memoria": 0.084031
+          "idade_h": 2.5,
+          "peso_memoria": 0.063817
         },
         {
           "horario": "2026-09-30T20:00:00-03:00",
           "chuva_mediana_mm": 0.1,
-          "idade_h": 1.25,
-          "peso_memoria": 0.25262
+          "idade_h": 1.5,
+          "peso_memoria": 0.19185
         },
         {
           "horario": "2026-09-30T21:00:00-03:00",
           "chuva_mediana_mm": 0.2,
-          "idade_h": 0.25,
-          "peso_memoria": 0.75944
+          "idade_h": 0.5,
+          "peso_memoria": 0.576749
         }
       ],
-      "mare_jusante_m": 0.28,
-      "mare_horario": "2026-09-30T21:15:00-03:00",
+      "mare_jusante_m": 0.157,
+      "mare_horario": "2026-09-30T21:30:00-03:00",
       "area_km2": 4.2609,
       "phi": 0.865067
     },
@@ -15856,8 +15856,8 @@
     "componentes_central": {
       "q_m3_s": 0.101,
       "h_chuva_m": 0.044,
-      "dh_mare_m": 0.24,
-      "h_m": 1.74
+      "dh_mare_m": 0.178,
+      "h_m": 1.679
     },
     "equacoes": {
       "memoria_chuva": "i_mem=sum(P_h*exp(-idade_h/tau))/sum(exp(-idade_h/tau))",
@@ -15883,10 +15883,10 @@
     "nome": "Rio Guaxanduva",
     "status": "sem_sensor_publico_confirmado",
     "nivel_m": null,
-    "nivel_estimado_m": 1.74,
+    "nivel_estimado_m": 1.679,
     "faixa_estimativa_m": {
-      "min": 1.62,
-      "max": 1.86
+      "min": 1.589,
+      "max": 1.768
     },
     "natureza_nivel_estimado": "MODELADO_NAO_INSTRUMENTAL",
     "nivel_modelado_liberado": true,
@@ -15897,27 +15897,27 @@
     "fonte": "Open-Meteo",
     "modelo": "Best Match",
     "atual": {
-      "horario": "2026-09-30T21:30",
-      "temperatura_c": 19.0,
-      "sensacao_termica_c": 21.3,
-      "codigo_tempo_wmo": 55,
-      "cobertura_nuvens_pct": 100,
-      "precipitacao_mm": 0.3,
-      "vento_kmh": 5.9,
-      "direcao_graus": 182,
-      "rajada_kmh": 12.6
-    },
-    "proxima_hora": {
       "horario": "2026-09-30T22:00",
       "temperatura_c": 18.9,
       "sensacao_termica_c": 21.1,
       "codigo_tempo_wmo": 55,
       "cobertura_nuvens_pct": 100,
-      "probabilidade_chuva_pct": 99,
-      "precipitacao_mm": 1.0,
+      "precipitacao_mm": 0.3,
       "vento_kmh": 6.6,
       "direcao_graus": 191,
       "rajada_kmh": 13.7
+    },
+    "proxima_hora": {
+      "horario": "2026-09-30T23:00",
+      "temperatura_c": 18.5,
+      "sensacao_termica_c": 20.6,
+      "codigo_tempo_wmo": 55,
+      "cobertura_nuvens_pct": 100,
+      "probabilidade_chuva_pct": 100,
+      "precipitacao_mm": 1.0,
+      "vento_kmh": 6.4,
+      "direcao_graus": 205,
+      "rajada_kmh": 17.6
     },
     "proximas_24h": {
       "status": "online_completo",
@@ -15925,12 +15925,12 @@
       "modelo": "Best Match",
       "tipo": "previsao_horaria_acumulada",
       "janela_horas": 24,
-      "inicio": "2026-09-30T22:00",
-      "fim": "2026-10-01T21:00",
-      "fim_exclusivo": "2026-10-01T22:00:00-03:00",
+      "inicio": "2026-09-30T23:00",
+      "fim": "2026-10-01T22:00",
+      "fim_exclusivo": "2026-10-01T23:00:00-03:00",
       "horas_esperadas": 24,
       "horas_validas": 24,
-      "precipitacao_acumulada_mm": 21.3,
+      "precipitacao_acumulada_mm": 20.3,
       "integridade": true,
       "uso_no_risco": false,
       "observacao": "Janela movel das proximas 24 horas. Nesta etapa, o valor e diagnostico e nao alimenta classificacao automatica de risco."
@@ -16028,7 +16028,7 @@
     ]
   },
   "astronomia_joinville": {
-    "status": "online",
+    "status": "online_parcial",
     "fontes": [
       "USNO Astronomical Applications Department",
       "OPALE/IMCCE"
@@ -16067,49 +16067,10 @@
     },
     "eclipses": {
       "solar": {
-        "status": "online",
-        "fonte": "OPALE/IMCCE",
-        "body_opale": 10,
-        "data_evento": "2027-02-06",
-        "tipo": "ObserverPartialEclipse",
-        "magnitude": 0.85835,
-        "obscuracao_pct": 79.4,
-        "maximo_utc": "2027-02-06T16:10:37+00:00",
-        "maximo_local": "2027-02-06T13:10:37-03:00",
-        "inicio_utc": "2027-02-06T14:20:13+00:00",
-        "inicio_local": "2027-02-06T11:20:13-03:00",
-        "fim_utc": "2027-02-06T17:50:20+00:00",
-        "fim_local": "2027-02-06T14:50:20-03:00",
-        "url_consulta": "https://opale.imcce.fr/api/v1/phenomena/eclipses/10/gregorian,2027-02-06?observer=-26.270000%2C-48.810000%2C0.000000"
+        "status": "indisponivel"
       },
       "lunar": {
-        "status": "online",
-        "fonte": "OPALE/IMCCE",
-        "body_opale": 301,
-        "data_evento": "2027-02-20",
-        "tipo": "PenumbralEclipse",
-        "magnitude": 0.9265,
-        "obscuracao_pct": null,
-        "maximo_utc": "2027-02-20T23:12:56+00:00",
-        "maximo_local": "2027-02-20T20:12:56-03:00",
-        "inicio_utc": "2027-02-20T21:12:23+00:00",
-        "inicio_local": "2027-02-20T18:12:23-03:00",
-        "fim_utc": "2027-02-21T01:13:25+00:00",
-        "fim_local": "2027-02-20T22:13:25-03:00",
-        "url_consulta": "https://opale.imcce.fr/api/v1/phenomena/eclipses/301/gregorian,2027",
-        "duracao": {
-          "penumbral": "04:01:01"
-        },
-        "observacao_opale": "Evento lunar OPALE é global/geocêntrico; visibilidade local é avaliada separadamente pela altitude da Lua no USNO.",
-        "visibilidade_local_no_maximo": {
-          "status": "online",
-          "altura_graus": 18.59226,
-          "azimute_graus": 68.528473,
-          "acima_horizonte_geometrico": true,
-          "criterio": "hc_USNO_maior_que_0_grau"
-        },
-        "visivel_geometricamente_no_maximo": true,
-        "observacao_visibilidade": "Criterio geometrico no maximo do eclipse. Nao considera nuvens, relevo nem obstrucoes locais."
+        "status": "indisponivel"
       }
     },
     "regras_seguranca": [
@@ -16118,7 +16079,10 @@
       "Eclipse lunar OPALE e global; visibilidade local exige Lua acima do horizonte em Joinville.",
       "Visibilidade geometrica nao garante observacao pratica: nuvens, relevo e obstrucoes locais podem impedir a visualizacao."
     ],
-    "erros_parciais": []
+    "erros_parciais": [
+      "OPALE solar: HTTPSConnectionPool(host='opale.imcce.fr', port=443): Max retries exceeded with url: /api/v1/phenomena/eclipses/10/gregorian,2026 (Caused by ConnectTimeoutError(<HTTPSConnection(host='opale.imcce.fr', port=443) at 0x7f2d4fbad2e0>, 'Connection to opale.imcce.fr timed out. (connect timeout=10)'))",
+      "OPALE/USNO lunar: HTTPSConnectionPool(host='opale.imcce.fr', port=443): Max retries exceeded with url: /api/v1/phenomena/eclipses/301/gregorian,2026 (Caused by ConnectTimeoutError(<HTTPSConnection(host='opale.imcce.fr', port=443) at 0x7f2d4fbac950>, 'Connection to opale.imcce.fr timed out. (connect timeout=10)'))"
+    ]
   },
   "criterio_hidrometeorologico_plancon_163": {
     "status": "calculado",
@@ -16129,15 +16093,15 @@
     "plancon_oficial": false,
     "uso_como_plancon_oficial": false,
     "entradas": {
-      "chuva_prevista_24h_mm": 21.3,
+      "chuva_prevista_24h_mm": 20.3,
       "chuva_24h_integra": true,
-      "mare_observada_m": 0.28,
+      "mare_observada_m": 0.157,
       "mare_observada_fresca": true,
       "mare_fonte": "EPAGRI/CIRAM",
-      "janela_inicio": "2026-09-30T22:00",
-      "janela_fim_exclusivo": "2026-10-01T22:00:00-03:00",
-      "mare_horario": "2026-09-30T21:15:00-03:00",
-      "mare_idade_min": 26.0
+      "janela_inicio": "2026-09-30T23:00",
+      "janela_fim_exclusivo": "2026-10-01T23:00:00-03:00",
+      "mare_horario": "2026-09-30T21:30:00-03:00",
+      "mare_idade_min": 30.6
     },
     "criterios": {
       "mobilizacao_chuva_superior_20mm_24h": true,
@@ -16171,7 +16135,7 @@
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
     "horario_ultimo_quadro": "2026-09-30T20:50:00-03:00",
-    "idade_ultimo_quadro_min": 51.3,
+    "idade_ultimo_quadro_min": 70.9,
     "dados_frescos": false,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -25123,7 +25087,7 @@
             "projecao_adiante_km": 119.44,
             "velocidade_recente_media_kmh": 47.2,
             "radar_fresco": false,
-            "idade_radar_min": 51.3,
+            "idade_radar_min": 70.9,
             "horario_ultimo_quadro": "2026-09-30T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -25136,7 +25100,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 51.3 min.",
+            "motivo": "Radar desatualizado: 70.9 min.",
             "eta": null
           }
         },
@@ -25170,7 +25134,7 @@
             "projecao_adiante_km": -18.56,
             "velocidade_recente_media_kmh": 71.6,
             "radar_fresco": false,
-            "idade_radar_min": 51.3,
+            "idade_radar_min": 70.9,
             "horario_ultimo_quadro": "2026-09-30T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -25183,7 +25147,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 51.3 min.",
+            "motivo": "Radar desatualizado: 70.9 min.",
             "eta": null
           }
         },
@@ -25217,7 +25181,7 @@
             "projecao_adiante_km": -24.58,
             "velocidade_recente_media_kmh": 52.6,
             "radar_fresco": false,
-            "idade_radar_min": 51.3,
+            "idade_radar_min": 70.9,
             "horario_ultimo_quadro": "2026-09-30T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -25230,7 +25194,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 51.3 min.",
+            "motivo": "Radar desatualizado: 70.9 min.",
             "eta": null
           }
         },
@@ -25264,7 +25228,7 @@
             "projecao_adiante_km": 111.53,
             "velocidade_recente_media_kmh": 49.8,
             "radar_fresco": false,
-            "idade_radar_min": 51.3,
+            "idade_radar_min": 70.9,
             "horario_ultimo_quadro": "2026-09-30T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -25277,7 +25241,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 51.3 min.",
+            "motivo": "Radar desatualizado: 70.9 min.",
             "eta": null
           }
         },
@@ -25311,7 +25275,7 @@
             "projecao_adiante_km": 76.73,
             "velocidade_recente_media_kmh": 48.8,
             "radar_fresco": false,
-            "idade_radar_min": 51.3,
+            "idade_radar_min": 70.9,
             "horario_ultimo_quadro": "2026-09-30T23:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -25324,7 +25288,7 @@
               "horizonte_max_min": 180,
               "idade_max_radar_min": 30
             },
-            "motivo": "Radar desatualizado: 51.3 min.",
+            "motivo": "Radar desatualizado: 70.9 min.",
             "eta": null
           }
         }
@@ -25356,7 +25320,7 @@
       "projecao_adiante_km": 119.44,
       "velocidade_recente_media_kmh": 47.2,
       "radar_fresco": false,
-      "idade_radar_min": 51.3,
+      "idade_radar_min": 70.9,
       "horario_ultimo_quadro": "2026-09-30T23:50:00+00:00",
       "criterios": {
         "minimo_transicoes": 3,
@@ -25369,7 +25333,7 @@
         "horizonte_max_min": 180,
         "idade_max_radar_min": 30
       },
-      "motivo": "Radar desatualizado: 51.3 min.",
+      "motivo": "Radar desatualizado: 70.9 min.",
       "eta": null
     },
     "quadros": [
@@ -35732,7 +35696,7 @@
       "candidato": false,
       "validado": false,
       "janela_chegada": null,
-      "motivo": "Radar desatualizado: 51.3 min."
+      "motivo": "Radar desatualizado: 70.9 min."
     },
     "seguranca_eta": {
       "status": "experimental",
@@ -35766,7 +35730,7 @@
       "EPAGRI/CIRAM"
     ],
     "quantidade_estacoes_avaliadas": 6,
-    "quantidade_candidatos_validos": 5,
+    "quantidade_candidatos_validos": 4,
     "quantidade_candidatos_com_chuva_1h_maior_que_zero": 1,
     "diagnostico_estacoes": [
       {
@@ -35808,10 +35772,10 @@
         "codigo": "420910208A",
         "nome": "Nova Brasília",
         "distancia_comasa_aprox_km": 9.37,
-        "status_fonte": "online_fresco_validado",
-        "1h_mm": 0.0,
-        "6h_mm": 0.0,
-        "24h_mm": 0.2
+        "status_fonte": "bloqueado_divergencia_24h",
+        "1h_mm": null,
+        "6h_mm": null,
+        "24h_mm": null
       },
       {
         "rede": "EPAGRI/CIRAM",
@@ -35865,10 +35829,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": 0.0,
           "acumulado_24h_mm": 0.0,
-          "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-01T01:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-09-30T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.5,
+          "idade_leitura_min": 1.0,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B2",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -36004,10 +35968,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": 0.0,
           "acumulado_24h_mm": 0.2,
-          "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-01T01:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-09-30T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.5,
+          "idade_leitura_min": 1.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B2",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -36106,145 +36070,6 @@
               "pixel_central": {
                 "x": 733,
                 "y": 122
-              }
-            }
-          ]
-        }
-      },
-      {
-        "versao": "#170-B2",
-        "rede": "CEMADEN",
-        "pareamento_temporal_validado": false,
-        "elegivel_calibracao_zr": false,
-        "zr_validada": false,
-        "conversao_dbz_mm_h_liberada": false,
-        "estacao": {
-          "rede": "CEMADEN",
-          "id": 6960,
-          "codigo": "420910208A",
-          "nome": "Nova Brasília",
-          "cidade": "JOINVILLE",
-          "uf": "SC",
-          "latitude": -26.3309,
-          "longitude": -48.875,
-          "distancia_comasa_aprox_km": 9.37
-        },
-        "estacao_cemaden": {
-          "id": 6960,
-          "codigo": "420910208A",
-          "nome": "Nova Brasília",
-          "cidade": "JOINVILLE",
-          "uf": "SC",
-          "latitude": -26.3309,
-          "longitude": -48.875,
-          "distancia_comasa_aprox_km": 9.37
-        },
-        "chuva_observada": {
-          "acumulado_1h_mm": 0.0,
-          "acumulado_6h_mm": 0.0,
-          "acumulado_24h_mm": 0.2,
-          "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
-          "dados_frescos": true,
-          "idade_leitura_min": 41.6,
-          "fonte": "CEMADEN #144 reaplicada por estacao na #170-B2",
-          "produto_temporal": "horario_CEMADEN_#144"
-        },
-        "radar": {
-          "produto": "RadarSC COMP C-MAX",
-          "quadros_disponiveis": 7,
-          "quadros_amostrados_validos": 7,
-          "quadros_com_eco_oficial_5x5": 0,
-          "amostras": [
-            {
-              "arquivo": "2026093022500000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T22:50:00+00:00",
-              "horario_local": "2026-09-30T19:50:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023000000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:00:00+00:00",
-              "horario_local": "2026-09-30T20:00:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023100000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:10:00+00:00",
-              "horario_local": "2026-09-30T20:10:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023200000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:20:00+00:00",
-              "horario_local": "2026-09-30T20:20:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023300000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:30:00+00:00",
-              "horario_local": "2026-09-30T20:30:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023400000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:40:00+00:00",
-              "horario_local": "2026-09-30T20:40:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023500000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:50:00+00:00",
-              "horario_local": "2026-09-30T20:50:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
               }
             }
           ]
@@ -36282,7 +36107,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 40.7,
+          "idade_leitura_min": 60.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -36418,7 +36243,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 40.7,
+          "idade_leitura_min": 60.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -36549,7 +36374,7 @@
       "EPAGRI/CIRAM"
     ],
     "quantidade_estacoes_avaliadas": 6,
-    "quantidade_candidatos_validos": 5,
+    "quantidade_candidatos_validos": 4,
     "quantidade_candidatos_com_chuva_1h_maior_que_zero": 1,
     "diagnostico_estacoes": [
       {
@@ -36591,10 +36416,10 @@
         "codigo": "420910208A",
         "nome": "Nova Brasília",
         "distancia_comasa_aprox_km": 9.37,
-        "status_fonte": "online_fresco_validado",
-        "1h_mm": 0.0,
-        "6h_mm": 0.0,
-        "24h_mm": 0.2
+        "status_fonte": "bloqueado_divergencia_24h",
+        "1h_mm": null,
+        "6h_mm": null,
+        "24h_mm": null
       },
       {
         "rede": "EPAGRI/CIRAM",
@@ -36648,10 +36473,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": 0.0,
           "acumulado_24h_mm": 0.0,
-          "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-01T01:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-09-30T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.5,
+          "idade_leitura_min": 1.0,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B2",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -36787,10 +36612,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": 0.0,
           "acumulado_24h_mm": 0.2,
-          "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-01T01:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-09-30T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.5,
+          "idade_leitura_min": 1.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B2",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -36889,145 +36714,6 @@
               "pixel_central": {
                 "x": 733,
                 "y": 122
-              }
-            }
-          ]
-        }
-      },
-      {
-        "versao": "#170-B2",
-        "rede": "CEMADEN",
-        "pareamento_temporal_validado": false,
-        "elegivel_calibracao_zr": false,
-        "zr_validada": false,
-        "conversao_dbz_mm_h_liberada": false,
-        "estacao": {
-          "rede": "CEMADEN",
-          "id": 6960,
-          "codigo": "420910208A",
-          "nome": "Nova Brasília",
-          "cidade": "JOINVILLE",
-          "uf": "SC",
-          "latitude": -26.3309,
-          "longitude": -48.875,
-          "distancia_comasa_aprox_km": 9.37
-        },
-        "estacao_cemaden": {
-          "id": 6960,
-          "codigo": "420910208A",
-          "nome": "Nova Brasília",
-          "cidade": "JOINVILLE",
-          "uf": "SC",
-          "latitude": -26.3309,
-          "longitude": -48.875,
-          "distancia_comasa_aprox_km": 9.37
-        },
-        "chuva_observada": {
-          "acumulado_1h_mm": 0.0,
-          "acumulado_6h_mm": 0.0,
-          "acumulado_24h_mm": 0.2,
-          "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
-          "dados_frescos": true,
-          "idade_leitura_min": 41.6,
-          "fonte": "CEMADEN #144 reaplicada por estacao na #170-B2",
-          "produto_temporal": "horario_CEMADEN_#144"
-        },
-        "radar": {
-          "produto": "RadarSC COMP C-MAX",
-          "quadros_disponiveis": 7,
-          "quadros_amostrados_validos": 7,
-          "quadros_com_eco_oficial_5x5": 0,
-          "amostras": [
-            {
-              "arquivo": "2026093022500000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T22:50:00+00:00",
-              "horario_local": "2026-09-30T19:50:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023000000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:00:00+00:00",
-              "horario_local": "2026-09-30T20:00:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023100000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:10:00+00:00",
-              "horario_local": "2026-09-30T20:10:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023200000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:20:00+00:00",
-              "horario_local": "2026-09-30T20:20:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023300000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:30:00+00:00",
-              "horario_local": "2026-09-30T20:30:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023400000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:40:00+00:00",
-              "horario_local": "2026-09-30T20:40:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023500000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:50:00+00:00",
-              "horario_local": "2026-09-30T20:50:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
               }
             }
           ]
@@ -37065,7 +36751,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 40.7,
+          "idade_leitura_min": 60.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -37201,7 +36887,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 40.7,
+          "idade_leitura_min": 60.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -37332,7 +37018,7 @@
       "EPAGRI/CIRAM"
     ],
     "quantidade_estacoes_avaliadas": 6,
-    "quantidade_candidatos_validos": 5,
+    "quantidade_candidatos_validos": 4,
     "quantidade_candidatos_com_chuva_1h_maior_que_zero": 1,
     "diagnostico_estacoes": [
       {
@@ -37374,10 +37060,10 @@
         "codigo": "420910208A",
         "nome": "Nova Brasília",
         "distancia_comasa_aprox_km": 9.37,
-        "status_fonte": "online_fresco_validado",
-        "1h_mm": 0.0,
-        "6h_mm": 0.0,
-        "24h_mm": 0.2
+        "status_fonte": "bloqueado_divergencia_24h",
+        "1h_mm": null,
+        "6h_mm": null,
+        "24h_mm": null
       },
       {
         "rede": "EPAGRI/CIRAM",
@@ -37431,10 +37117,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": 0.0,
           "acumulado_24h_mm": 0.0,
-          "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-01T01:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-09-30T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.5,
+          "idade_leitura_min": 1.0,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B2",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -37570,10 +37256,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": 0.0,
           "acumulado_24h_mm": 0.2,
-          "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-01T01:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-09-30T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.5,
+          "idade_leitura_min": 1.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B2",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -37672,145 +37358,6 @@
               "pixel_central": {
                 "x": 733,
                 "y": 122
-              }
-            }
-          ]
-        }
-      },
-      {
-        "versao": "#170-B2",
-        "rede": "CEMADEN",
-        "pareamento_temporal_validado": false,
-        "elegivel_calibracao_zr": false,
-        "zr_validada": false,
-        "conversao_dbz_mm_h_liberada": false,
-        "estacao": {
-          "rede": "CEMADEN",
-          "id": 6960,
-          "codigo": "420910208A",
-          "nome": "Nova Brasília",
-          "cidade": "JOINVILLE",
-          "uf": "SC",
-          "latitude": -26.3309,
-          "longitude": -48.875,
-          "distancia_comasa_aprox_km": 9.37
-        },
-        "estacao_cemaden": {
-          "id": 6960,
-          "codigo": "420910208A",
-          "nome": "Nova Brasília",
-          "cidade": "JOINVILLE",
-          "uf": "SC",
-          "latitude": -26.3309,
-          "longitude": -48.875,
-          "distancia_comasa_aprox_km": 9.37
-        },
-        "chuva_observada": {
-          "acumulado_1h_mm": 0.0,
-          "acumulado_6h_mm": 0.0,
-          "acumulado_24h_mm": 0.2,
-          "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
-          "dados_frescos": true,
-          "idade_leitura_min": 41.6,
-          "fonte": "CEMADEN #144 reaplicada por estacao na #170-B2",
-          "produto_temporal": "horario_CEMADEN_#144"
-        },
-        "radar": {
-          "produto": "RadarSC COMP C-MAX",
-          "quadros_disponiveis": 7,
-          "quadros_amostrados_validos": 7,
-          "quadros_com_eco_oficial_5x5": 0,
-          "amostras": [
-            {
-              "arquivo": "2026093022500000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T22:50:00+00:00",
-              "horario_local": "2026-09-30T19:50:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023000000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:00:00+00:00",
-              "horario_local": "2026-09-30T20:00:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023100000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:10:00+00:00",
-              "horario_local": "2026-09-30T20:10:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023200000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:20:00+00:00",
-              "horario_local": "2026-09-30T20:20:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023300000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:30:00+00:00",
-              "horario_local": "2026-09-30T20:30:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023400000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:40:00+00:00",
-              "horario_local": "2026-09-30T20:40:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
-              }
-            },
-            {
-              "arquivo": "2026093023500000dBZ.cappi_top.png",
-              "horario_utc": "2026-09-30T23:50:00+00:00",
-              "horario_local": "2026-09-30T20:50:00-03:00",
-              "classe_interna_monitor": null,
-              "faixa_dbz": null,
-              "eco_oficial_detectado_5x5": false,
-              "pixels_oficiais_5x5": 0,
-              "pixel_central": {
-                "x": 730,
-                "y": 124
               }
             }
           ]
@@ -37848,7 +37395,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 40.7,
+          "idade_leitura_min": 60.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -37984,7 +37531,7 @@
           "rotulo_ultima_celula_utc": "2026-10-01T00:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-09-30T21:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 40.7,
+          "idade_leitura_min": 60.0,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -38095,8 +37642,8 @@
     "versao": "#170-B2",
     "status": "historico_multirrede_atualizado",
     "arquivo": "historico_zr_170.json",
-    "registros_candidatos": 10,
-    "registros_adicionados_ou_atualizados_execucao": 5,
+    "registros_candidatos": 12,
+    "registros_adicionados_ou_atualizados_execucao": 4,
     "estacoes_unicas_no_historico": 5,
     "estacoes_por_rede_no_historico": [
       "CEMADEN:420910203A",
@@ -38110,7 +37657,7 @@
       "EPAGRI/CIRAM"
     ],
     "horas_estacao_com_chuva_observada_maior_que_zero": 2,
-    "horas_estacao_secas_observadas": 8,
+    "horas_estacao_secas_observadas": 10,
     "registros_elegiveis_calibracao_zr": 0,
     "zr_validada": false,
     "conversao_dbz_mm_h_liberada": false,
@@ -38120,8 +37667,8 @@
     "versao": "#170-B2",
     "status": "historico_multirrede_atualizado",
     "arquivo": "historico_zr_170.json",
-    "registros_candidatos": 10,
-    "registros_adicionados_ou_atualizados_execucao": 5,
+    "registros_candidatos": 12,
+    "registros_adicionados_ou_atualizados_execucao": 4,
     "estacoes_unicas_no_historico": 5,
     "estacoes_por_rede_no_historico": [
       "CEMADEN:420910203A",
@@ -38135,7 +37682,7 @@
       "EPAGRI/CIRAM"
     ],
     "horas_estacao_com_chuva_observada_maior_que_zero": 2,
-    "horas_estacao_secas_observadas": 8,
+    "horas_estacao_secas_observadas": 10,
     "registros_elegiveis_calibracao_zr": 0,
     "zr_validada": false,
     "conversao_dbz_mm_h_liberada": false,
@@ -38145,8 +37692,8 @@
     "versao": "#170-B2",
     "status": "historico_multirrede_atualizado",
     "arquivo": "historico_zr_170.json",
-    "registros_candidatos": 10,
-    "registros_adicionados_ou_atualizados_execucao": 5,
+    "registros_candidatos": 12,
+    "registros_adicionados_ou_atualizados_execucao": 4,
     "estacoes_unicas_no_historico": 5,
     "estacoes_por_rede_no_historico": [
       "CEMADEN:420910203A",
@@ -38160,7 +37707,7 @@
       "EPAGRI/CIRAM"
     ],
     "horas_estacao_com_chuva_observada_maior_que_zero": 2,
-    "horas_estacao_secas_observadas": 8,
+    "horas_estacao_secas_observadas": 10,
     "registros_elegiveis_calibracao_zr": 0,
     "zr_validada": false,
     "conversao_dbz_mm_h_liberada": false,
@@ -38227,24 +37774,24 @@
       "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
       "status": "nivel_modelado_calculado",
       "natureza": "MODELADO_NAO_INSTRUMENTAL",
-      "instante": "2026-09-30T21:41:04.010437-03:00",
-      "referencia_forcantes": "2026-09-30T21:15:00-03:00",
+      "instante": "2026-09-30T22:00:39.683450-03:00",
+      "referencia_forcantes": "2026-09-30T21:30:00-03:00",
       "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
-      "nivel_estimado_m": 1.74,
+      "nivel_estimado_m": 1.679,
       "faixa_estimativa_m": {
-        "min": 1.62,
-        "max": 1.86
+        "min": 1.589,
+        "max": 1.768
       },
-      "incerteza_aprox_m": 0.12,
+      "incerteza_aprox_m": 0.089,
       "confianca": "baixa_experimental",
       "tendencia": {
         "classe": "descendo",
-        "cm_h": -28.67,
+        "cm_h": -26.63,
         "janela_min": 30.0,
-        "nivel_modelado_inicio_m": 1.883,
-        "horario_inicio": "2026-09-30T20:45:00-03:00",
-        "mare_inicio_m": 0.567,
-        "mare_inicio_referencia": "2026-09-30T20:45:00-03:00",
+        "nivel_modelado_inicio_m": 1.812,
+        "horario_inicio": "2026-09-30T21:00:00-03:00",
+        "mare_inicio_m": 0.423,
+        "mare_inicio_referencia": "2026-09-30T21:00:00-03:00",
         "regra": "variacao_do_mesmo_modelo_entre_t_e_t_menos_30min"
       },
       "entradas": {
@@ -38256,42 +37803,42 @@
           {
             "horario": "2026-09-30T16:00:00-03:00",
             "chuva_mediana_mm": 0.3,
-            "idade_h": 5.25,
-            "peso_memoria": 0.003093
+            "idade_h": 5.5,
+            "peso_memoria": 0.002349
           },
           {
             "horario": "2026-09-30T17:00:00-03:00",
             "chuva_mediana_mm": 0.1,
-            "idade_h": 4.25,
-            "peso_memoria": 0.009298
+            "idade_h": 4.5,
+            "peso_memoria": 0.007061
           },
           {
             "horario": "2026-09-30T18:00:00-03:00",
             "chuva_mediana_mm": 0.0,
-            "idade_h": 3.25,
-            "peso_memoria": 0.027952
+            "idade_h": 3.5,
+            "peso_memoria": 0.021228
           },
           {
             "horario": "2026-09-30T19:00:00-03:00",
             "chuva_mediana_mm": 0.0,
-            "idade_h": 2.25,
-            "peso_memoria": 0.084031
+            "idade_h": 2.5,
+            "peso_memoria": 0.063817
           },
           {
             "horario": "2026-09-30T20:00:00-03:00",
             "chuva_mediana_mm": 0.1,
-            "idade_h": 1.25,
-            "peso_memoria": 0.25262
+            "idade_h": 1.5,
+            "peso_memoria": 0.19185
           },
           {
             "horario": "2026-09-30T21:00:00-03:00",
             "chuva_mediana_mm": 0.2,
-            "idade_h": 0.25,
-            "peso_memoria": 0.75944
+            "idade_h": 0.5,
+            "peso_memoria": 0.576749
           }
         ],
-        "mare_jusante_m": 0.28,
-        "mare_horario": "2026-09-30T21:15:00-03:00",
+        "mare_jusante_m": 0.157,
+        "mare_horario": "2026-09-30T21:30:00-03:00",
         "area_km2": 4.2609,
         "phi": 0.865067
       },
@@ -38315,8 +37862,8 @@
       "componentes_central": {
         "q_m3_s": 0.101,
         "h_chuva_m": 0.044,
-        "dh_mare_m": 0.24,
-        "h_m": 1.74
+        "dh_mare_m": 0.178,
+        "h_m": 1.679
       },
       "equacoes": {
         "memoria_chuva": "i_mem=sum(P_h*exp(-idade_h/tau))/sum(exp(-idade_h/tau))",
@@ -38777,21 +38324,6 @@
             ]
           },
           {
-            "id": "0eab18c6-8c5f-4695-a25f-d4a43d5c461d",
-            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
-            "datetime": "2025-03-11T16:40:54Z",
-            "pubtime": "2026-08-01T15:00:03Z",
-            "metadata_id": null,
-            "links": [
-              {
-                "rel": "update",
-                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
-                "type": "application/geo+json",
-                "title": null
-              }
-            ]
-          },
-          {
             "id": "decbfd16-d8e2-4838-897a-d74837ef87e9",
             "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
             "datetime": "2025-03-11T16:40:54Z",
@@ -39030,6 +38562,21 @@
                 "title": null
               }
             ]
+          },
+          {
+            "id": "b373cdbc-cefb-4fd9-a47d-d8e22b9afc2e",
+            "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+            "datetime": "2025-03-11T16:40:54Z",
+            "pubtime": "2026-08-23T15:00:04Z",
+            "metadata_id": null,
+            "links": [
+              {
+                "rel": "update",
+                "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+                "type": "application/geo+json",
+                "title": null
+              }
+            ]
           }
         ],
         "erro": null
@@ -39114,21 +38661,6 @@
         "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
         "datetime": "2025-03-11T16:40:54Z",
         "pubtime": "2026-08-05T15:00:18Z",
-        "metadata_id": null,
-        "links": [
-          {
-            "rel": "update",
-            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
-            "type": "application/geo+json",
-            "title": null
-          }
-        ]
-      },
-      {
-        "id": "0eab18c6-8c5f-4695-a25f-d4a43d5c461d",
-        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
-        "datetime": "2025-03-11T16:40:54Z",
-        "pubtime": "2026-08-01T15:00:03Z",
         "metadata_id": null,
         "links": [
           {
@@ -39378,6 +38910,21 @@
             "title": null
           }
         ]
+      },
+      {
+        "id": "b373cdbc-cefb-4fd9-a47d-d8e22b9afc2e",
+        "data_id": "br-inmet/metadata/urn:wmo:md:br-inmet:alerts",
+        "datetime": "2025-03-11T16:40:54Z",
+        "pubtime": "2026-08-23T15:00:04Z",
+        "metadata_id": null,
+        "links": [
+          {
+            "rel": "update",
+            "href": "https://wis2bra.inmet.gov.br/data/metadata/urn:wmo:md:br-inmet:alerts.json",
+            "type": "application/geo+json",
+            "title": null
+          }
+        ]
       }
     ],
     "uso_operacional_granizo": false,
@@ -39412,10 +38959,6 @@
       "br-inmet:alerts/INMET-ALERT-55259_20260805",
       "br-inmet:alerts/INMET-ALERT-55258_20260805",
       "br-inmet:alerts/INMET-ALERT-55257_20260805",
-      "br-inmet:alerts/INMET-ALERT-55223_20260801",
-      "br-inmet:alerts/INMET-ALERT-55227_20260801",
-      "br-inmet:alerts/INMET-ALERT-55221_20260801",
-      "br-inmet:alerts/INMET-ALERT-55224_20260801",
       "br-inmet:alerts/INMET-ALERT-55233_20260803",
       "br-inmet:alerts/INMET-ALERT-55234_20260803",
       "br-inmet:alerts/INMET-ALERT-55235_20260803",
@@ -39424,7 +38967,11 @@
       "br-inmet:alerts/INMET-ALERT-55240_20260803",
       "br-inmet:alerts/INMET-ALERT-55241_20260803",
       "br-inmet:alerts/INMET-ALERT-55262_20260805",
-      "br-inmet:alerts/INMET-ALERT-55264_20260805"
+      "br-inmet:alerts/INMET-ALERT-55264_20260805",
+      "br-inmet:alerts/INMET-ALERT-55266_20260805",
+      "br-inmet:alerts/INMET-ALERT-55265_20260805",
+      "br-inmet:alerts/INMET-ALERT-55267_20260805",
+      "br-inmet:alerts/INMET-ALERT-55269_20260805"
     ],
     "notificacoes_data_cap": [
       {
@@ -39683,70 +39230,6 @@
         ]
       },
       {
-        "id": "340a6d41-f1cc-44de-9e67-3680ba9c754b",
-        "data_id": "br-inmet:alerts/INMET-ALERT-55223_20260801",
-        "metadata_id": "urn:wmo:md:br-inmet:alerts",
-        "datetime": "2026-08-01T10:52:02Z",
-        "pubtime": "2026-08-01T14:01:00Z",
-        "content": null,
-        "links": [
-          {
-            "rel": "canonical",
-            "href": "https://wis2bra.inmet.gov.br/data/2026-08-01/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55223_20260801.xml",
-            "type": "application/xml"
-          }
-        ]
-      },
-      {
-        "id": "0f14df4c-205a-4ae0-8dc2-0223ab118646",
-        "data_id": "br-inmet:alerts/INMET-ALERT-55227_20260801",
-        "metadata_id": "urn:wmo:md:br-inmet:alerts",
-        "datetime": "2026-08-01T11:03:13Z",
-        "pubtime": "2026-08-01T14:01:00Z",
-        "content": null,
-        "links": [
-          {
-            "rel": "canonical",
-            "href": "https://wis2bra.inmet.gov.br/data/2026-08-01/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55227_20260801.xml",
-            "type": "application/xml"
-          }
-        ]
-      },
-      {
-        "id": "045a8d3f-cd5f-4da4-a6a8-52dd36a43305",
-        "data_id": "br-inmet:alerts/INMET-ALERT-55221_20260801",
-        "metadata_id": "urn:wmo:md:br-inmet:alerts",
-        "datetime": "2026-08-01T10:48:38Z",
-        "pubtime": "2026-08-01T14:01:00Z",
-        "content": null,
-        "links": [
-          {
-            "rel": "canonical",
-            "href": "https://wis2bra.inmet.gov.br/data/2026-08-01/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55221_20260801.xml",
-            "type": "application/xml"
-          }
-        ]
-      },
-      {
-        "id": "fb8b272d-7be9-4c96-82ef-ee2a6ede3cd0",
-        "data_id": "br-inmet:alerts/INMET-ALERT-55224_20260801",
-        "metadata_id": "urn:wmo:md:br-inmet:alerts",
-        "datetime": "2026-08-01T10:54:03Z",
-        "pubtime": "2026-08-01T14:01:00Z",
-        "content": {
-          "encoding": "base64",
-          "value": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PGFsZXJ0IHhtbG5zPSJ1cm46b2FzaXM6bmFtZXM6dGM6ZW1lcmdlbmN5OmNhcDoxLjIiPjxpZGVudGlmaWVyPnVybjpvaWQ6Mi40OS4wLjAuNzYuMC4yMDI2LjI3OTUxLjE8L2lkZW50aWZpZXI+PHNlbmRlcj5pbmZvLmF2aXNvQGlubWV0Lmdvdi5icjwvc2VuZGVyPjxzZW50PjIwMjYtMDgtMDFUMTA6NTQ6MDMtMDM6MDA8L3NlbnQ+PHN0YXR1cz5BY3R1YWw8L3N0YXR1cz48bXNnVHlwZT5BbGVydDwvbXNnVHlwZT48c2NvcGU+UHVibGljPC9zY29wZT48aW5mbz48bGFuZ3VhZ2U+cHQtQlI8L2xhbmd1YWdlPjxjYXRlZ29yeT5NZXQ8L2NhdGVnb3J5PjxldmVudD5WZW50b3MgQ29zdGVpcm9zPC9ldmVudD48cmVzcG9uc2VUeXBlPlByZXBhcmU8L3Jlc3BvbnNlVHlwZT48dXJnZW5jeT5GdXR1cmU8L3VyZ2VuY3k+PHNldmVyaXR5Pk1vZGVyYXRlPC9zZXZlcml0eT48Y2VydGFpbnR5Pkxpa2VseTwvY2VydGFpbnR5PjxvbnNldD4yMDI2LTA4LTAxVDA4OjAwOjAwLTAzOjAwPC9vbnNldD48ZXhwaXJlcz4yMDI2LTA4LTAxVDIzOjU5OjAwLTAzOjAwPC9leHBpcmVzPjxzZW5kZXJOYW1lPkluc3RpdHV0byBOYWNpb25hbCBkZSBNZXRlb3JvbG9naWE8L3NlbmRlck5hbWU+PGhlYWRsaW5lPkF2aXNvIGRlIFZlbnRvcyBDb3N0ZWlyb3MuIFNldmVyaWRhZGUgR3JhdTogTW9kZXJhdGU8L2hlYWRsaW5lPjxkZXNjcmlwdGlvbj5JTk1FVCBwdWJsaWNhIGF2aXNvIGluaWNpYW5kbyBlbTogMDEvMDgvMjAyNiAwODowMC4gSW50ZW5zaWZpY2HDp8OjbyBkb3MgdmVudG9zIG5hcyByZWdpw7VlcyBsaXRvcsOibmVhcywgbW92aW1lbnRhbmRvIGR1bmFzIGRlIGFyZWlhIHNvYnJlIGNvbnN0cnXDp8O1ZXMgbmEgb3JsYS48L2Rlc2NyaXB0aW9uPjxpbnN0cnVjdGlvbj5Db250YXRlIGEgRGVmZXNhIENpdmlsICh0ZWxlZm9uZTogMTk5KS48L2luc3RydWN0aW9uPjx3ZWI+aHR0cHM6Ly9hdmlzb3MuaW5tZXQuZ292LmJyLzU1MjI0PC93ZWI+PGNvbnRhY3Q+SU5NRVQgLSBFaXhvIE1vbnVtZW50YWwgU3VsIFZpYSBTMSAtIFN1ZG9lc3RlIC0gQnJhc8OtbGlhLURGICg2MSkgMjEwMi00NzAwPC9jb250YWN0PjxwYXJhbWV0ZXI+PHZhbHVlTmFtZT5Db2xvclJpc2s8L3ZhbHVlTmFtZT48dmFsdWU+I0ZGRkUwMDwvdmFsdWU+PC9wYXJhbWV0ZXI+PHBhcmFtZXRlcj48dmFsdWVOYW1lPlRpbWVTdGFtcERhdGVPblNldDwvdmFsdWVOYW1lPjx2YWx1ZT4xNzg1NTcxMjAwPC92YWx1ZT48L3BhcmFtZXRlcj48cGFyYW1ldGVyPjx2YWx1ZU5hbWU+VGltZVN0YW1wRGF0ZUV4cGlyZXM8L3ZhbHVlTmFtZT48dmFsdWU+MTc4NTYyODc0MDwvdmFsdWU+PC9wYXJhbWV0ZXI+PHBhcmFtZXRlcj48dmFsdWVOYW1lPk11bmljaXBpb3M8L3ZhbHVlTmFtZT48dmFsdWU+QWxjb2Jhw6dhIC0gQkEgKDI5MDA4MDEpLCBCZWxtb250ZSAtIEJBICgyOTAzNDA5KSwgQm9hIEVzcGVyYW7Dp2EgLSBFUyAoMzIwMTAwMSksIENhcmF2ZWxhcyAtIEJBICgyOTA2OTA3KSwgQ29uY2Vpw6fDo28gZGEgQmFycmEgLSBFUyAoMzIwMTYwNSksIEl0YWJlbGEgLSBCQSAoMjkxNDY1MyksIEphZ3VhcsOpIC0gRVMgKDMyMDMwNTYpLCBMaW5oYXJlcyAtIEVTICgzMjAzMjA1KSwgTXVjdXJpIC0gQkEgKDI5MjIwMDMpLCBOb3ZhIFZpw6dvc2EgLSBCQSAoMjkyMzAwMSksIFBlZHJvIENhbsOhcmlvIC0gRVMgKDMyMDQwNTQpLCBQaW5oZWlyb3MgLSBFUyAoMzIwNDEwNCksIFBvcnRvIFNlZ3VybyAtIEJBICgyOTI1MzAzKSwgUHJhZG8gLSBCQSAoMjkyNTUwMSksIFNhbnRhIENydXogQ2FicsOhbGlhIC0gQkEgKDI5Mjc3MDUpLCBTw6NvIE1hdGV1cyAtIEVTICgzMjA0OTA2KTwvdmFsdWU+PC9wYXJhbWV0ZXI+PHBhcmFtZXRlcj48dmFsdWVOYW1lPkVzdGFkb3M8L3ZhbHVlTmFtZT48dmFsdWU+QmFoaWEsIEVzcMOtcml0byBTYW50bzwvdmFsdWU+PC9wYXJhbWV0ZXI+PGFyZWE+PGFyZWFEZXNjPkF2aXNvIHBhcmEgYXMgw6FyZWFzOiBTdWwgQmFpYW5vLCBOb3JvZXN0ZSBFc3DDrXJpdG8tc2FudGVuc2UsIExpdG9yYWwgTm9ydGUgRXNww61yaXRvLXNhbnRlbnNlPC9hcmVhRGVzYz48cG9seWdvbj4tMTUuNzYwNTM2LC0zOC44MzY2NyAtMTUuNzkyMjU0LC0zOS4wMjM0MzggLTE2LjA4ODA0MiwtMzkuMTQ0Mjg3IC0xNi41NTE5NjIsLTM5LjM2NDAxNCAtMTYuOTgzMjQ5LC0zOS4zODU5ODYgLTE3LjI0NTc0NCwtMzkuNDA3OTU5IC0xNy42ODU4OTUsLTM5LjU2MTc2OCAtMTguMTQ1ODUyLC0zOS43MDQ1OSAtMTguMjgxNTE4LC0zOS44OTEzNTcgLTE4LjQ5MDAyOSwtNDAuMTc3MDAyIC0xOC44ODU0OTgsLTQwLjA2NzEzOSAtMTkuMTk3MDUzLC0zOS44MDM0NjcgLTE5LjEzNDc4OSwtMzkuNTk0NzI3IC0xOC40OTAwMjksLTM5LjU2MTc2OCAtMTcuOTc4NzMzLC0zOS4zNDIwNDEgLTE3LjcxNzI5NCwtMzkuMDEyNDUxIC0xNy4yMjQ3NTgsLTM5LjExMTMyOCAtMTYuNDY3Njk1LC0zOC45OTA0NzkgLTE1Ljk4MjQ1NCwtMzguNzkyNzI1IC0xNS43NjA1MzYsLTM4LjgzNjY3IDwvcG9seWdvbj48L2FyZWE+PC9pbmZvPjwvYWxlcnQ+",
-          "size": 2586
-        },
-        "links": [
-          {
-            "rel": "canonical",
-            "href": "https://wis2bra.inmet.gov.br/data/2026-08-01/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55224_20260801.xml",
-            "type": "application/xml"
-          }
-        ]
-      },
-      {
         "id": "38cf62f0-3cd9-47ea-8145-69d6d0994e45",
         "data_id": "br-inmet:alerts/INMET-ALERT-55233_20260803",
         "metadata_id": "urn:wmo:md:br-inmet:alerts",
@@ -39880,6 +39363,66 @@
             "type": "application/xml"
           }
         ]
+      },
+      {
+        "id": "a75bec98-e6b8-41c3-8762-423cf1a25d7f",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55266_20260805",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-08-05T12:22:26Z",
+        "pubtime": "2026-08-05T12:31:15Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-08-05/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55266_20260805.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "ae3f9d5d-b3b8-4740-b891-e3caa4e9f75f",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55265_20260805",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-08-05T12:15:31Z",
+        "pubtime": "2026-08-05T12:31:15Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-08-05/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55265_20260805.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "26186c3b-c39b-4b0d-b42b-48f63a4d2311",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55267_20260805",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-08-05T12:31:29Z",
+        "pubtime": "2026-08-05T13:01:10Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-08-05/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55267_20260805.xml",
+            "type": "application/xml"
+          }
+        ]
+      },
+      {
+        "id": "1a6b8f6e-743c-4520-ac3b-4b832a33cfd2",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55269_20260805",
+        "metadata_id": "urn:wmo:md:br-inmet:alerts",
+        "datetime": "2026-08-05T12:39:52Z",
+        "pubtime": "2026-08-05T13:01:10Z",
+        "content": null,
+        "links": [
+          {
+            "rel": "canonical",
+            "href": "https://wis2bra.inmet.gov.br/data/2026-08-05/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55269_20260805.xml",
+            "type": "application/xml"
+          }
+        ]
       }
     ],
     "links_xml_candidatos": [
@@ -39986,30 +39529,6 @@
         "data_id": "br-inmet:alerts/INMET-ALERT-55257_20260805"
       },
       {
-        "href": "https://wis2bra.inmet.gov.br/data/2026-08-01/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55223_20260801.xml",
-        "rel": "canonical",
-        "type": "application/xml",
-        "data_id": "br-inmet:alerts/INMET-ALERT-55223_20260801"
-      },
-      {
-        "href": "https://wis2bra.inmet.gov.br/data/2026-08-01/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55227_20260801.xml",
-        "rel": "canonical",
-        "type": "application/xml",
-        "data_id": "br-inmet:alerts/INMET-ALERT-55227_20260801"
-      },
-      {
-        "href": "https://wis2bra.inmet.gov.br/data/2026-08-01/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55221_20260801.xml",
-        "rel": "canonical",
-        "type": "application/xml",
-        "data_id": "br-inmet:alerts/INMET-ALERT-55221_20260801"
-      },
-      {
-        "href": "https://wis2bra.inmet.gov.br/data/2026-08-01/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55224_20260801.xml",
-        "rel": "canonical",
-        "type": "application/xml",
-        "data_id": "br-inmet:alerts/INMET-ALERT-55224_20260801"
-      },
-      {
         "href": "https://wis2bra.inmet.gov.br/data/2026-08-03/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55233_20260803.xml",
         "rel": "canonical",
         "type": "application/xml",
@@ -40062,6 +39581,30 @@
         "rel": "canonical",
         "type": "application/xml",
         "data_id": "br-inmet:alerts/INMET-ALERT-55264_20260805"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-08-05/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55266_20260805.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55266_20260805"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-08-05/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55265_20260805.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55265_20260805"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-08-05/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55267_20260805.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55267_20260805"
+      },
+      {
+        "href": "https://wis2bra.inmet.gov.br/data/2026-08-05/wis/urn:wmo:md:br-inmet:alerts/INMET-ALERT-55269_20260805.xml",
+        "rel": "canonical",
+        "type": "application/xml",
+        "data_id": "br-inmet:alerts/INMET-ALERT-55269_20260805"
       }
     ],
     "xml_cap_confirmado": true,
@@ -40185,7 +39728,7 @@
     "consultas_temporais": [
       {
         "dias": 2,
-        "datetime": "2026-09-29T00:40:42Z/2026-10-01T00:40:42Z",
+        "datetime": "2026-09-29T01:00:02Z/2026-10-01T01:00:02Z",
         "http_status": 200,
         "quantidade_features": 18,
         "quantidade_data_alerta": 18,
@@ -40194,7 +39737,7 @@
       },
       {
         "dias": 7,
-        "datetime": "2026-09-24T00:40:42Z/2026-10-01T00:40:42Z",
+        "datetime": "2026-09-24T01:00:02Z/2026-10-01T01:00:02Z",
         "http_status": 200,
         "quantidade_features": 62,
         "quantidade_data_alerta": 62,
@@ -40203,7 +39746,7 @@
       },
       {
         "dias": 30,
-        "datetime": "2026-09-01T00:40:42Z/2026-10-01T00:40:42Z",
+        "datetime": "2026-09-01T01:00:02Z/2026-10-01T01:00:02Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,
@@ -40212,7 +39755,7 @@
       },
       {
         "dias": 90,
-        "datetime": "2026-07-03T00:40:42Z/2026-10-01T00:40:42Z",
+        "datetime": "2026-07-03T01:00:02Z/2026-10-01T01:00:02Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,

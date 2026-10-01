@@ -28,6 +28,7 @@ HISTORICO_ARQUIVO = "historico_validacao.json"
 HISTORICO_MAX_REGISTROS = 2880
 HISTORICO_ZR_170_ARQUIVO = "historico_zr_170.json"
 HISTORICO_ZR_170_MAX_REGISTROS = 4320
+AUDITORIA_TEMPORAL_170_ARQUIVO = "auditoria_temporal_170.json"
  
 # Coordenada pública aproximada do Comasa.
 # NÃO representa endereço residencial.
@@ -13742,6 +13743,39 @@ def _resumo_temporal_historico_170_f(registros):
         ),
     }
 
+def salvar_auditoria_temporal_170_g(historico):
+    """#170-G - publica um resumo pequeno e independente da auditoria temporal."""
+    resumo = None
+    if isinstance(historico, dict):
+        resumo = historico.get("auditoria_temporal_compacta_170_f")
+    documento = {
+        "monitor": "Monitor Guaxanduva",
+        "tipo": "auditoria_temporal_radar_pluviometro",
+        "versao": "#170-G",
+        "atualizado_em": agora().isoformat(),
+        "arquivo_fonte_bruto": HISTORICO_ZR_170_ARQUIVO,
+        "auditoria_temporal": resumo,
+        "placar_gates": {
+            "temporal": "EM_VALIDACAO",
+            "espacial": "EM_VALIDACAO",
+            "zr": "BLOQUEADO",
+            "dbz_para_mm_h": "BLOQUEADO",
+        },
+        "borda_horaria_inequivoca": False,
+        "pareamento_temporal_validado": False,
+        "elegivel_calibracao_zr": False,
+        "zr_validada": False,
+        "conversao_dbz_mm_h_liberada": False,
+        "regra_seguranca": (
+            "Arquivo compacto de auditoria. Resume a evidencia acumulada sem substituir o historico bruto. "
+            "Contagem de frames nao prova sozinha a semantica horaria do pluviometro e nao libera Z-R."
+        ),
+    }
+    with open(AUDITORIA_TEMPORAL_170_ARQUIVO, "w", encoding="utf-8") as f:
+        json.dump(documento, f, ensure_ascii=False, indent=2)
+    return documento
+
+
 def registrar_historico_zr_170(coleta):
     try:
         if not isinstance(coleta, dict) or coleta.get("status") != "candidatos_multirrede_coletados":
@@ -14056,6 +14090,7 @@ def main():
     radar_atual = buscar_radar()
     coleta_zr170 = coletar_zr_170_b2(chuva_cemaden, chuva_epagri165, radar_atual, previsao)
     historico_zr170 = registrar_historico_zr_170(coleta_zr170)
+    auditoria_temporal170g = salvar_auditoria_temporal_170_g(historico_zr170)
     liberacao168 = construir_liberacao_experimental_168(
         radar_atual, goes19_tathu167, nivel_guaxanduva_v021, mare_observada160, mare_prevista164
     )
@@ -14214,6 +14249,9 @@ def main():
 
         "auditoria_temporal_zr_170_f":
             historico_zr170.get("auditoria_temporal_compacta_170_f") if isinstance(historico_zr170, dict) else None,
+
+        "auditoria_temporal_zr_170_g":
+            auditoria_temporal170g,
 
         "liberacao_experimental_168":
             liberacao168,

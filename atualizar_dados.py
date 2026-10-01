@@ -30,6 +30,7 @@ HISTORICO_ZR_170_ARQUIVO = "historico_zr_170.json"
 HISTORICO_ZR_170_MAX_REGISTROS = 4320
 AUDITORIA_TEMPORAL_170_ARQUIVO = "auditoria_temporal_170.json"
 AUDITORIA_ESPACIAL_170I_ARQUIVO = "auditoria_espacial_170i.json"
+HISTORICO_CEMADEN_SUBHORARIO_170H2_ARQUIVO = "historico_cemaden_subhorario_170h2.json"
  
 # Coordenada pública aproximada do Comasa.
 # NÃO representa endereço residencial.
@@ -13786,12 +13787,47 @@ def salvar_auditoria_temporal_170_g(historico):
 # #170-C/#170-D ja persistidos no historico bruto. Nao recalcula o nucleo,
 # nao aproxima RGB e nao libera Z-R nem dBZ->mm/h.
 
-H2_170I_EPISODIOS = (
-    {"estacao_id": "6960", "nome": "Nova Brasilia", "t_utc": "2026-10-01T01:00:00+00:00", "chuva_1h_mm": 0.2},
-    {"estacao_id": "6960", "nome": "Nova Brasilia", "t_utc": "2026-10-01T02:00:00+00:00", "chuva_1h_mm": 0.6},
-    {"estacao_id": "6960", "nome": "Nova Brasilia", "t_utc": "2026-10-01T03:00:00+00:00", "chuva_1h_mm": 0.6},
-    {"estacao_id": "6258", "nome": "Paranaguamirim", "t_utc": "2026-10-01T04:00:00+00:00", "chuva_1h_mm": 0.2},
-)
+def _carregar_episodios_h2_170i():
+    """Carrega todas as confirmacoes temporais positivas persistidas pela #170-H2."""
+    try:
+        with open(HISTORICO_CEMADEN_SUBHORARIO_170H2_ARQUIVO, "r", encoding="utf-8") as f:
+            documento = json.load(f)
+    except Exception as e:
+        return [], "historico_h2_indisponivel: " + str(e)[:220]
+
+    registros = documento.get("registros", []) if isinstance(documento, dict) else []
+    episodios = []
+    vistos = set()
+
+    for r in registros if isinstance(registros, list) else []:
+        if not isinstance(r, dict) or r.get("evidencia_temporal_positiva") is not True:
+            continue
+        est = r.get("estacao") or {}
+        estacao_id = est.get("id")
+        t_utc = r.get("rotulo_horario_utc")
+        chuva_mm = r.get("acumulado_1h_h1_mm")
+        if estacao_id is None or not t_utc:
+            continue
+        if not isinstance(chuva_mm, (int, float)) or isinstance(chuva_mm, bool):
+            continue
+        chave = (str(estacao_id), str(t_utc))
+        if chave in vistos:
+            continue
+        vistos.add(chave)
+        episodios.append({
+            "estacao_id": str(estacao_id),
+            "nome": est.get("nome"),
+            "codigo": est.get("codigo"),
+            "t_utc": t_utc,
+            "chuva_1h_mm": float(chuva_mm),
+            "chave_h1": r.get("chave_h1"),
+            "janela_testada": r.get("janela_testada"),
+            "diferenca_mm": r.get("diferenca_mm"),
+            "fonte_h2": r.get("fonte"),
+        })
+
+    episodios.sort(key=lambda x: (str(x.get("t_utc")), str(x.get("estacao_id"))))
+    return episodios, None
 
 
 def _utc_170i(valor):
@@ -13900,11 +13936,12 @@ def _resumir_frame_170i(amostra, t_inicio, t_fim, mapa_classes):
 
 
 def salvar_auditoria_espacial_170i(radar_atual):
-    """#170-I: publica auditoria compacta dos quatro episodios #170-H2."""
+    """#170-I.1: audita espacialmente todas as evidencias positivas persistidas pela #170-H2."""
+    episodios_h2, erro_h2 = _carregar_episodios_h2_170i()
     base = {
         "monitor": "Monitor Guaxanduva",
         "tipo": "auditoria_espacial_radarsc_cemaden",
-        "versao": "#170-I",
+        "versao": "#170-I.1",
         "atualizado_em": agora().isoformat(),
         "arquivo_fonte_bruto": HISTORICO_ZR_170_ARQUIVO,
         "arquivo_saida": AUDITORIA_ESPACIAL_170I_ARQUIVO,
@@ -13912,10 +13949,10 @@ def salvar_auditoria_espacial_170i(radar_atual):
             "versao": "#170-H2",
             "status": "VALIDADO",
             "semantica_cemaden": "valor horario rotulado em T = acumulado em (T-60min,T]",
-            "episodios_exigidos": len(H2_170I_EPISODIOS),
+            "episodios_positivos_persistidos": len(episodios_h2),
             "observacao_170_g": (
                 "auditoria_temporal_170.json permanece registro legado #170-G. "
-                "Para estes quatro episodios CEMADEN, #170-H2 e a evidencia temporal posterior e vigente."
+                "#170-H2 e a evidencia temporal posterior e vigente; #170-I.1 consome automaticamente todas as confirmacoes positivas persistidas."
             ),
         },
         "criterio_espacial": {
@@ -13943,7 +13980,25 @@ def salvar_auditoria_espacial_170i(radar_atual):
         "conversao_dbz_mm_h_liberada": False,
         "mm_h_radar_operacional": None,
         "uso_operacional": False,
+        "fonte_episodios_h2": HISTORICO_CEMADEN_SUBHORARIO_170H2_ARQUIVO,
+        "latencia_integracao": (
+            "atualizar_dados.py roda antes da auditoria H2 no workflow atual; "
+            "confirmacoes H2 criadas na mesma execucao entram no #170-I.1 na execucao seguinte."
+        ),
     }
+
+    if erro_h2:
+        base["status"] = "EVIDENCIA_INSUFICIENTE"
+        base["erro_h2"] = erro_h2
+        with open(AUDITORIA_ESPACIAL_170I_ARQUIVO, "w", encoding="utf-8") as f:
+            json.dump(base, f, ensure_ascii=False, indent=2)
+        return base
+    if not episodios_h2:
+        base["status"] = "EVIDENCIA_INSUFICIENTE"
+        base["erro_h2"] = "nenhuma_evidencia_temporal_positiva_persistida"
+        with open(AUDITORIA_ESPACIAL_170I_ARQUIVO, "w", encoding="utf-8") as f:
+            json.dump(base, f, ensure_ascii=False, indent=2)
+        return base
 
     try:
         with open(HISTORICO_ZR_170_ARQUIVO, "r", encoding="utf-8") as f:
@@ -13957,15 +14012,21 @@ def salvar_auditoria_espacial_170i(radar_atual):
         return base
 
     mapa_classes = _mapa_classes_dbz_170(radar_atual) or {}
-    for ep in H2_170I_EPISODIOS:
+    for ep in episodios_h2:
         t_fim = _utc_170i(ep["t_utc"])
         t_inicio = t_fim - timedelta(minutes=60)
         r = _registro_h2_170i(registros, ep)
         item = {
-            "estacao": {"id": ep["estacao_id"], "nome": ep["nome"]},
+            "estacao": {"id": ep["estacao_id"], "codigo": ep.get("codigo"), "nome": ep.get("nome")},
             "t_utc": t_fim.isoformat(),
             "janela_radar_utc": {"inicio_exclusivo": t_inicio.isoformat(), "fim_inclusivo": t_fim.isoformat()},
             "chuva_cemaden_1h_mm_h2": ep["chuva_1h_mm"],
+            "prova_temporal_h2": {
+                "chave_h1": ep.get("chave_h1"),
+                "janela_testada": ep.get("janela_testada"),
+                "diferenca_mm": ep.get("diferenca_mm"),
+                "fonte": ep.get("fonte_h2"),
+            },
             "chave_historico": r.get("chave") if isinstance(r, dict) else None,
             "coordenadas_estacao": None,
             "frames": [],
@@ -14003,17 +14064,18 @@ def salvar_auditoria_espacial_170i(radar_atual):
     n_insuf = resultados.count("EVIDENCIA_INSUFICIENTE")
     base["resumo"] = {
         "episodios_h2": len(base["episodios"]),
+        "estacoes_h2_distintas": len({x["estacao"]["id"] for x in base["episodios"]}),
         "pareamento_espacial_valido": n_validos,
         "sem_pareamento_espacial_valido": n_sem,
         "evidencia_insuficiente": n_insuf,
     }
-    if len(base["episodios"]) == len(H2_170I_EPISODIOS) and n_insuf == 0 and n_validos > 0:
+    if len(base["episodios"]) == len(episodios_h2) and n_insuf == 0 and n_validos > 0:
         base["status"] = "AUDITORIA_ESPACIAL_CONCLUIDA"
-        base["placar_gates"]["espacial_radarsc_cemaden"] = "VALIDADO_COM_EVIDENCIA_MISTA" if n_sem else "VALIDADO_NOS_4_EPISODIOS_H2"
+        base["placar_gates"]["espacial_radarsc_cemaden"] = "VALIDADO_COM_EVIDENCIA_MISTA" if n_sem else "VALIDADO_NOS_EPISODIOS_H2_PERSISTIDOS"
     elif n_insuf > 0:
         base["status"] = "EVIDENCIA_INSUFICIENTE"
     else:
-        base["status"] = "SEM_PAREAMENTO_ESPACIAL_VALIDO_NOS_EPISODIOS_H2"
+        base["status"] = "SEM_PAREAMENTO_ESPACIAL_VALIDO_NOS_EPISODIOS_H2_PERSISTIDOS"
 
     base["proximo_gate"] = (
         "Z-R permanece bloqueado. Somente uma etapa posterior, explicitamente separada, pode avaliar elegibilidade "

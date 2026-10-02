@@ -14322,6 +14322,173 @@ def _censo_paleta_radarsc_170_j6(registros):
         }
 
 
+def construir_metodo_guaxanduva_refletividade_v01(historico_zr170, auditoria_espacial170i):
+    """#170-K / GXA-RADAR-V0.1 — inferencia ordinal probabilistica RGB -> dBZ.
+
+    O metodo NAO declara a PLTE como tabela fisica do RadarSC. Ele preserva a
+    escala oficial C1-C16 da #169.2R, usa somente a ancora RGB exata comprovada
+    #FFFF00 -> C10 e trata a sequencia restante como hipotese ordinal de
+    renderizacao. Monte Carlo de maxima entropia propaga a incerteza entre os
+    limites fisicos oficiais; chuva observada e usada apenas como teste de
+    coerencia ordinal, nunca como conversor Z-R.
+    """
+    base = {
+        "versao": "GXA-RADAR-V0.1/#170-K",
+        "status": "EVIDENCIA_INSUFICIENTE",
+        "natureza": "INFERENCIA_COMPUTACIONAL_NAO_INSTRUMENTAL_NAO_OPERACIONAL",
+        "dbz_oficial_validado": False,
+        "dbz_modelado_disponivel": False,
+        "zr_validada": False,
+        "conversao_dbz_mm_h_liberada": False,
+        "uso_operacional": False,
+        "regra_ouro": "fato permanece fato; inferencia recebe incerteza; ausencia de evidencia nao vira certeza",
+    }
+    try:
+        # Escala fisica oficial validada pela legenda #169.2R. C1 = maior refletividade.
+        classes = [
+            (1,73.0,78.0),(2,68.0,73.0),(3,63.0,68.0),(4,58.0,63.0),
+            (5,53.0,58.0),(6,48.0,53.0),(7,43.0,48.0),(8,38.0,43.0),
+            (9,33.0,38.0),(10,28.0,33.0),(11,23.0,28.0),(12,18.0,23.0),
+            (13,13.0,18.0),(14,10.0,13.0),(15,-10.0,10.0),(16,-31.5,-10.0),
+        ]
+        seq_baixa = [
+            "165,255,255", "110,200,255", "55,145,255", "0,90,255",
+            "170,255,0", "128,206,0", "85,156,0", "43,107,0", "0,57,0",
+        ]
+        ancora = "255,255,0"
+        seq_alta = ["255,192,0", "255,128,0", "255,64,0", "190,0,0", "255,0,255"]
+        ordem = seq_baixa + [ancora] + seq_alta
+
+        censo = (historico_zr170 or {}).get("censo_paleta_radarsc_170_j6") or {}
+        cores_censo = {}
+        for x in censo.get("cores") or []:
+            rgb = x.get("rgb")
+            if isinstance(rgb, list) and len(rgb) == 3:
+                cores_censo[",".join(str(int(v)) for v in rgb)] = x
+        observadas = [k for k in ordem if k in cores_censo]
+        if ancora not in cores_censo:
+            base["motivo"] = "ancora_FFFF00_nao_observada_no_censo_J6"
+            return base
+        anc = cores_censo[ancora]
+        if not (anc.get("cor_oficial_exata_em_algum_quadro") is True and 10 in (anc.get("classes_oficiais_exatas_observadas") or [])):
+            base["motivo"] = "ancora_FFFF00_C10_nao_comprovada_pela_J5_J6"
+            return base
+
+        # Evidencia empirica: chuva 1 h x pixels RGB no raio de 25 km.
+        # Serve somente para verificar coerencia/ordem. NUNCA calcula dBZ ou Z-R.
+        emp = {k:{"quadros":0,"pixels":0,"soma_mm_pixel":0.0,"chuvas":[]} for k in ordem}
+        combinacoes = 0
+        for ep in (auditoria_espacial170i or {}).get("episodios") or []:
+            chuva = ep.get("chuva_cemaden_1h_mm_h2")
+            if not isinstance(chuva, (int,float)):
+                continue
+            for fr in ep.get("frames") or []:
+                raio = ((fr.get("autopsia_170_d_por_raio") or {}).get("25") or {})
+                cores = raio.get("cores_brutas_mais_frequentes") or []
+                if not cores:
+                    continue
+                combinacoes += 1
+                vistos = set()
+                for item in cores:
+                    rgb = item.get("rgb")
+                    px = item.get("pixels")
+                    if not (isinstance(rgb,list) and len(rgb)==3 and isinstance(px,int) and px>0):
+                        continue
+                    k = ",".join(str(int(v)) for v in rgb)
+                    if k not in emp:
+                        continue
+                    st=emp[k]; st["pixels"] += px; st["soma_mm_pixel"] += float(chuva)*px
+                    if k not in vistos:
+                        st["quadros"] += 1; st["chuvas"].append(float(chuva)); vistos.add(k)
+        evidencia_empirica=[]
+        for k in ordem:
+            st=emp[k]
+            evidencia_empirica.append({
+                "rgb":[int(v) for v in k.split(",")],
+                "quadros_com_rgb_no_top_frequencias_25km":st["quadros"],
+                "pixels_somados_25km":st["pixels"],
+                "chuva_1h_media_ponderada_por_pixel_mm":round(st["soma_mm_pixel"]/st["pixels"],4) if st["pixels"] else None,
+                "uso_no_modelo":"teste_de_coerencia_ordinal_somente",
+            })
+
+        # Monte Carlo max-entropia sob restricoes de ordem.
+        # Sem tabela RGB nativa, o prior menos informativo para posicoes ordenadas
+        # e amostrar pontos uniformes e ordena-los dentro dos dominios fisicos.
+        # A ancora comprovada fica em C10; nao e sorteada entre outras classes.
+        n = 20000
+        assinatura = str(censo.get("assinaturas_plte_rgb_distintas")) + "|" + str(censo.get("quadros_unicos_com_plte"))
+        seed = int(hashlib.sha256(assinatura.encode("utf-8")).hexdigest()[:8],16) or 1
+        estado = seed % 2147483647
+        if estado <= 0: estado = 1
+        def u01():
+            nonlocal estado
+            estado = (estado * 48271) % 2147483647
+            return estado / 2147483647.0
+        amostras = {k:[] for k in ordem}
+        cont = {k:{str(c):0 for c,_,_ in classes} for k in ordem}
+        def classe_de(z):
+            for c,lo,hi in classes:
+                if (z >= lo and z < hi) or (c==1 and z<=hi and z>=lo): return c
+            return 16 if z < -10 else 1
+        for _ in range(n):
+            baixos = sorted(-31.5 + u01()*(28.0+31.5) for __ in seq_baixa)
+            altos = sorted(33.0 + u01()*(78.0-33.0) for __ in seq_alta)
+            for k,z in zip(seq_baixa,baixos):
+                amostras[k].append(z); cont[k][str(classe_de(z))]+=1
+            zanc = 30.5
+            amostras[ancora].append(zanc); cont[ancora]["10"]+=1
+            for k,z in zip(seq_alta,altos):
+                amostras[k].append(z); cont[k][str(classe_de(z))]+=1
+
+        def quantil(v,q):
+            s=sorted(v); p=(len(s)-1)*q; a=int(math.floor(p)); b=int(math.ceil(p))
+            return s[a] if a==b else s[a]+(s[b]-s[a])*(p-a)
+        resultados=[]
+        for pos,k in enumerate(ordem):
+            vals=amostras[k]
+            probs={c:round(100.0*n0/n,3) for c,n0 in cont[k].items() if n0}
+            top=sorted(probs.items(), key=lambda x:(-x[1],int(x[0])))[:3]
+            censo_k=cores_censo.get(k) or {}
+            exato=(k==ancora)
+            resultados.append({
+                "ordem_latente":pos+1,"rgb":[int(v) for v in k.split(",")],
+                "hex":"#"+"".join(f"{int(v):02X}" for v in k.split(",")),
+                "natureza":"COMPROVADO_RGB_C10" if exato else "MODELADO_MAX_ENTROPIA_ORDINAL",
+                "dbz_central_modelado":30.5 if exato else round(quantil(vals,0.5),3),
+                "intervalo_credibilidade_90_dbz":[round(quantil(vals,0.05),3),round(quantil(vals,0.95),3)],
+                "probabilidade_classes_pct":probs,
+                "classes_mais_provaveis":[{"classe":int(c),"probabilidade_pct":p} for c,p in top],
+                "quadros_plte_com_rgb":censo_k.get("quadros_com_rgb"),
+                "pixels_plte_somados":censo_k.get("pixels_somados"),
+                "ancora_oficial":exato,
+            })
+
+        base.update({
+            "status":"MODELO_EXPERIMENTAL_CALCULADO",
+            "dbz_modelado_disponivel":True,
+            "dbz_oficial_validado":False,
+            "escala_fisica_oficial": [{"classe":c,"dbz_min":lo,"dbz_max":hi} for c,lo,hi in classes],
+            "ancora_comprovada":{"rgb":[255,255,0],"hex":"#FFFF00","classe":10,"dbz_min":28.0,"dbz_max":33.0,"dbz_central_apenas_representativo":30.5},
+            "hipotese_ordem_renderizacao_rgb":[[int(v) for v in k.split(",")] for k in ordem],
+            "cores_da_hipotese_observadas_no_censo":len(observadas),
+            "cores_da_hipotese_total":len(ordem),
+            "monte_carlo":{"realizacoes":n,"metodo":"maxima_entropia_por_estatisticas_de_ordem_uniformes_condicionadas_a_ancora_C10","semente_deterministica":seed,"reprodutivel":True},
+            "evidencia_empirica_25km": {"combinacoes_frame_chuva_avaliadas":combinacoes,"cores":evidencia_empirica,"papel":"validacao_de_coerencia_ordinal; nao converte chuva em dBZ"},
+            "resultado_rgb_para_refletividade_modelada":resultados,
+            "limitacoes":[
+                "A ordem RGB fora da ancora C10 e hipotese computacional, nao tabela oficial EEC/RadarSC.",
+                "Distribuicoes max-entropia expressam o que e possivel sob ordem+limites; nao criam evidencia ausente.",
+                "Cores laranja/vermelho/magenta possuem pouca ou nenhuma validacao pluviometrica local no conjunto atual.",
+                "Nao usar dbz modelado como chuva medida; relacao Z-R continua bloqueada.",
+                "Indice P da PNG permanece sem significado fisico demonstrado.",
+            ],
+            "proibicoes":["nao_promover_modelado_a_oficial","nao_usar_indice_P_como_dbz","nao_liberar_ZR","nao_converter_dbz_modelado_em_mm_h_operacional"],
+        })
+        return base
+    except Exception as e:
+        base.update({"status":"FALHA_MODELO_FAIL_CLOSED","erro":str(e)[:500]})
+        return base
+
 def registrar_historico_zr_170(coleta):
     try:
         # #170-J.6.1 — o censo longitudinal da PLTE deve continuar sendo
@@ -14658,6 +14825,7 @@ def main():
 
     auditoria_temporal170g = salvar_auditoria_temporal_170_g(historico_zr170)
     auditoria_espacial170i = salvar_auditoria_espacial_170i(radar_atual)
+    metodo_guaxanduva_radar_v01 = construir_metodo_guaxanduva_refletividade_v01(historico_zr170, auditoria_espacial170i)
     liberacao168 = construir_liberacao_experimental_168(
         radar_atual, goes19_tathu167, nivel_guaxanduva_v021, mare_observada160, mare_prevista164
     )
@@ -14822,6 +14990,9 @@ def main():
 
         "auditoria_espacial_zr_170_i":
             auditoria_espacial170i,
+
+        "metodo_guaxanduva_refletividade_v01":
+            metodo_guaxanduva_radar_v01,
 
         "liberacao_experimental_168":
             liberacao168,

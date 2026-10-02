@@ -107,6 +107,41 @@ html,body{overflow-x:hidden}.card,.dash,.dash-panel,.radar-item,.box,.medida{min
 .radar-sintese strong{display:block;color:#eef8fc;font-size:14px;margin-bottom:3px}
 @media(max-width:560px){header,.card{border-radius:14px}.valor{font-size:30px}.radar-item b,.meteo b{font-size:20px}.tech-status{font-size:16px!important}.radar-familia b{font-size:9.5px}.radar-familia small{font-size:8px}.card{padding:14px}.sub{line-height:1.45}}
 @media(min-width:1000px){main{padding:18px}.dash{padding:14px}.dash-row{grid-template-columns:1.35fr 1fr 1fr}.card{padding:20px}.radar-tech-body #dashRadarLegenda{grid-template-columns:repeat(8,minmax(0,1fr))!important}}
+
+/* V0.23 — auditoria integral de coerência e UX */
+:root{--bg:#07131a;--surface:#0b1d26;--surface2:#0d2530;--line:#234b5c;--text:#eef8fc;--muted:#a9c1cb;--accent:#69d6f2;--ok:#8fe3a1;--warn:#f1d277}
+body{background:radial-gradient(circle at 50% -10%,#0d2b38 0,#07131a 34%,#061118 100%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45}
+main{max-width:1360px}
+header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
+.hero-monitor{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:linear-gradient(105deg,rgba(6,21,29,.94),rgba(10,39,51,.94) 55%,rgba(16,67,82,.94))}
+.dash{border-color:#2c7893;background:linear-gradient(180deg,#071b24,#081820)}
+.dash-head{padding:3px 5px 11px}.dash-head-title{letter-spacing:-.2px}
+.dash-status{border-left:4px solid #55d7a3}
+.truth-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 10px}
+.truth-item{border:1px solid var(--line);background:#091d26;border-radius:10px;padding:8px 10px;font-size:10px;color:var(--muted)}
+.truth-item b{display:block;color:var(--text);font-size:11px;margin-bottom:2px}.truth-item.obs{border-top:2px solid #69d6f2}.truth-item.prev{border-top:2px solid #f1d277}.truth-item.mod{border-top:2px solid #8fe3a1}
+.dash-cards{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.dash-mini{min-height:102px;padding:11px}.dash-mini .k{font-size:10.5px}.dash-mini .v{font-size:23px}.dash-mini .d{font-size:11px}
+.dash-row{gap:10px}.dash-panel{padding:13px}.dash-panel h3{font-size:11.5px}.dash-muted{font-size:11px}.dash-stat{padding:9px}.dash-stat b{font-size:18px}
+.radar-sintese{border-left:3px solid #69d6f2;background:#0a222d;padding:11px 13px}
+.radar-familia{padding:9px 6px}.radar-familia b{font-size:9.5px}
+#previsao7dias{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;background:transparent;padding:0}
+#previsao7dias .dia-previsao{border:1px solid var(--line);background:#091a23;border-radius:12px;padding:13px;min-width:0;line-height:1.55}
+#previsao7dias .dia-previsao:nth-child(n+5){margin-top:0}#previsao7dias>.ok{grid-column:1/-1;padding:6px 2px}
+.card-recolhivel .card-cabecalho{padding-right:44px}.card-seta{font-size:20px}
+.tech-status{font-size:16px!important}.radar-item b{font-size:21px}.radar-item{overflow:hidden}
+#riscoJanela{font-size:18px;overflow-wrap:anywhere}
+@media(min-width:1000px){.dash-row:first-of-type{grid-template-columns:1.55fr 1fr 1fr}.dash-panel{min-height:100%}.card{border-radius:16px}}
+@media(max-width:760px){
+ main{padding:8px}.hero-monitor{position:relative}.hero-nav{display:none}.hero-title{font-size:23px}.hero-time{font-size:11px}
+ .dash-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.dash-mini{min-height:96px;padding:9px}.dash-mini .k{font-size:9px}.dash-mini .v{font-size:19px}.dash-mini .d{font-size:9.5px}
+ .truth-strip{grid-template-columns:1fr}.truth-item{font-size:10.5px}.truth-item b{font-size:11.5px}
+ .forecast-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.radar-familias{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #previsao7dias{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:9px;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+ #previsao7dias .dia-previsao{flex:0 0 82%;scroll-snap-align:start}.card{padding:14px}.valor{font-size:30px}
+ .risco{grid-template-columns:repeat(2,1fr)}.risco div{font-size:11px;padding:9px 4px}
+}
+@media(max-width:380px){.dash-cards{grid-template-columns:1fr 1fr}.hero-logo{display:none}.hero-monitor{grid-template-columns:1fr}.hero-time{display:none}.dash-mini .v{font-size:17px}}
+
 </style>
 </head>
 <body><main>
@@ -118,6 +153,7 @@ html,body{overflow-x:hidden}.card,.dash,.dash-panel,.radar-item,.box,.medida{min
 <section class="dash" id="resumoAgoraCard">
 <div class="dash-head"><div class="dash-head-title">📊 SITUAÇÃO DO GUAXANDUVA AGORA</div><div class="dash-tags"><span class="dash-tag">RESUMO EM LINGUAGEM SIMPLES</span><span class="dash-tag model">DADOS + MODELO</span><span class="dash-tag">V0.21 • EXPERIMENTAL</span></div></div>
 <div class="dash-status"><div class="dash-status-icon">🌊</div><div class="dash-status-text" id="resumoFrase">Carregando situação atual...</div></div>
+<div class="truth-strip" aria-label="Como interpretar os dados"><div class="truth-item obs"><b>📍 OBSERVADO</b>Radar, pluviômetros e maré descrevem medições/observações disponíveis.</div><div class="truth-item prev"><b>🕒 PREVISTO</b>Tempo e chuva futura vêm de modelo meteorológico e podem mudar.</div><div class="truth-item mod"><b>🧮 MODELADO</b>Nível do Guaxanduva e Método #170 são estimativas, não sensores do rio.</div></div>
  
 <div class="dash-cards">
 <div class="dash-mini"><div class="k">🌊 Nível do rio • modelo</div><div class="v" id="resRio">--</div><div class="d" id="resRioDet">V0.21 • não instrumental</div></div>
@@ -152,7 +188,7 @@ html,body{overflow-x:hidden}.card,.dash,.dash-panel,.radar-item,.box,.medida{min
  
 <div class="dash-footer">
 <div class="dash-foot"><b>🕒 HISTÓRICO RECENTE</b><br>Última coleta: <span id="resAtualizacao">--</span><br><span id="resAtualizacaoDet">--</span></div>
-<div class="dash-foot"><b>🗄️ FONTES DE DADOS</b><br>EPAGRI/CIRAM • RadarSC/Defesa Civil • previsão meteorológica • USNO • OPALE/IMCCE • demais fontes detalhadas nos painéis técnicos.</div>
+<div class="dash-foot"><b>🗄️ FONTES DE DADOS</b><br>EPAGRI/CIRAM • CEMADEN • RadarSC/Defesa Civil • Open-Meteo • USNO • OPALE/IMCCE. Fontes e limitações completas nos painéis técnicos.</div>
 <div class="dash-foot"><b>🛡️ SITUAÇÃO OPERACIONAL</b><br>Modelo em fase experimental. O dashboard não cria automaticamente classificação de segurança, perigo ou evacuação.</div>
 </div>
 <div class="dash-muted" style="margin-top:8px">⚠️ O nível do Guaxanduva exibido no dashboard é MODELADO/NÃO INSTRUMENTAL enquanto não houver sensor público confirmado.</div>
@@ -809,7 +845,7 @@ async function carregar(){
   const re=rh.entradas||{},rc=rh.criterios||{};
   $("riscoChuva24").textContent=re.chuva_prevista_24h_mm==null?"--":f(re.chuva_prevista_24h_mm,2)+" mm";
   $("riscoMare").textContent=re.mare_observada_m==null?"--":f(re.mare_observada_m,3)+" m";
-  $("riscoJanela").textContent=re.janela_inicio&&re.janela_fim_exclusivo?horaCurta(re.janela_inicio)+" → "+horaCurta(re.janela_fim_exclusivo):"--";
+  $("riscoJanela").textContent=re.janela_inicio&&re.janela_fim_exclusivo?dataHoraBR(re.janela_inicio)+" → "+dataHoraBR(re.janela_fim_exclusivo):"--";
   $("riscoOficial").textContent=rh.plancon_oficial===true?"INFORMADO OFICIALMENTE":"NÃO INFERIDO";
   if(rh.status==="calculado"){
    const classe=rh.classificacao_calculada||"--";
@@ -941,7 +977,7 @@ async function carregar(){
   const prevTemChuva=(ph.precipitacao_mm!=null&&Number(ph.precipitacao_mm)>0)||(ph.probabilidade_chuva_pct!=null&&Number(ph.probabilidade_chuva_pct)>=50);
   if($("dashRadarSintese")){
     if(escolhido&&classeAtual!==null){$("dashRadarSintese").innerHTML='<strong>📡 Eco detectado no radar agora</strong>Há refletividade classificada em até '+escolhido.raio+' km. A previsão da próxima hora é '+(ph.precipitacao_mm==null?'--':f(ph.precipitacao_mm,1)+' mm')+' ('+(ph.probabilidade_chuva_pct==null?'--':Math.round(ph.probabilidade_chuva_pct)+'%')+').';}
-    else if(cq.status&&prevTemChuva){$("dashRadarSintese").innerHTML='<strong>📡 Sem eco detectado agora • ☔ chuva prevista depois</strong>Não é contradição: o radar descreve o quadro observado/recente; a previsão estima a próxima hora. Previsão: '+(ph.precipitacao_mm==null?'--':f(ph.precipitacao_mm,1)+' mm')+' • '+(ph.probabilidade_chuva_pct==null?'--':Math.round(ph.probabilidade_chuva_pct)+'%')+'.';}
+    else if(cq.status&&prevTemChuva){$("dashRadarSintese").innerHTML='<strong>📡 Sem eco detectado agora • ☔ chuva prevista na próxima hora</strong>Os dados não medem a mesma coisa: o radar procura eco no quadro recente; a previsão estima a próxima hora. Chuva prevista pode ainda não aparecer no radar local e a previsão pode mudar. Previsão: '+(ph.precipitacao_mm==null?'--':f(ph.precipitacao_mm,1)+' mm')+' • '+(ph.probabilidade_chuva_pct==null?'--':Math.round(ph.probabilidade_chuva_pct)+'%')+'.';}
     else if(cq.status){$("dashRadarSintese").innerHTML='<strong>📡 Sem eco detectado agora</strong>Nenhuma classe C1–C16 foi detectada nesta busca. Isso não prova ausência de chuva no solo.';}
     else{$("dashRadarSintese").innerHTML='<strong>📡 Radar sem classificação local</strong>A leitura qualitativa está indisponível nesta coleta.';}
   }
@@ -956,7 +992,7 @@ async function carregar(){
   const nRgb=gxaM.quantidade_resultados??resPub.length;
   $("gxaMRgb").textContent=nRgb||"--"; $("gxaMNum").textContent=nRgb?nNum:"--"; $("gxaMQual").textContent=nRgb?nQual:"--";
   const gxaLiberado=gxaM.status==="LIBERADO_PUBLICACAO_CONTROLADA_MODELADA";
-  $("gxaMEstado").innerHTML=gxaLiberado?'<span class="ok">🟢 PUBLICAÇÃO CONTROLADA MODELADA LIBERADA</span><br><small>Os gates instrumentais/oficiais permanecem separados e fechados quando não validados.</small>':'<span class="aviso">⚪ '+String(gxaM.status||"Método Guaxanduva indisponível")+'</span>';
+  $("gxaMEstado").innerHTML=gxaLiberado?'<span class="ok">🟢 MÉTODO MODELADO DISPONÍVEL</span><br><small>Publicação quantitativa só aparece quando a incerteza passa pela guarda #170-M. Isso não é medição instrumental.</small>':'<span class="aviso">⚪ '+String(gxaM.status||"Método Guaxanduva indisponível")+'</span>';
   const pubEx=resPub.find(x=>x&&x.publicar_numero_mm_h===true);
   $("gxaMDetalhe").innerHTML=pubEx?'<small><b>Exemplo atualmente publicável:</b> '+String(pubEx.hex||"RGB")+' • '+f(pubEx.dbz_central_modelado,1)+' dBZ modelado → <b>'+f(pubEx.chuva_publicavel_mm_h,4)+' mm/h modelado</b>'+(Array.isArray(pubEx.intervalo_publicavel_mm_h)?' • envelope '+f(pubEx.intervalo_publicavel_mm_h[0],4)+'–'+f(pubEx.intervalo_publicavel_mm_h[1],4)+' mm/h':'')+' • confiança '+nomeFamilia(pubEx.confianca_publicacao)+'.</small>':'<small>Nenhum RGB possui mm/h quantitativo autorizado nesta coleta; resultados permanecem qualitativos quando a incerteza é excessiva.</small>';
   $("dashPrevAgora").textContent=a.temperatura_c==null?"--":f(a.temperatura_c,1)+"°";

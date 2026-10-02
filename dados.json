@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-10-01T22:42:06.711894-03:00",
+  "gerado_em": "2026-10-01T22:56:11.240183-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -143,7 +143,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-10-01T22:41:17.934130-03:00"
+    "coletado_em": "2026-10-01T22:55:07.383516-03:00"
   },
   "chuva_observada_epagri_165": {
     "status": "online",
@@ -163,7 +163,7 @@
         "longitude": -48.9708,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-10-01T22:00:00-03:00",
-        "idade_leitura_min": 41.4,
+        "idade_leitura_min": 55.2,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -179,7 +179,7 @@
         "longitude": -48.9889,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-10-01T22:00:00-03:00",
-        "idade_leitura_min": 41.4,
+        "idade_leitura_min": 55.2,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -348,7 +348,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-10-01T22:00:00-03:00",
-        "idade_leitura_min": 41.4,
+        "idade_leitura_min": 55.2,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -367,7 +367,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-10-01T22:00:00-03:00",
-        "idade_leitura_min": 41.4,
+        "idade_leitura_min": 55.2,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -561,8 +561,8 @@
     "endpoint": "https://resources.cemaden.gov.br/graficos/interativo/grafico_pcds.php?idpcd=6259",
     "http_status": 200,
     "content_type": "text/html; charset=UTF-8",
-    "bytes_resposta": 28941,
-    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-10-01 21h00 UTC','2026-10-01 22h00 UTC','2026-10-01 23h00 UTC','2026-10-02 00h00 UTC','2026-10-02 01h00 UTC'],'2026-10-01 ',[0,0,0,null,null],'Acumulada',[0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = new Array('#4572A7','#AA4643',",
+    "bytes_resposta": 28972,
+    "amostra_textual": "<!DOCTYPE html> <html> <head> <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /> <title>Gráficos para PCDs</title> <link href=\"css/estilo_.css\" rel=\"stylesheet\" type=\"text/css\" /> <script type='text/javascript' src='../js/jquery.min.js'></script> <script src=\"../js/highcharts.new.js\"></script> <script src=\"../js/exporting.new.js\"></script> <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"> <link href=\"css/personalizacao.css\" rel=\"stylesheet\" media=\"screen\"> <script src=\"js/bootstrap.min.js\"></script> <style type='text/css'> .div1 { float:left; width:100%; } .btntop { border-top:1px solid #456c99; border-left:1px solid #456c99; border-bottom:1px solid #7da2c8; border-right:1px solid #7da2c8; -moz-border-radius:5px; border-radius:6px; padding:5px; padding-left:10px; padding-right:10px; cursor:pointer; text-shadow: 0px 1px 0px #315785; font-weight:bold; color:#fff; background-image:url(img/btntop.jpg); background-repeat:repeat-x; } .btntop:hover {background-image:url(img/btntoph.jpg); background-repeat:repeat-x; color:#315785; text-shadow: 0px 1px 0px #90bae2;} </style> <script type='text/javascript'> $(document).ready(function() { Grafico(2,'mm','Precipitação Acumulada nas Últimas 4 horas | Estação: Aventureiro (420910203A)','CEMADEN',['2026-10-01 21h00 UTC','2026-10-01 22h00 UTC','2026-10-01 23h00 UTC','2026-10-02 00h00 UTC','2026-10-02 01h00 UTC','2026-10-02 02h00 UTC'],'2026-10-01 ',[0,0,0,null,null,null],'Acumulada',[0,0,0,0,0,0]); }); </script> <script type='text/javascript'>//<![CDATA[ //CAPTURA FUSO HORARIO var todayLocal = new Date(); var todayGMT = new Date(); var fuso = todayLocal.getTimezoneOffset()/60; var fuso = 0; todayGMT.setHours(todayGMT.getHours()+fuso); // converte hr atual p/ GMT //'GET' // Processo: pega a url e coloca na variavel url || converte em String || converte em um array separando pelos (idpcd=|hr=|dia=) var url = location.search; var idEstacao = url.toString().split(\"idpcd=\")[1].split(\"&\")[0]; if (url.length > 12) { var select_hr = url.toString().split(\"hr=\")[1].split(\"&\")[0]; } else { var select_hr = 24 + fuso; //default } if (url.length > 18){ var select_dia = url.toString().split(\"dia=\")[1]; } else { var select_dia = todayLocal.getHours() + (fuso*2) + (7*24); //default } // FIM: GET // Cabecalho - Define Variaveis 'Globais'(Grafico Horario: Captura Dados | Grafico Linhas: Imprime) var estacao = ''; var codEstacao = ''; var tipoEstacao = ''; var cidade = ''; var estado = ''; var dataAtual = ''; var horaAtual = ''; // FIM: Cabecalho - Define Variaveis //var path = \"http://sjc.salvar.cemaden.gov.br/WebServiceSalvar-war/resources/\"; //var path = \"http://mapainterativo.cemaden.gov.br/MapaInterativoWS/resources/\"; var path = \"https://mapservices.cemaden.gov.br/MapaInterativoWS/resources/\"; var area = 2; // ponto inicial do grafico de Linhas (container) var chartHorario; var chartDiario; var chartLinha; var charts = { chartHorario: null, chartDiario : null, chartLinha: null } var cor = ",
     "referencias_encontradas": [
       {
         "referencia_bruta": "css/estilo_.css",
@@ -1029,7 +1029,7 @@
       "data_fonte": "02/10/2026",
       "hora_fonte": "1h"
     },
-    "idade_ultima_leitura_min": 42.3,
+    "idade_ultima_leitura_min": 56.3,
     "dados_frescos_diagnostico": true,
     "limite_frescor_diagnostico_min": 120,
     "acumulados_diagnosticos": {
@@ -1257,7 +1257,7 @@
     "24h_mm": 0.0,
     "horario_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
     "horario_ultima_celula_local": "2026-10-01T22:00:00-03:00",
-    "idade_leitura_min": 41.3,
+    "idade_leitura_min": 55.2,
     "dados_frescos": true,
     "limite_frescor_min": 120,
     "granularidade": "horaria",
@@ -1293,7 +1293,7 @@
     "leitura_horaria_mm": 0.0,
     "horario_medicao_utc": "2026-10-02T01:00:00+00:00",
     "horario_medicao_local": "2026-10-01T22:00:00-03:00",
-    "idade_leitura_min": 42.3,
+    "idade_leitura_min": 56.4,
     "dados_frescos": true,
     "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
     "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
@@ -1419,19 +1419,25 @@
     "janela_busca_retrospectiva_min": 240,
     "tentativas": [
       {
-        "horario_utc": "2026-10-02T01:40:00+00:00",
+        "horario_utc": "2026-10-02T01:50:00+00:00",
         "http": 404,
+        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610020150.json"
+      },
+      {
+        "horario_utc": "2026-10-02T01:40:00+00:00",
+        "http": 200,
         "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610020140.json"
       },
       {
-        "horario_utc": "2026-10-02T01:30:00+00:00",
-        "http": 404,
-        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610020130.json"
+        "horario_utc": "2026-10-02T01:40:00+00:00",
+        "http": null,
+        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610020140.json",
+        "erro": "Expecting ',' delimiter: line 405 column 958 (char 2490124)"
       },
       {
-        "horario_utc": "2026-10-02T01:20:00+00:00",
+        "horario_utc": "2026-10-02T01:30:00+00:00",
         "http": 200,
-        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610020120.json"
+        "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610020130.json"
       }
     ],
     "eta_liberado": true,
@@ -1441,30 +1447,30 @@
     "equivale_chuva_medida_solo": false,
     "regra_seguranca": "TATHU/GOES-19 é evidência remota de sistemas convectivos. Indisponibilidade não significa ausência de tempestade; GLM/satélite não equivalem a chuva no solo. Velocidade, direção e geometrias previstas alimentam o nowcast experimental #168; não constituem observação nem alerta oficial.",
     "status": "online",
-    "url_produto": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610020120.json",
-    "horario_produto_utc": "2026-10-02T01:20:00+00:00",
-    "horario_produto_local": "2026-10-01T22:20:00-03:00",
-    "idade_dado_min": 21.7,
+    "url_produto": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610020130.json",
+    "horario_produto_utc": "2026-10-02T01:30:00+00:00",
+    "horario_produto_local": "2026-10-01T22:30:00-03:00",
+    "idade_dado_min": 25.7,
     "limite_frescor_monitor_min": 40,
     "tipo_geojson": "FeatureCollection",
-    "sistemas_detectados": 396,
-    "sistemas_relevantes_joinville": 1,
+    "sistemas_detectados": 419,
+    "sistemas_relevantes_joinville": 2,
     "raio_triagem_regional_km": 250,
     "sistemas": [
       {
         "nome": "3a247dd3-d0d0-498c-8096-6924435439dd",
-        "timestamp_fonte": "2026-10-02 01:20:00",
+        "timestamp_fonte": "2026-10-02 01:30:00",
         "evento": "CONTINUITY",
-        "fase": "Intensificando",
-        "latitude": -26.31,
-        "longitude": -47.47,
+        "fase": "Desintensificando",
+        "latitude": -26.4,
+        "longitude": -47.35,
         "metodo_posicao": "properties_Latitude_Longitude",
-        "distancia_comasa_km": 133.66,
-        "temperatura_minima_k": 230.7,
-        "taxa_resfriamento_k_10min": 0.7374,
+        "distancia_comasa_km": 146.21,
+        "temperatura_minima_k": 230.6,
+        "taxa_resfriamento_k_10min": -0.1229,
         "velocidade_m_s": 0.0,
         "direcao_graus": 0.0,
-        "duracao_h": 1.833,
+        "duracao_h": 2.0,
         "fracao_convectiva_pct": 0.0,
         "previsao_dt_min": 0.0,
         "natureza": "diagnostico_tathu",
@@ -1473,247 +1479,127 @@
           "coordinates": [
             [
               [
-                -47.78,
-                -26.05
-              ],
-              [
-                -47.73,
-                -26.05
-              ],
-              [
-                -47.73,
-                -26.09
-              ],
-              [
-                -47.71,
-                -26.09
-              ],
-              [
-                -47.71,
-                -26.1
-              ],
-              [
-                -47.66,
-                -26.1
-              ],
-              [
-                -47.66,
-                -26.14
-              ],
-              [
-                -47.67,
-                -26.14
-              ],
-              [
-                -47.67,
+                -47.55,
                 -26.18
               ],
               [
-                -47.64,
+                -47.51,
                 -26.18
               ],
               [
-                -47.64,
-                -26.19
-              ],
-              [
-                -47.6,
-                -26.19
-              ],
-              [
-                -47.6,
-                -26.27
-              ],
-              [
-                -47.57,
-                -26.27
-              ],
-              [
-                -47.57,
-                -26.28
-              ],
-              [
                 -47.51,
-                -26.28
-              ],
-              [
-                -47.51,
-                -26.27
-              ],
-              [
-                -47.49,
-                -26.27
-              ],
-              [
-                -47.49,
-                -26.23
-              ],
-              [
-                -47.51,
-                -26.23
-              ],
-              [
-                -47.51,
-                -26.19
-              ],
-              [
-                -47.49,
-                -26.19
-              ],
-              [
-                -47.49,
-                -26.16
-              ],
-              [
-                -47.53,
-                -26.16
-              ],
-              [
-                -47.53,
-                -26.12
-              ],
-              [
-                -47.48,
-                -26.12
-              ],
-              [
-                -47.48,
-                -26.16
-              ],
-              [
-                -47.42,
-                -26.16
-              ],
-              [
-                -47.42,
-                -26.18
-              ],
-              [
-                -47.39,
-                -26.18
-              ],
-              [
-                -47.39,
-                -26.19
-              ],
-              [
-                -47.37,
-                -26.19
-              ],
-              [
-                -47.37,
                 -26.21
               ],
               [
-                -47.35,
+                -47.46,
                 -26.21
               ],
               [
-                -47.35,
-                -26.23
+                -47.46,
+                -26.25
               ],
               [
-                -47.33,
-                -26.23
+                -47.42,
+                -26.25
               ],
               [
-                -47.33,
+                -47.42,
                 -26.27
               ],
               [
-                -47.3,
+                -47.39,
                 -26.27
               ],
               [
-                -47.3,
-                -26.3
-              ],
-              [
-                -47.28,
-                -26.3
-              ],
-              [
-                -47.28,
+                -47.39,
                 -26.32
               ],
               [
-                -47.26,
+                -47.37,
                 -26.32
               ],
               [
-                -47.26,
-                -26.34
-              ],
-              [
-                -47.24,
-                -26.34
-              ],
-              [
-                -47.24,
-                -26.36
-              ],
-              [
-                -47.26,
-                -26.36
-              ],
-              [
-                -47.26,
+                -47.37,
                 -26.37
               ],
               [
-                -47.31,
+                -47.33,
                 -26.37
-              ],
-              [
-                -47.31,
-                -26.39
               ],
               [
                 -47.33,
                 -26.39
               ],
               [
-                -47.33,
+                -47.31,
+                -26.39
+              ],
+              [
+                -47.31,
+                -26.37
+              ],
+              [
+                -47.26,
+                -26.37
+              ],
+              [
+                -47.26,
                 -26.41
               ],
               [
-                -47.31,
+                -47.24,
                 -26.41
               ],
               [
-                -47.31,
+                -47.24,
                 -26.43
               ],
               [
-                -47.35,
+                -47.22,
                 -26.43
               ],
               [
-                -47.35,
+                -47.22,
                 -26.45
               ],
               [
-                -47.28,
+                -47.24,
                 -26.45
               ],
               [
+                -47.24,
+                -26.46
+              ],
+              [
+                -47.26,
+                -26.46
+              ],
+              [
+                -47.26,
+                -26.48
+              ],
+              [
+                -47.3,
+                -26.48
+              ],
+              [
+                -47.3,
+                -26.5
+              ],
+              [
                 -47.28,
-                -26.46
+                -26.5
               ],
               [
-                -47.31,
-                -26.46
+                -47.28,
+                -26.52
               ],
               [
-                -47.31,
-                -26.48
+                -47.26,
+                -26.52
               ],
               [
-                -47.24,
-                -26.48
-              ],
-              [
-                -47.24,
+                -47.26,
                 -26.54
               ],
               [
@@ -1722,6 +1608,166 @@
               ],
               [
                 -47.21,
+                -26.52
+              ],
+              [
+                -47.17,
+                -26.52
+              ],
+              [
+                -47.17,
+                -26.48
+              ],
+              [
+                -47.19,
+                -26.48
+              ],
+              [
+                -47.19,
+                -26.46
+              ],
+              [
+                -47.17,
+                -26.46
+              ],
+              [
+                -47.17,
+                -26.45
+              ],
+              [
+                -47.15,
+                -26.45
+              ],
+              [
+                -47.15,
+                -26.37
+              ],
+              [
+                -47.19,
+                -26.37
+              ],
+              [
+                -47.19,
+                -26.36
+              ],
+              [
+                -47.28,
+                -26.36
+              ],
+              [
+                -47.28,
+                -26.34
+              ],
+              [
+                -47.26,
+                -26.34
+              ],
+              [
+                -47.26,
+                -26.27
+              ],
+              [
+                -47.22,
+                -26.27
+              ],
+              [
+                -47.22,
+                -26.28
+              ],
+              [
+                -47.21,
+                -26.28
+              ],
+              [
+                -47.21,
+                -26.3
+              ],
+              [
+                -47.19,
+                -26.3
+              ],
+              [
+                -47.19,
+                -26.32
+              ],
+              [
+                -47.15,
+                -26.32
+              ],
+              [
+                -47.15,
+                -26.34
+              ],
+              [
+                -47.12,
+                -26.34
+              ],
+              [
+                -47.12,
+                -26.39
+              ],
+              [
+                -47.1,
+                -26.39
+              ],
+              [
+                -47.1,
+                -26.41
+              ],
+              [
+                -47.08,
+                -26.41
+              ],
+              [
+                -47.08,
+                -26.43
+              ],
+              [
+                -47.1,
+                -26.43
+              ],
+              [
+                -47.1,
+                -26.45
+              ],
+              [
+                -47.12,
+                -26.45
+              ],
+              [
+                -47.12,
+                -26.48
+              ],
+              [
+                -47.1,
+                -26.48
+              ],
+              [
+                -47.1,
+                -26.54
+              ],
+              [
+                -47.12,
+                -26.54
+              ],
+              [
+                -47.12,
+                -26.55
+              ],
+              [
+                -47.13,
+                -26.55
+              ],
+              [
+                -47.13,
+                -26.54
+              ],
+              [
+                -47.15,
+                -26.54
+              ],
+              [
+                -47.15,
                 -26.55
               ],
               [
@@ -1730,211 +1776,728 @@
               ],
               [
                 -47.28,
-                -26.54
-              ],
-              [
-                -47.31,
-                -26.54
-              ],
-              [
-                -47.31,
-                -26.5
+                -26.57
               ],
               [
                 -47.33,
-                -26.5
+                -26.57
               ],
               [
                 -47.33,
+                -26.52
+              ],
+              [
+                -47.35,
+                -26.52
+              ],
+              [
+                -47.35,
                 -26.48
+              ],
+              [
+                -47.39,
+                -26.48
+              ],
+              [
+                -47.39,
+                -26.46
+              ],
+              [
+                -47.4,
+                -26.46
               ],
               [
                 -47.4,
                 -26.48
               ],
               [
-                -47.4,
-                -26.5
+                -47.44,
+                -26.48
+              ],
+              [
+                -47.44,
+                -26.54
               ],
               [
                 -47.42,
-                -26.5
+                -26.54
               ],
               [
                 -47.42,
-                -26.46
+                -26.59
+              ],
+              [
+                -47.48,
+                -26.59
+              ],
+              [
+                -47.48,
+                -26.55
+              ],
+              [
+                -47.49,
+                -26.55
+              ],
+              [
+                -47.49,
+                -26.54
               ],
               [
                 -47.51,
-                -26.46
+                -26.54
               ],
               [
                 -47.51,
-                -26.43
-              ],
-              [
-                -47.55,
-                -26.43
-              ],
-              [
-                -47.55,
-                -26.39
+                -26.5
               ],
               [
                 -47.53,
-                -26.39
+                -26.5
               ],
               [
                 -47.53,
+                -26.48
+              ],
+              [
+                -47.49,
+                -26.48
+              ],
+              [
+                -47.49,
+                -26.46
+              ],
+              [
+                -47.46,
+                -26.46
+              ],
+              [
+                -47.46,
+                -26.45
+              ],
+              [
+                -47.44,
+                -26.45
+              ],
+              [
+                -47.44,
+                -26.41
+              ],
+              [
+                -47.46,
+                -26.41
+              ],
+              [
+                -47.46,
                 -26.37
               ],
               [
-                -47.58,
+                -47.49,
                 -26.37
               ],
               [
-                -47.58,
+                -47.49,
+                -26.36
+              ],
+              [
+                -47.53,
+                -26.36
+              ],
+              [
+                -47.53,
                 -26.34
               ],
               [
-                -47.62,
+                -47.55,
                 -26.34
               ],
               [
-                -47.62,
-                -26.32
+                -47.55,
+                -26.3
               ],
               [
-                -47.66,
-                -26.32
+                -47.57,
+                -26.3
               ],
               [
-                -47.66,
-                -26.27
+                -47.57,
+                -26.28
               ],
               [
-                -47.67,
-                -26.27
+                -47.55,
+                -26.28
               ],
               [
-                -47.67,
-                -26.23
-              ],
-              [
-                -47.71,
-                -26.23
-              ],
-              [
-                -47.71,
+                -47.55,
                 -26.21
               ],
               [
-                -47.73,
+                -47.53,
                 -26.21
               ],
               [
-                -47.73,
+                -47.53,
                 -26.19
               ],
               [
-                -47.71,
+                -47.55,
                 -26.19
               ],
               [
-                -47.71,
+                -47.55,
                 -26.18
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "nome": "d05b9687-be32-4d35-a414-30f79653a7e5",
+        "timestamp_fonte": "2026-10-02 01:30:00",
+        "evento": "SPLIT",
+        "fase": "Estável",
+        "latitude": -27.05,
+        "longitude": -46.92,
+        "metodo_posicao": "properties_Latitude_Longitude",
+        "distancia_comasa_km": 206.87,
+        "temperatura_minima_k": 229.4,
+        "taxa_resfriamento_k_10min": 10.69,
+        "velocidade_m_s": 0.0,
+        "direcao_graus": 0.0,
+        "duracao_h": 2.0,
+        "fracao_convectiva_pct": 0.0,
+        "previsao_dt_min": 0.0,
+        "natureza": "diagnostico_tathu",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -47.3,
+                -26.73
               ],
               [
-                -47.73,
-                -26.18
+                -47.28,
+                -26.73
               ],
               [
-                -47.73,
-                -26.14
+                -47.28,
+                -26.75
               ],
               [
-                -47.75,
-                -26.14
+                -47.24,
+                -26.75
               ],
               [
-                -47.75,
-                -26.12
+                -47.24,
+                -26.73
               ],
               [
-                -47.76,
-                -26.12
+                -47.22,
+                -26.73
               ],
               [
-                -47.76,
-                -26.07
+                -47.22,
+                -26.75
               ],
               [
-                -47.78,
-                -26.07
+                -47.12,
+                -26.75
               ],
               [
-                -47.78,
-                -26.05
+                -47.12,
+                -26.77
+              ],
+              [
+                -47.08,
+                -26.77
+              ],
+              [
+                -47.08,
+                -26.8
+              ],
+              [
+                -47.01,
+                -26.8
+              ],
+              [
+                -47.01,
+                -26.79
+              ],
+              [
+                -46.99,
+                -26.79
+              ],
+              [
+                -46.99,
+                -26.75
+              ],
+              [
+                -46.97,
+                -26.75
+              ],
+              [
+                -46.97,
+                -26.77
+              ],
+              [
+                -46.95,
+                -26.77
+              ],
+              [
+                -46.95,
+                -26.79
+              ],
+              [
+                -46.94,
+                -26.79
+              ],
+              [
+                -46.94,
+                -26.8
+              ],
+              [
+                -46.92,
+                -26.8
+              ],
+              [
+                -46.92,
+                -26.82
+              ],
+              [
+                -46.97,
+                -26.82
+              ],
+              [
+                -46.97,
+                -26.84
+              ],
+              [
+                -46.95,
+                -26.84
+              ],
+              [
+                -46.95,
+                -26.88
+              ],
+              [
+                -46.85,
+                -26.88
+              ],
+              [
+                -46.85,
+                -26.89
+              ],
+              [
+                -46.83,
+                -26.89
+              ],
+              [
+                -46.83,
+                -26.91
+              ],
+              [
+                -46.79,
+                -26.91
+              ],
+              [
+                -46.79,
+                -26.95
+              ],
+              [
+                -46.83,
+                -26.95
+              ],
+              [
+                -46.83,
+                -26.98
+              ],
+              [
+                -46.81,
+                -26.98
+              ],
+              [
+                -46.81,
+                -27.0
+              ],
+              [
+                -46.76,
+                -27.0
+              ],
+              [
+                -46.76,
+                -27.06
+              ],
+              [
+                -46.72,
+                -27.06
+              ],
+              [
+                -46.72,
+                -27.07
+              ],
+              [
+                -46.7,
+                -27.07
+              ],
+              [
+                -46.7,
+                -27.15
+              ],
+              [
+                -46.69,
+                -27.15
+              ],
+              [
+                -46.69,
+                -27.18
+              ],
+              [
+                -46.7,
+                -27.18
+              ],
+              [
+                -46.7,
+                -27.22
+              ],
+              [
+                -46.69,
+                -27.22
+              ],
+              [
+                -46.69,
+                -27.25
+              ],
+              [
+                -46.65,
+                -27.25
+              ],
+              [
+                -46.65,
+                -27.31
+              ],
+              [
+                -46.63,
+                -27.31
+              ],
+              [
+                -46.63,
+                -27.36
+              ],
+              [
+                -46.65,
+                -27.36
+              ],
+              [
+                -46.65,
+                -27.38
+              ],
+              [
+                -46.63,
+                -27.38
+              ],
+              [
+                -46.63,
+                -27.42
+              ],
+              [
+                -46.65,
+                -27.42
+              ],
+              [
+                -46.65,
+                -27.45
+              ],
+              [
+                -46.63,
+                -27.45
+              ],
+              [
+                -46.63,
+                -27.47
+              ],
+              [
+                -46.67,
+                -27.47
+              ],
+              [
+                -46.67,
+                -27.45
+              ],
+              [
+                -46.69,
+                -27.45
+              ],
+              [
+                -46.69,
+                -27.43
+              ],
+              [
+                -46.7,
+                -27.43
+              ],
+              [
+                -46.7,
+                -27.42
+              ],
+              [
+                -46.72,
+                -27.42
+              ],
+              [
+                -46.72,
+                -27.4
+              ],
+              [
+                -46.74,
+                -27.4
+              ],
+              [
+                -46.74,
+                -27.38
+              ],
+              [
+                -46.78,
+                -27.38
+              ],
+              [
+                -46.78,
+                -27.36
+              ],
+              [
+                -46.79,
+                -27.36
+              ],
+              [
+                -46.79,
+                -27.34
+              ],
+              [
+                -46.83,
+                -27.34
+              ],
+              [
+                -46.83,
+                -27.31
+              ],
+              [
+                -46.85,
+                -27.31
+              ],
+              [
+                -46.85,
+                -27.25
+              ],
+              [
+                -46.88,
+                -27.25
+              ],
+              [
+                -46.88,
+                -27.22
+              ],
+              [
+                -46.9,
+                -27.22
+              ],
+              [
+                -46.9,
+                -27.18
+              ],
+              [
+                -46.94,
+                -27.18
+              ],
+              [
+                -46.94,
+                -27.13
+              ],
+              [
+                -46.95,
+                -27.13
+              ],
+              [
+                -46.95,
+                -27.09
+              ],
+              [
+                -46.99,
+                -27.09
+              ],
+              [
+                -46.99,
+                -27.07
+              ],
+              [
+                -47.01,
+                -27.07
+              ],
+              [
+                -47.01,
+                -27.06
+              ],
+              [
+                -47.03,
+                -27.06
+              ],
+              [
+                -47.03,
+                -27.04
+              ],
+              [
+                -47.06,
+                -27.04
+              ],
+              [
+                -47.06,
+                -27.02
+              ],
+              [
+                -47.08,
+                -27.02
+              ],
+              [
+                -47.08,
+                -27.0
+              ],
+              [
+                -47.13,
+                -27.0
+              ],
+              [
+                -47.13,
+                -26.98
+              ],
+              [
+                -47.15,
+                -26.98
+              ],
+              [
+                -47.15,
+                -26.97
+              ],
+              [
+                -47.17,
+                -26.97
+              ],
+              [
+                -47.17,
+                -26.95
+              ],
+              [
+                -47.19,
+                -26.95
+              ],
+              [
+                -47.19,
+                -26.89
+              ],
+              [
+                -47.21,
+                -26.89
+              ],
+              [
+                -47.21,
+                -26.84
+              ],
+              [
+                -47.22,
+                -26.84
+              ],
+              [
+                -47.22,
+                -26.82
+              ],
+              [
+                -47.24,
+                -26.82
+              ],
+              [
+                -47.24,
+                -26.8
+              ],
+              [
+                -47.26,
+                -26.8
+              ],
+              [
+                -47.26,
+                -26.79
+              ],
+              [
+                -47.28,
+                -26.79
+              ],
+              [
+                -47.28,
+                -26.77
+              ],
+              [
+                -47.3,
+                -26.77
+              ],
+              [
+                -47.3,
+                -26.73
               ]
             ],
             [
               [
-                -47.46,
-                -26.27
+                -46.76,
+                -27.25
               ],
               [
-                -47.46,
-                -26.3
+                -46.76,
+                -27.27
               ],
               [
-                -47.42,
-                -26.3
+                -46.74,
+                -27.27
               ],
               [
-                -47.42,
-                -26.34
+                -46.74,
+                -27.29
               ],
               [
-                -47.37,
-                -26.34
+                -46.72,
+                -27.29
               ],
               [
-                -47.37,
-                -26.32
+                -46.72,
+                -27.25
               ],
               [
-                -47.39,
-                -26.32
-              ],
-              [
-                -47.39,
-                -26.27
-              ],
-              [
-                -47.46,
-                -26.27
+                -46.76,
+                -27.25
               ]
             ],
             [
               [
-                -47.46,
-                -26.36
+                -46.83,
+                -27.16
               ],
               [
-                -47.46,
-                -26.37
+                -46.83,
+                -27.2
               ],
               [
-                -47.44,
-                -26.37
+                -46.79,
+                -27.2
               ],
               [
-                -47.44,
-                -26.36
+                -46.79,
+                -27.18
               ],
               [
-                -47.46,
-                -26.36
+                -46.81,
+                -27.18
+              ],
+              [
+                -46.81,
+                -27.16
+              ],
+              [
+                -46.83,
+                -27.16
               ]
             ]
           ]
@@ -1984,13 +2547,10 @@
       }
     ],
     "anterior": {
-      "hora": "19:14",
-      "altura_m": 1.3
-    },
-    "proximo": {
       "hora": "22:51",
       "altura_m": 0.2
-    }
+    },
+    "proximo": null
   },
   "mare_observada_joinville_160": {
     "status": "observado_disponivel",
@@ -1999,13 +2559,13 @@
     "local": "Joinville / Babitonga",
     "unidade": "cm",
     "url_fonte": "https://ciram.epagri.sc.gov.br/graficos/getDataMare11_2913.php",
-    "nivel_cm": 56.7,
-    "nivel_m": 0.567,
-    "mare_astronomica_cm": 23.0,
-    "residual_cm": 33.7,
+    "nivel_cm": 55.5,
+    "nivel_m": 0.555,
+    "mare_astronomica_cm": 18.0,
+    "residual_cm": 37.5,
     "nmm_cm": 103.1,
-    "horario": "2026-10-01T22:15:00-03:00",
-    "idade_min": 26.7,
+    "horario": "2026-10-01T22:30:00-03:00",
+    "idade_min": 25.6,
     "frescor": "atual",
     "residual_aritmetica_validada": true,
     "uso_no_risco": false,
@@ -2021,7 +2581,7 @@
     ],
     "estrutura_validada": true,
     "erro_residual_cm": 0.0,
-    "quantidade_observacoes_validas": 185
+    "quantidade_observacoes_validas": 186
   },
   "mare_prevista_24h_164": {
     "status": "online_completo",
@@ -3899,10 +4459,10 @@
     "versao": "166-v0.2-historico-integrado",
     "status": "historico_em_formacao",
     "arquivo_historico": "historico_guaxanduva_166.json",
-    "gerado_em": "2026-10-01T22:41:41.261877-03:00",
-    "quantidade_registros": 776,
+    "gerado_em": "2026-10-01T22:55:38.416015-03:00",
+    "quantidade_registros": 777,
     "quantidade_chuva_horaria": 336,
-    "quantidade_mare_observada": 440,
+    "quantidade_mare_observada": 441,
     "chuva_por_estacao": [
       {
         "codigo": "2382",
@@ -3986,11 +4546,11 @@
       "fonte": "EPAGRI/CIRAM",
       "codigo_estacao": "maregrafo_joinville_2913",
       "nome_estacao": "Joinville / Babitonga",
-      "horario_medicao": "2026-10-01T22:15:00-03:00",
-      "nivel_cm": 56.7,
-      "nivel_m": 0.567,
-      "mare_astronomica_cm": 23.0,
-      "residual_cm": 33.7,
+      "horario_medicao": "2026-10-01T22:30:00-03:00",
+      "nivel_cm": 55.5,
+      "nivel_m": 0.555,
+      "mare_astronomica_cm": 18.0,
+      "residual_cm": 37.5,
       "nmm_cm": 103.1,
       "representa_nivel_rio_guaxanduva": false,
       "uso": "condicao_de_jusante_para_calibracao_futura"
@@ -4023,7 +4583,7 @@
   },
   "modelo_computacional_guaxanduva_v01": {
     "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
-    "gerado_em": "2026-10-01T22:41:41.275054-03:00",
+    "gerado_em": "2026-10-01T22:55:38.429060-03:00",
     "status": "grafo_hidrografico_integrado",
     "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
     "microbacia": "44-0",
@@ -4040,7 +4600,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-10-01T22:41:43.214412-03:00"
+      "instante": "2026-10-01T22:55:40.496566-03:00"
     },
     "parametros_hidraulicos_documentados": {
       "bypass_montezuma_odilon": {
@@ -4175,11 +4735,11 @@
         "fonte": "EPAGRI/CIRAM",
         "codigo_estacao": "maregrafo_joinville_2913",
         "nome_estacao": "Joinville / Babitonga",
-        "horario_medicao": "2026-10-01T22:15:00-03:00",
-        "nivel_cm": 56.7,
-        "nivel_m": 0.567,
-        "mare_astronomica_cm": 23.0,
-        "residual_cm": 33.7,
+        "horario_medicao": "2026-10-01T22:30:00-03:00",
+        "nivel_cm": 55.5,
+        "nivel_m": 0.555,
+        "mare_astronomica_cm": 18.0,
+        "residual_cm": 37.5,
         "nmm_cm": 103.1,
         "representa_nivel_rio_guaxanduva": false,
         "uso": "condicao_de_jusante_para_calibracao_futura"
@@ -14570,7 +15130,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-10-01T22:41:43.214412-03:00",
+      "instante": "2026-10-01T22:55:40.496566-03:00",
       "uso_operacional": false,
       "alerta_operacional_liberado": false,
       "representa_medicao_instrumental": false,
@@ -14581,7 +15141,7 @@
         "TW": {
           "observado_local": false,
           "forcante_jusante_disponivel": true,
-          "mare_joinville_babitonga_observada_m": 0.567,
+          "mare_joinville_babitonga_observada_m": 0.555,
           "TW_local_absoluto_m": null,
           "regra": "mare_e_forcante_de_jusante; sem_compatibilidade_de_datum_nao_e_convertida_diretamente_em_TW_local_absoluto",
           "modelo_previsto": "funcao_de_transferencia_com_atraso_tau_amortecimento_km_e_componente_fluvial_calibrados_pela_serie_visual"
@@ -15865,10 +16425,10 @@
           "regra": "estacoes_independentes_nao_somadas; maior_acumulado_valido_apenas_para_resumo_regional"
         },
         "mare_jusante": {
-          "nivel_m": 0.567,
+          "nivel_m": 0.555,
           "nmm_m": 1.031,
-          "anomalia_relativa_ao_nmm_m": -0.464,
-          "horario_medicao": "2026-10-01T22:15:00-03:00",
+          "anomalia_relativa_ao_nmm_m": -0.476,
+          "horario_medicao": "2026-10-01T22:30:00-03:00",
           "representa_nivel_rio_guaxanduva": false
         }
       }
@@ -15881,7 +16441,7 @@
       "TW": {
         "observado_local": false,
         "forcante_jusante_disponivel": true,
-        "mare_joinville_babitonga_observada_m": 0.567,
+        "mare_joinville_babitonga_observada_m": 0.555,
         "TW_local_absoluto_m": null,
         "regra": "mare_e_forcante_de_jusante; sem_compatibilidade_de_datum_nao_e_convertida_diretamente_em_TW_local_absoluto",
         "modelo_previsto": "funcao_de_transferencia_com_atraso_tau_amortecimento_km_e_componente_fluvial_calibrados_pela_serie_visual"
@@ -16209,24 +16769,24 @@
     "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
     "status": "nivel_modelado_calculado",
     "natureza": "MODELADO_NAO_INSTRUMENTAL",
-    "instante": "2026-10-01T22:41:43.234775-03:00",
-    "referencia_forcantes": "2026-10-01T22:15:00-03:00",
+    "instante": "2026-10-01T22:55:40.516342-03:00",
+    "referencia_forcantes": "2026-10-01T22:30:00-03:00",
     "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
-    "nivel_estimado_m": 1.883,
+    "nivel_estimado_m": 1.877,
     "faixa_estimativa_m": {
-      "min": 1.692,
-      "max": 2.075
+      "min": 1.689,
+      "max": 2.066
     },
-    "incerteza_aprox_m": 0.192,
+    "incerteza_aprox_m": 0.189,
     "confianca": "baixa_experimental",
     "tendencia": {
       "classe": "descendo",
-      "cm_h": -10.95,
+      "cm_h": -5.3,
       "janela_min": 30.0,
-      "nivel_modelado_inicio_m": 1.938,
-      "horario_inicio": "2026-10-01T21:45:00-03:00",
-      "mare_inicio_m": 0.676,
-      "mare_inicio_referencia": "2026-10-01T21:45:00-03:00",
+      "nivel_modelado_inicio_m": 1.904,
+      "horario_inicio": "2026-10-01T22:00:00-03:00",
+      "mare_inicio_m": 0.608,
+      "mare_inicio_referencia": "2026-10-01T22:00:00-03:00",
       "regra": "variacao_do_mesmo_modelo_entre_t_e_t_menos_30min"
     },
     "entradas": {
@@ -16238,42 +16798,42 @@
         {
           "horario": "2026-10-01T17:00:00-03:00",
           "chuva_mediana_mm": 1.2,
-          "idade_h": 5.25,
-          "peso_memoria": 0.003093
+          "idade_h": 5.5,
+          "peso_memoria": 0.002349
         },
         {
           "horario": "2026-10-01T18:00:00-03:00",
           "chuva_mediana_mm": 0.1,
-          "idade_h": 4.25,
-          "peso_memoria": 0.009298
+          "idade_h": 4.5,
+          "peso_memoria": 0.007061
         },
         {
           "horario": "2026-10-01T19:00:00-03:00",
           "chuva_mediana_mm": 0.0,
-          "idade_h": 3.25,
-          "peso_memoria": 0.027952
+          "idade_h": 3.5,
+          "peso_memoria": 0.021228
         },
         {
           "horario": "2026-10-01T20:00:00-03:00",
           "chuva_mediana_mm": 0.1,
-          "idade_h": 2.25,
-          "peso_memoria": 0.084031
+          "idade_h": 2.5,
+          "peso_memoria": 0.063817
         },
         {
           "horario": "2026-10-01T21:00:00-03:00",
           "chuva_mediana_mm": 0.2,
-          "idade_h": 1.25,
-          "peso_memoria": 0.25262
+          "idade_h": 1.5,
+          "peso_memoria": 0.19185
         },
         {
           "horario": "2026-10-01T22:00:00-03:00",
           "chuva_mediana_mm": 0.0,
-          "idade_h": 0.25,
-          "peso_memoria": 0.75944
+          "idade_h": 0.5,
+          "peso_memoria": 0.576749
         }
       ],
-      "mare_jusante_m": 0.567,
-      "mare_horario": "2026-10-01T22:15:00-03:00",
+      "mare_jusante_m": 0.555,
+      "mare_horario": "2026-10-01T22:30:00-03:00",
       "area_km2": 4.2609,
       "phi": 0.865067
     },
@@ -16297,8 +16857,8 @@
     "componentes_central": {
       "q_m3_s": 0.036,
       "h_chuva_m": 0.024,
-      "dh_mare_m": 0.383,
-      "h_m": 1.883
+      "dh_mare_m": 0.378,
+      "h_m": 1.877
     },
     "equacoes": {
       "memoria_chuva": "i_mem=sum(P_h*exp(-idade_h/tau))/sum(exp(-idade_h/tau))",
@@ -16324,10 +16884,10 @@
     "nome": "Rio Guaxanduva",
     "status": "sem_sensor_publico_confirmado",
     "nivel_m": null,
-    "nivel_estimado_m": 1.883,
+    "nivel_estimado_m": 1.877,
     "faixa_estimativa_m": {
-      "min": 1.692,
-      "max": 2.075
+      "min": 1.689,
+      "max": 2.066
     },
     "natureza_nivel_estimado": "MODELADO_NAO_INSTRUMENTAL",
     "nivel_modelado_liberado": true,
@@ -16338,15 +16898,15 @@
     "fonte": "Open-Meteo",
     "modelo": "Best Match",
     "atual": {
-      "horario": "2026-10-01T22:30",
+      "horario": "2026-10-01T22:45",
       "temperatura_c": 16.2,
       "sensacao_termica_c": 17.3,
       "codigo_tempo_wmo": 3,
       "cobertura_nuvens_pct": 100,
       "precipitacao_mm": 0.0,
-      "vento_kmh": 5.0,
-      "direcao_graus": 229,
-      "rajada_kmh": 11.5
+      "vento_kmh": 4.7,
+      "direcao_graus": 242,
+      "rajada_kmh": 11.2
     },
     "proxima_hora": {
       "horario": "2026-10-01T23:00",
@@ -16530,13 +17090,13 @@
     "entradas": {
       "chuva_prevista_24h_mm": 3.9,
       "chuva_24h_integra": true,
-      "mare_observada_m": 0.567,
+      "mare_observada_m": 0.555,
       "mare_observada_fresca": true,
       "mare_fonte": "EPAGRI/CIRAM",
       "janela_inicio": "2026-10-01T23:00",
       "janela_fim_exclusivo": "2026-10-02T23:00:00-03:00",
-      "mare_horario": "2026-10-01T22:15:00-03:00",
-      "mare_idade_min": 26.7
+      "mare_horario": "2026-10-01T22:30:00-03:00",
+      "mare_idade_min": 25.6
     },
     "criterios": {
       "mobilizacao_chuva_superior_20mm_24h": false,
@@ -16570,7 +17130,7 @@
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
     "horario_ultimo_quadro": "2026-10-01T20:50:00-03:00",
-    "idade_ultimo_quadro_min": 111.9,
+    "idade_ultimo_quadro_min": 125.9,
     "dados_frescos": false,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -27064,7 +27624,7 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T22:30",
+      "horario": "2026-10-01T22:45",
       "codigo_tempo_wmo": 3,
       "precipitacao_mm": 0.0,
       "cobertura_nuvens_pct": 100,
@@ -27120,7 +27680,7 @@
         "codigo": "420910208A",
         "nome": "Nova Brasília",
         "distancia_comasa_aprox_km": 9.37,
-        "status_fonte": "indisponivel",
+        "status_fonte": "bloqueado_divergencia_24h",
         "1h_mm": null,
         "6h_mm": null,
         "24h_mm": null
@@ -27180,7 +27740,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 42.0,
+          "idade_leitura_min": 56.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -34131,7 +34691,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -42441,7 +43001,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -49302,7 +49862,7 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T22:30",
+      "horario": "2026-10-01T22:45",
       "codigo_tempo_wmo": 3,
       "precipitacao_mm": 0.0,
       "cobertura_nuvens_pct": 100,
@@ -49358,7 +49918,7 @@
         "codigo": "420910208A",
         "nome": "Nova Brasília",
         "distancia_comasa_aprox_km": 9.37,
-        "status_fonte": "indisponivel",
+        "status_fonte": "bloqueado_divergencia_24h",
         "1h_mm": null,
         "6h_mm": null,
         "24h_mm": null
@@ -49418,7 +49978,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 42.0,
+          "idade_leitura_min": 56.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -56369,7 +56929,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -64679,7 +65239,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -71540,7 +72100,7 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T22:30",
+      "horario": "2026-10-01T22:45",
       "codigo_tempo_wmo": 3,
       "precipitacao_mm": 0.0,
       "cobertura_nuvens_pct": 100,
@@ -71596,7 +72156,7 @@
         "codigo": "420910208A",
         "nome": "Nova Brasília",
         "distancia_comasa_aprox_km": 9.37,
-        "status_fonte": "indisponivel",
+        "status_fonte": "bloqueado_divergencia_24h",
         "1h_mm": null,
         "6h_mm": null,
         "24h_mm": null
@@ -71656,7 +72216,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 42.0,
+          "idade_leitura_min": 56.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -78607,7 +79167,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -86917,7 +87477,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -93778,7 +94338,7 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T22:30",
+      "horario": "2026-10-01T22:45",
       "codigo_tempo_wmo": 3,
       "precipitacao_mm": 0.0,
       "cobertura_nuvens_pct": 100,
@@ -93834,7 +94394,7 @@
         "codigo": "420910208A",
         "nome": "Nova Brasília",
         "distancia_comasa_aprox_km": 9.37,
-        "status_fonte": "indisponivel",
+        "status_fonte": "bloqueado_divergencia_24h",
         "1h_mm": null,
         "6h_mm": null,
         "24h_mm": null
@@ -93894,7 +94454,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 42.0,
+          "idade_leitura_min": 56.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -100845,7 +101405,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -109155,7 +109715,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -116016,7 +116576,7 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T22:30",
+      "horario": "2026-10-01T22:45",
       "codigo_tempo_wmo": 3,
       "precipitacao_mm": 0.0,
       "cobertura_nuvens_pct": 100,
@@ -116072,7 +116632,7 @@
         "codigo": "420910208A",
         "nome": "Nova Brasília",
         "distancia_comasa_aprox_km": 9.37,
-        "status_fonte": "indisponivel",
+        "status_fonte": "bloqueado_divergencia_24h",
         "1h_mm": null,
         "6h_mm": null,
         "24h_mm": null
@@ -116132,7 +116692,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 42.0,
+          "idade_leitura_min": 56.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -123083,7 +123643,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -131393,7 +131953,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -138254,7 +138814,7 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T22:30",
+      "horario": "2026-10-01T22:45",
       "codigo_tempo_wmo": 3,
       "precipitacao_mm": 0.0,
       "cobertura_nuvens_pct": 100,
@@ -138310,7 +138870,7 @@
         "codigo": "420910208A",
         "nome": "Nova Brasília",
         "distancia_comasa_aprox_km": 9.37,
-        "status_fonte": "indisponivel",
+        "status_fonte": "bloqueado_divergencia_24h",
         "1h_mm": null,
         "6h_mm": null,
         "24h_mm": null
@@ -138370,7 +138930,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 42.0,
+          "idade_leitura_min": 56.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -145321,7 +145881,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -153631,7 +154191,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -160492,7 +161052,7 @@
       "latitude": -26.27,
       "longitude": -48.81,
       "natureza": "CONTEXTO_METEOROLOGICO_MODELADO_NAO_PLUVIOMETRICO",
-      "horario": "2026-10-01T22:30",
+      "horario": "2026-10-01T22:45",
       "codigo_tempo_wmo": 3,
       "precipitacao_mm": 0.0,
       "cobertura_nuvens_pct": 100,
@@ -160548,7 +161108,7 @@
         "codigo": "420910208A",
         "nome": "Nova Brasília",
         "distancia_comasa_aprox_km": 9.37,
-        "status_fonte": "indisponivel",
+        "status_fonte": "bloqueado_divergencia_24h",
         "1h_mm": null,
         "6h_mm": null,
         "24h_mm": null
@@ -160608,7 +161168,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 42.0,
+          "idade_leitura_min": 56.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -167559,7 +168119,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -175869,7 +176429,7 @@
           "rotulo_ultima_celula_utc": "2026-10-02T01:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-01T22:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 41.4,
+          "idade_leitura_min": 55.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -187136,7 +187696,7 @@
     "monitor": "Monitor Guaxanduva",
     "tipo": "auditoria_temporal_radar_pluviometro",
     "versao": "#170-G",
-    "atualizado_em": "2026-10-01T22:42:06.558710-03:00",
+    "atualizado_em": "2026-10-01T22:56:11.099137-03:00",
     "arquivo_fonte_bruto": "historico_zr_170.json",
     "auditoria_temporal": {
       "versao": "#170-F",
@@ -187214,7 +187774,7 @@
     "monitor": "Monitor Guaxanduva",
     "tipo": "auditoria_espacial_radarsc_cemaden",
     "versao": "#170-I.1",
-    "atualizado_em": "2026-10-01T22:42:06.559406-03:00",
+    "atualizado_em": "2026-10-01T22:56:11.099863-03:00",
     "arquivo_fonte_bruto": "historico_zr_170.json",
     "arquivo_saida": "auditoria_espacial_170i.json",
     "base_temporal": {
@@ -220543,24 +221103,24 @@
       "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
       "status": "nivel_modelado_calculado",
       "natureza": "MODELADO_NAO_INSTRUMENTAL",
-      "instante": "2026-10-01T22:41:43.234775-03:00",
-      "referencia_forcantes": "2026-10-01T22:15:00-03:00",
+      "instante": "2026-10-01T22:55:40.516342-03:00",
+      "referencia_forcantes": "2026-10-01T22:30:00-03:00",
       "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
-      "nivel_estimado_m": 1.883,
+      "nivel_estimado_m": 1.877,
       "faixa_estimativa_m": {
-        "min": 1.692,
-        "max": 2.075
+        "min": 1.689,
+        "max": 2.066
       },
-      "incerteza_aprox_m": 0.192,
+      "incerteza_aprox_m": 0.189,
       "confianca": "baixa_experimental",
       "tendencia": {
         "classe": "descendo",
-        "cm_h": -10.95,
+        "cm_h": -5.3,
         "janela_min": 30.0,
-        "nivel_modelado_inicio_m": 1.938,
-        "horario_inicio": "2026-10-01T21:45:00-03:00",
-        "mare_inicio_m": 0.676,
-        "mare_inicio_referencia": "2026-10-01T21:45:00-03:00",
+        "nivel_modelado_inicio_m": 1.904,
+        "horario_inicio": "2026-10-01T22:00:00-03:00",
+        "mare_inicio_m": 0.608,
+        "mare_inicio_referencia": "2026-10-01T22:00:00-03:00",
         "regra": "variacao_do_mesmo_modelo_entre_t_e_t_menos_30min"
       },
       "entradas": {
@@ -220572,42 +221132,42 @@
           {
             "horario": "2026-10-01T17:00:00-03:00",
             "chuva_mediana_mm": 1.2,
-            "idade_h": 5.25,
-            "peso_memoria": 0.003093
+            "idade_h": 5.5,
+            "peso_memoria": 0.002349
           },
           {
             "horario": "2026-10-01T18:00:00-03:00",
             "chuva_mediana_mm": 0.1,
-            "idade_h": 4.25,
-            "peso_memoria": 0.009298
+            "idade_h": 4.5,
+            "peso_memoria": 0.007061
           },
           {
             "horario": "2026-10-01T19:00:00-03:00",
             "chuva_mediana_mm": 0.0,
-            "idade_h": 3.25,
-            "peso_memoria": 0.027952
+            "idade_h": 3.5,
+            "peso_memoria": 0.021228
           },
           {
             "horario": "2026-10-01T20:00:00-03:00",
             "chuva_mediana_mm": 0.1,
-            "idade_h": 2.25,
-            "peso_memoria": 0.084031
+            "idade_h": 2.5,
+            "peso_memoria": 0.063817
           },
           {
             "horario": "2026-10-01T21:00:00-03:00",
             "chuva_mediana_mm": 0.2,
-            "idade_h": 1.25,
-            "peso_memoria": 0.25262
+            "idade_h": 1.5,
+            "peso_memoria": 0.19185
           },
           {
             "horario": "2026-10-01T22:00:00-03:00",
             "chuva_mediana_mm": 0.0,
-            "idade_h": 0.25,
-            "peso_memoria": 0.75944
+            "idade_h": 0.5,
+            "peso_memoria": 0.576749
           }
         ],
-        "mare_jusante_m": 0.567,
-        "mare_horario": "2026-10-01T22:15:00-03:00",
+        "mare_jusante_m": 0.555,
+        "mare_horario": "2026-10-01T22:30:00-03:00",
         "area_km2": 4.2609,
         "phi": 0.865067
       },
@@ -220631,8 +221191,8 @@
       "componentes_central": {
         "q_m3_s": 0.036,
         "h_chuva_m": 0.024,
-        "dh_mare_m": 0.383,
-        "h_m": 1.883
+        "dh_mare_m": 0.378,
+        "h_m": 1.877
       },
       "equacoes": {
         "memoria_chuva": "i_mem=sum(P_h*exp(-idade_h/tau))/sum(exp(-idade_h/tau))",
@@ -222498,7 +223058,7 @@
     "consultas_temporais": [
       {
         "dias": 2,
-        "datetime": "2026-09-30T01:41:22Z/2026-10-02T01:41:22Z",
+        "datetime": "2026-09-30T01:55:13Z/2026-10-02T01:55:13Z",
         "http_status": 200,
         "quantidade_features": 21,
         "quantidade_data_alerta": 21,
@@ -222507,7 +223067,7 @@
       },
       {
         "dias": 7,
-        "datetime": "2026-09-25T01:41:22Z/2026-10-02T01:41:22Z",
+        "datetime": "2026-09-25T01:55:13Z/2026-10-02T01:55:13Z",
         "http_status": 200,
         "quantidade_features": 69,
         "quantidade_data_alerta": 69,
@@ -222516,7 +223076,7 @@
       },
       {
         "dias": 30,
-        "datetime": "2026-09-02T01:41:22Z/2026-10-02T01:41:22Z",
+        "datetime": "2026-09-02T01:55:13Z/2026-10-02T01:55:13Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,
@@ -222525,7 +223085,7 @@
       },
       {
         "dias": 90,
-        "datetime": "2026-07-04T01:41:22Z/2026-10-02T01:41:22Z",
+        "datetime": "2026-07-04T01:55:13Z/2026-10-02T01:55:13Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,

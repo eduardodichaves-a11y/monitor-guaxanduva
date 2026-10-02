@@ -14641,6 +14641,21 @@ def main():
     radar_atual = buscar_radar()
     coleta_zr170 = coletar_zr_170_b2(chuva_cemaden, chuva_epagri165, radar_atual, previsao)
     historico_zr170 = registrar_historico_zr_170(coleta_zr170)
+
+    # #170-J.6.2 — diagnostico explicito no log do GitHub Actions.
+    # Somente observacional: nao altera gates, nao promove RGB e nao libera Z-R.
+    try:
+        _j6 = (historico_zr170 or {}).get("censo_paleta_radarsc_170_j6") if isinstance(historico_zr170, dict) else None
+        print("J6_STATUS =", (historico_zr170 or {}).get("status") if isinstance(historico_zr170, dict) else "RETORNO_NAO_DICT")
+        print("J6_ERRO =", (historico_zr170 or {}).get("erro") if isinstance(historico_zr170, dict) else None)
+        print("J6_CENSO_STATUS =", (_j6 or {}).get("status") if isinstance(_j6, dict) else None)
+        print("J6_QUADROS =", (_j6 or {}).get("quadros_unicos_com_plte") if isinstance(_j6, dict) else None)
+        print("J6_RGB =", (_j6 or {}).get("rgb_distintos_observados") if isinstance(_j6, dict) else None)
+        print("J6_SLOTS =", (_j6 or {}).get("quantidades_slots_observadas") if isinstance(_j6, dict) else None)
+        print("J6_ASSINATURAS =", (_j6 or {}).get("assinaturas_plte_rgb_distintas") if isinstance(_j6, dict) else None)
+    except Exception as _e_j6_log:
+        print("J6_LOG_ERRO =", str(_e_j6_log)[:300])
+
     auditoria_temporal170g = salvar_auditoria_temporal_170_g(historico_zr170)
     auditoria_espacial170i = salvar_auditoria_espacial_170i(radar_atual)
     liberacao168 = construir_liberacao_experimental_168(

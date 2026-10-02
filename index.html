@@ -338,7 +338,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <div class="radar-item clicavel" id="cemadenToggle" role="button" tabindex="0" aria-expanded="false">📡 Estações ativas em Joinville<b id="cemadenQtd">--</b><small>Toque para ver o panorama de 24 h</small></div>
 </div>
 <div id="cemadenPanorama" class="box painel-estacoes"></div>
-<div id="cemadenNota" class="box aviso">Aguardando diagnóstico operacional #144...</div>
+<div id="cemadenNota" class="box aviso">Carregando estado operacional validado da rede CEMADEN...</div>
 <small>OBSERVADO = medido por instrumento. O acumulado pertence à estação CEMADEN indicada e não equivale a uma medição no Comasa. Valor ausente ou falha de coleta nunca é interpretado como 0 mm.</small>
 <a href="https://mapainterativo.cemaden.gov.br/" target="_blank">ABRIR CEMADEN</a>
 </div>
@@ -347,9 +347,9 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <h2>Complemento da rede de chuva</h2>
 <div class="sub">EPAGRI/CIRAM • ANA/SNIRH • sem repetir as estações CEMADEN mostradas acima</div>
 <div class="radar-grid">
-<div class="radar-item">📍 Estações catalogadas<b id="rede165Total">--</b></div>
-<div class="radar-item">🟢 Com leitura disponível<b id="rede165Online">--</b></div>
-<div class="radar-item">🟡 Sem aquisição integrada<b id="rede165NaoIntegradas">--</b></div>
+<div class="radar-item">📍 Rede total catalogada<b id="rede165Total">--</b></div>
+<div class="radar-item">🟢 Com leitura agora<b id="rede165Online">--</b></div>
+<div class="radar-item">🟡 Integração pendente<b id="rede165NaoIntegradas">--</b></div>
 <div class="radar-item">🛡️ Uso automático no risco?<b id="rede165Risco">NÃO</b></div>
 </div>
 <div id="rede165Estado" class="box aviso">Carregando rede pluviométrica #165...</div>
@@ -535,7 +535,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <div class="box"><small>ℹ️ Previsões, estimativas e produtos modelados não substituem avisos oficiais da Defesa Civil.</small></div>
 </div></details>
  
-<section class="card"><div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2><div id="sistema" class="box aviso">Carregando dados.json...</div><p><small id="coleta">Última coleta: --</small></p></section>
+<section class="card"><div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2><div id="sistema" class="box aviso">Carregando dados.json...</div><p><small id="coleta">Última coleta: --</small></p><div class="radar-grid"><div class="radar-item">📡 dBZ oficial<b id="vigDbz">--</b></div><div class="radar-item">🕐 CEMADEN temporal<b id="vigTemporal">--</b></div><div class="radar-item">🗺️ Radar × pluviômetro<b id="vigEspacial">--</b></div><div class="radar-item">🌧️ Z–R instrumental<b id="vigZr">--</b></div><div class="radar-item">📏 Nível Guaxanduva<b id="vigNivel">--</b></div><div class="radar-item">🌦️ Rede de chuva<b id="vigRede">--</b></div></div><small>Resumo científico vigente #171. Registros históricos permanecem preservados na auditoria, mas não definem estes badges.</small></section>
 
 <section class="card"><h2>🚨 Emergência</h2><div class="em"><div>Defesa Civil<div class="num">199</div></div><div>Bombeiros<div class="num">193</div></div></div></section>
  
@@ -608,6 +608,14 @@ async function carregar(){
   const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},e171=d.estado_cientifico_vigente_171||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{},x168=d.liberacao_experimental_168||{},gxaK=d.metodo_guaxanduva_refletividade_v01||{},gxaL=d.metodo_guaxanduva_zr_operacional_v02||{},gxaM=d.metodo_guaxanduva_publicacao_operacional_v03||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
+  const badgeVigente=(obj)=>{const st=String((obj||{}).status||"");if(!st)return "NÃO INFORMADO";if(st.includes("VALIDADO")||st.includes("LIBERADO"))return "VALIDADO";if(st.includes("EM_VALIDACAO"))return "EM VALIDAÇÃO";if(st.includes("BLOQUEADO"))return "BLOQUEADO";if(st.includes("MODELADO"))return "MODELADO";return nomeFamilia(st)};
+  $("vigDbz").textContent=badgeVigente(e171.radar_dbz_oficial);
+  $("vigTemporal").textContent=badgeVigente(e171.temporal_cemaden)+(e171.temporal_cemaden?.episodios_positivos_persistidos!=null?" • "+e171.temporal_cemaden.episodios_positivos_persistidos+" confirmações":"");
+  $("vigEspacial").textContent=badgeVigente(e171.espacial_radarsc_cemaden);
+  $("vigZr").textContent=badgeVigente(e171.zr_instrumental);
+  $("vigNivel").textContent=badgeVigente(e171.nivel_guaxanduva);
+  const rv=e171.rede_pluviometrica||{};
+  $("vigRede").textContent=(rv.com_leitura_atual??"--")+"/"+(rv.catalogadas??"--")+" com leitura • "+(rv.integradas??"--")+" integradas";
  
   const rt=rad.rastreamento_temporal||{}, av=rad.avaliacao_trajetorias||{};
   $("radarHora").textContent=horaCurta(rad.horario_ultimo_quadro);
@@ -692,7 +700,7 @@ async function carregar(){
   $("cemadenHorario").textContent=cop.horario_ultima_celula_local?(horaCurta(cop.horario_ultima_celula_local)+" • "+f(cop.idade_leitura_min,0)+" min"):"--";
   const estacoes=Array.isArray(c.estacoes_joinville_ativas)?[...c.estacoes_joinville_ativas]:[];
   estacoes.sort((x,y)=>{const ax=x.acumulado_24h_mm,ay=y.acumulado_24h_mm;if(ax==null&&ay==null)return String(x.nome||"").localeCompare(String(y.nome||""));if(ax==null)return 1;if(ay==null)return -1;return Number(ay)-Number(ax)});
-  $("cemadenPanorama").innerHTML='<b>🌧️ Panorama pluviométrico de Joinville • últimas 24 h</b><br><small>OBSERVADO nas estações CEMADEN • não representa condição das vias nem risco automático.</small>'+estacoes.map(e=>'<div class="estacao-linha"><div><b>'+String(e.nome||"Estação")+'</b><div class="estacao-meta">'+(e.distancia_comasa_aprox_km==null?"distância --":f(e.distancia_comasa_aprox_km,2)+" km da referência do Comasa")+'</div></div><div class="estacao-mm">'+(e.acumulado_24h_mm==null?"INDISPONÍVEL":f(e.acumulado_24h_mm,2)+" mm")+'</div></div>').join("");
+  $("cemadenPanorama").innerHTML='<b>🌧️ Panorama pluviométrico de Joinville • últimas 24 h</b><br><small>OBSERVADO nas estações CEMADEN • não representa condição das vias nem risco automático.</small>'+estacoes.map(e=>'<div class="estacao-linha"><div><b>'+String(e.nome||"Estação")+'</b><div class="estacao-meta">'+(e.distancia_comasa_aprox_km==null?"distância --":f(e.distancia_comasa_aprox_km,2)+" km da referência do Comasa")+'</div></div><div class="estacao-mm">'+(e.acumulado_24h_mm==null?"SEM LEITURA ATUAL":f(e.acumulado_24h_mm,2)+" mm")+'</div></div>').join("");
   if(cop.status==="online_fresco_validado"){
    $("cs").innerHTML='<span class="ok">🟢 OBSERVADO • CEMADEN • 1 h / 6 h / 24 h validados</span>';
    $("cemadenNota").innerHTML='<b>✅ #144 operacional e validada.</b><br><small>As janelas de 1 h, 6 h e 24 h estão liberadas. A #170-H2 validou a semântica temporal horária do CEMADEN: T representa (T−60 min, T]. A granularidade explícita de 10 min continua separada e não é inferida.</small>';
@@ -725,7 +733,7 @@ async function carregar(){
   if(r165.versao==="#165"&&est165.length){
    $("rede165Estado").innerHTML='<span class="ok">🟢 #165 RECEBIDA</span> • CEMADEN acima; aqui apenas redes complementares • sem agregação espacial automática';
   }else{
-   $("rede165Estado").innerHTML='<span class="aviso">⚪ #165 INDISPONÍVEL OU INCOMPLETA</span> • nenhuma ausência é interpretada como 0 mm';
+   $("rede165Estado").innerHTML='<span class="aviso">⚪ #165 não recebida por completo nesta coleta</span> • ausência de dado nunca é interpretada como 0 mm';
   }
  
   $("mareObsNivel").textContent=mo.nivel_m==null?"--":f(mo.nivel_m,3)+" m";

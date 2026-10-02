@@ -14489,6 +14489,135 @@ def construir_metodo_guaxanduva_refletividade_v01(historico_zr170, auditoria_esp
         base.update({"status":"FALHA_MODELO_FAIL_CLOSED","erro":str(e)[:500]})
         return base
 
+
+def construir_metodo_guaxanduva_zr_operacional_v02(metodo_v01):
+    """#170-L / GXA-RADAR-V0.2 — libera SOMENTE a pista operacional modelada.
+
+    Preserva os gates instrumentais/oficiais fechados. Converte o dBZ modelado
+    do #170-K em taxa de chuva modelada por um ensemble de relacoes Z-R
+    publicadas e propaga a incerteza do intervalo de refletividade. O resultado
+    e estimativa computacional, nunca medicao pluviometrica ou calibracao oficial.
+    """
+    base = {
+        "versao": "GXA-RADAR-V0.2/#170-L",
+        "status": "BLOQUEADO_FAIL_CLOSED",
+        "natureza": "OPERACIONAL_MODELADO_NAO_INSTRUMENTAL",
+        # Gates antigos continuam semanticamente fechados.
+        "dbz_oficial_validado": False,
+        "zr_instrumental_validada": False,
+        "conversao_dbz_mm_h_instrumental_liberada": False,
+        "uso_operacional_instrumental": False,
+        # Nova pista explicitamente modelada.
+        "dbz_modelado_liberado": False,
+        "zr_modelada_liberada": False,
+        "conversao_dbz_mm_h_modelada_liberada": False,
+        "uso_operacional_modelado": False,
+        "representa_medicao_instrumental": False,
+    }
+    try:
+        if not isinstance(metodo_v01, dict) or metodo_v01.get("status") != "MODELO_EXPERIMENTAL_CALCULADO":
+            base["motivo"] = "baseline_170K_indisponivel_ou_nao_calculada"
+            return base
+        if metodo_v01.get("dbz_modelado_disponivel") is not True:
+            base["motivo"] = "dbz_modelado_170K_indisponivel"
+            return base
+
+        # Ensemble documental. Nao escolhemos uma unica Z-R como verdade local.
+        # Z = A * R**b  =>  R = (Z/A)**(1/b), Z = 10**(dBZ/10).
+        relacoes = [
+            {"id":"NWS_DEFAULT_CONVECTIVE", "A":300.0, "b":1.4,
+             "referencia":"NWS/WSR-88D default; relacao empirica nao calibrada especificamente para Joinville"},
+            {"id":"MARSHALL_PALMER_STRATIFORM", "A":200.0, "b":1.6,
+             "referencia":"Marshall-Palmer; relacao estratiforme classica"},
+            {"id":"NWS_TROPICAL", "A":250.0, "b":1.2,
+             "referencia":"NWS/KINEROS2 Rosenfield Tropical; incluida para envelope de sensibilidade"},
+        ]
+
+        def chuva_zr(dbz, A, b):
+            z = 10.0 ** (float(dbz) / 10.0)
+            return (z / float(A)) ** (1.0 / float(b))
+
+        saida=[]
+        for item in metodo_v01.get("resultado_rgb_para_refletividade_modelada") or []:
+            if not isinstance(item, dict):
+                continue
+            dbz = item.get("dbz_central_modelado")
+            ic = item.get("intervalo_credibilidade_90_dbz")
+            if not isinstance(dbz, (int,float)) or not (isinstance(ic,list) and len(ic)==2):
+                continue
+            lo, hi = ic
+            if not isinstance(lo,(int,float)) or not isinstance(hi,(int,float)):
+                continue
+            centrais=[]; envelope=[]; por_relacao=[]
+            for zr in relacoes:
+                rc=chuva_zr(dbz,zr["A"],zr["b"])
+                rl=chuva_zr(lo,zr["A"],zr["b"])
+                rh=chuva_zr(hi,zr["A"],zr["b"])
+                centrais.append(rc); envelope += [rl,rh]
+                por_relacao.append({
+                    "id":zr["id"], "A":zr["A"], "b":zr["b"],
+                    "mm_h_no_dbz_central":round(rc,4),
+                    "mm_h_no_intervalo_dbz_90":[round(rl,4),round(rh,4)],
+                })
+            cs=sorted(centrais)
+            central=cs[len(cs)//2]
+            minimo=max(0.0,min(envelope)); maximo=max(envelope)
+            # Confiança descreve a concentracao do dBZ, nao "acuracia" contra verdade desconhecida.
+            largura=float(hi)-float(lo)
+            if item.get("ancora_oficial") is True:
+                confianca="ALTA_NA_CLASSE_DBZ; ZR_AINDA_MODELADA"
+            elif largura <= 10:
+                confianca="MODERADA_ALTA"
+            elif largura <= 20:
+                confianca="MODERADA"
+            else:
+                confianca="BAIXA"
+            saida.append({
+                "rgb":item.get("rgb"), "hex":item.get("hex"),
+                "natureza_dbz":item.get("natureza"),
+                "dbz_central_modelado":dbz,
+                "intervalo_credibilidade_90_dbz":[lo,hi],
+                "chuva_modelada_central_mm_h":round(central,4),
+                "chuva_modelada_envelope_mm_h":[round(minimo,4),round(maximo,4)],
+                "confianca_modelada":confianca,
+                "ensemble_zr":por_relacao,
+                "representa_chuva_medida":False,
+            })
+
+        if not saida:
+            base["motivo"]="nenhuma_cor_elegivel_para_conversao_modelada"
+            return base
+
+        base.update({
+            "status":"LIBERADO_OPERACIONAL_MODELADO",
+            "dbz_modelado_liberado":True,
+            "zr_modelada_liberada":True,
+            "conversao_dbz_mm_h_modelada_liberada":True,
+            "uso_operacional_modelado":True,
+            "representa_medicao_instrumental":False,
+            "formula":"Z=10^(dBZ/10); R=(Z/A)^(1/b)",
+            "estrategia":"ensemble_ZR_com_envelope_de_incerteza_do_dbz_170K",
+            "relacoes_zr":relacoes,
+            "resultado_rgb_para_chuva_modelada":saida,
+            "regras_operacionais":[
+                "rotular sempre como MODELADO/ESTIMADO",
+                "publicar intervalo/envelope junto do valor central quando possivel",
+                "nao substituir pluviometro ou observacao oficial",
+                "nao declarar Z-R local instrumentalmente validada",
+                "usar novos pares radar-pluviometro para calibracao progressiva futura",
+            ],
+            "gates_preservados":{
+                "dbz_oficial_validado":False,
+                "zr_instrumental_validada":False,
+                "conversao_dbz_mm_h_instrumental_liberada":False,
+                "uso_operacional_instrumental":False,
+            },
+        })
+        return base
+    except Exception as e:
+        base.update({"status":"FALHA_MODELO_FAIL_CLOSED","erro":str(e)[:500]})
+        return base
+
 def registrar_historico_zr_170(coleta):
     try:
         # #170-J.6.1 — o censo longitudinal da PLTE deve continuar sendo
@@ -14826,6 +14955,7 @@ def main():
     auditoria_temporal170g = salvar_auditoria_temporal_170_g(historico_zr170)
     auditoria_espacial170i = salvar_auditoria_espacial_170i(radar_atual)
     metodo_guaxanduva_radar_v01 = construir_metodo_guaxanduva_refletividade_v01(historico_zr170, auditoria_espacial170i)
+    metodo_guaxanduva_zr_v02 = construir_metodo_guaxanduva_zr_operacional_v02(metodo_guaxanduva_radar_v01)
     liberacao168 = construir_liberacao_experimental_168(
         radar_atual, goes19_tathu167, nivel_guaxanduva_v021, mare_observada160, mare_prevista164
     )
@@ -14993,6 +15123,9 @@ def main():
 
         "metodo_guaxanduva_refletividade_v01":
             metodo_guaxanduva_radar_v01,
+
+        "metodo_guaxanduva_zr_operacional_v02":
+            metodo_guaxanduva_zr_v02,
 
         "liberacao_experimental_168":
             liberacao168,

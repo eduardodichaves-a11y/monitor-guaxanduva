@@ -14618,6 +14618,137 @@ def construir_metodo_guaxanduva_zr_operacional_v02(metodo_v01):
         base.update({"status":"FALHA_MODELO_FAIL_CLOSED","erro":str(e)[:500]})
         return base
 
+
+def construir_metodo_guaxanduva_publicacao_operacional_v03(metodo_v02):
+    """#170-M / GXA-RADAR-V0.3 — guarda de publicacao da chuva modelada.
+
+    Nao altera nem recorta os resultados fisicos/matematicos do #170-L.
+    Apenas decide se a incerteza propagada permite publicar um numero de mm/h
+    ou se a interface deve mostrar somente que a estimativa quantitativa esta
+    indisponivel por incerteza excessiva. A decisao usa a AMPLIFICACAO da
+    incerteza (razao entre limites do envelope), nao um teto arbitrario de chuva.
+    """
+    base = {
+        "versao": "GXA-RADAR-V0.3/#170-M",
+        "status": "BLOQUEADO_FAIL_CLOSED",
+        "natureza": "GUARDA_PUBLICACAO_OPERACIONAL_MODELADA",
+        "uso_operacional_modelado": False,
+        "publicacao_numerica_modelada_liberada": False,
+        "representa_medicao_instrumental": False,
+        "altera_resultado_170L": False,
+    }
+    try:
+        if not isinstance(metodo_v02, dict) or metodo_v02.get("status") != "LIBERADO_OPERACIONAL_MODELADO":
+            base["motivo"] = "baseline_170L_indisponivel_ou_nao_liberada"
+            return base
+        if metodo_v02.get("uso_operacional_modelado") is not True:
+            base["motivo"] = "uso_operacional_modelado_170L_nao_liberado"
+            return base
+
+        saida = []
+        numericos = 0
+        qualitativos = 0
+        for item in metodo_v02.get("resultado_rgb_para_chuva_modelada") or []:
+            if not isinstance(item, dict):
+                continue
+            central = item.get("chuva_modelada_central_mm_h")
+            env = item.get("chuva_modelada_envelope_mm_h")
+            if not isinstance(central, (int, float)) or not (isinstance(env, list) and len(env) == 2):
+                continue
+            lo, hi = env
+            if not isinstance(lo, (int, float)) or not isinstance(hi, (int, float)) or lo < 0 or hi < lo:
+                continue
+
+            if lo > 0:
+                fator = float(hi) / float(lo)
+                ordens = math.log10(fator) if fator > 0 else None
+            elif hi == 0:
+                fator = 1.0
+                ordens = 0.0
+            else:
+                fator = None
+                ordens = None
+
+            # Regra de engenharia de incerteza, nao limiar meteorologico:
+            # <=5x: concentracao suficiente para numero + envelope;
+            # >5x e <=10x: numero ainda publicavel, mas com cautela explicita;
+            # >10x (ou limite inferior zero): a propagacao amplificou demais a
+            # incerteza e a interface nao deve exibir um unico mm/h como utilizavel.
+            if fator is not None and fator <= 5.0:
+                modo = "NUMERICO_COM_ENVELOPE"
+                confianca_pub = "MODERADA_ALTA" if fator <= 3.0 else "MODERADA"
+                publicar = True
+            elif fator is not None and fator <= 10.0:
+                modo = "NUMERICO_COM_CAUTELA_E_ENVELOPE"
+                confianca_pub = "BAIXA_MODERADA"
+                publicar = True
+            else:
+                modo = "QUALITATIVO_INCERTEZA_EXCESSIVA"
+                confianca_pub = "BAIXA"
+                publicar = False
+
+            if publicar:
+                numericos += 1
+                valor_publicavel = round(float(central), 4)
+                intervalo_publicavel = [round(float(lo), 4), round(float(hi), 4)]
+                mensagem = "Estimativa modelada; publicar valor central junto do envelope de incerteza."
+            else:
+                qualitativos += 1
+                valor_publicavel = None
+                intervalo_publicavel = None
+                mensagem = "Estimativa quantitativa suprimida na interface: incerteza propagada excessiva."
+
+            saida.append({
+                "rgb": item.get("rgb"),
+                "hex": item.get("hex"),
+                "dbz_central_modelado": item.get("dbz_central_modelado"),
+                "chuva_modelada_central_interna_mm_h": round(float(central), 4),
+                "chuva_modelada_envelope_interno_mm_h": [round(float(lo), 4), round(float(hi), 4)],
+                "fator_amplificacao_incerteza": round(fator, 3) if fator is not None and math.isfinite(fator) else None,
+                "ordens_magnitude_envelope": round(ordens, 3) if ordens is not None and math.isfinite(ordens) else None,
+                "modo_publicacao": modo,
+                "confianca_publicacao": confianca_pub,
+                "publicar_numero_mm_h": publicar,
+                "chuva_publicavel_mm_h": valor_publicavel,
+                "intervalo_publicavel_mm_h": intervalo_publicavel,
+                "mensagem_interface": mensagem,
+                "representa_chuva_medida": False,
+            })
+
+        if not saida:
+            base["motivo"] = "nenhum_resultado_170L_elegivel_para_guarda"
+            return base
+
+        base.update({
+            "status": "LIBERADO_PUBLICACAO_CONTROLADA_MODELADA",
+            "uso_operacional_modelado": True,
+            "publicacao_numerica_modelada_liberada": numericos > 0,
+            "representa_medicao_instrumental": False,
+            "altera_resultado_170L": False,
+            "criterio": {
+                "metrica": "fator=max_envelope_mm_h/min_envelope_mm_h",
+                "ate_5x": "NUMERICO_COM_ENVELOPE",
+                "maior_5x_ate_10x": "NUMERICO_COM_CAUTELA_E_ENVELOPE",
+                "maior_10x_ou_limite_inferior_zero": "QUALITATIVO_INCERTEZA_EXCESSIVA",
+                "observacao": "limiares controlam somente apresentacao da incerteza; nao sao limites fisicos de precipitacao",
+            },
+            "quantidade_resultados": len(saida),
+            "quantidade_publicacao_numerica": numericos,
+            "quantidade_publicacao_qualitativa": qualitativos,
+            "resultado_rgb_para_publicacao": saida,
+            "regras_interface": [
+                "rotular sempre como CHUVA MODELADA/ESTIMADA",
+                "quando publicar numero, mostrar tambem o envelope",
+                "quando a incerteza exceder 10x, nao mostrar um unico mm/h operacional",
+                "nunca substituir dado CEMADEN/EPAGRI/pluviometro observado",
+                "preservar internamente os valores completos do #170-L para auditoria",
+            ],
+        })
+        return base
+    except Exception as e:
+        base.update({"status": "FALHA_GUARDA_FAIL_CLOSED", "erro": str(e)[:500]})
+        return base
+
 def registrar_historico_zr_170(coleta):
     try:
         # #170-J.6.1 — o censo longitudinal da PLTE deve continuar sendo
@@ -14956,6 +15087,7 @@ def main():
     auditoria_espacial170i = salvar_auditoria_espacial_170i(radar_atual)
     metodo_guaxanduva_radar_v01 = construir_metodo_guaxanduva_refletividade_v01(historico_zr170, auditoria_espacial170i)
     metodo_guaxanduva_zr_v02 = construir_metodo_guaxanduva_zr_operacional_v02(metodo_guaxanduva_radar_v01)
+    metodo_guaxanduva_publicacao_v03 = construir_metodo_guaxanduva_publicacao_operacional_v03(metodo_guaxanduva_zr_v02)
     liberacao168 = construir_liberacao_experimental_168(
         radar_atual, goes19_tathu167, nivel_guaxanduva_v021, mare_observada160, mare_prevista164
     )
@@ -15126,6 +15258,9 @@ def main():
 
         "metodo_guaxanduva_zr_operacional_v02":
             metodo_guaxanduva_zr_v02,
+
+        "metodo_guaxanduva_publicacao_operacional_v03":
+            metodo_guaxanduva_publicacao_v03,
 
         "liberacao_experimental_168":
             liberacao168,

@@ -3,13 +3,13 @@
   "versao": "#170-H2",
   "tipo": "auditoria_empirica_subhoraria_cemaden",
   "natureza": "DIAGNOSTICO_FAIL_CLOSED",
-  "atualizado_em": "2026-10-02T02:10:57.198252-03:00",
+  "atualizado_em": "2026-10-02T02:30:41.782765-03:00",
   "status": "borda_temporal_cemaden_confirmada",
   "hipotese_testada": "O acumulado CEMADEN de 1h rotulado em T corresponde a soma dos incrementos sub-horarios em (T-60min,T].",
   "fonte_subhoraria": "grafico_pcds.php publico do CEMADEN; serie server-side Precipitacao Acumulada nas Ultimas 4 horas, timestamps UTC.",
   "tolerancia_mm": 0.01,
   "confirmacoes_nesta_execucao": 4,
-  "confirmacoes_historicas_distintas": 29,
+  "confirmacoes_historicas_distintas": 30,
   "borda_horaria_retrospectiva_empiricamente_confirmada": true,
   "pareamento_temporal_validado": true,
   "elegivel_calibracao_zr": false,
@@ -30,7 +30,7 @@
       "url": "https://resources.cemaden.gov.br/graficos/interativo/grafico_pcds.php?idpcd=6258",
       "http_status": 200,
       "content_type": "text/html; charset=UTF-8",
-      "quantidade_pontos": 11,
+      "quantidade_pontos": 10,
       "erro": null
     },
     {
@@ -602,28 +602,21 @@
       "rotulo_horario_utc": "2026-10-02T01:00:00+00:00",
       "acumulado_1h_h1_mm": 0.2,
       "janela_testada": "(T-60min,T]",
-      "soma_subhoraria_mm": 0.2,
-      "diferenca_mm": 0.0,
-      "quantidade_pontos_na_janela": 2,
+      "soma_subhoraria_mm": 0.0,
+      "diferenca_mm": -0.2,
+      "quantidade_pontos_na_janela": 1,
       "pontos_na_janela": [
-        {
-          "instante_utc": "2026-10-02T00:30:00+00:00",
-          "instante_local": "2026-10-01T21:30:00-03:00",
-          "rotulo_fonte": "2026-10-02  00h30 UTC",
-          "incremento_mm": 0.2,
-          "acumulada_exibida_mm": 0.2
-        },
         {
           "instante_utc": "2026-10-02T00:50:00+00:00",
           "instante_local": "2026-10-01T21:50:00-03:00",
           "rotulo_fonte": "2026-10-02  00h50 UTC",
           "incremento_mm": 0.0,
-          "acumulada_exibida_mm": 0.2
+          "acumulada_exibida_mm": 0.0
         }
       ],
-      "coincide_tolerancia_0_01_mm": true,
-      "evidencia_temporal_positiva": true,
-      "motivo": "soma_subhoraria_fecha_exatamente_com_1h"
+      "coincide_tolerancia_0_01_mm": false,
+      "evidencia_temporal_positiva": false,
+      "motivo": "soma_subhoraria_nao_fecha_com_1h"
     },
     {
       "chave_h1": "6258|2026-10-02T02:00:00+00:00",
@@ -647,14 +640,14 @@
           "instante_local": "2026-10-01T22:10:00-03:00",
           "rotulo_fonte": "2026-10-02  01h10 UTC",
           "incremento_mm": 0.2,
-          "acumulada_exibida_mm": 0.4
+          "acumulada_exibida_mm": 0.2
         },
         {
           "instante_utc": "2026-10-02T01:50:00+00:00",
           "instante_local": "2026-10-01T22:50:00-03:00",
           "rotulo_fonte": "2026-10-02  01h50 UTC",
           "incremento_mm": 0.2,
-          "acumulada_exibida_mm": 0.6
+          "acumulada_exibida_mm": 0.4
         }
       ],
       "coincide_tolerancia_0_01_mm": true,
@@ -683,14 +676,14 @@
           "instante_local": "2026-10-01T23:30:00-03:00",
           "rotulo_fonte": "2026-10-02  02h30 UTC",
           "incremento_mm": 0.2,
-          "acumulada_exibida_mm": 0.8
+          "acumulada_exibida_mm": 0.6
         },
         {
           "instante_utc": "2026-10-02T02:50:00+00:00",
           "instante_local": "2026-10-01T23:50:00-03:00",
           "rotulo_fonte": "2026-10-02  02h50 UTC",
           "incremento_mm": 0.0,
-          "acumulada_exibida_mm": 0.8
+          "acumulada_exibida_mm": 0.6
         }
       ],
       "coincide_tolerancia_0_01_mm": true,
@@ -719,14 +712,14 @@
           "instante_local": "2026-10-02T00:10:00-03:00",
           "rotulo_fonte": "2026-10-02  03h10 UTC",
           "incremento_mm": 0.2,
-          "acumulada_exibida_mm": 1.0
+          "acumulada_exibida_mm": 0.8
         },
         {
           "instante_utc": "2026-10-02T03:50:00+00:00",
           "instante_local": "2026-10-02T00:50:00-03:00",
           "rotulo_fonte": "2026-10-02  03h50 UTC",
           "incremento_mm": 0.2,
-          "acumulada_exibida_mm": 1.2
+          "acumulada_exibida_mm": 1.0
         }
       ],
       "coincide_tolerancia_0_01_mm": true,
@@ -744,10 +737,10 @@
         "distancia_comasa_aprox_km": 9.04
       },
       "rotulo_horario_utc": "2026-10-02T05:00:00+00:00",
-      "acumulado_1h_h1_mm": 0.2,
+      "acumulado_1h_h1_mm": 0.4,
       "janela_testada": "(T-60min,T]",
       "soma_subhoraria_mm": 0.4,
-      "diferenca_mm": 0.2,
+      "diferenca_mm": 0.0,
       "quantidade_pontos_na_janela": 3,
       "pontos_na_janela": [
         {
@@ -755,26 +748,26 @@
           "instante_local": "2026-10-02T01:20:00-03:00",
           "rotulo_fonte": "2026-10-02  04h20 UTC",
           "incremento_mm": 0.2,
-          "acumulada_exibida_mm": 1.4
+          "acumulada_exibida_mm": 1.2
         },
         {
           "instante_utc": "2026-10-02T04:50:00+00:00",
           "instante_local": "2026-10-02T01:50:00-03:00",
           "rotulo_fonte": "2026-10-02  04h50 UTC",
           "incremento_mm": 0.0,
-          "acumulada_exibida_mm": 1.4
+          "acumulada_exibida_mm": 1.2
         },
         {
           "instante_utc": "2026-10-02T05:00:00+00:00",
           "instante_local": "2026-10-02T02:00:00-03:00",
           "rotulo_fonte": "2026-10-02  05h00 UTC",
           "incremento_mm": 0.2,
-          "acumulada_exibida_mm": 1.6
+          "acumulada_exibida_mm": 1.4
         }
       ],
-      "coincide_tolerancia_0_01_mm": false,
-      "evidencia_temporal_positiva": false,
-      "motivo": "soma_subhoraria_nao_fecha_com_1h"
+      "coincide_tolerancia_0_01_mm": true,
+      "evidencia_temporal_positiva": true,
+      "motivo": "soma_subhoraria_fecha_exatamente_com_1h"
     }
   ]
 }

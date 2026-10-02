@@ -95,6 +95,18 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 .fam-garoa{background:linear-gradient(180deg,rgba(0,90,255,.18),#091d26)}.fam-fraca{background:linear-gradient(180deg,rgba(0,180,60,.18),#091d26)}.fam-forte{background:linear-gradient(180deg,rgba(255,210,0,.18),#091d26)}.fam-temp{background:linear-gradient(180deg,rgba(255,40,40,.20),#091d26)}
 details.card.accordion{padding:0;overflow:hidden}details.card.accordion>summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}details.card.accordion>summary::-webkit-details-marker{display:none}details.card.accordion>summary:after{content:'›';font-size:28px;color:#8fd6ec;font-weight:800;transition:transform .2s}details.card.accordion[open]>summary:after{transform:rotate(90deg)}details.card.accordion .accordion-body{padding:0 18px 18px}details.card.accordion .accordion-kicker{color:#8fd6ec;font-size:11px;letter-spacing:1.2px;font-weight:800;text-transform:uppercase}details.card.accordion .accordion-title{font-size:20px;font-weight:900;margin-top:4px}
 @media(max-width:560px){.radar-familias{grid-template-columns:repeat(2,minmax(0,1fr))}details.card.accordion>summary{padding:13px 14px}details.card.accordion .accordion-body{padding:0 14px 14px}details.card.accordion .accordion-title{font-size:17px}}
+
+/* V0.22 — arquitetura visual mobile-first e correções de legibilidade */
+html,body{overflow-x:hidden}.card,.dash,.dash-panel,.radar-item,.box,.medida{min-width:0}
+.radar-item b,.box b,.medida b{overflow-wrap:anywhere;word-break:break-word;line-height:1.18}
+.tech-status{font-size:18px!important;overflow-wrap:anywhere;word-break:break-word}
+.radar-tech-toggle{margin-top:10px;border:1px solid #285365;border-radius:10px;background:#091a23;overflow:hidden}
+.radar-tech-toggle>summary{cursor:pointer;padding:10px 12px;color:#8fd6ec;font-weight:800;font-size:11px;list-style:none}
+.radar-tech-toggle>summary::-webkit-details-marker{display:none}.radar-tech-toggle>summary:after{content:' +';float:right}.radar-tech-toggle[open]>summary:after{content:' −'}
+.radar-tech-body{padding:0 10px 10px}.radar-sintese{margin-top:10px;padding:10px 12px;border-radius:10px;background:#0a202a;border:1px solid #285365;font-size:12px;line-height:1.45}
+.radar-sintese strong{display:block;color:#eef8fc;font-size:14px;margin-bottom:3px}
+@media(max-width:560px){header,.card{border-radius:14px}.valor{font-size:30px}.radar-item b,.meteo b{font-size:20px}.tech-status{font-size:16px!important}.radar-familia b{font-size:9.5px}.radar-familia small{font-size:8px}.card{padding:14px}.sub{line-height:1.45}}
+@media(min-width:1000px){main{padding:18px}.dash{padding:14px}.dash-row{grid-template-columns:1.35fr 1fr 1fr}.card{padding:20px}.radar-tech-body #dashRadarLegenda{grid-template-columns:repeat(8,minmax(0,1fr))!important}}
 </style>
 </head>
 <body><main>
@@ -121,7 +133,7 @@ details.card.accordion{padding:0;overflow:hidden}details.card.accordion>summary{
 <div class="dash-summary"><b>EM RESUMO:</b> <span id="dashResumoLinha">Os dados acima preservam a diferença entre observação, previsão e modelagem. Ausência nunca vira zero.</span></div>
  
 <div class="dash-row">
-<div class="dash-panel"><h3>📡 Radar meteorológico • Santa Catarina</h3><div class="dash-statgrid"><div class="dash-stat">Estado<b id="dashRadarEstado">--</b></div><div class="dash-stat">Último quadro<b id="dashRadarHora">--</b></div><div class="dash-stat">Idade<b id="dashRadarIdade">--</b></div><div class="dash-stat">Quadros válidos<b id="dashRadarValidos">--</b></div></div><div id="dashRadarFamilias" class="radar-familias"><div class="radar-familia fam-garoa"><b>🟦 GAROA / ECO MUITO FRACO</b><small>C14–C16 • leitura simplificada</small></div><div class="radar-familia fam-fraca"><b>🟩 CHUVA FRACA / MODERADA</b><small>C11–C13</small></div><div class="radar-familia fam-forte"><b>🟨 CHUVA FORTE</b><small>C8–C10</small></div><div class="radar-familia fam-temp"><b>🟥 TEMPESTADE / NÚCLEO INTENSO</b><small>C1–C7</small></div></div><div class="dash-muted" style="margin-top:6px">Famílias = tradução visual da refletividade; não provam sozinhas o tipo de precipitação no solo.</div><div id="dashRadarLegenda" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:14px"><span class="dash-muted" style="grid-column:1/-1">Carregando escala RadarSC...</span></div><div id="dashRadarEco" class="dash-muted" style="margin-top:10px">Aguardando classificação local...</div><div class="dash-muted" style="margin-top:8px">C1–C16 = classes internas ligadas à escala física validada pela #169. dBZ é refletividade do radar, não chuva medida no solo. O Método Guaxanduva #170-K/L/M pode estimar mm/h de forma MODELADA quando a guarda de publicação autorizar; isso nunca substitui pluviômetro.</div></div>
+<div class="dash-panel"><h3>📡 Radar meteorológico • Santa Catarina</h3><div class="dash-statgrid"><div class="dash-stat">Estado<b id="dashRadarEstado">--</b></div><div class="dash-stat">Último quadro<b id="dashRadarHora">--</b></div><div class="dash-stat">Idade<b id="dashRadarIdade">--</b></div><div class="dash-stat">Quadros válidos<b id="dashRadarValidos">--</b></div></div><div id="dashRadarFamilias" class="radar-familias"><div class="radar-familia fam-garoa"><b>🟦 ECO MUITO FRACO</b><small>C14–C16 • leitura simplificada</small></div><div class="radar-familia fam-fraca"><b>🟩 ECO FRACO / MODERADO</b><small>C11–C13</small></div><div class="radar-familia fam-forte"><b>🟨 ECO FORTE</b><small>C8–C10</small></div><div class="radar-familia fam-temp"><b>🟥 ECO MUITO FORTE / INTENSO</b><small>C1–C7</small></div></div><div class="dash-muted" style="margin-top:6px">Faixas = leitura simplificada da refletividade. A intensidade do eco não determina sozinha o tipo ou a intensidade da chuva no solo.</div><div id="dashRadarSintese" class="radar-sintese"><strong>Radar agora</strong>Aguardando leitura do quadro mais recente...</div><details class="radar-tech-toggle"><summary>Ver escala técnica do radar • C1–C16</summary><div class="radar-tech-body"><div id="dashRadarLegenda" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:4px"><span class="dash-muted" style="grid-column:1/-1">Carregando escala RadarSC...</span></div></div></details><div id="dashRadarEco" class="dash-muted" style="margin-top:10px">Aguardando classificação local...</div><div class="dash-muted" style="margin-top:8px">C1–C16 = classes internas ligadas à escala física validada pela #169. dBZ é refletividade do radar, não chuva medida no solo. O Método Guaxanduva #170-K/L/M pode estimar mm/h de forma MODELADA quando a guarda de publicação autorizar; isso nunca substitui pluviômetro.</div></div>
 <div class="dash-panel"><h3>🌧️ Rede pluviométrica • medições numéricas</h3><div id="dashEstacoes" class="station-list"><div class="station-line"><span>Carregando estações...</span><b>--</b></div></div><div class="dash-muted" style="margin-top:8px">EPAGRI/CIRAM: precipitação horária (1 h). CEMADEN: acumulado de 24 h. Cada estação representa seu próprio ponto; grandezas de janelas diferentes não são somadas nem comparadas como equivalentes.</div></div>
 <div class="dash-panel"><h3>🌦️ Previsão • curto prazo</h3><div class="forecast-strip"><div class="forecast-cell">Agora<b id="dashPrevAgora">--</b><span id="dashPrevAgoraDet">--</span></div><div class="forecast-cell">Próx. h<b id="dashPrev1h">--</b><span id="dashPrev1hDet">--</span></div><div class="forecast-cell">Vento<b id="dashPrevVento">--</b><span id="dashPrevVentoDet">--</span></div><div class="forecast-cell">Nuvens<b id="dashPrevNuvens">--</b><span id="dashPrevNuvensDet">--</span></div></div><div class="dash-muted" style="margin-top:8px">Previsão/modelo meteorológico; não é observação instrumental local.</div></div>
 </div>
@@ -163,7 +175,7 @@ details.card.accordion{padding:0;overflow:hidden}details.card.accordion>summary{
 <div class="accordion-body">
 <div class="sub">Camada computacional modelada • separada de medição instrumental • publicação condicionada à incerteza</div>
 <div class="radar-grid">
-<div class="radar-item">🧠 Refletividade #170-K<b id="gxaKStatus">--</b></div><div class="radar-item">🌧️ Z–R modelada #170-L<b id="gxaLStatus">--</b></div><div class="radar-item">🛡️ Guarda #170-M<b id="gxaMStatus">--</b></div><div class="radar-item">📊 RGB analisados<b id="gxaMRgb">--</b></div><div class="radar-item">🔢 Publicação numérica<b id="gxaMNum">--</b></div><div class="radar-item">📝 Publicação qualitativa<b id="gxaMQual">--</b></div>
+<div class="radar-item">🧠 Refletividade #170-K<b class="tech-status" id="gxaKStatus">--</b></div><div class="radar-item">🌧️ Z–R modelada #170-L<b class="tech-status" id="gxaLStatus">--</b></div><div class="radar-item">🛡️ Guarda #170-M<b class="tech-status" id="gxaMStatus">--</b></div><div class="radar-item">📊 RGB analisados<b id="gxaMRgb">--</b></div><div class="radar-item">🔢 Publicação numérica<b id="gxaMNum">--</b></div><div class="radar-item">📝 Publicação qualitativa<b id="gxaMQual">--</b></div>
 </div>
 <div id="gxaMEstado" class="box aviso">Carregando Método Guaxanduva...</div>
 <div id="gxaMDetalhe" class="box"><small>Aguardando resultados de publicação controlada...</small></div>
@@ -926,14 +938,23 @@ async function carregar(){
   }else{
     $("dashRadarEco").innerHTML='<span class="erro">Classificação qualitativa #130 indisponível</span>';
   }
+  const prevTemChuva=(ph.precipitacao_mm!=null&&Number(ph.precipitacao_mm)>0)||(ph.probabilidade_chuva_pct!=null&&Number(ph.probabilidade_chuva_pct)>=50);
+  if($("dashRadarSintese")){
+    if(escolhido&&classeAtual!==null){$("dashRadarSintese").innerHTML='<strong>📡 Eco detectado no radar agora</strong>Há refletividade classificada em até '+escolhido.raio+' km. A previsão da próxima hora é '+(ph.precipitacao_mm==null?'--':f(ph.precipitacao_mm,1)+' mm')+' ('+(ph.probabilidade_chuva_pct==null?'--':Math.round(ph.probabilidade_chuva_pct)+'%')+').';}
+    else if(cq.status&&prevTemChuva){$("dashRadarSintese").innerHTML='<strong>📡 Sem eco detectado agora • ☔ chuva prevista depois</strong>Não é contradição: o radar descreve o quadro observado/recente; a previsão estima a próxima hora. Previsão: '+(ph.precipitacao_mm==null?'--':f(ph.precipitacao_mm,1)+' mm')+' • '+(ph.probabilidade_chuva_pct==null?'--':Math.round(ph.probabilidade_chuva_pct)+'%')+'.';}
+    else if(cq.status){$("dashRadarSintese").innerHTML='<strong>📡 Sem eco detectado agora</strong>Nenhuma classe C1–C16 foi detectada nesta busca. Isso não prova ausência de chuva no solo.';}
+    else{$("dashRadarSintese").innerHTML='<strong>📡 Radar sem classificação local</strong>A leitura qualitativa está indisponível nesta coleta.';}
+  }
   // Método Guaxanduva #170-K/L/M — pista modelada separada da instrumental.
-  $("gxaKStatus").textContent=gxaK.status||"INDISPONÍVEL";
-  $("gxaLStatus").textContent=gxaL.status||"INDISPONÍVEL";
-  $("gxaMStatus").textContent=gxaM.status||"INDISPONÍVEL";
-  const resPub=Array.isArray(gxaM.resultados_publicacao)?gxaM.resultados_publicacao:[];
-  const nNum=resPub.filter(x=>x&&x.publicar_numero_mm_h===true).length;
-  const nQual=resPub.filter(x=>x&&x.publicar_numero_mm_h!==true).length;
-  $("gxaMRgb").textContent=resPub.length||"--"; $("gxaMNum").textContent=resPub.length?nNum:"--"; $("gxaMQual").textContent=resPub.length?nQual:"--";
+  function statusHumanoGxa(v){return ({MODELO_EXPERIMENTAL_CALCULADO:"Modelo experimental • calculado",LIBERADO_OPERACIONAL_MODELADO:"Operacional modelado • liberado",LIBERADO_PUBLICACAO_CONTROLADA_MODELADA:"Publicação controlada • liberada"})[v]||nomeFamilia(v||"INDISPONÍVEL");}
+  $("gxaKStatus").textContent=statusHumanoGxa(gxaK.status);
+  $("gxaLStatus").textContent=statusHumanoGxa(gxaL.status);
+  $("gxaMStatus").textContent=statusHumanoGxa(gxaM.status);
+  const resPub=Array.isArray(gxaM.resultado_rgb_para_publicacao)?gxaM.resultado_rgb_para_publicacao:[];
+  const nNum=gxaM.quantidade_publicacao_numerica??resPub.filter(x=>x&&x.publicar_numero_mm_h===true).length;
+  const nQual=gxaM.quantidade_publicacao_qualitativa??resPub.filter(x=>x&&x.publicar_numero_mm_h!==true).length;
+  const nRgb=gxaM.quantidade_resultados??resPub.length;
+  $("gxaMRgb").textContent=nRgb||"--"; $("gxaMNum").textContent=nRgb?nNum:"--"; $("gxaMQual").textContent=nRgb?nQual:"--";
   const gxaLiberado=gxaM.status==="LIBERADO_PUBLICACAO_CONTROLADA_MODELADA";
   $("gxaMEstado").innerHTML=gxaLiberado?'<span class="ok">🟢 PUBLICAÇÃO CONTROLADA MODELADA LIBERADA</span><br><small>Os gates instrumentais/oficiais permanecem separados e fechados quando não validados.</small>':'<span class="aviso">⚪ '+String(gxaM.status||"Método Guaxanduva indisponível")+'</span>';
   const pubEx=resPub.find(x=>x&&x.publicar_numero_mm_h===true);

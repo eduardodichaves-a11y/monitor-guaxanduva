@@ -165,6 +165,21 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
  #rede172Estacoes .estacao-meta{font-size:12px;line-height:1.55}
 }
 
+
+/* #173-FINAL-V1 */
+.enso173-trilha{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin:14px 0}
+.enso173-no{background:#091a23;border:1px solid #294956;border-radius:11px;padding:10px 6px;text-align:center;font-size:12px;font-weight:bold}
+.enso173-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.enso173-impactos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.enso173-impacto{border-radius:12px;padding:11px;background:#091a23;border:1px solid #294956;min-height:96px}
+.enso173-impacto b{display:block;margin:5px 0;font-size:13px;overflow-wrap:anywhere}
+.enso173-impacto small{font-size:11px}
+.enso173-verde{border-color:#3b8b58}.enso173-amarelo{border-color:#b99938}.enso173-laranja{border-color:#b96d37}.enso173-vermelho{border-color:#b84d4d}.enso173-cinza{border-color:#64727a}.enso173-azul{border-color:#3e7897}
+.enso173-valor{font-size:24px;font-weight:bold;margin-top:5px}
+.enso173-legenda{font-size:11px;color:#a8c0ca;margin-top:12px;line-height:1.6}
+@media(max-width:760px){.enso173-trilha{grid-template-columns:repeat(2,1fr)}.enso173-grid,.enso173-impactos{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:430px){.enso173-grid,.enso173-impactos{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body><main>
@@ -261,6 +276,38 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 </div></details>
 
  
+
+<section class="card card-recolhivel fechado" id="enso173Card">
+  <div class="card-cabecalho" tabindex="0">
+    <div class="local">🌊 #173 • CLIMA → TEMPO LOCAL → RIO</div>
+    <h2>SUPER EL NIÑO 2026–27 — DO PACÍFICO AO GUAXANDUVA</h2>
+    <div class="sub">Contexto climático oficial e sinais meteorológicos locais • ENSO sozinho nunca gera alerta local</div>
+    <span class="card-seta">▼</span>
+  </div>
+  <div class="card-conteudo">
+    <div class="enso173-trilha">
+      <div class="enso173-no">🌊 PACÍFICO</div><div class="enso173-no">🌡️ ENSO</div>
+      <div class="enso173-no">🇧🇷 SUL</div><div class="enso173-no">📍 SC</div>
+      <div class="enso173-no">🏙️ JOINVILLE</div><div class="enso173-no">🏞️ GUAXANDUVA</div>
+    </div>
+    <div id="enso173Estado" class="box aviso">⚪ Carregando painel #173...</div>
+    <div class="enso173-grid">
+      <div class="radar-item">🌡️ RONI observado<div class="enso173-valor" id="enso173Roni">--</div><small id="enso173RoniPeriodo">--</small></div>
+      <div class="radar-item">📈 El Niño • próxima temporada<div class="enso173-valor" id="enso173Prob">--</div><small id="enso173ProbPeriodo">probabilidade oficial NOAA</small></div>
+      <div class="radar-item">🌀 Sistema regional<div class="enso173-valor" id="enso173Ciclone">--</div><small id="enso173CicloneMeta">modelo regional, não alerta oficial</small></div>
+      <div class="radar-item">🏞️ Rio Guaxanduva<div class="enso173-valor" id="enso173Rio">--</div><small id="enso173RioMeta">MODELADO • não instrumental</small></div>
+    </div>
+    <h3>⚠️ Impactos para Joinville e Guaxanduva</h3>
+    <div class="enso173-impactos" id="enso173Impactos"></div>
+    <div class="box"><b>📏 Validação de campo</b><br><span id="enso173Campo">0,607 m = referência hidráulica local fixa • medições de campo registradas: 1,34 m e 1,33 m.</span></div>
+    <div class="enso173-legenda">
+      🟢 sem sinal superior identificado • 🟡 atenção • 🟠 alta atenção • 🔴 sinal forte/positivo conforme a fonte • 🔵 informação/modelo • ⚪ inconclusivo.<br>
+      <b>OBSERVADO</b> = medição/fonte observacional • <b>PREVISTO</b> = previsão meteorológica • <b>MODELADO</b> = cálculo do Monitor. “Super El Niño” é o título do painel; a classificação oficial exibida vem dos dados NOAA e não é inferida pelo título.
+    </div>
+  </div>
+</section>
+
+
 <section class="card" id="auditoria170Card">
 <div class="local">📡 VALIDAÇÃO RADAR × PLUVIÔMETRO • #170</div>
 <h2>Auditoria científica RadarSC × CEMADEN</h2>
@@ -651,10 +698,51 @@ async function carregarHistorico(){
  }catch(e){$("histEstado").innerHTML='<span class="erro">🔴 Histórico de validação indisponível</span>'}
 }
  
+
+function renderEnso173(d){
+ try{
+  const E=d.super_el_nino_173||{}, I=d.impactos_locais_173||{}, IF=d.influencia_joinville_173||{}, N=d.nivel_guaxanduva_v021||{}, V=d.validacao_campo_guaxanduva||{};
+  const en=E.enso||{}, r=en.roni_observado||{}, pp=en.probabilidades_oficiais||{};
+  const rv=r.valor!=null?r.valor:(r.roni!=null?r.roni:null);
+  const rp=r.periodo||r.trimestre||r.estacao||"--";
+  $("enso173Roni").textContent=rv==null?"--":Number(rv).toFixed(2)+" °C";
+  $("enso173RoniPeriodo").textContent=rp;
+  let probs=pp.probabilidades||pp.temporadas||pp.dados||[];
+  let pe=null;
+  if(Array.isArray(probs)&&probs.length){
+    pe=probs.find(x=>x&&((x.el_nino_pct??x.el_nino??x["El Nino"])!=null))||probs[0];
+  }
+  let pv=pe?(pe.el_nino_pct??pe.el_nino??pe["El Nino"]):null;
+  $("enso173Prob").textContent=pv==null?"--":Number(pv).toFixed(0)+"%";
+  $("enso173ProbPeriodo").textContent=(pe&&(pe.temporada||pe.periodo||pe.season)||"probabilidade oficial NOAA")+" • El Niño";
+  const sr=IF.sistema_referencia||{};
+  const cic=IF.ciclone_confirmado_monitor===true;
+  $("enso173Ciclone").textContent=cic?"CONFIRMADO":"NÃO CONFIRMADO";
+  $("enso173CicloneMeta").textContent=(sr.distancia_joinville_km!=null?Number(sr.distancia_joinville_km).toFixed(0)+" km • ":"")+"diagnóstico modelado regional";
+  $("enso173Rio").textContent=N.nivel_estimado_m==null?"--":Number(N.nivel_estimado_m).toFixed(3)+" m";
+  const t=N.tendencia||{};
+  $("enso173RioMeta").textContent="MODELADO • "+(t.classe||"tendência indisponível")+" • confiança "+(N.confianca||"não informada");
+  $("enso173Estado").innerHTML=(E.status==="online_completo"?"🟢":"🟡")+" <b>"+(E.status||"status indisponível")+"</b> • "+(E.fontes_online??"--")+"/"+(E.fontes_testadas??"--")+" fontes ENSO/Pacífico online • ENSO é contexto climático, não alerta local.";
+  const mapa={verde:"🟢",amarelo:"🟡",laranja:"🟠",vermelho:"🔴",azul:"🔵",cinza:"⚪"};
+  const ordem=["chuva_24h","tempestade","granizo","vento","ciclone","mare","rio_guaxanduva","chuva_mare"];
+  const nomes={chuva_24h:"Chuva 24 h",tempestade:"Tempestade",granizo:"Granizo",vento:"Rajadas",ciclone:"Ciclone",mare:"Maré",rio_guaxanduva:"Guaxanduva",chuva_mare:"Chuva + maré"};
+  const imp=I.impactos||{};
+  $("enso173Impactos").innerHTML=ordem.map(k=>{
+    const x=imp[k]||{}, cor=(x.cor||"cinza").toLowerCase(), ic=mapa[cor]||"⚪";
+    return '<div class="enso173-impacto enso173-'+cor+'"><span>'+ic+' '+(x.icone||"")+'</span><b>'+nomes[k]+'</b><small>'+(x.mensagem||x.estado||"Sem dado conclusivo")+'</small></div>';
+  }).join("");
+  const ms=(V.medicoes||[]).map(x=>x.nivel_m!=null?Number(x.nivel_m).toFixed(2)+" m"+(x.hora_local?" às "+x.hora_local:""):"").filter(Boolean);
+  $("enso173Campo").textContent="0,607 m = referência hidráulica local fixa • "+(ms.length?"medições: "+ms.join(" e "):"validação de campo registrada")+" • não recalibra automaticamente a base.";
+ }catch(e){
+  $("enso173Estado").innerHTML='<span class="erro">🔴 Painel #173 indisponível: dados incompletos.</span>';
+ }
+}
+
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
   const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},r172=d.geometria_rede_observacional_172||{},e171=d.estado_cientifico_vigente_171||{},i4=d.auditoria_empirica_raster_chuva_170_i4||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{},x168=d.liberacao_experimental_168||{},gxaK=d.metodo_guaxanduva_refletividade_v01||{},gxaL=d.metodo_guaxanduva_zr_operacional_v02||{},gxaM=d.metodo_guaxanduva_publicacao_operacional_v03||{};
+  renderEnso173(d);
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
   const badgeVigente=(obj)=>{const st=String((obj||{}).status||"");if(!st)return "NÃO INFORMADO";if(st.includes("VALIDADO_COM_LACUNAS"))return "VALIDADO • COM LACUNAS";if(st.includes("VALIDADO")||st.includes("LIBERADO"))return "VALIDADO";if(st.includes("EM_VALIDACAO"))return "EM VALIDAÇÃO";if(st.includes("BLOQUEADO"))return "BLOQUEADO";if(st.includes("MODELADO"))return "MODELADO";return nomeFamilia(st)};

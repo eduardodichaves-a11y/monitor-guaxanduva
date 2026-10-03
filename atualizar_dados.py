@@ -14644,6 +14644,175 @@ def salvar_auditoria_espacial_170i2(radar_atual, geometria172):
     return base
 
 
+
+# =========================================================
+# #170-I.3 - RECONHECIMENTO DA PALETA DO RASTER OPERACIONAL
+# =========================================================
+# A #170-I.2 demonstrou que RGB da legenda fisica e RGB do raster operacional
+# nao sao necessariamente identicos. Esta etapa reconhece, por igualdade EXATA,
+# apenas as cores do raster ja presentes no metodo #170-K. Fora da ancora
+# #FFFF00/C10, a refletividade continua MODELADA e nunca e promovida a oficial.
+# O objetivo da I.3 e validar coincidencia ESPACIAL chuva H2 + eco raster na
+# mesma celula, mantendo Z-R e dBZ->mm/h instrumentais bloqueados.
+
+def _mapa_rgb_raster_170i3(metodo_v01):
+    mapa = {}
+    for x in (metodo_v01 or {}).get("resultado_rgb_para_refletividade_modelada") or []:
+        rgb = x.get("rgb")
+        if isinstance(rgb, list) and len(rgb) == 3:
+            k = tuple(int(v) for v in rgb)
+            mapa[k] = {
+                "rgb": list(k),
+                "hex": x.get("hex"),
+                "natureza": x.get("natureza"),
+                "dbz_central_modelado": x.get("dbz_central_modelado"),
+                "intervalo_credibilidade_90_dbz": x.get("intervalo_credibilidade_90_dbz"),
+                "classes_mais_provaveis": x.get("classes_mais_provaveis"),
+                "ancora_oficial": x.get("ancora_oficial") is True,
+            }
+    return mapa
+
+
+def salvar_auditoria_espacial_170i3(auditoria_i2, metodo_v01):
+    base = {
+        "monitor": "Monitor Guaxanduva",
+        "tipo": "auditoria_espacial_raster_radarsc_cemaden",
+        "versao": "#170-I.3",
+        "atualizado_em": agora().isoformat(),
+        "preserva": ["#170-I.1", "#170-I.2"],
+        "fonte_temporal": "#170-H2",
+        "fonte_geometria": "#172",
+        "fonte_pixels": "#170-I.2",
+        "fonte_paleta_raster_modelada": "#170-K/GXA-RADAR-V0.1",
+        "natureza": "VALIDACAO_ESPACIAL_DO_ECO_RASTER; REFLETIVIDADE_FORA_DA_ANCORA_PERMANECE_MODELADA",
+        "regra_ouro": "reconhecer eco raster nao equivale a provar dBZ oficial",
+        "episodios": [],
+        "pareamento_temporal_validado": True,
+        "elegivel_calibracao_zr": False,
+        "zr_validada": False,
+        "conversao_dbz_mm_h_liberada": False,
+        "uso_operacional": False,
+    }
+    if not isinstance(auditoria_i2, dict) or auditoria_i2.get("versao") != "#170-I.2":
+        base.update({"status": "EVIDENCIA_INSUFICIENTE", "motivo": "auditoria_170_i2_ausente"})
+        return base
+    mapa = _mapa_rgb_raster_170i3(metodo_v01)
+    if not mapa:
+        base.update({"status": "EVIDENCIA_INSUFICIENTE", "motivo": "mapa_rgb_raster_170_k_indisponivel"})
+        return base
+
+    total_frames = reconhecidos = ancora_oficial = 0
+    cores = {}
+    for ep in auditoria_i2.get("episodios") or []:
+        novo = {
+            "estacao": ep.get("estacao"),
+            "t_utc": ep.get("t_utc"),
+            "chuva_cemaden_1h_mm_h2": ep.get("chuva_cemaden_1h_mm_h2"),
+            "coordenada_172": ep.get("coordenada_172"),
+            "frames": [],
+            "resultado": "EVIDENCIA_INSUFICIENTE",
+        }
+        for fr in ep.get("frames") or []:
+            total_frames += 1
+            rgb = fr.get("rgb_pixel_exato")
+            f2 = {
+                "arquivo": fr.get("arquivo"),
+                "horario_utc": fr.get("horario_utc"),
+                "pixel_estacao": fr.get("pixel_estacao"),
+                "rgb_pixel_exato": rgb,
+                "centro_celula_aprox": fr.get("centro_celula_aprox"),
+            }
+            k = tuple(int(v) for v in rgb) if isinstance(rgb, list) and len(rgb) == 3 else None
+            info = mapa.get(k) if k else None
+            if info:
+                reconhecidos += 1
+                rk = ",".join(str(v) for v in k)
+                cores[rk] = cores.get(rk, 0) + 1
+                f2.update({
+                    "eco_raster_reconhecido": True,
+                    "correspondencia": "RGB_EXATO_PALETA_RASTER_MONITOR",
+                    "hex": info.get("hex"),
+                    "refletividade": {
+                        "natureza": info.get("natureza"),
+                        "dbz_central_modelado": info.get("dbz_central_modelado"),
+                        "intervalo_credibilidade_90_dbz": info.get("intervalo_credibilidade_90_dbz"),
+                        "classes_mais_provaveis": info.get("classes_mais_provaveis"),
+                    },
+                    "dbz_oficial_comprovado": bool(info.get("ancora_oficial")),
+                    "classe_oficial_comprovada": 10 if info.get("ancora_oficial") else None,
+                    "diagnostico": "ECO_RASTER_NA_CELULA",
+                })
+                if info.get("ancora_oficial"):
+                    ancora_oficial += 1
+            else:
+                f2.update({
+                    "eco_raster_reconhecido": False,
+                    "correspondencia": "RGB_FORA_DA_PALETA_RASTER_CONHECIDA",
+                    "dbz_oficial_comprovado": False,
+                    "classe_oficial_comprovada": None,
+                    "diagnostico": "SEM_ECO_RASTER_RECONHECIDO_NA_CELULA",
+                })
+            novo["frames"].append(f2)
+
+        if any(f.get("eco_raster_reconhecido") is True for f in novo["frames"]):
+            novo["resultado"] = "PAREAMENTO_ESPACIAL_RASTER_VALIDO"
+        elif novo["frames"]:
+            novo["resultado"] = "SEM_ECO_RASTER_RECONHECIDO_NA_CELULA"
+        else:
+            novo["motivo"] = "nenhum_frame_disponivel_na_i2"
+        base["episodios"].append(novo)
+
+    resultados = [e.get("resultado") for e in base["episodios"]]
+    n_valid = resultados.count("PAREAMENTO_ESPACIAL_RASTER_VALIDO")
+    n_sem = resultados.count("SEM_ECO_RASTER_RECONHECIDO_NA_CELULA")
+    n_ins = resultados.count("EVIDENCIA_INSUFICIENTE")
+    base["resumo"] = {
+        "episodios_h2": len(base["episodios"]),
+        "pareamento_espacial_raster_valido": n_valid,
+        "sem_eco_raster_reconhecido": n_sem,
+        "evidencia_insuficiente": n_ins,
+        "frames_avaliados": total_frames,
+        "frames_com_rgb_raster_reconhecido": reconhecidos,
+        "frames_com_ancora_oficial_FFFF00_C10": ancora_oficial,
+        "cores_raster_reconhecidas": len(cores),
+        "frequencia_rgb_reconhecido": dict(sorted(cores.items(), key=lambda kv: (-kv[1], kv[0]))),
+    }
+
+    if n_valid > 0 and n_ins == 0:
+        base["status"] = "ESPACIAL_RASTER_VALIDADO"
+        espacial = "VALIDADO"
+    elif n_valid > 0:
+        base["status"] = "ESPACIAL_RASTER_VALIDADO_COM_LACUNAS_HISTORICAS"
+        espacial = "VALIDADO_COM_LACUNAS_HISTORICAS"
+    elif n_ins > 0:
+        base["status"] = "EVIDENCIA_INSUFICIENTE"
+        espacial = "EM_VALIDACAO"
+    else:
+        base["status"] = "SEM_COINCIDENCIA_ESPACIAL_RASTER_NOS_EPISODIOS_H2"
+        espacial = "NAO_DEMONSTRADO"
+
+    base["placar_gates"] = {
+        "temporal_cemaden_h2": "VALIDADO",
+        "geometria_estacoes_172": "VALIDADA_PARA_PAREAMENTO",
+        "espacial_raster_radarsc_cemaden": espacial,
+        "rgb_raster_para_dbz_oficial": "VALIDADO_SOMENTE_ANCORA_FFFF00_C10",
+        "zr": "BLOQUEADO",
+        "dbz_para_mm_h": "BLOQUEADO",
+    }
+    base["limitacoes"] = [
+        "RGB raster reconhecido fora de #FFFF00 permanece modelado; nao e dBZ oficial.",
+        "O gate espacial demonstra coincidencia geografica/temporal de eco raster e chuva H2, nao calibracao de refletividade.",
+        "Episodios sem frame persistido permanecem lacunas historicas e nao sao convertidos em negativos.",
+        "Z-R instrumental e conversao dBZ->mm/h permanecem bloqueados.",
+    ]
+    try:
+        with open("auditoria_espacial_170i3.json", "w", encoding="utf-8") as f:
+            json.dump(base, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+    return base
+
+
 def _censo_paleta_radarsc_170_j6(registros):
     """#170-J.6: censo longitudinal fail-closed das PLTE observadas pela #170-J.5.
 
@@ -15609,10 +15778,11 @@ def main():
     auditoria_espacial170i = salvar_auditoria_espacial_170i(radar_atual)  # #170-I.1 preservada
     auditoria_espacial170i2 = salvar_auditoria_espacial_170i2(radar_atual, geometria_rede172)
     metodo_guaxanduva_radar_v01 = construir_metodo_guaxanduva_refletividade_v01(historico_zr170, auditoria_espacial170i)
+    auditoria_espacial170i3 = salvar_auditoria_espacial_170i3(auditoria_espacial170i2, metodo_guaxanduva_radar_v01)
     metodo_guaxanduva_zr_v02 = construir_metodo_guaxanduva_zr_operacional_v02(metodo_guaxanduva_radar_v01)
     metodo_guaxanduva_publicacao_v03 = construir_metodo_guaxanduva_publicacao_operacional_v03(metodo_guaxanduva_zr_v02)
     estado_cientifico_vigente171 = construir_estado_cientifico_vigente_171(
-        radar_atual, chuva_cemaden144, rede165, auditoria_temporal170g, auditoria_espacial170i2,
+        radar_atual, chuva_cemaden144, rede165, auditoria_temporal170g, auditoria_espacial170i3,
         metodo_guaxanduva_radar_v01, metodo_guaxanduva_zr_v02, metodo_guaxanduva_publicacao_v03,
         nivel_guaxanduva_v021, criterio163
     )
@@ -15786,6 +15956,9 @@ def main():
 
         "auditoria_espacial_zr_170_i2":
             auditoria_espacial170i2,
+
+        "auditoria_espacial_zr_170_i3":
+            auditoria_espacial170i3,
 
         "metodo_guaxanduva_refletividade_v01":
             metodo_guaxanduva_radar_v01,

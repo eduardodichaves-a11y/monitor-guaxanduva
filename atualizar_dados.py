@@ -12236,6 +12236,27 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
                 base["fallback_modelo_hidraulico"] = "ativo_sem_propagacao_do_grafo"
             except Exception as exc_modelo:
                 base["erro_modelo_hidraulico"] = str(exc_modelo)
+    # Fallback geométrico explícito: reutiliza a última topologia auditada persistida.
+    if base.get("status") == "indisponivel_sem_interromper_monitor":
+        try:
+            if os.path.exists(GUAXANDUVA_GRAFO_ARQUIVO):
+                with open(GUAXANDUVA_GRAFO_ARQUIVO, "r", encoding="utf-8") as _fg:
+                    _grafo_anterior = json.load(_fg)
+                _resumo = _grafo_anterior.get("resumo")
+                _pref = _grafo_anterior.get("ponto_referencia_topologia")
+                if isinstance(_resumo, dict) and _resumo.get("segmentos_microbacia") is not None:
+                    base["resumo"] = _resumo
+                    if isinstance(_pref, dict):
+                        base["ponto_referencia_topologia"] = _pref
+                    base["topologia_fallback"] = {
+                        "status": "REUTILIZADA_ULTIMA_TOPOLOGIA_AUDITADA",
+                        "arquivo": GUAXANDUVA_GRAFO_ARQUIVO,
+                        "gerado_em_origem": _grafo_anterior.get("gerado_em"),
+                        "motivo": "consulta_SIMGEO_do_ciclo_indisponivel",
+                        "regra": "fallback_apenas_geometrico; ausencia_nunca_vira_zero",
+                    }
+        except Exception as _exc_grafo_fallback:
+            base["erro_topologia_fallback"] = str(_exc_grafo_fallback)
     return base
  
  

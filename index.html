@@ -200,6 +200,28 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 .quick-question>div{padding:8px 10px;border-left:3px solid #2d93bb;background:rgba(3,22,33,.62);border-radius:7px}
 .quick-question b{display:block;font-size:.72rem;color:#8fd7f1}.quick-question span{display:block;font-size:.82rem;margin-top:2px}
 @media(max-width:900px){.hazard-ribbon{grid-template-columns:repeat(4,1fr)}.quick-question{grid-template-columns:repeat(2,1fr)}}
+
+/* === #174 • DASHBOARD VISUAL DO PRÓXIMO PICO — dentro do card principal === */
+.gxa174-board{margin:0 12px 12px;padding:13px;border:1px solid rgba(76,167,232,.42);border-radius:14px;background:linear-gradient(145deg,rgba(5,37,54,.88),rgba(4,26,39,.92))}
+.gxa174-title{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.gxa174-title b{font-size:.94rem;color:#b9ecff}.gxa174-title small{color:#8fb6c5;text-align:right}
+.gxa174-hero{display:grid;grid-template-columns:1.05fr 1.95fr;gap:12px;margin-top:10px}
+.gxa174-number{border:1px solid rgba(120,210,235,.22);border-radius:12px;padding:12px;background:rgba(4,24,35,.6)}
+.gxa174-number .label{font-size:.72rem;color:#8fd7f1;font-weight:800}.gxa174-number .big{font-size:2.25rem;font-weight:900;line-height:1.05;margin:5px 0;color:#f3fbff}
+.gxa174-number .when{font-size:.86rem;color:#c7dbe3}.gxa174-number .range{margin-top:10px;padding-top:9px;border-top:1px solid rgba(150,205,225,.16)}
+.gxa174-number .range b{display:block;font-size:1.12rem;color:#fff}
+.gxa174-meter{height:11px;border-radius:999px;background:#103a49;overflow:hidden;margin:10px 0 4px;position:relative}
+.gxa174-meter span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#31b7df,#66ddbd);width:0}
+.gxa174-chart{min-width:0;border:1px solid rgba(120,210,235,.22);border-radius:12px;padding:8px;background:rgba(4,24,35,.52)}
+.gxa174-chart svg{width:100%;height:180px;display:block}.gxa174-chart-note{font-size:.68rem;color:#8fb6c5;margin-top:3px}
+.gxa174-forces{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.gxa174-force{border:1px solid rgba(150,205,225,.18);border-radius:10px;padding:9px;background:rgba(4,24,35,.55)}
+.gxa174-force .k{font-size:.69rem;color:#8fd7f1;font-weight:800}.gxa174-force .v{font-size:1.18rem;font-weight:900;margin-top:3px}.gxa174-force .d{font-size:.69rem;color:#a9c9d5;margin-top:2px}
+.gxa174-conclusion{margin-top:10px;border-left:4px solid #47bfe8;border-radius:9px;padding:10px 11px;background:rgba(34,111,145,.16)}
+.gxa174-conclusion b{color:#fff}.gxa174-conclusion span{display:block;margin-top:4px;color:#c6e3ed;font-size:.84rem;line-height:1.35}
+.gxa174-foot{margin-top:8px;color:#88aab7;font-size:.67rem}
+@media(max-width:700px){.gxa174-hero{grid-template-columns:1fr}.gxa174-forces{grid-template-columns:1fr}.gxa174-chart svg{height:165px}.gxa174-number .big{font-size:2rem}}
+
 @media(max-width:520px){.leigo-console-head{align-items:flex-start;flex-direction:column}.leigo-answer{grid-template-columns:48px 1fr}.leigo-signal{width:46px;height:46px;font-size:25px}.hazard-ribbon{grid-template-columns:repeat(2,1fr)}.climate-bridge{grid-template-columns:auto 1fr}.climate-bridge .cb-value{grid-column:1/-1;text-align:left;padding-left:37px}.quick-question{grid-template-columns:1fr}}
 
 </style>
@@ -244,9 +266,34 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
     <div><b>RIO + MARÉ</b><span id="leigoRioMare">--</span></div>
     <div><b>FONTE / CERTEZA</b><span id="leigoCerteza">Observado, previsto e modelado separados.</span></div>
   </div>
-  <div style="margin:0 12px 12px;padding:10px 12px;border:1px solid rgba(76,167,232,.35);border-radius:12px;background:rgba(29,91,139,.12)">
-    <b>🔭 PREVISÃO ACOPLADA #174 • 24 HORAS</b>
-    <div id="leigo174" style="margin-top:5px;color:#b9d9e5;font-size:.86rem">Aguardando projeção chuva + maré + resposta do rio + rajadas.</div>
+  <div class="gxa174-board" id="gxa174Board">
+    <div class="gxa174-title">
+      <div><b>🌊 PRÓXIMO PICO DO GUAXANDUVA</b><br><small>Previsão conjunta de chuva + maré + resposta do rio</small></div>
+      <small id="gxa174Status">#174 • aguardando dados</small>
+    </div>
+    <div class="gxa174-hero">
+      <div class="gxa174-number">
+        <div class="label">PICO CENTRAL PREVISTO • 24 H</div>
+        <div class="big" id="gxa174Pico">--</div>
+        <div class="when" id="gxa174Quando">Horário ainda indisponível</div>
+        <div class="gxa174-meter" title="Posição do valor central dentro da própria faixa de incerteza; não é escala de perigo."><span id="gxa174Meter"></span></div>
+        <div class="range"><span class="label">FAIXA PREVISTA DO PICO</span><b id="gxa174Faixa">--</b><small>Incerteza do modelo; não é escala de perigo.</small></div>
+      </div>
+      <div class="gxa174-chart">
+        <svg id="gxa174Svg" viewBox="0 0 720 190" role="img" aria-label="Curva prevista do nível do Guaxanduva nas próximas 24 horas"></svg>
+        <div class="gxa174-chart-note">Curva central + faixa de incerteza. Os marcadores mostram chuva, maré e pico previstos quando disponíveis.</div>
+      </div>
+    </div>
+    <div class="gxa174-forces">
+      <div class="gxa174-force"><div class="k">🌊 MARÉ NO PICO</div><div class="v" id="gxa174Mare">--</div><div class="d" id="gxa174MareDet">condição de jusante</div></div>
+      <div class="gxa174-force"><div class="k">🌧️ CHUVA • 24 H</div><div class="v" id="gxa174Chuva">--</div><div class="d" id="gxa174ChuvaDet">contribuição ainda indisponível</div></div>
+      <div class="gxa174-force"><div class="k">💨 RAJADA MÁXIMA</div><div class="v" id="gxa174Rajada">--</div><div class="d" id="gxa174RajadaDet">horário ainda indisponível</div></div>
+    </div>
+    <div class="gxa174-conclusion">
+      <b>📌 CONCLUSÃO</b>
+      <span id="leigo174">O Monitor ainda está calculando a previsão das próximas 24 horas.</span>
+    </div>
+    <div class="gxa174-foot">🔵 MODELADO • confiança baixa/experimental • não é medição instrumental nem alerta operacional • #174</div>
   </div>
 </div>
 
@@ -1258,13 +1305,64 @@ async function carregar(){
   $("leigoCerteza").textContent=(g174.status==="projecao_experimental_calculada")
     ?"Pico do rio #174: MODELADO, confiança baixa • faixa obrigatória"
     :"OBS: radar/maré/estações • PREV: tempo • MOD: rio/ciclone quando indicado";
-  $("leigo174").textContent=(g174.status==="projecao_experimental_calculada")
-    ?"Rio: pico "+f(pk174.nivel_m,2)+" m (faixa "+f(pk174.min_m,2)+"–"+f(pk174.max_m,2)+" m) por volta de "+hora174(pk174.horario)
-      +" • maré no pico "+f(pk174.mare_no_pico_m,2)+" m"
-      +" • chuva 24h "+f(ch174.acumulado_24h_mm,1)+" mm"
-      +" • rajada máxima "+f(vw174.rajada_max_kmh,1)+" km/h por volta de "+hora174(vw174.horario)
-      +" • EXPERIMENTAL / NÃO OPERACIONAL"
-    :"#174 inconclusivo nesta atualização; o Monitor não inventa pico sem as forcantes completas.";
+  const ok174=g174.status==="projecao_experimental_calculada"&&pk174.nivel_m!=null;
+  $("gxa174Status").textContent=ok174?"#174 • projeção calculada":"#174 • inconclusivo";
+  $("gxa174Pico").textContent=ok174?f(pk174.nivel_m,2)+" m":"--";
+  $("gxa174Quando").textContent=ok174?"Por volta de "+hora174(pk174.horario):"Horário ainda indisponível";
+  $("gxa174Faixa").textContent=ok174?f(pk174.min_m,2)+" – "+f(pk174.max_m,2)+" m":"--";
+  $("gxa174Mare").textContent=ok174&&pk174.mare_no_pico_m!=null?f(pk174.mare_no_pico_m,2)+" m":"--";
+  $("gxa174MareDet").textContent=ok174?"maré prevista no horário do pico":"condição de jusante indisponível";
+  $("gxa174Chuva").textContent=ok174&&ch174.acumulado_24h_mm!=null?f(ch174.acumulado_24h_mm,1)+" mm":"--";
+  const chuva174=Number(ch174.acumulado_24h_mm);
+  $("gxa174ChuvaDet").textContent=!ok174||!Number.isFinite(chuva174)?"contribuição ainda indisponível":
+    (chuva174<5?"contribuição pequena no horizonte":chuva174<20?"contribuição presente no horizonte":"contribuição relevante no horizonte");
+  $("gxa174Rajada").textContent=ok174&&vw174.rajada_max_kmh!=null?f(vw174.rajada_max_kmh,1)+" km/h":"--";
+  $("gxa174RajadaDet").textContent=ok174&&vw174.horario?"por volta de "+hora174(vw174.horario):"horário ainda indisponível";
+
+  if(ok174&&pk174.min_m!=null&&pk174.max_m!=null&&pk174.max_m>pk174.min_m){
+    const pos174=Math.max(0,Math.min(100,100*(pk174.nivel_m-pk174.min_m)/(pk174.max_m-pk174.min_m)));
+    $("gxa174Meter").style.width=pos174+"%";
+  }else $("gxa174Meter").style.width="0%";
+
+  const serie174=Array.isArray(g174.serie_horaria)?g174.serie_horaria.filter(x=>x&&x.horario&&Number.isFinite(Number(x.nivel_central_m))):[];
+  const svg174=$("gxa174Svg");
+  if(svg174){
+    if(serie174.length>=2){
+      const W=720,H=190,L=44,R=12,T=18,B=30, PW=W-L-R,PH=H-T-B;
+      const vals174=serie174.flatMap(x=>[Number(x.nivel_min_m),Number(x.nivel_central_m),Number(x.nivel_max_m)]).filter(Number.isFinite);
+      let ymin=Math.min(...vals174), ymax=Math.max(...vals174);
+      const pad=Math.max(.08,(ymax-ymin)*.12); ymin=Math.max(0,ymin-pad); ymax+=pad;
+      const X=i=>L+PW*i/(serie174.length-1), Y=v=>T+PH*(ymax-v)/(ymax-ymin||1);
+      const pts=(key)=>serie174.map((x,i)=>`${X(i).toFixed(1)},${Y(Number(x[key])).toFixed(1)}`).join(" ");
+      const upper=serie174.map((x,i)=>`${X(i).toFixed(1)},${Y(Number(x.nivel_max_m)).toFixed(1)}`).join(" ");
+      const lower=[...serie174].reverse().map((x,j)=>{const i=serie174.length-1-j;return `${X(i).toFixed(1)},${Y(Number(x.nivel_min_m)).toFixed(1)}`}).join(" ");
+      const peakIndex=serie174.reduce((bi,x,i)=>Number(x.nivel_central_m)>Number(serie174[bi].nivel_central_m)?i:bi,0);
+      const pX=X(peakIndex),pY=Y(Number(serie174[peakIndex].nivel_central_m));
+      const rainMarks=serie174.map((x,i)=>Number(x.chuva_mm)>0?`<circle cx="${X(i).toFixed(1)}" cy="${(H-17).toFixed(1)}" r="${Math.min(5,1.5+Number(x.chuva_mm)).toFixed(1)}" fill="#69bfff"><title>Chuva ${x.chuva_mm} mm • ${hora174(x.horario)}</title></circle>`:"").join("");
+      const ticks=[0,Math.floor((serie174.length-1)/2),serie174.length-1].map(i=>`<text x="${X(i)}" y="${H-3}" text-anchor="${i===0?"start":i===serie174.length-1?"end":"middle"}" fill="#88aab7" font-size="11">${new Date(serie174[i].horario).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</text>`).join("");
+      svg174.innerHTML=`
+        <line x1="${L}" y1="${T}" x2="${L}" y2="${H-B}" stroke="#315766"/>
+        <line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="#315766"/>
+        <text x="4" y="${T+8}" fill="#88aab7" font-size="11">${ymax.toFixed(2)} m</text>
+        <text x="4" y="${H-B}" fill="#88aab7" font-size="11">${ymin.toFixed(2)} m</text>
+        <polygon points="${upper} ${lower}" fill="rgba(90,183,220,.18)" stroke="none"/>
+        <polyline points="${pts("nivel_central_m")}" fill="none" stroke="#55c9ee" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+        <line x1="${pX}" y1="${T}" x2="${pX}" y2="${H-B}" stroke="#f1c75b" stroke-dasharray="5 5"/>
+        <circle cx="${pX}" cy="${pY}" r="6" fill="#f1c75b" stroke="#fff" stroke-width="2"/>
+        <text x="${Math.min(W-150,pX+9)}" y="${Math.max(14,pY-9)}" fill="#f7df91" font-size="12" font-weight="700">PICO ${Number(pk174.nivel_m).toFixed(2)} m</text>
+        ${rainMarks}${ticks}`;
+    }else{
+      svg174.innerHTML='<text x="360" y="95" text-anchor="middle" fill="#88aab7" font-size="14">Série horária #174 indisponível nesta atualização</text>';
+    }
+  }
+
+  $("leigo174").textContent=ok174
+    ?"O Guaxanduva deverá atingir aproximadamente "+f(pk174.nivel_m,2)+" m, com faixa prevista do pico entre "+f(pk174.min_m,2)+" e "+f(pk174.max_m,2)+" m, por volta de "+hora174(pk174.horario)+". "
+      +(pk174.mare_no_pico_m!=null?"Maré prevista no pico: "+f(pk174.mare_no_pico_m,2)+" m. ":"")
+      +(ch174.acumulado_24h_mm!=null?"Chuva prevista em 24 h: "+f(ch174.acumulado_24h_mm,1)+" mm. ":"")
+      +(vw174.rajada_max_kmh!=null?"Rajada máxima prevista: "+f(vw174.rajada_max_kmh,1)+" km/h por volta de "+hora174(vw174.horario)+". ":"")
+      +"Resultado modelado, experimental e não instrumental."
+    :"#174 inconclusivo nesta atualização; o Monitor não inventa pico sem as forçantes completas.";
   $("dashRadarEstado").textContent=rad.status?nomeFamilia(rad.status):"--";
   $("dashRadarHora").textContent=rad.horario_ultimo_quadro?horaCurta(rad.horario_ultimo_quadro):"--";
   $("dashRadarIdade").textContent=rad.idade_ultimo_quadro_min==null?"--":f(rad.idade_ultimo_quadro_min,1)+" min";

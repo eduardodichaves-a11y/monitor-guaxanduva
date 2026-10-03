@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-10-03T00:05:41.190431-03:00",
+  "gerado_em": "2026-10-03T00:10:51.659683-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -143,7 +143,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-10-03T00:03:38.954099-03:00"
+    "coletado_em": "2026-10-03T00:08:07.524454-03:00"
   },
   "chuva_observada_epagri_165": {
     "status": "online",
@@ -162,8 +162,8 @@
         "latitude": -26.1622,
         "longitude": -48.9708,
         "precipitacao_1h_mm": 0.6,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
-        "idade_leitura_min": 63.7,
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
+        "idade_leitura_min": 8.2,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -178,8 +178,8 @@
         "latitude": -26.3419,
         "longitude": -48.9889,
         "precipitacao_1h_mm": 0.0,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
-        "idade_leitura_min": 63.7,
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
+        "idade_leitura_min": 8.2,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -347,8 +347,8 @@
         "janela_acumulado_h": 1,
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.6,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
-        "idade_leitura_min": 63.7,
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
+        "idade_leitura_min": 8.2,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -366,8 +366,8 @@
         "janela_acumulado_h": 1,
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
-        "idade_leitura_min": 63.7,
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
+        "idade_leitura_min": 8.2,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -1408,7 +1408,7 @@
       "data_fonte": "03/10/2026",
       "hora_fonte": "3h"
     },
-    "idade_ultima_leitura_min": 6.0,
+    "idade_ultima_leitura_min": 11.1,
     "dados_frescos_diagnostico": true,
     "limite_frescor_diagnostico_min": 120,
     "acumulados_diagnosticos": {
@@ -1636,7 +1636,7 @@
     "24h_mm": 0.0,
     "horario_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
     "horario_ultima_celula_local": "2026-10-03T00:00:00-03:00",
-    "idade_leitura_min": 3.7,
+    "idade_leitura_min": 8.2,
     "dados_frescos": true,
     "limite_frescor_min": 120,
     "granularidade": "horaria",
@@ -1658,24 +1658,17 @@
     "observacao": "Bloco operacional baseado em janelas horarias coerentes validadas nas #141-#143. O horario exibido e o rotulo temporal da ultima celula fornecida pelo CEMADEN; a #144 nao afirma se ele representa inicio ou fechamento do intervalo horario. Granularidade de 10 minutos permanece indisponivel."
   },
   "chuva_observada_inmet": {
-    "status": "online_sem_chuva_valida",
+    "status": "indisponivel",
     "tipo": "observacao_estacao_automatica",
     "fonte": "INMET",
-    "fonte_primaria": "Instituto Nacional de Meteorologia",
     "geocodigo_ibge_consultado": "4209102",
-    "estacao": {
-      "codigo": "A868",
-      "nome": "ITAJAI",
-      "uf": "SC",
-      "distancia_referencia_joinville_km": 81.0
-    },
     "leitura_horaria_mm": null,
-    "horario_medicao_utc": "2026-10-03T02:00:00+00:00",
-    "horario_medicao_local": "2026-10-02T23:00:00-03:00",
-    "idade_leitura_min": 66.1,
-    "dados_frescos": true,
-    "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
-    "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
+    "horario_medicao_utc": null,
+    "horario_medicao_local": null,
+    "idade_leitura_min": null,
+    "dados_frescos": false,
+    "erro": "400 Client Error: Bad Request for url: https://apiprevmet3.inmet.gov.br/estacao/proxima/4209102",
+    "regra_seguranca": "Falha de coleta não é interpretada como ausência de chuva."
   },
   "investigacao_radarsc_128": {
     "status": "evidencia_textual_encontrada_para_revisao",
@@ -1818,7 +1811,7 @@
     "url_produto": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610030250.json",
     "horario_produto_utc": "2026-10-03T02:50:00+00:00",
     "horario_produto_local": "2026-10-02T23:50:00-03:00",
-    "idade_dado_min": 14.1,
+    "idade_dado_min": 18.7,
     "limite_frescor_monitor_min": 40,
     "tipo_geojson": "FeatureCollection",
     "sistemas_detectados": 461,
@@ -1882,7 +1875,7 @@
     "residual_cm": 22.5,
     "nmm_cm": 103.1,
     "horario": "2026-10-02T23:30:00-03:00",
-    "idade_min": 34.0,
+    "idade_min": 38.6,
     "frescor": "atual",
     "residual_aritmetica_validada": true,
     "uso_no_risco": false,
@@ -3780,9 +3773,9 @@
     "versao": "166-v0.2-historico-integrado",
     "status": "historico_em_formacao",
     "arquivo_historico": "historico_guaxanduva_166.json",
-    "gerado_em": "2026-10-03T00:04:02.399493-03:00",
-    "quantidade_registros": 889,
-    "quantidade_chuva_horaria": 386,
+    "gerado_em": "2026-10-03T00:08:39.338965-03:00",
+    "quantidade_registros": 891,
+    "quantidade_chuva_horaria": 388,
     "quantidade_mare_observada": 503,
     "chuva_por_estacao": [
       {
@@ -3795,31 +3788,31 @@
           "valor_mm": 0.6,
           "horas_necessarias": 1,
           "horas_validas": 1,
-          "horario_final": "2026-10-02T23:00:00-03:00",
+          "horario_final": "2026-10-03T00:00:00-03:00",
           "motivo": null
         },
         "P3h": {
           "disponivel": true,
-          "valor_mm": 1.8,
+          "valor_mm": 2.0,
           "horas_necessarias": 3,
           "horas_validas": 3,
-          "horario_final": "2026-10-02T23:00:00-03:00",
+          "horario_final": "2026-10-03T00:00:00-03:00",
           "motivo": null
         },
         "P6h": {
           "disponivel": true,
-          "valor_mm": 4.6,
+          "valor_mm": 4.0,
           "horas_necessarias": 6,
           "horas_validas": 6,
-          "horario_final": "2026-10-02T23:00:00-03:00",
+          "horario_final": "2026-10-03T00:00:00-03:00",
           "motivo": null
         },
         "P24h": {
           "disponivel": true,
-          "valor_mm": 9.0,
+          "valor_mm": 9.2,
           "horas_necessarias": 24,
           "horas_validas": 24,
-          "horario_final": "2026-10-02T23:00:00-03:00",
+          "horario_final": "2026-10-03T00:00:00-03:00",
           "motivo": null
         }
       },
@@ -3833,7 +3826,7 @@
           "valor_mm": 0.0,
           "horas_necessarias": 1,
           "horas_validas": 1,
-          "horario_final": "2026-10-02T23:00:00-03:00",
+          "horario_final": "2026-10-03T00:00:00-03:00",
           "motivo": null
         },
         "P3h": {
@@ -3841,7 +3834,7 @@
           "valor_mm": 0.0,
           "horas_necessarias": 3,
           "horas_validas": 3,
-          "horario_final": "2026-10-02T23:00:00-03:00",
+          "horario_final": "2026-10-03T00:00:00-03:00",
           "motivo": null
         },
         "P6h": {
@@ -3849,15 +3842,15 @@
           "valor_mm": 0.0,
           "horas_necessarias": 6,
           "horas_validas": 6,
-          "horario_final": "2026-10-02T23:00:00-03:00",
+          "horario_final": "2026-10-03T00:00:00-03:00",
           "motivo": null
         },
         "P24h": {
           "disponivel": true,
-          "valor_mm": 4.6,
+          "valor_mm": 4.2,
           "horas_necessarias": 24,
           "horas_validas": 24,
-          "horario_final": "2026-10-02T23:00:00-03:00",
+          "horario_final": "2026-10-03T00:00:00-03:00",
           "motivo": null
         }
       }
@@ -3904,7 +3897,7 @@
   },
   "modelo_computacional_guaxanduva_v01": {
     "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
-    "gerado_em": "2026-10-03T00:04:02.415038-03:00",
+    "gerado_em": "2026-10-03T00:08:39.353930-03:00",
     "status": "grafo_hidrografico_integrado",
     "fonte_hidrografia": "Prefeitura de Joinville / SIMGeo - camada 44",
     "microbacia": "44-0",
@@ -3921,7 +3914,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-10-03T00:04:04.387634-03:00"
+      "instante": "2026-10-03T00:08:41.734600-03:00"
     },
     "parametros_hidraulicos_documentados": {
       "bypass_montezuma_odilon": {
@@ -3984,31 +3977,31 @@
             "valor_mm": 0.6,
             "horas_necessarias": 1,
             "horas_validas": 1,
-            "horario_final": "2026-10-02T23:00:00-03:00",
+            "horario_final": "2026-10-03T00:00:00-03:00",
             "motivo": null
           },
           "P3h": {
             "disponivel": true,
-            "valor_mm": 1.8,
+            "valor_mm": 2.0,
             "horas_necessarias": 3,
             "horas_validas": 3,
-            "horario_final": "2026-10-02T23:00:00-03:00",
+            "horario_final": "2026-10-03T00:00:00-03:00",
             "motivo": null
           },
           "P6h": {
             "disponivel": true,
-            "valor_mm": 4.6,
+            "valor_mm": 4.0,
             "horas_necessarias": 6,
             "horas_validas": 6,
-            "horario_final": "2026-10-02T23:00:00-03:00",
+            "horario_final": "2026-10-03T00:00:00-03:00",
             "motivo": null
           },
           "P24h": {
             "disponivel": true,
-            "valor_mm": 9.0,
+            "valor_mm": 9.2,
             "horas_necessarias": 24,
             "horas_validas": 24,
-            "horario_final": "2026-10-02T23:00:00-03:00",
+            "horario_final": "2026-10-03T00:00:00-03:00",
             "motivo": null
           }
         },
@@ -4022,7 +4015,7 @@
             "valor_mm": 0.0,
             "horas_necessarias": 1,
             "horas_validas": 1,
-            "horario_final": "2026-10-02T23:00:00-03:00",
+            "horario_final": "2026-10-03T00:00:00-03:00",
             "motivo": null
           },
           "P3h": {
@@ -4030,7 +4023,7 @@
             "valor_mm": 0.0,
             "horas_necessarias": 3,
             "horas_validas": 3,
-            "horario_final": "2026-10-02T23:00:00-03:00",
+            "horario_final": "2026-10-03T00:00:00-03:00",
             "motivo": null
           },
           "P6h": {
@@ -4038,15 +4031,15 @@
             "valor_mm": 0.0,
             "horas_necessarias": 6,
             "horas_validas": 6,
-            "horario_final": "2026-10-02T23:00:00-03:00",
+            "horario_final": "2026-10-03T00:00:00-03:00",
             "motivo": null
           },
           "P24h": {
             "disponivel": true,
-            "valor_mm": 4.6,
+            "valor_mm": 4.2,
             "horas_necessarias": 24,
             "horas_validas": 24,
-            "horario_final": "2026-10-02T23:00:00-03:00",
+            "horario_final": "2026-10-03T00:00:00-03:00",
             "motivo": null
           }
         }
@@ -14451,7 +14444,7 @@
       "incerteza_m": null,
       "confianca": "fisica_parcial_sem_calibracao_de_nivel",
       "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
-      "instante": "2026-10-03T00:04:04.387634-03:00",
+      "instante": "2026-10-03T00:08:41.734600-03:00",
       "uso_operacional": false,
       "alerta_operacional_liberado": false,
       "representa_medicao_instrumental": false,
@@ -15692,9 +15685,9 @@
       "forcantes": {
         "chuva": {
           "P1h_mm": 0.6,
-          "P3h_mm": 1.8,
-          "P6h_mm": 4.6,
-          "P24h_mm": 9.0,
+          "P3h_mm": 2.0,
+          "P6h_mm": 4.0,
+          "P24h_mm": 9.2,
           "fontes_P1h": [
             {
               "codigo": "2382",
@@ -15711,7 +15704,7 @@
             {
               "codigo": "2382",
               "nome": "Joinville - Pirabeiraba",
-              "valor_mm": 1.8
+              "valor_mm": 2.0
             },
             {
               "codigo": "1051",
@@ -15723,7 +15716,7 @@
             {
               "codigo": "2382",
               "nome": "Joinville - Pirabeiraba",
-              "valor_mm": 4.6
+              "valor_mm": 4.0
             },
             {
               "codigo": "1051",
@@ -15735,12 +15728,12 @@
             {
               "codigo": "2382",
               "nome": "Joinville - Pirabeiraba",
-              "valor_mm": 9.0
+              "valor_mm": 9.2
             },
             {
               "codigo": "1051",
               "nome": "Joinville - Vila Nova",
-              "valor_mm": 4.6
+              "valor_mm": 4.2
             }
           ],
           "regra": "estacoes_independentes_nao_somadas; maior_acumulado_valido_apenas_para_resumo_regional"
@@ -16090,7 +16083,7 @@
     "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
     "status": "nivel_modelado_calculado",
     "natureza": "MODELADO_NAO_INSTRUMENTAL",
-    "instante": "2026-10-03T00:04:04.410242-03:00",
+    "instante": "2026-10-03T00:08:41.754732-03:00",
     "referencia_forcantes": "2026-10-02T23:30:00-03:00",
     "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
     "nivel_estimado_m": 1.887,
@@ -16456,7 +16449,7 @@
       "janela_inicio": "2026-10-03T01:00",
       "janela_fim_exclusivo": "2026-10-04T01:00:00-03:00",
       "mare_horario": "2026-10-02T23:30:00-03:00",
-      "mare_idade_min": 34.0
+      "mare_idade_min": 38.6
     },
     "criterios": {
       "mobilizacao_chuva_superior_20mm_24h": false,
@@ -16490,7 +16483,7 @@
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
     "horario_ultimo_quadro": "2026-10-03T00:00:00-03:00",
-    "idade_ultimo_quadro_min": 4.3,
+    "idade_ultimo_quadro_min": 9.0,
     "dados_frescos": true,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -26047,7 +26040,7 @@
         "nome": "Joinville - Pirabeiraba",
         "status_fonte": "online",
         "1h_mm": 0.6,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       },
       {
@@ -26056,7 +26049,7 @@
         "nome": "Joinville - Vila Nova",
         "status_fonte": "online",
         "1h_mm": 0.0,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       }
     ],
@@ -26096,7 +26089,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -31926,7 +31919,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -37926,7 +37919,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.5,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -43937,10 +43930,10 @@
           "acumulado_1h_mm": 0.6,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -49660,18 +49653,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -49683,41 +49669,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -49761,10 +49754,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -55603,18 +55596,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -55626,41 +55612,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -55770,7 +55763,7 @@
         "nome": "Joinville - Pirabeiraba",
         "status_fonte": "online",
         "1h_mm": 0.6,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       },
       {
@@ -55779,7 +55772,7 @@
         "nome": "Joinville - Vila Nova",
         "status_fonte": "online",
         "1h_mm": 0.0,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       }
     ],
@@ -55819,7 +55812,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -61649,7 +61642,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -67649,7 +67642,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.5,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -73660,10 +73653,10 @@
           "acumulado_1h_mm": 0.6,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -79383,18 +79376,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -79406,41 +79392,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -79484,10 +79477,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -85326,18 +85319,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -85349,41 +85335,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -85493,7 +85486,7 @@
         "nome": "Joinville - Pirabeiraba",
         "status_fonte": "online",
         "1h_mm": 0.6,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       },
       {
@@ -85502,7 +85495,7 @@
         "nome": "Joinville - Vila Nova",
         "status_fonte": "online",
         "1h_mm": 0.0,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       }
     ],
@@ -85542,7 +85535,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -91372,7 +91365,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -97372,7 +97365,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.5,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -103383,10 +103376,10 @@
           "acumulado_1h_mm": 0.6,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -109106,18 +109099,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -109129,41 +109115,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -109207,10 +109200,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -115049,18 +115042,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -115072,41 +115058,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -115216,7 +115209,7 @@
         "nome": "Joinville - Pirabeiraba",
         "status_fonte": "online",
         "1h_mm": 0.6,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       },
       {
@@ -115225,7 +115218,7 @@
         "nome": "Joinville - Vila Nova",
         "status_fonte": "online",
         "1h_mm": 0.0,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       }
     ],
@@ -115265,7 +115258,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -121095,7 +121088,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -127095,7 +127088,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.5,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -133106,10 +133099,10 @@
           "acumulado_1h_mm": 0.6,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -138829,18 +138822,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -138852,41 +138838,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -138930,10 +138923,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -144772,18 +144765,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -144795,41 +144781,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -144939,7 +144932,7 @@
         "nome": "Joinville - Pirabeiraba",
         "status_fonte": "online",
         "1h_mm": 0.6,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       },
       {
@@ -144948,7 +144941,7 @@
         "nome": "Joinville - Vila Nova",
         "status_fonte": "online",
         "1h_mm": 0.0,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       }
     ],
@@ -144988,7 +144981,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -150818,7 +150811,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -156818,7 +156811,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.5,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -162829,10 +162822,10 @@
           "acumulado_1h_mm": 0.6,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -168552,18 +168545,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -168575,41 +168561,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -168653,10 +168646,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -174495,18 +174488,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -174518,41 +174504,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -174662,7 +174655,7 @@
         "nome": "Joinville - Pirabeiraba",
         "status_fonte": "online",
         "1h_mm": 0.6,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       },
       {
@@ -174671,7 +174664,7 @@
         "nome": "Joinville - Vila Nova",
         "status_fonte": "online",
         "1h_mm": 0.0,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       }
     ],
@@ -174711,7 +174704,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -180541,7 +180534,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -186541,7 +186534,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.5,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -192552,10 +192545,10 @@
           "acumulado_1h_mm": 0.6,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -198275,18 +198268,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -198298,41 +198284,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -198376,10 +198369,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -204218,18 +204211,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -204241,41 +204227,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -204385,7 +204378,7 @@
         "nome": "Joinville - Pirabeiraba",
         "status_fonte": "online",
         "1h_mm": 0.6,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       },
       {
@@ -204394,7 +204387,7 @@
         "nome": "Joinville - Vila Nova",
         "status_fonte": "online",
         "1h_mm": 0.0,
-        "horario_medicao": "2026-10-02T23:00:00-03:00",
+        "horario_medicao": "2026-10-03T00:00:00-03:00",
         "dados_frescos": true
       }
     ],
@@ -204434,7 +204427,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.1,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -210264,7 +210257,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.4,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -216264,7 +216257,7 @@
           "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
           "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 4.5,
+          "idade_leitura_min": 9.2,
           "fonte": "CEMADEN #144 reaplicada por estacao na #170-B3",
           "produto_temporal": "horario_CEMADEN_#144"
         },
@@ -222275,10 +222268,10 @@
           "acumulado_1h_mm": 0.6,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -227998,18 +227991,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -228021,41 +228007,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -228099,10 +228092,10 @@
           "acumulado_1h_mm": 0.0,
           "acumulado_6h_mm": null,
           "acumulado_24h_mm": null,
-          "rotulo_ultima_celula_utc": "2026-10-03T02:00:00+00:00",
-          "rotulo_ultima_celula_local": "2026-10-02T23:00:00-03:00",
+          "rotulo_ultima_celula_utc": "2026-10-03T03:00:00+00:00",
+          "rotulo_ultima_celula_local": "2026-10-03T00:00:00-03:00",
           "dados_frescos": true,
-          "idade_leitura_min": 63.7,
+          "idade_leitura_min": 8.2,
           "fonte": "EPAGRI/CIRAM Agroconnect #165",
           "produto_temporal": "precipitacao_horaria_variavel_271_produto_horario_grupo_4_nhoras_1"
         },
@@ -233941,18 +233934,11 @@
         "diagnostico_temporal_170_e": {
           "versao": "#170-E",
           "rede": "EPAGRI/CIRAM",
-          "rotulo_referencia": "2026-10-03T02:00:00+00:00",
+          "rotulo_referencia": "2026-10-03T03:00:00+00:00",
           "rotulo_parseavel_com_fuso": true,
           "quadros_radar_com_timestamp_valido": 7,
           "hipotese_rotulo_como_fim_da_hora": {
             "janela": "(rotulo-60min, rotulo]",
-            "quadros_radar_na_janela": 1,
-            "arquivos": [
-              "2026100302000000dBZ.cappi_top.png"
-            ]
-          },
-          "hipotese_rotulo_como_inicio_da_hora": {
-            "janela": "[rotulo, rotulo+60min)",
             "quadros_radar_na_janela": 7,
             "arquivos": [
               "2026100302000000dBZ.cappi_top.png",
@@ -233964,41 +233950,48 @@
               "2026100303000000dBZ.cappi_top.png"
             ]
           },
+          "hipotese_rotulo_como_inicio_da_hora": {
+            "janela": "[rotulo, rotulo+60min)",
+            "quadros_radar_na_janela": 1,
+            "arquivos": [
+              "2026100303000000dBZ.cappi_top.png"
+            ]
+          },
           "deltas_frames_min": [
             {
               "arquivo": "2026100302000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 0.0
+              "delta_min_em_relacao_rotulo": -60.0
             },
             {
               "arquivo": "2026100302100000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:10:00+00:00",
-              "delta_min_em_relacao_rotulo": 10.0
+              "delta_min_em_relacao_rotulo": -50.0
             },
             {
               "arquivo": "2026100302200000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:20:00+00:00",
-              "delta_min_em_relacao_rotulo": 20.0
+              "delta_min_em_relacao_rotulo": -40.0
             },
             {
               "arquivo": "2026100302300000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:30:00+00:00",
-              "delta_min_em_relacao_rotulo": 30.0
+              "delta_min_em_relacao_rotulo": -30.0
             },
             {
               "arquivo": "2026100302400000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:40:00+00:00",
-              "delta_min_em_relacao_rotulo": 40.0
+              "delta_min_em_relacao_rotulo": -20.0
             },
             {
               "arquivo": "2026100302500000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T02:50:00+00:00",
-              "delta_min_em_relacao_rotulo": 50.0
+              "delta_min_em_relacao_rotulo": -10.0
             },
             {
               "arquivo": "2026100303000000dBZ.cappi_top.png",
               "horario_utc": "2026-10-03T03:00:00+00:00",
-              "delta_min_em_relacao_rotulo": 60.0
+              "delta_min_em_relacao_rotulo": 0.0
             }
           ],
           "evidencia_semantica_fonte": {
@@ -234020,7 +234013,7 @@
     "versao": "#170-F",
     "status": "historico_multirrede_atualizado",
     "arquivo": "historico_zr_170.json",
-    "registros_candidatos": 275,
+    "registros_candidatos": 277,
     "registros_adicionados_ou_atualizados_execucao": 5,
     "estacoes_unicas_no_historico": 6,
     "estacoes_por_rede_no_historico": [
@@ -234035,8 +234028,8 @@
       "CEMADEN",
       "EPAGRI/CIRAM"
     ],
-    "horas_estacao_com_chuva_observada_maior_que_zero": 90,
-    "horas_estacao_secas_observadas": 185,
+    "horas_estacao_com_chuva_observada_maior_que_zero": 91,
+    "horas_estacao_secas_observadas": 186,
     "registros_elegiveis_calibracao_zr": 0,
     "auditoria_temporal_compacta_170_f": {
       "versao": "#170-F",
@@ -234059,14 +234052,14 @@
           "pareamento_temporal_validado": 0
         },
         "EPAGRI/CIRAM": {
-          "registros_total": 104,
-          "registros_com_diagnostico_temporal": 96,
-          "registros_com_chuva_1h_maior_que_zero": 54,
-          "registros_secos_1h_igual_zero": 50,
-          "quadros_validos_somados": 672,
-          "quadros_na_hipotese_rotulo_como_fim_somados": 206,
-          "quadros_na_hipotese_rotulo_como_inicio_somados": 506,
-          "casos_com_mais_quadros_na_hipotese_fim": 4,
+          "registros_total": 106,
+          "registros_com_diagnostico_temporal": 98,
+          "registros_com_chuva_1h_maior_que_zero": 55,
+          "registros_secos_1h_igual_zero": 51,
+          "quadros_validos_somados": 686,
+          "quadros_na_hipotese_rotulo_como_fim_somados": 220,
+          "quadros_na_hipotese_rotulo_como_inicio_somados": 508,
+          "casos_com_mais_quadros_na_hipotese_fim": 6,
           "casos_com_mais_quadros_na_hipotese_inicio": 86,
           "casos_com_empate_de_quadros": 0,
           "casos_sem_quadro_em_ambas_hipoteses": 6,
@@ -234075,14 +234068,14 @@
         }
       },
       "total": {
-        "registros_total": 275,
-        "registros_com_diagnostico_temporal": 253,
-        "registros_com_chuva_1h_maior_que_zero": 90,
-        "registros_secos_1h_igual_zero": 185,
-        "quadros_validos_somados": 1771,
-        "quadros_na_hipotese_rotulo_como_fim_somados": 726,
-        "quadros_na_hipotese_rotulo_como_inicio_somados": 1142,
-        "casos_com_mais_quadros_na_hipotese_fim": 49,
+        "registros_total": 277,
+        "registros_com_diagnostico_temporal": 255,
+        "registros_com_chuva_1h_maior_que_zero": 91,
+        "registros_secos_1h_igual_zero": 186,
+        "quadros_validos_somados": 1785,
+        "quadros_na_hipotese_rotulo_como_fim_somados": 740,
+        "quadros_na_hipotese_rotulo_como_inicio_somados": 1144,
+        "casos_com_mais_quadros_na_hipotese_fim": 51,
         "casos_com_mais_quadros_na_hipotese_inicio": 176,
         "casos_com_empate_de_quadros": 11,
         "casos_sem_quadro_em_ambas_hipoteses": 17,
@@ -234839,7 +234832,7 @@
     "versao": "#170-F",
     "status": "historico_multirrede_atualizado",
     "arquivo": "historico_zr_170.json",
-    "registros_candidatos": 275,
+    "registros_candidatos": 277,
     "registros_adicionados_ou_atualizados_execucao": 5,
     "estacoes_unicas_no_historico": 6,
     "estacoes_por_rede_no_historico": [
@@ -234854,8 +234847,8 @@
       "CEMADEN",
       "EPAGRI/CIRAM"
     ],
-    "horas_estacao_com_chuva_observada_maior_que_zero": 90,
-    "horas_estacao_secas_observadas": 185,
+    "horas_estacao_com_chuva_observada_maior_que_zero": 91,
+    "horas_estacao_secas_observadas": 186,
     "registros_elegiveis_calibracao_zr": 0,
     "auditoria_temporal_compacta_170_f": {
       "versao": "#170-F",
@@ -234878,14 +234871,14 @@
           "pareamento_temporal_validado": 0
         },
         "EPAGRI/CIRAM": {
-          "registros_total": 104,
-          "registros_com_diagnostico_temporal": 96,
-          "registros_com_chuva_1h_maior_que_zero": 54,
-          "registros_secos_1h_igual_zero": 50,
-          "quadros_validos_somados": 672,
-          "quadros_na_hipotese_rotulo_como_fim_somados": 206,
-          "quadros_na_hipotese_rotulo_como_inicio_somados": 506,
-          "casos_com_mais_quadros_na_hipotese_fim": 4,
+          "registros_total": 106,
+          "registros_com_diagnostico_temporal": 98,
+          "registros_com_chuva_1h_maior_que_zero": 55,
+          "registros_secos_1h_igual_zero": 51,
+          "quadros_validos_somados": 686,
+          "quadros_na_hipotese_rotulo_como_fim_somados": 220,
+          "quadros_na_hipotese_rotulo_como_inicio_somados": 508,
+          "casos_com_mais_quadros_na_hipotese_fim": 6,
           "casos_com_mais_quadros_na_hipotese_inicio": 86,
           "casos_com_empate_de_quadros": 0,
           "casos_sem_quadro_em_ambas_hipoteses": 6,
@@ -234894,14 +234887,14 @@
         }
       },
       "total": {
-        "registros_total": 275,
-        "registros_com_diagnostico_temporal": 253,
-        "registros_com_chuva_1h_maior_que_zero": 90,
-        "registros_secos_1h_igual_zero": 185,
-        "quadros_validos_somados": 1771,
-        "quadros_na_hipotese_rotulo_como_fim_somados": 726,
-        "quadros_na_hipotese_rotulo_como_inicio_somados": 1142,
-        "casos_com_mais_quadros_na_hipotese_fim": 49,
+        "registros_total": 277,
+        "registros_com_diagnostico_temporal": 255,
+        "registros_com_chuva_1h_maior_que_zero": 91,
+        "registros_secos_1h_igual_zero": 186,
+        "quadros_validos_somados": 1785,
+        "quadros_na_hipotese_rotulo_como_fim_somados": 740,
+        "quadros_na_hipotese_rotulo_como_inicio_somados": 1144,
+        "casos_com_mais_quadros_na_hipotese_fim": 51,
         "casos_com_mais_quadros_na_hipotese_inicio": 176,
         "casos_com_empate_de_quadros": 11,
         "casos_sem_quadro_em_ambas_hipoteses": 17,
@@ -235658,7 +235651,7 @@
     "versao": "#170-F",
     "status": "historico_multirrede_atualizado",
     "arquivo": "historico_zr_170.json",
-    "registros_candidatos": 275,
+    "registros_candidatos": 277,
     "registros_adicionados_ou_atualizados_execucao": 5,
     "estacoes_unicas_no_historico": 6,
     "estacoes_por_rede_no_historico": [
@@ -235673,8 +235666,8 @@
       "CEMADEN",
       "EPAGRI/CIRAM"
     ],
-    "horas_estacao_com_chuva_observada_maior_que_zero": 90,
-    "horas_estacao_secas_observadas": 185,
+    "horas_estacao_com_chuva_observada_maior_que_zero": 91,
+    "horas_estacao_secas_observadas": 186,
     "registros_elegiveis_calibracao_zr": 0,
     "auditoria_temporal_compacta_170_f": {
       "versao": "#170-F",
@@ -235697,14 +235690,14 @@
           "pareamento_temporal_validado": 0
         },
         "EPAGRI/CIRAM": {
-          "registros_total": 104,
-          "registros_com_diagnostico_temporal": 96,
-          "registros_com_chuva_1h_maior_que_zero": 54,
-          "registros_secos_1h_igual_zero": 50,
-          "quadros_validos_somados": 672,
-          "quadros_na_hipotese_rotulo_como_fim_somados": 206,
-          "quadros_na_hipotese_rotulo_como_inicio_somados": 506,
-          "casos_com_mais_quadros_na_hipotese_fim": 4,
+          "registros_total": 106,
+          "registros_com_diagnostico_temporal": 98,
+          "registros_com_chuva_1h_maior_que_zero": 55,
+          "registros_secos_1h_igual_zero": 51,
+          "quadros_validos_somados": 686,
+          "quadros_na_hipotese_rotulo_como_fim_somados": 220,
+          "quadros_na_hipotese_rotulo_como_inicio_somados": 508,
+          "casos_com_mais_quadros_na_hipotese_fim": 6,
           "casos_com_mais_quadros_na_hipotese_inicio": 86,
           "casos_com_empate_de_quadros": 0,
           "casos_sem_quadro_em_ambas_hipoteses": 6,
@@ -235713,14 +235706,14 @@
         }
       },
       "total": {
-        "registros_total": 275,
-        "registros_com_diagnostico_temporal": 253,
-        "registros_com_chuva_1h_maior_que_zero": 90,
-        "registros_secos_1h_igual_zero": 185,
-        "quadros_validos_somados": 1771,
-        "quadros_na_hipotese_rotulo_como_fim_somados": 726,
-        "quadros_na_hipotese_rotulo_como_inicio_somados": 1142,
-        "casos_com_mais_quadros_na_hipotese_fim": 49,
+        "registros_total": 277,
+        "registros_com_diagnostico_temporal": 255,
+        "registros_com_chuva_1h_maior_que_zero": 91,
+        "registros_secos_1h_igual_zero": 186,
+        "quadros_validos_somados": 1785,
+        "quadros_na_hipotese_rotulo_como_fim_somados": 740,
+        "quadros_na_hipotese_rotulo_como_inicio_somados": 1144,
+        "casos_com_mais_quadros_na_hipotese_fim": 51,
         "casos_com_mais_quadros_na_hipotese_inicio": 176,
         "casos_com_empate_de_quadros": 11,
         "casos_sem_quadro_em_ambas_hipoteses": 17,
@@ -236477,7 +236470,7 @@
     "versao": "#170-F",
     "status": "historico_multirrede_atualizado",
     "arquivo": "historico_zr_170.json",
-    "registros_candidatos": 275,
+    "registros_candidatos": 277,
     "registros_adicionados_ou_atualizados_execucao": 5,
     "estacoes_unicas_no_historico": 6,
     "estacoes_por_rede_no_historico": [
@@ -236492,8 +236485,8 @@
       "CEMADEN",
       "EPAGRI/CIRAM"
     ],
-    "horas_estacao_com_chuva_observada_maior_que_zero": 90,
-    "horas_estacao_secas_observadas": 185,
+    "horas_estacao_com_chuva_observada_maior_que_zero": 91,
+    "horas_estacao_secas_observadas": 186,
     "registros_elegiveis_calibracao_zr": 0,
     "auditoria_temporal_compacta_170_f": {
       "versao": "#170-F",
@@ -236516,14 +236509,14 @@
           "pareamento_temporal_validado": 0
         },
         "EPAGRI/CIRAM": {
-          "registros_total": 104,
-          "registros_com_diagnostico_temporal": 96,
-          "registros_com_chuva_1h_maior_que_zero": 54,
-          "registros_secos_1h_igual_zero": 50,
-          "quadros_validos_somados": 672,
-          "quadros_na_hipotese_rotulo_como_fim_somados": 206,
-          "quadros_na_hipotese_rotulo_como_inicio_somados": 506,
-          "casos_com_mais_quadros_na_hipotese_fim": 4,
+          "registros_total": 106,
+          "registros_com_diagnostico_temporal": 98,
+          "registros_com_chuva_1h_maior_que_zero": 55,
+          "registros_secos_1h_igual_zero": 51,
+          "quadros_validos_somados": 686,
+          "quadros_na_hipotese_rotulo_como_fim_somados": 220,
+          "quadros_na_hipotese_rotulo_como_inicio_somados": 508,
+          "casos_com_mais_quadros_na_hipotese_fim": 6,
           "casos_com_mais_quadros_na_hipotese_inicio": 86,
           "casos_com_empate_de_quadros": 0,
           "casos_sem_quadro_em_ambas_hipoteses": 6,
@@ -236532,14 +236525,14 @@
         }
       },
       "total": {
-        "registros_total": 275,
-        "registros_com_diagnostico_temporal": 253,
-        "registros_com_chuva_1h_maior_que_zero": 90,
-        "registros_secos_1h_igual_zero": 185,
-        "quadros_validos_somados": 1771,
-        "quadros_na_hipotese_rotulo_como_fim_somados": 726,
-        "quadros_na_hipotese_rotulo_como_inicio_somados": 1142,
-        "casos_com_mais_quadros_na_hipotese_fim": 49,
+        "registros_total": 277,
+        "registros_com_diagnostico_temporal": 255,
+        "registros_com_chuva_1h_maior_que_zero": 91,
+        "registros_secos_1h_igual_zero": 186,
+        "quadros_validos_somados": 1785,
+        "quadros_na_hipotese_rotulo_como_fim_somados": 740,
+        "quadros_na_hipotese_rotulo_como_inicio_somados": 1144,
+        "casos_com_mais_quadros_na_hipotese_fim": 51,
         "casos_com_mais_quadros_na_hipotese_inicio": 176,
         "casos_com_empate_de_quadros": 11,
         "casos_sem_quadro_em_ambas_hipoteses": 17,
@@ -237296,7 +237289,7 @@
     "versao": "#170-F",
     "status": "historico_multirrede_atualizado",
     "arquivo": "historico_zr_170.json",
-    "registros_candidatos": 275,
+    "registros_candidatos": 277,
     "registros_adicionados_ou_atualizados_execucao": 5,
     "estacoes_unicas_no_historico": 6,
     "estacoes_por_rede_no_historico": [
@@ -237311,8 +237304,8 @@
       "CEMADEN",
       "EPAGRI/CIRAM"
     ],
-    "horas_estacao_com_chuva_observada_maior_que_zero": 90,
-    "horas_estacao_secas_observadas": 185,
+    "horas_estacao_com_chuva_observada_maior_que_zero": 91,
+    "horas_estacao_secas_observadas": 186,
     "registros_elegiveis_calibracao_zr": 0,
     "auditoria_temporal_compacta_170_f": {
       "versao": "#170-F",
@@ -237335,14 +237328,14 @@
           "pareamento_temporal_validado": 0
         },
         "EPAGRI/CIRAM": {
-          "registros_total": 104,
-          "registros_com_diagnostico_temporal": 96,
-          "registros_com_chuva_1h_maior_que_zero": 54,
-          "registros_secos_1h_igual_zero": 50,
-          "quadros_validos_somados": 672,
-          "quadros_na_hipotese_rotulo_como_fim_somados": 206,
-          "quadros_na_hipotese_rotulo_como_inicio_somados": 506,
-          "casos_com_mais_quadros_na_hipotese_fim": 4,
+          "registros_total": 106,
+          "registros_com_diagnostico_temporal": 98,
+          "registros_com_chuva_1h_maior_que_zero": 55,
+          "registros_secos_1h_igual_zero": 51,
+          "quadros_validos_somados": 686,
+          "quadros_na_hipotese_rotulo_como_fim_somados": 220,
+          "quadros_na_hipotese_rotulo_como_inicio_somados": 508,
+          "casos_com_mais_quadros_na_hipotese_fim": 6,
           "casos_com_mais_quadros_na_hipotese_inicio": 86,
           "casos_com_empate_de_quadros": 0,
           "casos_sem_quadro_em_ambas_hipoteses": 6,
@@ -237351,14 +237344,14 @@
         }
       },
       "total": {
-        "registros_total": 275,
-        "registros_com_diagnostico_temporal": 253,
-        "registros_com_chuva_1h_maior_que_zero": 90,
-        "registros_secos_1h_igual_zero": 185,
-        "quadros_validos_somados": 1771,
-        "quadros_na_hipotese_rotulo_como_fim_somados": 726,
-        "quadros_na_hipotese_rotulo_como_inicio_somados": 1142,
-        "casos_com_mais_quadros_na_hipotese_fim": 49,
+        "registros_total": 277,
+        "registros_com_diagnostico_temporal": 255,
+        "registros_com_chuva_1h_maior_que_zero": 91,
+        "registros_secos_1h_igual_zero": 186,
+        "quadros_validos_somados": 1785,
+        "quadros_na_hipotese_rotulo_como_fim_somados": 740,
+        "quadros_na_hipotese_rotulo_como_inicio_somados": 1144,
+        "casos_com_mais_quadros_na_hipotese_fim": 51,
         "casos_com_mais_quadros_na_hipotese_inicio": 176,
         "casos_com_empate_de_quadros": 11,
         "casos_sem_quadro_em_ambas_hipoteses": 17,
@@ -238115,7 +238108,7 @@
     "versao": "#170-F",
     "status": "historico_multirrede_atualizado",
     "arquivo": "historico_zr_170.json",
-    "registros_candidatos": 275,
+    "registros_candidatos": 277,
     "registros_adicionados_ou_atualizados_execucao": 5,
     "estacoes_unicas_no_historico": 6,
     "estacoes_por_rede_no_historico": [
@@ -238130,8 +238123,8 @@
       "CEMADEN",
       "EPAGRI/CIRAM"
     ],
-    "horas_estacao_com_chuva_observada_maior_que_zero": 90,
-    "horas_estacao_secas_observadas": 185,
+    "horas_estacao_com_chuva_observada_maior_que_zero": 91,
+    "horas_estacao_secas_observadas": 186,
     "registros_elegiveis_calibracao_zr": 0,
     "auditoria_temporal_compacta_170_f": {
       "versao": "#170-F",
@@ -238154,14 +238147,14 @@
           "pareamento_temporal_validado": 0
         },
         "EPAGRI/CIRAM": {
-          "registros_total": 104,
-          "registros_com_diagnostico_temporal": 96,
-          "registros_com_chuva_1h_maior_que_zero": 54,
-          "registros_secos_1h_igual_zero": 50,
-          "quadros_validos_somados": 672,
-          "quadros_na_hipotese_rotulo_como_fim_somados": 206,
-          "quadros_na_hipotese_rotulo_como_inicio_somados": 506,
-          "casos_com_mais_quadros_na_hipotese_fim": 4,
+          "registros_total": 106,
+          "registros_com_diagnostico_temporal": 98,
+          "registros_com_chuva_1h_maior_que_zero": 55,
+          "registros_secos_1h_igual_zero": 51,
+          "quadros_validos_somados": 686,
+          "quadros_na_hipotese_rotulo_como_fim_somados": 220,
+          "quadros_na_hipotese_rotulo_como_inicio_somados": 508,
+          "casos_com_mais_quadros_na_hipotese_fim": 6,
           "casos_com_mais_quadros_na_hipotese_inicio": 86,
           "casos_com_empate_de_quadros": 0,
           "casos_sem_quadro_em_ambas_hipoteses": 6,
@@ -238170,14 +238163,14 @@
         }
       },
       "total": {
-        "registros_total": 275,
-        "registros_com_diagnostico_temporal": 253,
-        "registros_com_chuva_1h_maior_que_zero": 90,
-        "registros_secos_1h_igual_zero": 185,
-        "quadros_validos_somados": 1771,
-        "quadros_na_hipotese_rotulo_como_fim_somados": 726,
-        "quadros_na_hipotese_rotulo_como_inicio_somados": 1142,
-        "casos_com_mais_quadros_na_hipotese_fim": 49,
+        "registros_total": 277,
+        "registros_com_diagnostico_temporal": 255,
+        "registros_com_chuva_1h_maior_que_zero": 91,
+        "registros_secos_1h_igual_zero": 186,
+        "quadros_validos_somados": 1785,
+        "quadros_na_hipotese_rotulo_como_fim_somados": 740,
+        "quadros_na_hipotese_rotulo_como_inicio_somados": 1144,
+        "casos_com_mais_quadros_na_hipotese_fim": 51,
         "casos_com_mais_quadros_na_hipotese_inicio": 176,
         "casos_com_empate_de_quadros": 11,
         "casos_sem_quadro_em_ambas_hipoteses": 17,
@@ -238934,7 +238927,7 @@
     "versao": "#170-F",
     "status": "historico_multirrede_atualizado",
     "arquivo": "historico_zr_170.json",
-    "registros_candidatos": 275,
+    "registros_candidatos": 277,
     "registros_adicionados_ou_atualizados_execucao": 5,
     "estacoes_unicas_no_historico": 6,
     "estacoes_por_rede_no_historico": [
@@ -238949,8 +238942,8 @@
       "CEMADEN",
       "EPAGRI/CIRAM"
     ],
-    "horas_estacao_com_chuva_observada_maior_que_zero": 90,
-    "horas_estacao_secas_observadas": 185,
+    "horas_estacao_com_chuva_observada_maior_que_zero": 91,
+    "horas_estacao_secas_observadas": 186,
     "registros_elegiveis_calibracao_zr": 0,
     "auditoria_temporal_compacta_170_f": {
       "versao": "#170-F",
@@ -238973,14 +238966,14 @@
           "pareamento_temporal_validado": 0
         },
         "EPAGRI/CIRAM": {
-          "registros_total": 104,
-          "registros_com_diagnostico_temporal": 96,
-          "registros_com_chuva_1h_maior_que_zero": 54,
-          "registros_secos_1h_igual_zero": 50,
-          "quadros_validos_somados": 672,
-          "quadros_na_hipotese_rotulo_como_fim_somados": 206,
-          "quadros_na_hipotese_rotulo_como_inicio_somados": 506,
-          "casos_com_mais_quadros_na_hipotese_fim": 4,
+          "registros_total": 106,
+          "registros_com_diagnostico_temporal": 98,
+          "registros_com_chuva_1h_maior_que_zero": 55,
+          "registros_secos_1h_igual_zero": 51,
+          "quadros_validos_somados": 686,
+          "quadros_na_hipotese_rotulo_como_fim_somados": 220,
+          "quadros_na_hipotese_rotulo_como_inicio_somados": 508,
+          "casos_com_mais_quadros_na_hipotese_fim": 6,
           "casos_com_mais_quadros_na_hipotese_inicio": 86,
           "casos_com_empate_de_quadros": 0,
           "casos_sem_quadro_em_ambas_hipoteses": 6,
@@ -238989,14 +238982,14 @@
         }
       },
       "total": {
-        "registros_total": 275,
-        "registros_com_diagnostico_temporal": 253,
-        "registros_com_chuva_1h_maior_que_zero": 90,
-        "registros_secos_1h_igual_zero": 185,
-        "quadros_validos_somados": 1771,
-        "quadros_na_hipotese_rotulo_como_fim_somados": 726,
-        "quadros_na_hipotese_rotulo_como_inicio_somados": 1142,
-        "casos_com_mais_quadros_na_hipotese_fim": 49,
+        "registros_total": 277,
+        "registros_com_diagnostico_temporal": 255,
+        "registros_com_chuva_1h_maior_que_zero": 91,
+        "registros_secos_1h_igual_zero": 186,
+        "quadros_validos_somados": 1785,
+        "quadros_na_hipotese_rotulo_como_fim_somados": 740,
+        "quadros_na_hipotese_rotulo_como_inicio_somados": 1144,
+        "casos_com_mais_quadros_na_hipotese_fim": 51,
         "casos_com_mais_quadros_na_hipotese_inicio": 176,
         "casos_com_empate_de_quadros": 11,
         "casos_sem_quadro_em_ambas_hipoteses": 17,
@@ -239770,14 +239763,14 @@
         "pareamento_temporal_validado": 0
       },
       "EPAGRI/CIRAM": {
-        "registros_total": 104,
-        "registros_com_diagnostico_temporal": 96,
-        "registros_com_chuva_1h_maior_que_zero": 54,
-        "registros_secos_1h_igual_zero": 50,
-        "quadros_validos_somados": 672,
-        "quadros_na_hipotese_rotulo_como_fim_somados": 206,
-        "quadros_na_hipotese_rotulo_como_inicio_somados": 506,
-        "casos_com_mais_quadros_na_hipotese_fim": 4,
+        "registros_total": 106,
+        "registros_com_diagnostico_temporal": 98,
+        "registros_com_chuva_1h_maior_que_zero": 55,
+        "registros_secos_1h_igual_zero": 51,
+        "quadros_validos_somados": 686,
+        "quadros_na_hipotese_rotulo_como_fim_somados": 220,
+        "quadros_na_hipotese_rotulo_como_inicio_somados": 508,
+        "casos_com_mais_quadros_na_hipotese_fim": 6,
         "casos_com_mais_quadros_na_hipotese_inicio": 86,
         "casos_com_empate_de_quadros": 0,
         "casos_sem_quadro_em_ambas_hipoteses": 6,
@@ -239786,14 +239779,14 @@
       }
     },
     "total": {
-      "registros_total": 275,
-      "registros_com_diagnostico_temporal": 253,
-      "registros_com_chuva_1h_maior_que_zero": 90,
-      "registros_secos_1h_igual_zero": 185,
-      "quadros_validos_somados": 1771,
-      "quadros_na_hipotese_rotulo_como_fim_somados": 726,
-      "quadros_na_hipotese_rotulo_como_inicio_somados": 1142,
-      "casos_com_mais_quadros_na_hipotese_fim": 49,
+      "registros_total": 277,
+      "registros_com_diagnostico_temporal": 255,
+      "registros_com_chuva_1h_maior_que_zero": 91,
+      "registros_secos_1h_igual_zero": 186,
+      "quadros_validos_somados": 1785,
+      "quadros_na_hipotese_rotulo_como_fim_somados": 740,
+      "quadros_na_hipotese_rotulo_como_inicio_somados": 1144,
+      "casos_com_mais_quadros_na_hipotese_fim": 51,
       "casos_com_mais_quadros_na_hipotese_inicio": 176,
       "casos_com_empate_de_quadros": 11,
       "casos_sem_quadro_em_ambas_hipoteses": 17,
@@ -239815,7 +239808,7 @@
     "natureza": "REGISTRO_HISTORICO_SUPERADO",
     "vigente": false,
     "superseded_by": "#170-H2",
-    "atualizado_em": "2026-10-03T00:04:30.474991-03:00",
+    "atualizado_em": "2026-10-03T00:09:16.375206-03:00",
     "arquivo_fonte_bruto": "historico_zr_170.json",
     "auditoria_temporal": {
       "versao": "#170-F",
@@ -239838,14 +239831,14 @@
           "pareamento_temporal_validado": 0
         },
         "EPAGRI/CIRAM": {
-          "registros_total": 104,
-          "registros_com_diagnostico_temporal": 96,
-          "registros_com_chuva_1h_maior_que_zero": 54,
-          "registros_secos_1h_igual_zero": 50,
-          "quadros_validos_somados": 672,
-          "quadros_na_hipotese_rotulo_como_fim_somados": 206,
-          "quadros_na_hipotese_rotulo_como_inicio_somados": 506,
-          "casos_com_mais_quadros_na_hipotese_fim": 4,
+          "registros_total": 106,
+          "registros_com_diagnostico_temporal": 98,
+          "registros_com_chuva_1h_maior_que_zero": 55,
+          "registros_secos_1h_igual_zero": 51,
+          "quadros_validos_somados": 686,
+          "quadros_na_hipotese_rotulo_como_fim_somados": 220,
+          "quadros_na_hipotese_rotulo_como_inicio_somados": 508,
+          "casos_com_mais_quadros_na_hipotese_fim": 6,
           "casos_com_mais_quadros_na_hipotese_inicio": 86,
           "casos_com_empate_de_quadros": 0,
           "casos_sem_quadro_em_ambas_hipoteses": 6,
@@ -239854,14 +239847,14 @@
         }
       },
       "total": {
-        "registros_total": 275,
-        "registros_com_diagnostico_temporal": 253,
-        "registros_com_chuva_1h_maior_que_zero": 90,
-        "registros_secos_1h_igual_zero": 185,
-        "quadros_validos_somados": 1771,
-        "quadros_na_hipotese_rotulo_como_fim_somados": 726,
-        "quadros_na_hipotese_rotulo_como_inicio_somados": 1142,
-        "casos_com_mais_quadros_na_hipotese_fim": 49,
+        "registros_total": 277,
+        "registros_com_diagnostico_temporal": 255,
+        "registros_com_chuva_1h_maior_que_zero": 91,
+        "registros_secos_1h_igual_zero": 186,
+        "quadros_validos_somados": 1785,
+        "quadros_na_hipotese_rotulo_como_fim_somados": 740,
+        "quadros_na_hipotese_rotulo_como_inicio_somados": 1144,
+        "casos_com_mais_quadros_na_hipotese_fim": 51,
         "casos_com_mais_quadros_na_hipotese_inicio": 176,
         "casos_com_empate_de_quadros": 11,
         "casos_sem_quadro_em_ambas_hipoteses": 17,
@@ -239899,7 +239892,7 @@
     "monitor": "Monitor Guaxanduva",
     "tipo": "auditoria_espacial_radarsc_cemaden",
     "versao": "#170-I.1",
-    "atualizado_em": "2026-10-03T00:04:30.476018-03:00",
+    "atualizado_em": "2026-10-03T00:09:16.376132-03:00",
     "arquivo_fonte_bruto": "historico_zr_170.json",
     "arquivo_saida": "auditoria_espacial_170i.json",
     "base_temporal": {
@@ -280593,7 +280586,7 @@
     "monitor": "Monitor Guaxanduva",
     "tipo": "auditoria_espacial_direta_radarsc_cemaden",
     "versao": "#170-I.2",
-    "atualizado_em": "2026-10-03T00:04:30.823062-03:00",
+    "atualizado_em": "2026-10-03T00:09:16.695053-03:00",
     "preserva": "#170-I.1",
     "fonte_geometria": "#172",
     "fonte_temporal": "#170-H2",
@@ -284662,7 +284655,7 @@
     "monitor": "Monitor Guaxanduva",
     "tipo": "auditoria_espacial_raster_radarsc_cemaden",
     "versao": "#170-I.3",
-    "atualizado_em": "2026-10-03T00:05:41.183051-03:00",
+    "atualizado_em": "2026-10-03T00:10:51.652514-03:00",
     "preserva": [
       "#170-I.1",
       "#170-I.2"
@@ -284671,6 +284664,12 @@
     "fonte_geometria": "#172",
     "fonte_pixels": "#170-I.2",
     "fonte_paleta_raster_modelada": "#170-K/GXA-RADAR-V0.1",
+    "base_temporal": {
+      "versao": "#170-H2",
+      "status": "VALIDADO",
+      "semantica_cemaden": "valor horario rotulado em T = acumulado em (T-60min,T]",
+      "episodios_positivos_persistidos": 35
+    },
     "natureza": "VALIDACAO_ESPACIAL_DO_ECO_RASTER; REFLETIVIDADE_FORA_DA_ANCORA_PERMANECE_MODELADA",
     "regra_ouro": "reconhecer eco raster nao equivale a provar dBZ oficial",
     "episodios": [
@@ -291740,9 +291739,9 @@
     ]
   },
   "estado_cientifico_vigente_171": {
-    "versao": "#171",
+    "versao": "#171.1",
     "status": "ESTADO_CIENTIFICO_VIGENTE_CONSOLIDADO",
-    "gerado_em": "2026-10-03T00:05:41.190355-03:00",
+    "gerado_em": "2026-10-03T00:10:51.659609-03:00",
     "regra": "validacao posterior prevalece sobre diagnostico historico anterior; historico nunca e apagado",
     "radar_dbz_oficial": {
       "status": "VALIDADO",
@@ -291754,17 +291753,23 @@
       "limite": "libera RGB oficial exato -> faixa dBZ; nao libera Z-R instrumental nem mm/h instrumental"
     },
     "temporal_cemaden": {
-      "status": "EM_VALIDACAO",
-      "validado": false,
+      "status": "VALIDADO",
+      "validado": true,
       "evidencia_vigente": "#170-H2",
-      "episodios_positivos_persistidos": null,
-      "semantica": null,
+      "episodios_positivos_persistidos": 35,
+      "semantica": "valor horario rotulado em T = acumulado em (T-60min,T]",
       "registro_superado": "#170-G"
     },
     "espacial_radarsc_cemaden": {
-      "status": "EM_VALIDACAO",
-      "validado": false,
-      "evidencia_vigente": "#170-I.3"
+      "status": "VALIDADO_COM_LACUNAS_HISTORICAS",
+      "validado": true,
+      "com_lacunas_historicas": true,
+      "evidencia_vigente": "#170-I.3",
+      "natureza": "COINCIDENCIA_ESPACIAL_DO_ECO_RASTER_COM_CHUVA_H2",
+      "episodios_h2": 35,
+      "pares_espaciais_raster_validos": 12,
+      "evidencia_insuficiente": 4,
+      "limite": "validacao espacial do eco raster nao equivale a dBZ oficial para todas as cores e nao libera Z-R instrumental"
     },
     "zr_instrumental": {
       "status": "BLOQUEADO",
@@ -291870,7 +291875,7 @@
       "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
       "status": "nivel_modelado_calculado",
       "natureza": "MODELADO_NAO_INSTRUMENTAL",
-      "instante": "2026-10-03T00:04:04.410242-03:00",
+      "instante": "2026-10-03T00:08:41.754732-03:00",
       "referencia_forcantes": "2026-10-02T23:30:00-03:00",
       "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
       "nivel_estimado_m": 1.887,
@@ -293825,7 +293830,7 @@
     "consultas_temporais": [
       {
         "dias": 2,
-        "datetime": "2026-10-01T03:03:43Z/2026-10-03T03:03:43Z",
+        "datetime": "2026-10-01T03:08:12Z/2026-10-03T03:08:12Z",
         "http_status": 200,
         "quantidade_features": 23,
         "quantidade_data_alerta": 23,
@@ -293834,7 +293839,7 @@
       },
       {
         "dias": 7,
-        "datetime": "2026-09-26T03:03:43Z/2026-10-03T03:03:43Z",
+        "datetime": "2026-09-26T03:08:12Z/2026-10-03T03:08:12Z",
         "http_status": 200,
         "quantidade_features": 70,
         "quantidade_data_alerta": 70,
@@ -293843,7 +293848,7 @@
       },
       {
         "dias": 30,
-        "datetime": "2026-09-03T03:03:43Z/2026-10-03T03:03:43Z",
+        "datetime": "2026-09-03T03:08:12Z/2026-10-03T03:08:12Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,
@@ -293852,7 +293857,7 @@
       },
       {
         "dias": 90,
-        "datetime": "2026-07-05T03:03:43Z/2026-10-03T03:03:43Z",
+        "datetime": "2026-07-05T03:08:12Z/2026-10-03T03:08:12Z",
         "http_status": 200,
         "quantidade_features": 100,
         "quantidade_data_alerta": 100,

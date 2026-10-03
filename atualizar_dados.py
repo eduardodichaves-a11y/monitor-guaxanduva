@@ -14684,6 +14684,7 @@ def salvar_auditoria_espacial_170i3(auditoria_i2, metodo_v01):
         "fonte_geometria": "#172",
         "fonte_pixels": "#170-I.2",
         "fonte_paleta_raster_modelada": "#170-K/GXA-RADAR-V0.1",
+        "base_temporal": dict((auditoria_i2 or {}).get("base_temporal") or {}),
         "natureza": "VALIDACAO_ESPACIAL_DO_ECO_RASTER; REFLETIVIDADE_FORA_DA_ANCORA_PERMANECE_MODELADA",
         "regra_ouro": "reconhecer eco raster nao equivale a provar dBZ oficial",
         "episodios": [],
@@ -15649,31 +15650,75 @@ def construir_liberacao_experimental_168(radar, tathu, nivel, mare_obs, mare_pre
     }
 
 def construir_estado_cientifico_vigente_171(radar_atual, chuva144, rede165, auditoria170g, auditoria170i, metodo_k, metodo_l, metodo_m, nivel_v021, criterio163):
-    """#171 - consolida somente o estado científico vigente.
+    """#171.1 - consolida o estado científico vigente sem confundir schemas históricos.
 
-    Não apaga auditorias históricas. Impede que flags antigas/superadas sejam
-    interpretadas como o estado atual do Monitor.
+    A evidência espacial vigente pode ser #170-I.1, #170-I.2 ou #170-I.3.
+    #170-I.3 valida coincidência espacial do ECO RASTER com chuva H2, mas não
+    transforma as cores modeladas do raster em dBZ oficial nem libera Z-R.
     """
     leg = (radar_atual or {}).get("legenda_oficial") or {}
     dic = (radar_atual or {}).get("dicionario_cores_130") or {}
-    base_h2 = (auditoria170i or {}).get("base_temporal") or {}
-    placar_i = (auditoria170i or {}).get("placar_gates") or {}
+    aud_i = auditoria170i or {}
+    versao_i = aud_i.get("versao") or "#170-I"
+
+    base_h2 = aud_i.get("base_temporal") or {}
+    placar_i = aud_i.get("placar_gates") or {}
+    resumo_i = aud_i.get("resumo") or {}
+
+    # Temporal: aceita a base H2 explícita ou o placar vigente da I.3.
+    temporal_gate = str(placar_i.get("temporal_cemaden_h2") or "").upper()
     temporal_ok = (
-        base_h2.get("status") == "VALIDADO"
-        and (auditoria170i or {}).get("pareamento_temporal_validado") is True
+        (
+            str(base_h2.get("status") or "").upper() == "VALIDADO"
+            and aud_i.get("pareamento_temporal_validado") is True
+        )
+        or (
+            temporal_gate == "VALIDADO"
+            and aud_i.get("pareamento_temporal_validado") is True
+        )
     )
+    episodios_h2 = base_h2.get("episodios_positivos_persistidos")
+    if episodios_h2 is None:
+        episodios_h2 = resumo_i.get("episodios_h2")
+    semantica_h2 = base_h2.get("semantica_cemaden")
+    if not semantica_h2 and temporal_ok:
+        semantica_h2 = "valor horario rotulado em T = acumulado em (T-60min,T]"
+
     dbz_ok = (
         leg.get("dbz_numerico_validado") is True
         and dic.get("dbz_numerico_validado") is True
     )
-    espacial_ok = placar_i.get("espacial_radarsc_cemaden") == "VALIDADO"
+
+    # Espacial: I.1/I.2 usam uma chave; I.3 usa a chave específica do raster.
+    espacial_raw = (
+        placar_i.get("espacial_raster_radarsc_cemaden")
+        if versao_i == "#170-I.3"
+        else placar_i.get("espacial_radarsc_cemaden")
+    )
+    espacial_raw = str(espacial_raw or "").upper()
+    espacial_ok = espacial_raw in {
+        "VALIDADO",
+        "VALIDADO_COM_LACUNAS_HISTORICAS",
+    }
+    espacial_com_lacunas = espacial_raw == "VALIDADO_COM_LACUNAS_HISTORICAS"
+
     chuva144_ok = str((chuva144 or {}).get("status") or "").startswith("online_")
     estacoes = (rede165 or {}).get("estacoes") or []
-    integradas = sum(1 for e in estacoes if isinstance(e, dict) and e.get("aquisicao_automatica_integrada") is True)
-    com_leitura = sum(1 for e in estacoes if isinstance(e, dict) and e.get("leitura_atual_disponivel") is True)
-    nao_integradas = sum(1 for e in estacoes if isinstance(e, dict) and e.get("aquisicao_automatica_integrada") is not True)
+    integradas = sum(
+        1 for e in estacoes
+        if isinstance(e, dict) and e.get("aquisicao_automatica_integrada") is True
+    )
+    com_leitura = sum(
+        1 for e in estacoes
+        if isinstance(e, dict) and e.get("leitura_atual_disponivel") is True
+    )
+    nao_integradas = sum(
+        1 for e in estacoes
+        if isinstance(e, dict) and e.get("aquisicao_automatica_integrada") is not True
+    )
+
     return {
-        "versao": "#171",
+        "versao": "#171.1",
         "status": "ESTADO_CIENTIFICO_VIGENTE_CONSOLIDADO",
         "gerado_em": agora().isoformat(),
         "regra": "validacao posterior prevalece sobre diagnostico historico anterior; historico nunca e apagado",
@@ -15687,22 +15732,39 @@ def construir_estado_cientifico_vigente_171(radar_atual, chuva144, rede165, audi
             "status": "VALIDADO" if temporal_ok else "EM_VALIDACAO",
             "validado": temporal_ok,
             "evidencia_vigente": "#170-H2",
-            "episodios_positivos_persistidos": base_h2.get("episodios_positivos_persistidos"),
-            "semantica": base_h2.get("semantica_cemaden"),
+            "episodios_positivos_persistidos": episodios_h2,
+            "semantica": semantica_h2,
             "registro_superado": "#170-G",
         },
         "espacial_radarsc_cemaden": {
-            "status": "VALIDADO" if espacial_ok else "EM_VALIDACAO",
+            "status": (
+                "VALIDADO_COM_LACUNAS_HISTORICAS"
+                if espacial_com_lacunas
+                else ("VALIDADO" if espacial_ok else "EM_VALIDACAO")
+            ),
             "validado": espacial_ok,
-            "evidencia_vigente": (auditoria170i or {}).get("versao") or "#170-I",
+            "com_lacunas_historicas": espacial_com_lacunas,
+            "evidencia_vigente": versao_i,
+            "natureza": (
+                "COINCIDENCIA_ESPACIAL_DO_ECO_RASTER_COM_CHUVA_H2"
+                if versao_i == "#170-I.3"
+                else "PAREAMENTO_ESPACIAL_RADARSC_CEMADEN"
+            ),
+            "episodios_h2": resumo_i.get("episodios_h2"),
+            "pares_espaciais_raster_validos": resumo_i.get("pareamento_espacial_raster_valido"),
+            "evidencia_insuficiente": resumo_i.get("evidencia_insuficiente"),
+            "limite": (
+                "validacao espacial do eco raster nao equivale a dBZ oficial para todas as cores "
+                "e nao libera Z-R instrumental"
+            ),
         },
         "zr_instrumental": {
-            "status": "VALIDADO" if (auditoria170i or {}).get("zr_validada") is True else "BLOQUEADO",
-            "validado": (auditoria170i or {}).get("zr_validada") is True,
+            "status": "VALIDADO" if aud_i.get("zr_validada") is True else "BLOQUEADO",
+            "validado": aud_i.get("zr_validada") is True,
         },
         "dbz_para_mm_h_instrumental": {
-            "status": "LIBERADO" if (auditoria170i or {}).get("conversao_dbz_mm_h_liberada") is True else "BLOQUEADO",
-            "liberado": (auditoria170i or {}).get("conversao_dbz_mm_h_liberada") is True,
+            "status": "LIBERADO" if aud_i.get("conversao_dbz_mm_h_liberada") is True else "BLOQUEADO",
+            "liberado": aud_i.get("conversao_dbz_mm_h_liberada") is True,
         },
         "chuva_cemaden_144": {
             "status": "VALIDADO" if chuva144_ok else "INDISPONIVEL_NESTA_COLETA",

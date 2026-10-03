@@ -701,7 +701,7 @@ async function carregarHistorico(){
 
 function renderEnso173(d){
  try{
-  const E=d.super_el_nino_173||{}, I=d.impactos_locais_173||{}, IF=d.influencia_joinville_173||{}, N=d.nivel_guaxanduva_v021||{}, V=d.validacao_campo_guaxanduva||{};
+  const E=d.super_el_nino_173||{}, I=d.impactos_locais_173||{}, IF=d.influencia_joinville_173||{}, CM=d.ciclone_multifonte_173||{}, N=d.nivel_guaxanduva_v021||{}, V=d.validacao_campo_guaxanduva||{};
   const en=E.enso||{}, r=en.roni_observado||{}, pp=en.probabilidades_oficiais||{};
   const rv=r.valor!=null?r.valor:(r.roni!=null?r.roni:null);
   const rp=r.periodo||r.trimestre||r.estacao||"--";
@@ -715,10 +715,12 @@ function renderEnso173(d){
   let pv=pe?(pe.el_nino_pct??pe.el_nino??pe["El Nino"]):null;
   $("enso173Prob").textContent=pv==null?"--":Number(pv).toFixed(0)+"%";
   $("enso173ProbPeriodo").textContent=(pe&&(pe.temporada||pe.periodo||pe.season)||"probabilidade oficial NOAA")+" • El Niño";
-  const sr=IF.sistema_referencia||{};
-  const cic=IF.ciclone_confirmado_monitor===true;
-  $("enso173Ciclone").textContent=cic?"CONFIRMADO":"NÃO CONFIRMADO";
-  $("enso173CicloneMeta").textContent=(sr.distancia_joinville_km!=null?Number(sr.distancia_joinville_km).toFixed(0)+" km • ":"")+"diagnóstico modelado regional";
+  const sr=IF.sistema_referencia||{}, cm=CM.modelo||{};
+  const cic=CM.ciclone_confirmado_monitor===true;
+  const modOrg=CM.status==="SISTEMA_ORGANIZADO_MODELADO_NAO_CONFIRMADO";
+  $("enso173Ciclone").textContent=cic?"OFICIAL VIGENTE":(modOrg?"MODELADO • NÃO CONFIRMADO":"NÃO CONFIRMADO");
+  const dist=(cm.distancia_joinville_km!=null?cm.distancia_joinville_km:sr.distancia_joinville_km);
+  $("enso173CicloneMeta").textContent=(dist!=null?Number(dist).toFixed(0)+" km • ":"")+(cic?"INMET/WIS2/CAP":(modOrg?"ECMWF • sem confirmação oficial":"ECMWF + INMET/CAP • fail-closed"));
   $("enso173Rio").textContent=N.nivel_estimado_m==null?"--":Number(N.nivel_estimado_m).toFixed(3)+" m";
   const t=N.tendencia||{};
   $("enso173RioMeta").textContent="MODELADO • "+(t.classe||"tendência indisponível")+" • confiança "+(N.confianca||"não informada");

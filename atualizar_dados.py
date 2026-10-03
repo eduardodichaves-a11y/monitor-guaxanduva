@@ -16706,6 +16706,141 @@ def validar_centro_sinotico_173_a322(diag_a321):
     return base
 
 
+
+# =========================================================
+# #173-A3.2.3 - RASTREAMENTO ITERATIVO DO MINIMO SINOTICO
+# =========================================================
+# Persegue o minimo quando ele cai na borda da grade, em no maximo 3 saltos.
+# Objetivo: localizar um minimo interior ou registrar que o centro nao fechou
+# dentro do dominio investigado. EXPERIMENTAL / FAIL-CLOSED.
+
+def rastrear_minimo_sinotico_173_a323(diag_a321, valid_a322):
+    base={
+        "versao":"#173-A3.2.3",
+        "status":"inconclusivo",
+        "natureza":"RASTREAMENTO_SINOTICO_MODELADO_NAO_VALIDADO",
+        "fonte":"ECMWF via Open-Meteo ECMWF API",
+        "gerado_em":agora().isoformat(),
+        "max_saltos":3,
+        "passo_grade_graus":1.0,
+        "meia_largura_grade_graus":3.0,
+        "ciclone_confirmado_monitor":False,
+        "uso_operacional":False,
+        "gates_existentes_alterados":False,
+        "regra_seguranca":"Rastreamento de minimo de pressao nao confirma ciclone. Falha parcial, borda persistente ou dominio esgotado permanecem inconclusivos."
+    }
+    c=((valid_a322 or {}).get("centro_refinado") or
+       (diag_a321 or {}).get("minimo_regional") or {})
+    latc=c.get("lat"); lonc=c.get("lon"); alvo=c.get("horario") or ((diag_a321 or {}).get("minimo_regional") or {}).get("horario")
+    if not isinstance(latc,(int,float)) or not isinstance(lonc,(int,float)) or not alvo:
+        base["status"]="bloqueado_sem_centro_inicial"; return base
+
+    endpoint="https://api.open-meteo.com/v1/ecmwf"
+    saltos=[]
+    centro_final=None
+    for salto in range(1,4):
+        pontos=[(round(latc+dy,3),round(lonc+dx,3))
+                for dy in (-3,-2,-1,0,1,2,3)
+                for dx in (-3,-2,-1,0,1,2,3)]
+        lotes=[pontos[i:i+7] for i in range(0,len(pontos),7)]
+        am=[]; logs=[]
+        for n,lote in enumerate(lotes,1):
+            reg={"lote":n,"status":"falhou","tentativas":[]}; payload=None
+            params={"latitude":",".join(str(p[0]) for p in lote),
+                    "longitude":",".join(str(p[1]) for p in lote),
+                    "hourly":"pressure_msl,wind_speed_850hPa,wind_direction_850hPa,wind_gusts_10m",
+                    "forecast_days":4,"timezone":"America/Sao_Paulo","cell_selection":"nearest"}
+            for tent in (1,2):
+                try:
+                    r=requests.get(endpoint,params=params,timeout=20,
+                                   headers={"User-Agent":"Monitor-Guaxanduva/1.0"})
+                    r.raise_for_status(); payload=r.json()
+                    reg["tentativas"].append({"n":tent,"ok":True,"http":r.status_code})
+                    reg["status"]="ok"; break
+                except Exception as e:
+                    reg["tentativas"].append({"n":tent,"ok":False,"erro":str(e)[:180]})
+                    if tent==1: time.sleep(1)
+            logs.append(reg)
+            if payload is None: continue
+            locais=payload if isinstance(payload,list) else [payload]
+            for i,loc in enumerate(locais):
+                if i>=len(lote) or not isinstance(loc,dict): continue
+                h=loc.get("hourly") or {}; ts=h.get("time") or []
+                alvo_naive=str(alvo)[:16]
+                j=next((j for j,t in enumerate(ts) if str(t)[:16]==alvo_naive),None)
+                if j is None: continue
+                def vv(k):
+                    a=h.get(k) or []
+                    if j>=len(a): return None
+                    x=a[j]
+                    return float(x) if isinstance(x,(int,float)) and math.isfinite(float(x)) else None
+                p=vv("pressure_msl")
+                if p is None: continue
+                am.append({"lat":lote[i][0],"lon":lote[i][1],"pressao_msl_hpa":p,
+                           "vento_850hpa_kmh":vv("wind_speed_850hPa"),
+                           "direcao_850hpa_graus":vv("wind_direction_850hPa"),
+                           "rajada_10m_kmh":vv("wind_gusts_10m")})
+        ok=sum(x["status"]=="ok" for x in logs)
+        if not am:
+            saltos.append({"salto":salto,"centro_grade":{"lat":latc,"lon":lonc},
+                           "status":"sem_amostras","lotes_ok":ok,"lotes_total":7})
+            base["status"]="interrompido_sem_amostras"; break
+
+        mn=min(am,key=lambda x:x["pressao_msl_hpa"])
+        na_borda=(abs(mn["lat"]-latc)>=2.999 or abs(mn["lon"]-lonc)>=2.999)
+        anel=[x["pressao_msl_hpa"] for x in am
+              if abs(x["lat"]-latc)>=2.5 or abs(x["lon"]-lonc)>=2.5]
+        contraste=(statistics.median(anel)-mn["pressao_msl_hpa"]) if anel else None
+
+        # Circulacao tangencial anti-horaria em 850 hPa ao redor do minimo do salto.
+        coer=[]
+        for x in am:
+            d=x.get("direcao_850hpa_graus"); sp=x.get("vento_850hpa_kmh")
+            if not isinstance(d,(int,float)) or not isinstance(sp,(int,float)): continue
+            dist=hav(mn["lat"],mn["lon"],x["lat"],x["lon"])
+            if dist<70 or dist>350: continue
+            radial=rumo(mn["lat"],mn["lon"],x["lat"],x["lon"])
+            para=(d+180)%360; tang=(radial-90)%360
+            coer.append(difang(para,tang)<=60)
+        frac=(sum(coer)/len(coer)) if coer else None
+
+        rec={"salto":salto,"centro_grade":{"lat":latc,"lon":lonc},
+             "lotes_ok":ok,"lotes_total":7,"cobertura_completa":ok==7,
+             "minimo":{**mn,"distancia_joinville_km":round(hav(LAT,LON,mn["lat"],mn["lon"]),1)},
+             "minimo_na_borda":na_borda,
+             "contraste_mediana_anel_hpa":round(contraste,2) if contraste is not None else None,
+             "circulacao_850hpa":{"amostras":len(coer),
+                 "fracao_tangencial_ccw_ate_60graus":round(frac,3) if frac is not None else None}}
+        saltos.append(rec); centro_final=rec
+
+        # Só encerra como centro localizado se a coleta foi completa e o minimo ficou interior.
+        if ok==7 and not na_borda:
+            base["status"]="minimo_interior_localizado"; break
+        # Se parcial, não saltar cegamente para outro domínio.
+        if ok<7:
+            base["status"]="interrompido_cobertura_parcial_fail_closed"; break
+        latc,lonc=mn["lat"],mn["lon"]
+    else:
+        base["status"]="limite_saltos_atingido"
+
+    base["saltos"]=saltos
+    base["quantidade_saltos_executados"]=len(saltos)
+    if centro_final:
+        base["resultado_final"]=centro_final
+        base["evidencia_circulacao_ciclonica"]=bool(
+            centro_final["circulacao_850hpa"]["amostras"]>=8 and
+            isinstance(centro_final["circulacao_850hpa"]["fracao_tangencial_ccw_ate_60graus"],(int,float)) and
+            centro_final["circulacao_850hpa"]["fracao_tangencial_ccw_ate_60graus"]>=0.60)
+        base["minimo_fechado_no_dominio"]=bool(
+            centro_final["cobertura_completa"] and not centro_final["minimo_na_borda"] and
+            isinstance(centro_final.get("contraste_mediana_anel_hpa"),(int,float)) and
+            centro_final["contraste_mediana_anel_hpa"]>0)
+    else:
+        base["evidencia_circulacao_ciclonica"]=False
+        base["minimo_fechado_no_dominio"]=False
+    return base
+
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_cemaden144 = chuva_observada_cemaden_144(chuva_cemaden)
@@ -16724,6 +16859,7 @@ def main():
     sincronizacao_chuva_mare173 = sincronizar_chuva_mare_173_a31(previsao, mare_prevista164)
     ciclone_sinotico173 = diagnosticar_ciclone_sinotico_173_a32()
     validacao_centro_sinotico173 = validar_centro_sinotico_173_a322(ciclone_sinotico173)
+    rastreamento_minimo_sinotico173 = rastrear_minimo_sinotico_173_a323(ciclone_sinotico173, validacao_centro_sinotico173)
     guaxanduva166 = atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160)
     modelo_guaxanduva_v01 = construir_modelo_computacional_guaxanduva_v01(guaxanduva166)
     tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
@@ -16881,6 +17017,8 @@ def main():
             ciclone_sinotico173,
         "validacao_centro_sinotico_173":
             validacao_centro_sinotico173,
+        "rastreamento_minimo_sinotico_173":
+            rastreamento_minimo_sinotico173,
  
         "astronomia_joinville":
             astronomia_joinville,

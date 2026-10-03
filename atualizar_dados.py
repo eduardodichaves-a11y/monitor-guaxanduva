@@ -16428,9 +16428,9 @@ def construir_impactos_locais_173_a2(previsao, granizo, mare_observada, mare_pre
 
     # CICLONE: fail-closed ate existir coletor dedicado validado.
     impactos["ciclone"] = {
-        "icone":"🌀", "estado":"AINDA_SEM_DETECTOR_DEDICADO_VALIDADO", "cor":"cinza", "janela":None,
-        "mensagem":"O #173-A2 ainda nao infere ciclone a partir de vento/pressao. Um coletor sinotico dedicado sera validado separadamente.",
-        "natureza":"NAO_INFERIDO", "fonte":None, "alerta_oficial":False,
+        "icone":"🌀", "estado":"AGUARDANDO_SINTESE_A325", "cor":"cinza", "janela":"agora_e_72h",
+        "mensagem":"A camada local sera sintetizada pelo #173-A3.2.5 com CAP/INMET e diagnostico sinotico ECMWF.",
+        "natureza":"SINTESE_MULTIFONTE_PENDENTE", "fonte":"INMET/WIS2/CAP + ECMWF", "alerta_oficial":False,
     }
 
     ordem = {"vermelho":4,"laranja":3,"amarelo":2,"verde":1,"azul":0,"cinza":0}
@@ -16699,7 +16699,7 @@ def validar_centro_sinotico_173_a322(diag_a321):
     contraste=(statistics.median(anel)-centro["pressao_msl_hpa"]) if anel else None
 
     # Teste geométrico de circulação: para cada ponto próximo, compara a direção
-    # do vento com a tangente anti-horária ao vetor centro->ponto.
+    # do vento com a tangente ciclônica horária do Hemisfério Sul ao vetor centro->ponto.
     coer=[] 
     for x in amostras:
         d=x.get("direcao_850hpa_graus"); sp=x.get("vento_850hpa_kmh")
@@ -16709,8 +16709,8 @@ def validar_centro_sinotico_173_a322(diag_a321):
         radial=rumo(centro["lat"],centro["lon"],x["lat"],x["lon"])
         # direcao meteorologica e "de onde vem"; converte para vetor "para onde vai".
         para=(d+180)%360
-        tangente_ccw=(radial-90)%360
-        erro=difang(para,tangente_ccw)
+        tangente_ciclonica_sh=(radial+90)%360
+        erro=difang(para,tangente_ciclonica_sh)
         coer.append({"dist_km":round(dist,1),"erro_tangencial_graus":round(erro,1),"coerente":erro<=60})
     frac=(sum(x["coerente"] for x in coer)/len(coer)) if coer else None
 
@@ -16720,7 +16720,7 @@ def validar_centro_sinotico_173_a322(diag_a321):
                            "interior_grade_refino":interior,
                            "contraste_mediana_anel_hpa":round(contraste,2) if contraste is not None else None},
         "circulacao_850hpa":{"amostras_avaliadas":len(coer),
-                            "fracao_tangencial_ccw_ate_60graus":round(frac,3) if frac is not None else None,
+                            "fracao_tangencial_ciclonica_sh_ate_60graus":round(frac,3) if frac is not None else None,
                             "metodo":"geometrico_experimental_nao_validado"},
         "evidencia_minimo_interior": bool(interior and contraste is not None and contraste>0),
         "evidencia_circulacao_ciclonica": bool(frac is not None and len(coer)>=8 and frac>=0.60),
@@ -16834,7 +16834,7 @@ def rastrear_minimo_sinotico_173_a323(diag_a321, valid_a322):
              "minimo_na_borda":na_borda,
              "contraste_mediana_anel_hpa":round(contraste,2) if contraste is not None else None,
              "circulacao_850hpa":{"amostras":len(coer),
-                 "fracao_tangencial_ccw_ate_60graus":round(frac,3) if frac is not None else None}}
+                 "fracao_tangencial_ciclonica_sh_ate_60graus":round(frac,3) if frac is not None else None}}
         saltos.append(rec); centro_final=rec
 
         # Só encerra como centro localizado se a coleta foi completa e o minimo ficou interior.
@@ -16853,8 +16853,8 @@ def rastrear_minimo_sinotico_173_a323(diag_a321, valid_a322):
         base["resultado_final"]=centro_final
         base["evidencia_circulacao_ciclonica"]=bool(
             centro_final["circulacao_850hpa"]["amostras"]>=8 and
-            isinstance(centro_final["circulacao_850hpa"]["fracao_tangencial_ccw_ate_60graus"],(int,float)) and
-            centro_final["circulacao_850hpa"]["fracao_tangencial_ccw_ate_60graus"]>=0.60)
+            isinstance(centro_final["circulacao_850hpa"]["fracao_tangencial_ciclonica_sh_ate_60graus"],(int,float)) and
+            centro_final["circulacao_850hpa"]["fracao_tangencial_ciclonica_sh_ate_60graus"]>=0.60)
         base["minimo_fechado_no_dominio"]=bool(
             centro_final["cobertura_completa"] and not centro_final["minimo_na_borda"] and
             isinstance(centro_final.get("contraste_mediana_anel_hpa"),(int,float)) and
@@ -17089,6 +17089,103 @@ def avaliar_influencia_joinville_173_a33(dominio, previsao, impactos):
     return base
 
 
+# =========================================================
+# #173-A3.2.5 - SINTESE MULTIFONTE DE CICLONE
+# =========================================================
+# Camada conservadora: CAP/INMET fornece confirmacao oficial quando houver
+# mencao explicita a ciclone em aviso vigente que cubra Joinville; ECMWF
+# fornece somente diagnostico modelado regional. Ausencia de CAP positivo
+# nunca e convertida em "sem ciclone".
+
+def sintetizar_ciclone_173_a325(diag156, dominio, impactos):
+    resultado = {
+        "versao":"#173-A3.2.5",
+        "status":"inconclusivo",
+        "natureza":"SINTESE_MULTIFONTE_OFICIAL_E_MODELADA",
+        "gerado_em":agora().isoformat(),
+        "fontes":["INMET / WIS2 / CAP", "ECMWF via Open-Meteo ECMWF API"],
+        "sentido_ciclonico_hemisferio_sul":"horario",
+        "cap_oficial_ciclone_joinville_vigente":False,
+        "ciclone_confirmado_monitor":False,
+        "uso_operacional_para_alerta_oficial":False,
+        "gates_existentes_alterados":False,
+        "regra_seguranca":"Ausencia de CAP positivo nao prova ausencia de ciclone. Diagnostico ECMWF isolado nao vira confirmacao oficial."
+    }
+    positivos=[]
+    if isinstance(diag156,dict) and diag156.get("status")=="cap_recente_decodificado":
+        for alerta in diag156.get("alertas") or []:
+            if not isinstance(alerta,dict): continue
+            if str(alerta.get("status_cap") or "").lower()!="actual": continue
+            if str(alerta.get("scope") or "").lower()!="public": continue
+            if str(alerta.get("msgType") or "").lower() in {"cancel","error"}: continue
+            for info in alerta.get("infos") or []:
+                if not isinstance(info,dict): continue
+                if not info.get("vigente_agora") or not info.get("joinville_identificada"): continue
+                texto=" ".join(str(info.get(k) or "") for k in ("event","headline","description","instruction"))
+                norm=texto.lower()
+                mencao=("ciclone" in norm or "cyclone" in norm or "ciclonic" in norm or "ciclônic" in norm)
+                if not mencao: continue
+                positivos.append({
+                    "identifier":alerta.get("identifier"), "sent":alerta.get("sent"),
+                    "event":info.get("event"), "headline":info.get("headline"),
+                    "severity":info.get("severity"), "urgency":info.get("urgency"),
+                    "certainty":info.get("certainty"), "onset":info.get("onset"),
+                    "expires":info.get("expires"),
+                    "metodos_identificacao_joinville":info.get("metodos_identificacao_joinville"),
+                    "url_cap":alerta.get("url")
+                })
+    resultado["cap"]={
+        "status_diagnostico":diag156.get("status") if isinstance(diag156,dict) else None,
+        "xmls_cap_validos":diag156.get("xmls_cap_validos") if isinstance(diag156,dict) else None,
+        "avisos_ciclonicos_vigentes_joinville":positivos,
+        "quantidade":len(positivos)
+    }
+    if positivos:
+        resultado["cap_oficial_ciclone_joinville_vigente"]=True
+        resultado["ciclone_confirmado_monitor"]=True
+        resultado["status"]="CICLONE_MENCIONADO_EM_AVISO_OFICIAL_VIGENTE_PARA_JOINVILLE"
+    elif isinstance(dominio,dict) and dominio.get("status")=="diagnostico_regional_coletado":
+        cand=dominio.get("melhor_candidato") or {}
+        circ=bool(dominio.get("evidencia_circulacao_ciclonica"))
+        resultado["modelo"]={
+            "status":dominio.get("status"), "horario":cand.get("horario"),
+            "lat":cand.get("lat"), "lon":cand.get("lon"),
+            "pressao_msl_hpa":cand.get("pressao_msl_hpa"),
+            "distancia_joinville_km":cand.get("distancia_joinville_km"),
+            "contraste_regional_hpa":cand.get("contraste_regional_hpa"),
+            "circulacao_850hpa_fracao":cand.get("circulacao_850hpa_fracao"),
+            "evidencia_circulacao_ciclonica":circ
+        }
+        resultado["status"]="SISTEMA_ORGANIZADO_MODELADO_NAO_CONFIRMADO" if circ else "SEM_CIRCULACAO_CICLONICA_DEMONSTRADA_NO_MODELO"
+    else:
+        resultado["modelo"]={"status":dominio.get("status") if isinstance(dominio,dict) else None}
+        resultado["status"]="INCONCLUSIVO_FONTES_INCOMPLETAS"
+
+    # Atualiza somente o card de ciclone. Nao promove o resumo geral de impactos.
+    if isinstance(impactos,dict):
+        imps=impactos.get("impactos")
+        if isinstance(imps,dict):
+            if positivos:
+                p=positivos[0]
+                msg="Aviso oficial INMET/CAP vigente para Joinville menciona ciclone"
+                if p.get("event"): msg += f" ({p.get('event')})"
+                msg += "."
+                imps["ciclone"]={"icone":"🌀","estado":"CICLONE_MENCIONADO_EM_AVISO_OFICIAL_VIGENTE","cor":"vermelho","janela":"agora","mensagem":msg,"natureza":"AVISO_OFICIAL_CAP","fonte":"INMET / WIS2 / CAP","alerta_oficial":True,"detalhes_a325":resultado["status"]}
+            elif resultado["status"]=="SISTEMA_ORGANIZADO_MODELADO_NAO_CONFIRMADO":
+                m=resultado.get("modelo") or {}; dist=m.get("distancia_joinville_km")
+                msg="Circulacao ciclonica modelada no dominio regional, ainda sem confirmacao oficial CAP para Joinville."
+                if isinstance(dist,(int,float)): msg += f" Centro de triagem a ~{dist:.0f} km."
+                imps["ciclone"]={"icone":"🌀","estado":"SISTEMA_ORGANIZADO_MODELADO_NAO_CONFIRMADO","cor":"azul","janela":"72h","mensagem":msg,"natureza":"MODELADO_NAO_CONFIRMADO","fonte":"ECMWF via Open-Meteo + verificacao INMET/WIS2/CAP","alerta_oficial":False,"detalhes_a325":resultado["status"]}
+            elif resultado["status"]=="SEM_CIRCULACAO_CICLONICA_DEMONSTRADA_NO_MODELO":
+                m=resultado.get("modelo") or {}; dist=m.get("distancia_joinville_km")
+                msg="O diagnostico ECMWF nao demonstrou circulacao ciclonica no candidato regional; CAP oficial positivo para Joinville nao foi encontrado na amostra recente. Isso nao prova ausencia absoluta de ciclone."
+                if isinstance(dist,(int,float)): msg += f" Baixa de triagem a ~{dist:.0f} km."
+                imps["ciclone"]={"icone":"🌀","estado":"SEM_CIRCULACAO_CICLONICA_DEMONSTRADA","cor":"azul","janela":"72h","mensagem":msg,"natureza":"DIAGNOSTICO_MODELADO_COM_CHECAGEM_OFICIAL","fonte":"ECMWF via Open-Meteo + INMET/WIS2/CAP","alerta_oficial":False,"detalhes_a325":resultado["status"]}
+            else:
+                imps["ciclone"]={"icone":"🌀","estado":"INCONCLUSIVO","cor":"cinza","janela":"72h","mensagem":"As fontes de ciclone nao ficaram completas nesta atualizacao; o Monitor nao converte falha de fonte em ausencia de risco.","natureza":"INCONCLUSIVO_FAIL_CLOSED","fonte":"INMET/WIS2/CAP + ECMWF","alerta_oficial":False,"detalhes_a325":resultado["status"]}
+    return resultado
+
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_cemaden144 = chuva_observada_cemaden_144(chuva_cemaden)
@@ -17115,6 +17212,7 @@ def main():
     hidrologia_guaxanduva_v019 = calcular_hidrologia_guaxanduva_v019()
     nivel_guaxanduva_v021 = calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_guaxanduva_v019)
     impactos_locais173 = construir_impactos_locais_173_a2(previsao, granizo157, mare_observada160, mare_prevista164, criterio163, nivel_guaxanduva_v021, super_el_nino173)
+    ciclone_multifonte173 = sintetizar_ciclone_173_a325(diag156, dominio_ciclonico173, impactos_locais173)
     validacao_campo_guaxanduva = {
         "versao": "GXA-CAMPO-V1-FINAL",
         "status": "referencias_de_campo_registradas",
@@ -17286,6 +17384,8 @@ def main():
             rastreamento_minimo_sinotico173,
         "dominio_ciclonico_173":
             dominio_ciclonico173,
+        "ciclone_multifonte_173":
+            ciclone_multifonte173,
         "influencia_joinville_173":
             influencia_joinville173,
  

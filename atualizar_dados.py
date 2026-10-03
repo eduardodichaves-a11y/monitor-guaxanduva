@@ -12237,10 +12237,12 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
             except Exception as exc_modelo:
                 base["erro_modelo_hidraulico"] = str(exc_modelo)
     # Fallback geométrico explícito: reutiliza a última topologia auditada persistida.
+    # Resolve o arquivo pelo diretório do script, sem depender do CWD do runner.
     if base.get("status") == "indisponivel_sem_interromper_monitor":
         try:
-            if os.path.exists(GUAXANDUVA_GRAFO_ARQUIVO):
-                with open(GUAXANDUVA_GRAFO_ARQUIVO, "r", encoding="utf-8") as _fg:
+            _grafo_fallback_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), GUAXANDUVA_GRAFO_ARQUIVO)
+            if os.path.exists(_grafo_fallback_path):
+                with open(_grafo_fallback_path, "r", encoding="utf-8") as _fg:
                     _grafo_anterior = json.load(_fg)
                 _resumo = _grafo_anterior.get("resumo")
                 _pref = _grafo_anterior.get("ponto_referencia_topologia")
@@ -12251,6 +12253,7 @@ def construir_modelo_computacional_guaxanduva_v01(guaxanduva166=None):
                     base["topologia_fallback"] = {
                         "status": "REUTILIZADA_ULTIMA_TOPOLOGIA_AUDITADA",
                         "arquivo": GUAXANDUVA_GRAFO_ARQUIVO,
+                        "caminho_resolvido": _grafo_fallback_path,
                         "gerado_em_origem": _grafo_anterior.get("gerado_em"),
                         "motivo": "consulta_SIMGEO_do_ciclo_indisponivel",
                         "regra": "fallback_apenas_geometrico; ausencia_nunca_vira_zero",

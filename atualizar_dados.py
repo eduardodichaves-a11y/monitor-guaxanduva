@@ -12680,6 +12680,9 @@ def calcular_hidrologia_guaxanduva_v019():
 GUAXANDUVA_V021_LARGURA_REF_M = 3.5
 GUAXANDUVA_V021_MANNING_N = 0.012
 GUAXANDUVA_V021_DECLIVIDADE_REF = 0.0041
+# Referencia local adotada pelo Monitor em 03/10/2026:
+# medicao manual 1.340 m - componente de mare V0.21 0.733 m = 0.607 m.
+# Referencia empirica de calibracao; nao equivale a cota geodesica oficial.
 GUAXANDUVA_V021_H_BASE_BAIXA_M = 0.607
 GUAXANDUVA_V021_MARE_REF_BAIXA_M = -0.20
 GUAXANDUVA_V021_ALPHA_MARE_CENTRAL = 0.50

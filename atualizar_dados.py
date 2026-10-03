@@ -16211,6 +16211,162 @@ def buscar_super_el_nino_173():
     }
 
 
+# =========================================================
+# #173-A2 - CAMADA DIDATICA DE IMPACTOS LOCAIS
+# =========================================================
+# Traduz SOMENTE evidencias ja existentes no Monitor para linguagem humana.
+# Nao transforma ENSO em alerta local e nao cria alerta oficial.
+
+def construir_impactos_locais_173_a2(previsao, granizo, mare_observada, mare_prevista, criterio163, nivel_v021, enso173):
+    impactos = {}
+
+    # CHUVA + CHUVA/MARÉ: usa exclusivamente correspondencias já codificadas do PLANCON #163.
+    c = (criterio163 or {}).get("criterios") or {}
+    ent = (criterio163 or {}).get("entradas") or {}
+    p24 = ent.get("chuva_prevista_24h_mm")
+    integra = ent.get("chuva_24h_integra") is True
+    if integra:
+        if c.get("alerta_chuva_superior_50mm_e_mare_desde_1_8m") is True or c.get("alerta_chuva_superior_80mm_e_mare_desde_1_5m") is True:
+            chuva_estado, chuva_cor = "ALERTA_TECNICO", "vermelho"
+        elif c.get("atencao_chuva_superior_50mm_e_mare_desde_1_5m") is True:
+            chuva_estado, chuva_cor = "ALTA_ATENCAO", "laranja"
+        elif c.get("mobilizacao_chuva_superior_20mm_24h") is True:
+            chuva_estado, chuva_cor = "ATENCAO", "amarelo"
+        else:
+            chuva_estado, chuva_cor = "SEM_GATILHO_PLANCON_IDENTIFICADO", "verde"
+        chuva_msg = f"Previsao acumulada de {p24:.1f} mm nas proximas 24 horas." if isinstance(p24,(int,float)) else "Previsao de 24 horas valida."
+    else:
+        chuva_estado, chuva_cor = "DADOS_INSUFICIENTES", "cinza"
+        chuva_msg = "A janela de chuva de 24 horas esta incompleta; ausencia de dado nao e zero."
+    impactos["chuva_24h"] = {
+        "icone":"🌧️", "estado":chuva_estado, "cor":chuva_cor, "janela":"24h",
+        "mensagem":chuva_msg, "valor_mm":p24, "natureza":"PREVISTO_MODELADO",
+        "fonte":"Open-Meteo + criterio tecnico #163 baseado no PLANCON Joinville 2026",
+        "alerta_oficial":False,
+    }
+
+    # TEMPESTADE: leitura estrita do codigo WMO da proxima hora; nao extrapola para 24 h.
+    prox = (previsao or {}).get("proxima_hora") or {}
+    wmo = prox.get("codigo_tempo_wmo")
+    if wmo in (96,99):
+        te, tc, tm = "TEMPESTADE_COM_GRANIZO_PREVISTA", "vermelho", "O modelo indica trovoada com granizo na proxima hora."
+    elif wmo == 95:
+        te, tc, tm = "TEMPESTADE_PREVISTA", "laranja", "O modelo indica trovoada na proxima hora."
+    elif wmo is None:
+        te, tc, tm = "DADOS_INSUFICIENTES", "cinza", "Sem codigo meteorologico valido para a proxima hora."
+    else:
+        te, tc, tm = "SEM_SINAL_DE_TROVOADA_NA_PROXIMA_HORA", "verde", "O modelo nao indica codigo WMO de trovoada na proxima hora. Isso nao exclui mudancas posteriores."
+    impactos["tempestade"] = {
+        "icone":"⛈️", "estado":te, "cor":tc, "janela":"proxima_hora", "mensagem":tm,
+        "codigo_wmo":wmo, "natureza":"PREVISTO_MODELADO", "fonte":"Open-Meteo", "alerta_oficial":False,
+    }
+
+    # GRANIZO: respeita a regra fail-closed da #157.
+    ga = (granizo or {}).get("ativo")
+    if ga is True:
+        ge,gc,gm = "ALERTA_OFICIAL_POSITIVO", "vermelho", "Ha aviso oficial positivo de granizo reconhecido pelo Monitor."
+    elif ga is False:
+        ge,gc,gm = "SEM_ALERTA_OFICIAL_ATIVO_CONFIRMADO", "verde", "A fonte oficial confirmou ausencia de alerta ativo na janela validada."
+    else:
+        ge,gc,gm = "INCONCLUSIVO", "cinza", "O Monitor nao possui evidencia suficiente para afirmar alerta ou ausencia de granizo."
+    impactos["granizo"] = {
+        "icone":"🧊", "estado":ge, "cor":gc, "janela":"agora", "mensagem":gm,
+        "natureza":"AVISO_OFICIAL_QUANDO_POSITIVO", "fonte":(granizo or {}).get("fonte"), "alerta_oficial": ga is True,
+    }
+
+    # VENTO: intensidade prevista; cores sao didaticas e NAO constituem alerta oficial.
+    dias = (previsao or {}).get("proximos_7_dias") or []
+    validos = [d for d in dias if isinstance(d,dict) and isinstance(d.get("rajada_max_kmh"),(int,float))]
+    pico = max(validos, key=lambda d:d.get("rajada_max_kmh")) if validos else None
+    raj = pico.get("rajada_max_kmh") if pico else None
+    if raj is None:
+        ve,vc = "DADOS_INSUFICIENTES", "cinza"
+    elif raj >= 89:
+        ve,vc = "RAJADAS_MUITO_FORTES", "vermelho"
+    elif raj >= 62:
+        ve,vc = "RAJADAS_FORTES", "laranja"
+    elif raj >= 39:
+        ve,vc = "RAJADAS_MODERADAS", "amarelo"
+    else:
+        ve,vc = "RAJADAS_FRACAS_A_MODERADAS", "verde"
+    impactos["vento"] = {
+        "icone":"💨", "estado":ve, "cor":vc, "janela":"7_dias", "mensagem": (f"Maior rajada prevista: {raj:.1f} km/h em {pico.get('data')}." if raj is not None else "Sem previsao valida de rajadas."),
+        "rajada_max_kmh":raj, "data_pico": pico.get("data") if pico else None,
+        "natureza":"PREVISTO_MODELADO", "fonte":"Open-Meteo", "alerta_oficial":False,
+        "regra_visual":"Faixas didaticas de intensidade; nao equivalem a aviso oficial de vento."
+    }
+
+    # MARÉ: informa observacao e proximo pico; o risco combinado fica no #163.
+    mo = (mare_observada or {}).get("nivel_m")
+    mf = (mare_observada or {}).get("frescor")
+    impactos["mare"] = {
+        "icone":"🌊", "estado":"OBSERVADA_ATUAL" if mo is not None and mf=="atual" else "DADO_NAO_ATUAL",
+        "cor":"azul" if mo is not None and mf=="atual" else "cinza", "janela":"agora_e_24h",
+        "mensagem": (f"Mare observada em Joinville/Babitonga: {mo:.2f} m." if isinstance(mo,(int,float)) else "Mare observada indisponivel."),
+        "nivel_observado_m":mo, "pico_previsto_24h_m": (mare_prevista or {}).get("pico_mare_m"),
+        "natureza":"OBSERVADO_E_PREVISTO", "fonte":"EPAGRI/CIRAM", "alerta_oficial":False,
+        "regra_visual":"Mare isolada e informativa; combinacao chuva+mare usa os criterios #163."
+    }
+
+    # CHUVA + MARÉ: tradução direta da correspondencia #163.
+    if c.get("alerta_chuva_superior_50mm_e_mare_desde_1_8m") is True or c.get("alerta_chuva_superior_80mm_e_mare_desde_1_5m") is True:
+        ce,cc,cm = "COMBINACAO_CRITICA_IDENTIFICADA", "vermelho", "Chuva e mare atingem uma correspondencia tecnica de alerta do quadro usado pelo #163."
+    elif c.get("atencao_chuva_superior_50mm_e_mare_desde_1_5m") is True:
+        ce,cc,cm = "COMBINACAO_DE_ATENCAO", "laranja", "Chuva e mare atingem a correspondencia tecnica de atencao usada pelo #163."
+    elif integra and ent.get("mare_observada_fresca") is True:
+        ce,cc,cm = "SEM_GATILHO_COMBINADO_IDENTIFICADO", "verde", "Com os dados atuais, nenhum gatilho combinado superior do #163 foi identificado."
+    else:
+        ce,cc,cm = "DADOS_INSUFICIENTES", "cinza", "Nao ha dados completos/frescos suficientes para avaliar chuva + mare."
+    impactos["chuva_mais_mare"] = {
+        "icone":"🌧️+🌊", "estado":ce, "cor":cc, "janela":"24h", "mensagem":cm,
+        "natureza":"DIAGNOSTICO_TECNICO", "fonte":"#163 / PMGRD-PLANCON Joinville 2026", "alerta_oficial":False,
+    }
+
+    # RIO: sempre MODELADO enquanto nao houver sensor publico confirmado.
+    nv = (nivel_v021 or {}).get("nivel_estimado_m")
+    tend = ((nivel_v021 or {}).get("tendencia") or {}).get("classe")
+    cmh = ((nivel_v021 or {}).get("tendencia") or {}).get("cm_h")
+    impactos["rio_guaxanduva"] = {
+        "icone":"🏞️", "estado":"MODELADO_" + str(tend or "SEM_TENDENCIA").upper(), "cor":"azul",
+        "janela":"agora_modelado", "mensagem": (f"Nivel modelado {nv:.2f} m; tendencia {tend} ({cmh:+.1f} cm/h)." if isinstance(nv,(int,float)) and isinstance(cmh,(int,float)) else "Modelo de nivel sem resultado completo."),
+        "nivel_modelado_m":nv, "tendencia":tend, "cm_h":cmh, "confianca":(nivel_v021 or {}).get("confianca"),
+        "natureza":"MODELADO_NAO_INSTRUMENTAL", "fonte":"Guaxanduva V0.21", "alerta_oficial":False,
+    }
+
+    # CICLONE: fail-closed ate existir coletor dedicado validado.
+    impactos["ciclone"] = {
+        "icone":"🌀", "estado":"AINDA_SEM_DETECTOR_DEDICADO_VALIDADO", "cor":"cinza", "janela":None,
+        "mensagem":"O #173-A2 ainda nao infere ciclone a partir de vento/pressao. Um coletor sinotico dedicado sera validado separadamente.",
+        "natureza":"NAO_INFERIDO", "fonte":None, "alerta_oficial":False,
+    }
+
+    ordem = {"vermelho":4,"laranja":3,"amarelo":2,"verde":1,"azul":0,"cinza":0}
+    avaliaveis = [x for k,x in impactos.items() if k not in ("mare","rio_guaxanduva","ciclone")]
+    pior = max(avaliaveis, key=lambda x:ordem.get(x.get("cor"),0)) if avaliaveis else None
+    resumo = {
+        "estado":"SEM_DADOS" if not pior else pior.get("estado"),
+        "cor":"cinza" if not pior else pior.get("cor"),
+        "mensagem":"Resumo didatico pelo maior sinal local disponivel; nao e alerta oficial da Defesa Civil.",
+    }
+    return {
+        "versao":"#173-A2",
+        "status":"calculado",
+        "titulo":"IMPACTOS PARA JOINVILLE E GUAXANDUVA",
+        "gerado_em":agora().isoformat(),
+        "contexto_enso": {
+            "status":(enso173 or {}).get("status"),
+            "roni":(((enso173 or {}).get("enso") or {}).get("roni_observado") or {}).get("valor"),
+            "regra":"ENSO e contexto climatico de fundo e nunca promove sozinho um impacto local de cor."
+        },
+        "resumo":resumo,
+        "impactos":impactos,
+        "legenda":{"verde":"sem sinal superior identificado na janela avaliada","amarelo":"atencao","laranja":"alta atencao","vermelho":"sinal tecnico forte/alerta positivo conforme a fonte","azul":"informacao/modelo sem classificacao de risco","cinza":"inconclusivo/indisponivel"},
+        "uso_como_alerta_oficial":False,
+        "gates_existentes_alterados":False,
+        "regra_seguranca":"Nenhum estado local e elevado somente por ENSO. Ausencia/falha nunca vira zero nem ausencia de risco."
+    }
+
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_cemaden144 = chuva_observada_cemaden_144(chuva_cemaden)
@@ -16231,6 +16387,7 @@ def main():
     tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
     hidrologia_guaxanduva_v019 = calcular_hidrologia_guaxanduva_v019()
     nivel_guaxanduva_v021 = calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_guaxanduva_v019)
+    impactos_locais173 = construir_impactos_locais_173_a2(previsao, granizo157, mare_observada160, mare_prevista164, criterio163, nivel_guaxanduva_v021, super_el_nino173)
     goes19_tathu167 = buscar_goes19_tathu_167()
     radar_atual = buscar_radar()
     coleta_zr170 = coletar_zr_170_b2(chuva_cemaden, chuva_epagri165, radar_atual, previsao)
@@ -16373,6 +16530,9 @@ def main():
 
         "super_el_nino_173":
             super_el_nino173,
+
+        "impactos_locais_173":
+            impactos_locais173,
  
         "astronomia_joinville":
             astronomia_joinville,

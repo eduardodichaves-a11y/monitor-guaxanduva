@@ -16851,7 +16851,7 @@ def rastrear_minimo_sinotico_173_a323(diag_a321, valid_a322):
 
 def diagnosticar_dominio_ciclonico_173_a324():
     base={
-        "versao":"#173-A3.2.4",
+        "versao":"#173-A3.2.5-SH",
         "status":"inconclusivo",
         "natureza":"DIAGNOSTICO_REGIONAL_MODELADO_NAO_VALIDADO",
         "fonte":"ECMWF via Open-Meteo ECMWF API",
@@ -16860,6 +16860,7 @@ def diagnosticar_dominio_ciclonico_173_a324():
                    "descricao":"Sul do Brasil e Atlantico Sul adjacente"},
         "janela_h":72,
         "ciclone_confirmado_monitor":False,
+        "sentido_ciclonico_hemisferio_sul":"horario",
         "uso_operacional":False,
         "gates_existentes_alterados":False,
         "regra_seguranca":"Baixa pressao, minimo interior ou circulacao modelada isoladamente nao confirmam ciclone nem geram alerta local."
@@ -16941,7 +16942,7 @@ def diagnosticar_dominio_ciclonico_173_a324():
             dist=hav(mn["lat"],mn["lon"],x["lat"],x["lon"])
             if dist<150 or dist>700: continue
             radial=rumo(mn["lat"],mn["lon"],x["lat"],x["lon"])
-            para=(d+180)%360; tang=(radial-90)%360
+            para=(d+180)%360; tang=(radial+90)%360
             coer.append(difang(para,tang)<=60)
         frac=(sum(coer)/len(coer)) if coer else None
         candidatos.append({"horario":hor,"lat":mn["lat"],"lon":mn["lon"],
@@ -17095,9 +17096,11 @@ def main():
     criterio163 = calcular_criterio_hidrometeorologico_plancon_163(previsao, mare_observada160)
     mare_prevista164 = calcular_pico_mare_previsto_24h_164(previsao)
     sincronizacao_chuva_mare173 = sincronizar_chuva_mare_173_a31(previsao, mare_prevista164)
-    ciclone_sinotico173 = diagnosticar_ciclone_sinotico_173_a32()
-    validacao_centro_sinotico173 = validar_centro_sinotico_173_a322(ciclone_sinotico173)
-    rastreamento_minimo_sinotico173 = rastrear_minimo_sinotico_173_a323(ciclone_sinotico173, validacao_centro_sinotico173)
+    # #173-ESTABILIZACAO-ROTINA
+    # Etapas A3.2.1/A3.2.2/A3.2.3 preservadas no codigo, mas fora do ciclo de 15 min.
+    ciclone_sinotico173 = {"versao":"#173-A3.2.1","status":"desativado_na_rotina_15min","natureza":"HISTORICO_EXPERIMENTAL","uso_operacional":False}
+    validacao_centro_sinotico173 = {"versao":"#173-A3.2.2","status":"desativado_na_rotina_15min","natureza":"HISTORICO_EXPERIMENTAL","uso_operacional":False}
+    rastreamento_minimo_sinotico173 = {"versao":"#173-A3.2.3","status":"desativado_na_rotina_15min","natureza":"HISTORICO_EXPERIMENTAL","uso_operacional":False}
     dominio_ciclonico173 = diagnosticar_dominio_ciclonico_173_a324()
     guaxanduva166 = atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160)
     modelo_guaxanduva_v01 = construir_modelo_computacional_guaxanduva_v01(guaxanduva166)

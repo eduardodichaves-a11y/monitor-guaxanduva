@@ -15976,6 +15976,241 @@ def construir_estado_cientifico_vigente_171(radar_atual, chuva144, rede165, audi
         },
     }
 
+# =========================================================
+# #173 - SUPER EL NINO 2026-27 • PACIFICO -> GUAXANDUVA
+# Fase A/B experimental: observacao oceanica NOAA/PMEL + RONI/CPC.
+# Independente dos gates #168/#170/#172. Falha de uma fonte nao
+# derruba o Monitor e ausencia de dado nunca e convertida em zero.
+# =========================================================
+
+RONI_CPC_TXT_173 = "https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt"
+RONI_CPC_PROB_173 = "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/probabilities/"
+PMEL_ERDDAP_173 = "https://data.pmel.noaa.gov/pmel/erddap/tabledap"
+
+
+def _numero_173(valor):
+    try:
+        n = float(valor)
+        if not math.isfinite(n) or abs(n) >= 1e20:
+            return None
+        return n
+    except Exception:
+        return None
+
+
+def _idade_horas_173(texto_iso):
+    try:
+        dt = datetime.fromisoformat(str(texto_iso).replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=UTC)
+        return round(max(0.0, (datetime.now(UTC) - dt.astimezone(UTC)).total_seconds() / 3600.0), 2)
+    except Exception:
+        return None
+
+
+def _buscar_rONI_cpc_173():
+    base = {
+        "status": "indisponivel",
+        "natureza": "OBSERVADO_INDICE_CLIMATICO",
+        "fonte": "NOAA/CPC",
+        "url": RONI_CPC_TXT_173,
+        "indice": "RONI",
+        "unidade": "grau_C_anomalia",
+        "valor": None,
+        "periodo": None,
+        "ano": None,
+        "coletado_em": agora().isoformat(),
+        "observacao": "RONI e media movel de 3 meses; nao e sensor em tempo real e valores recentes podem ser revisados pelo CPC.",
+    }
+    try:
+        r = get(RONI_CPC_TXT_173)
+        linhas = [x.strip() for x in r.text.splitlines() if x.strip() and not x.lstrip().startswith("#")]
+        candidatos = []
+        for linha in linhas:
+            partes = re.split(r"\s+", linha.strip())
+            nums = []
+            for p in partes:
+                try:
+                    nums.append((p, float(p)))
+                except Exception:
+                    pass
+            if not nums:
+                continue
+            ano = None
+            for p, n in nums:
+                if 1900 <= n <= 2200 and float(n).is_integer():
+                    ano = int(n)
+                    break
+            valor = _numero_173(nums[-1][1])
+            if valor is None or not (-10 <= valor <= 10):
+                continue
+            periodo = None
+            for p in partes:
+                u = p.upper()
+                if re.fullmatch(r"[A-Z]{3}", u) and u not in {"RON", "CPC"}:
+                    periodo = u
+            candidatos.append({"ano": ano, "periodo": periodo, "valor": valor, "linha_origem": linha[:180]})
+        if candidatos:
+            ult = candidatos[-1]
+            base.update({"status": "online", **ult, "registros_parseados": len(candidatos)})
+        else:
+            base["erro"] = "nenhum_registro_numerico_RONI_reconhecido"
+    except Exception as e:
+        base["erro"] = str(e)[:500]
+    return base
+
+
+def _buscar_probabilidades_cpc_173():
+    base = {
+        "status": "indisponivel",
+        "natureza": "PREVISTO_OFICIAL",
+        "fonte": "NOAA/CPC",
+        "url": RONI_CPC_PROB_173,
+        "metrica": "probabilidade_ENSO",
+        "temporadas": [],
+        "coletado_em": agora().isoformat(),
+    }
+    try:
+        r = get(RONI_CPC_PROB_173)
+        soup = BeautifulSoup(r.text, "html.parser")
+        texto = soup.get_text(" ", strip=True)
+        m = re.search(r"Issued\s+([A-Za-z]+\s+20\d{2})", texto, re.I)
+        if m:
+            base["emitido"] = m.group(1)
+        temporadas = []
+        for tr in soup.find_all("tr"):
+            cel = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
+            if len(cel) < 4:
+                continue
+            season = cel[0].strip().upper()
+            if not re.fullmatch(r"[A-Z]{3}(?:\s+.*)?", season):
+                continue
+            vals = []
+            for c in cel[1:4]:
+                mm = re.search(r"-?\d+(?:\.\d+)?", c)
+                vals.append(_numero_173(mm.group(0)) if mm else None)
+            if all(v is not None and 0 <= v <= 100 for v in vals):
+                temporadas.append({
+                    "temporada": season.split()[0],
+                    "la_nina_pct": vals[0],
+                    "neutro_pct": vals[1],
+                    "el_nino_pct": vals[2],
+                })
+        if temporadas:
+            base["status"] = "online"
+            base["temporadas"] = temporadas[:12]
+        else:
+            base["erro"] = "tabela_de_probabilidades_nao_reconhecida"
+    except Exception as e:
+        base["erro"] = str(e)[:500]
+    return base
+
+
+def _pmel_ultima_estacao_173(dataset, variavel, qualidade, estacao, unidade):
+    base = {
+        "status": "indisponivel",
+        "natureza": "OBSERVADO_IN_SITU",
+        "fonte": "NOAA/PMEL TAO-TRITON",
+        "dataset": dataset,
+        "estacao": estacao,
+        "variavel": variavel,
+        "unidade": unidade,
+        "valor": None,
+        "horario_utc": None,
+        "idade_horas": None,
+    }
+    try:
+        # ERDDAP tabledap: janela suficientemente ampla para tolerar lacunas de transmissao.
+        campos = "longitude,latitude,time,station,wmo_platform_code," + variavel
+        if qualidade:
+            campos += "," + qualidade
+        consulta = (
+            campos
+            + '&station="' + estacao + '"'
+            + "&time>=now-45days"
+            + "&orderByMax(\"time\")"
+        )
+        url = PMEL_ERDDAP_173 + "/" + dataset + ".csv?" + consulta
+        r = requests.get(url, timeout=30, headers={"User-Agent": "Monitor-Guaxanduva/1.0"})
+        r.raise_for_status()
+        linhas = list(csv.reader(io.StringIO(r.text)))
+        if len(linhas) < 3:
+            raise ValueError("ERDDAP sem linha de dados")
+        cab = linhas[0]
+        dados = [x for x in linhas[2:] if x and len(x) >= len(cab)]
+        if not dados:
+            raise ValueError("ERDDAP sem observacao valida")
+        idx = {nome: i for i, nome in enumerate(cab)}
+        linha = dados[-1]
+        valor = _numero_173(linha[idx[variavel]])
+        horario = linha[idx["time"]]
+        q = _numero_173(linha[idx[qualidade]]) if qualidade and qualidade in idx else None
+        # PMEL recomenda qualidade 1..3 como provavelmente valida.
+        qualidade_ok = q is None or (1 <= q <= 3)
+        if valor is None:
+            raise ValueError("valor PMEL ausente/invalido")
+        base.update({
+            "status": "online" if qualidade_ok else "online_qualidade_questionavel",
+            "valor": round(valor, 4),
+            "horario_utc": horario,
+            "idade_horas": _idade_horas_173(horario),
+            "qualidade_codigo": q,
+            "qualidade_aceitavel": qualidade_ok,
+            "longitude": _numero_173(linha[idx["longitude"]]),
+            "latitude": _numero_173(linha[idx["latitude"]]),
+            "wmo": linha[idx["wmo_platform_code"]],
+            "url_consulta": url,
+        })
+    except Exception as e:
+        base["erro"] = str(e)[:500]
+    return base
+
+
+def buscar_super_el_nino_173():
+    # Eixo equatorial dentro/adjacente a Nino 3.4. Cada estacao falha isoladamente.
+    estacoes = ["0n170w", "0n155w", "0n140w", "0n125w"]
+    sst = [_pmel_ultima_estacao_173("pmelTaoDySst", "T_25", "QT_5025", e, "grau_C") for e in estacoes]
+    iso = [_pmel_ultima_estacao_173("pmelTaoDyIso", "ISO_6", "QI_5006", e, "m") for e in estacoes]
+    heat = [_pmel_ultima_estacao_173("pmelTaoDyHeat", "HTC_130", "HTC_5130", e, "10^10_J_m-2") for e in estacoes]
+    roni = _buscar_rONI_cpc_173()
+    probabilidades = _buscar_probabilidades_cpc_173()
+
+    blocos = [roni, probabilidades] + sst + iso + heat
+    online = sum(1 for x in blocos if isinstance(x, dict) and str(x.get("status", "")).startswith("online"))
+    total = len(blocos)
+    if online == total:
+        status = "online_completo"
+    elif online > 0:
+        status = "online_parcial_com_fallback_local"
+    else:
+        status = "fontes_externas_indisponiveis"
+
+    return {
+        "versao": "#173-A1",
+        "titulo": "SUPER EL NINO 2026-27 - DO PACIFICO AO GUAXANDUVA",
+        "status": status,
+        "coletado_em": agora().isoformat(),
+        "fontes_online": online,
+        "fontes_testadas": total,
+        "gates_existentes_alterados": False,
+        "uso_operacional_alerta_liberado": False,
+        "pacifico": {
+            "sst_tao_triton": sst,
+            "isoterma_20c_tao_triton": iso,
+            "conteudo_calor_tao_triton": heat,
+        },
+        "enso": {
+            "roni_observado": roni,
+            "probabilidades_oficiais": probabilidades,
+        },
+        "joinville_guaxanduva": {
+            "status": "NAO_INFERIDO_NESTA_ETAPA",
+            "observacao": "ENSO e contexto climatico. Este modulo ainda nao transforma intensidade do Pacifico em risco local do Guaxanduva.",
+        },
+        "regra_seguranca": "Falha/ausencia nunca vira zero. #173 nao libera Z-R, nivel observado, alerta oficial nem qualquer gate #168/#170/#172.",
+    }
+
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_cemaden144 = chuva_observada_cemaden_144(chuva_cemaden)
@@ -15986,6 +16221,7 @@ def main():
     diag156 = diagnosticar_conteudo_cap_inmet_156(diag155)
     granizo157 = granizo_operacional_inmet_157(diag156)
     previsao = buscar_previsao()
+    super_el_nino173 = buscar_super_el_nino_173()
     astronomia_joinville = buscar_astronomia_joinville()
     mare_observada160 = buscar_mare_observada_joinville_160()
     criterio163 = calcular_criterio_hidrometeorologico_plancon_163(previsao, mare_observada160)
@@ -16134,6 +16370,9 @@ def main():
  
         "previsao":
             previsao,
+
+        "super_el_nino_173":
+            super_el_nino173,
  
         "astronomia_joinville":
             astronomia_joinville,

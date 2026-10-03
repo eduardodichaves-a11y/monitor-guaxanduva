@@ -10264,8 +10264,25 @@ def construir_rede_pluviometrica_multifonte_165(chuva_cemaden,chuva_epagri):
     for e in (chuva_epagri or {}).get("estacoes",[]):
         if not isinstance(e,dict): continue
         resultado["estacoes"].append({"nome":e.get("nome"),"fonte":"EPAGRI/CIRAM","rede":"EPAGRI/CIRAM","codigo":e.get("codigo"),"latitude":e.get("latitude"),"longitude":e.get("longitude"),"distancia_comasa_aprox_km":None,"janela_acumulado_h":1,"acumulado_24h_mm":None,"precipitacao_1h_mm":e.get("precipitacao_1h_mm"),"horario_medicao":e.get("horario_medicao"),"idade_leitura_min":e.get("idade_leitura_min"),"dados_frescos":e.get("dados_frescos"),"leitura_atual_disponivel":e.get("leitura_atual_disponivel"),"aquisicao_automatica_integrada":True,"status":e.get("status"),"equivale_medicao_no_comasa":False})
-    for nome,codigo in [("Joinville/RVPSC","02648014"),("Ponte SC-301","02648028"),("Pirabeiraba","02648033"),("Estrada dos Morros","02648034"),("Primeiro Salto do Cubatao","02649060")]:
-        resultado["estacoes"].append({"nome":nome,"fonte":"ANA/SNIRH - inventario historico citado no PMGRD Joinville 2026","rede":"ANA/SNIRH","codigo":codigo,"latitude":None,"longitude":None,"distancia_comasa_aprox_km":None,"janela_acumulado_h":None,"acumulado_24h_mm":None,"precipitacao_1h_mm":None,"leitura_atual_disponivel":False,"aquisicao_automatica_integrada":False,"status":"estacao_identificada_sem_telemetria_atual_integrada","equivale_medicao_no_comasa":False})
+    # #172 - coordenadas documentais das cinco ANA/SNIRH do inventario #165.
+    # Georreferenciar NAO significa integrar telemetria: leitura atual permanece ausente
+    # ate existir aquisicao automatica validada.
+    for nome,codigo,lat,lon,alt in [
+        ("Joinville/RVPSC","02648014",-26.321666667,-48.846388889,6),
+        ("Ponte SC-301","02648028",-26.448333333,-48.830277778,8),
+        ("Pirabeiraba","02648033",-26.180000000,-48.939444444,1),
+        ("Estrada dos Morros","02648034",-26.248888889,-48.977500000,119),
+        ("Primeiro Salto do Cubatao","02649060",-26.215833333,-49.080555556,790),
+    ]:
+        resultado["estacoes"].append({
+            "nome":nome,"fonte":"ANA/SNIRH - inventario historico citado no PMGRD Joinville 2026",
+            "rede":"ANA/SNIRH","codigo":codigo,"latitude":lat,"longitude":lon,"altitude_m":alt,
+            "coordenada_natureza":"DOCUMENTAL_HISTORICA",
+            "distancia_comasa_aprox_km":round(hav(LAT,LON,lat,lon),2),
+            "janela_acumulado_h":None,"acumulado_24h_mm":None,"precipitacao_1h_mm":None,
+            "leitura_atual_disponivel":False,"aquisicao_automatica_integrada":False,
+            "status":"estacao_georreferenciada_sem_telemetria_atual_integrada",
+            "equivale_medicao_no_comasa":False})
     resultado["fontes"]=[{"fonte":"CEMADEN","status_integracao":"automatica_integrada","endpoint":CEMADEN_PLUV_24H},{"fonte":"EPAGRI/CIRAM","status_integracao":"automatica_integrada_agroconnect","endpoint":EPAGRI_AGROCONNECT_BUSCA},{"fonte":"ANA/SNIRH","status_integracao":"inventario_historico_identificado_sem_telemetria_atual_integrada","endpoint":None},{"fonte":"Prefeitura de Joinville / Defesa Civil","status_integracao":"rede_identificada_sem_endpoint_publico_automatico_validado","endpoint":None}]
     resultado["quantidade_estacoes"]=len(resultado["estacoes"]); resultado["quantidade_com_leitura_atual"]=sum(1 for e in resultado["estacoes"] if e.get("leitura_atual_disponivel") is True); resultado["quantidade_sem_leitura_automatica_integrada"]=sum(1 for e in resultado["estacoes"] if e.get("aquisicao_automatica_integrada") is not True)
     if resultado["quantidade_com_leitura_atual"]==0: resultado["status"]="inventario_multifonte_sem_dados_automaticos_disponiveis"
@@ -10289,6 +10306,117 @@ GUAXANDUVA_PONTO_REFERENCIA = (-48.809508420794316, -26.270596021167542)
 GUAXANDUVA_TOLERANCIA_TOPOLOGICA_M = 1.0
 GUAXANDUVA_GRAFO_ARQUIVO = "grafo_guaxanduva.json"
 GUAXANDUVA_MODELO_VERSAO = "GXA-V0.19-HIDROLOGIA-CHUVA-RIO-MARE"
+
+
+# =========================================================
+# #172 - GEOMETRIA DA REDE OBSERVACIONAL DO GUAXANDUVA
+# =========================================================
+def construir_geometria_rede_observacional_172(rede165):
+    """Geometria de 100% do inventario #165, com ou sem leitura atual."""
+    lon_ref, lat_ref = GUAXANDUVA_PONTO_REFERENCIA
+    estacoes165 = (rede165 or {}).get("estacoes", [])
+    if not isinstance(estacoes165, list):
+        estacoes165 = []
+
+    saida = {
+        "versao": "#172",
+        "status": "GEOMETRIA_CALCULADA",
+        "tipo": "geometria_rede_observacional_guaxanduva",
+        "referencia_guaxanduva": {
+            "segmento": GUAXANDUVA_SEGMENTO_REFERENCIA,
+            "latitude": lat_ref,
+            "longitude": lon_ref,
+            "natureza": "ponto_tecnico_publico_do_segmento_de_referencia",
+        },
+        "criterios_classe_espacial_km": {
+            "PROXIMA": "<= 5",
+            "INTERMEDIARIA": "> 5 e <= 15",
+            "REGIONAL": "> 15",
+            "SEM_COORDENADA": "coordenada ausente ou invalida",
+            "natureza": "heuristica_operacional_modelada_nao_oficial",
+        },
+        "estacoes": [],
+        "resumo": {},
+        "uso_no_risco": False,
+        "libera_170_i": False,
+        "libera_zr_instrumental": False,
+        "regra_seguranca": (
+            "A #172 processa todas as estacoes do #165. Distancia nao equivale a chuva no Guaxanduva. "
+            "Estacao sem leitura permanece no inventario geometrico e ausencia nunca vira 0 mm. "
+            "Aptidao #170-I e somente elegibilidade para pareamento futuro, nao validacao espacial."
+        ),
+    }
+
+    for e in estacoes165:
+        if not isinstance(e, dict):
+            continue
+        lat, lon = e.get("latitude"), e.get("longitude")
+        coord_ok = (
+            isinstance(lat, (int, float)) and not isinstance(lat, bool)
+            and isinstance(lon, (int, float)) and not isinstance(lon, bool)
+            and math.isfinite(lat) and math.isfinite(lon)
+            and -90 <= lat <= 90 and -180 <= lon <= 180
+        )
+        distancia = azimute = direcao = None
+        classe = "SEM_COORDENADA"
+        if coord_ok:
+            distancia = round(hav(lat_ref, lon_ref, float(lat), float(lon)), 3)
+            azimute = round(rumo(lat_ref, lon_ref, float(lat), float(lon)), 1)
+            direcao = cardinal(azimute)
+            classe = "PROXIMA" if distancia <= 5 else "INTERMEDIARIA" if distancia <= 15 else "REGIONAL"
+
+        integrada = e.get("aquisicao_automatica_integrada") is True
+        leitura = e.get("leitura_atual_disponivel") is True
+        saida["estacoes"].append({
+            "nome": e.get("nome"), "rede": e.get("rede") or e.get("fonte"),
+            "fonte": e.get("fonte"), "codigo": e.get("codigo"), "id": e.get("id"),
+            "latitude": float(lat) if coord_ok else None,
+            "longitude": float(lon) if coord_ok else None,
+            "altitude_m": e.get("altitude_m"),
+            "distancia_guaxanduva_km": distancia,
+            "azimute_desde_guaxanduva_graus": azimute,
+            "direcao_desde_guaxanduva": direcao,
+            "classe_espacial": classe,
+            "aquisicao_automatica_integrada": integrada,
+            "leitura_atual_disponivel": leitura,
+            "status_fonte": e.get("status"),
+            "janela_acumulado_h": e.get("janela_acumulado_h"),
+            "acumulado_24h_mm": e.get("acumulado_24h_mm") if leitura else None,
+            "precipitacao_1h_mm": e.get("precipitacao_1h_mm") if leitura else None,
+            "apta_candidata_170_i": bool(coord_ok and integrada and leitura),
+            "equivale_medicao_no_guaxanduva": False,
+        })
+
+    ordem = {"PROXIMA": 0, "INTERMEDIARIA": 1, "REGIONAL": 2, "SEM_COORDENADA": 3}
+    saida["estacoes"].sort(key=lambda x: (
+        ordem.get(x["classe_espacial"], 9),
+        x["distancia_guaxanduva_km"] if x["distancia_guaxanduva_km"] is not None else 1e9,
+        str(x.get("nome") or ""),
+    ))
+    total = len(estacoes165)
+    proc = len(saida["estacoes"])
+    saida["resumo"] = {
+        "total_catalogadas_165": total,
+        "total_processadas_172": proc,
+        "cobertura_inventario_100pct": proc == total,
+        "com_coordenada": sum(x["distancia_guaxanduva_km"] is not None for x in saida["estacoes"]),
+        "sem_coordenada": sum(x["distancia_guaxanduva_km"] is None for x in saida["estacoes"]),
+        "proximas": sum(x["classe_espacial"] == "PROXIMA" for x in saida["estacoes"]),
+        "intermediarias": sum(x["classe_espacial"] == "INTERMEDIARIA" for x in saida["estacoes"]),
+        "regionais": sum(x["classe_espacial"] == "REGIONAL" for x in saida["estacoes"]),
+        "integradas": sum(x["aquisicao_automatica_integrada"] for x in saida["estacoes"]),
+        "com_leitura_atual": sum(x["leitura_atual_disponivel"] for x in saida["estacoes"]),
+        "integradas_sem_leitura_atual": sum(x["aquisicao_automatica_integrada"] and not x["leitura_atual_disponivel"] for x in saida["estacoes"]),
+        "integracao_pendente": sum(not x["aquisicao_automatica_integrada"] for x in saida["estacoes"]),
+        "candidatas_170_i_nesta_coleta": sum(x["apta_candidata_170_i"] for x in saida["estacoes"]),
+    }
+    if not saida["estacoes"]:
+        saida["status"] = "SEM_ESTACOES"
+    elif saida["resumo"]["com_coordenada"] < proc:
+        saida["status"] = "GEOMETRIA_PARCIAL_COORDENADAS_AUSENTES"
+    if proc != total:
+        saida["status"] = "INVENTARIO_INCOMPLETO"
+    return saida
  
  
 # =========================================================
@@ -15148,6 +15276,7 @@ def main():
     chuva_cemaden144 = chuva_observada_cemaden_144(chuva_cemaden)
     chuva_epagri165 = buscar_chuva_epagri_165()
     rede165 = construir_rede_pluviometrica_multifonte_165(chuva_cemaden, chuva_epagri165)
+    geometria_rede172 = construir_geometria_rede_observacional_172(rede165)
     diag155 = diagnosticar_cap_recente_inmet_155()
     diag156 = diagnosticar_conteudo_cap_inmet_156(diag155)
     granizo157 = granizo_operacional_inmet_157(diag156)
@@ -15211,6 +15340,9 @@ def main():
  
         "rede_pluviometrica_multifonte_165":
             rede165,
+ 
+        "geometria_rede_observacional_172":
+            geometria_rede172,
  
         "investigacao_cemaden_138":
             investigar_serie_cemaden_138(chuva_cemaden),

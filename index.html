@@ -180,6 +180,28 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 @media(max-width:760px){.enso173-trilha{grid-template-columns:repeat(2,1fr)}.enso173-grid,.enso173-impactos{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:430px){.enso173-grid,.enso173-impactos{grid-template-columns:1fr}}
 
+
+/* === MONITOR GUAXANDUVA • OBRA DE ARTE V1 === */
+.leigo-console{margin:12px 0 14px;border:1px solid #1e7199;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,rgba(3,28,43,.96),rgba(5,45,58,.94))}
+.leigo-console-head{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid rgba(80,190,230,.28)}
+.leigo-console-head strong{font-size:1.02rem;letter-spacing:.02em}.leigo-console-head small{color:#9ed8ed}
+.leigo-answer{padding:14px;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.leigo-signal{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:31px;background:#113a49;border:2px solid #39b9e7}
+.leigo-answer b{display:block;font-size:1.18rem;line-height:1.2}.leigo-answer p{margin:4px 0 0;color:#b9d9e5;font-size:.9rem}
+.hazard-ribbon{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:7px;padding:0 12px 12px}
+.hazard-chip{min-width:0;border:1px solid rgba(160,210,230,.25);border-radius:12px;padding:9px 7px;background:rgba(3,24,36,.72);text-align:center}
+.hazard-chip .hi{font-size:21px}.hazard-chip b{display:block;font-size:.74rem;margin-top:3px}.hazard-chip small{display:block;color:#a9c9d5;font-size:.66rem;line-height:1.15;margin-top:3px;overflow-wrap:anywhere}
+.hazard-chip.verde{border-color:#36b86d;background:rgba(25,113,65,.18)}.hazard-chip.amarelo{border-color:#e4bd43;background:rgba(140,111,19,.18)}
+.hazard-chip.laranja{border-color:#e58a3b;background:rgba(145,75,22,.18)}.hazard-chip.vermelho{border-color:#e34f59;background:rgba(145,28,40,.2)}
+.hazard-chip.azul{border-color:#4ca7e8;background:rgba(29,91,139,.2)}.hazard-chip.cinza{border-color:#7e96a0;background:rgba(75,89,95,.18)}
+.climate-bridge{margin:0 12px 12px;padding:10px 12px;border:1px solid rgba(163,111,255,.35);border-radius:12px;background:rgba(75,40,110,.14);display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.climate-bridge .cb-icon{font-size:27px}.climate-bridge b{display:block}.climate-bridge small{color:#b8cbd5}.climate-bridge .cb-value{text-align:right;font-weight:800;color:#f3c76b}
+.quick-question{padding:0 12px 12px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.quick-question>div{padding:8px 10px;border-left:3px solid #2d93bb;background:rgba(3,22,33,.62);border-radius:7px}
+.quick-question b{display:block;font-size:.72rem;color:#8fd7f1}.quick-question span{display:block;font-size:.82rem;margin-top:2px}
+@media(max-width:900px){.hazard-ribbon{grid-template-columns:repeat(4,1fr)}.quick-question{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.leigo-console-head{align-items:flex-start;flex-direction:column}.leigo-answer{grid-template-columns:48px 1fr}.leigo-signal{width:46px;height:46px;font-size:25px}.hazard-ribbon{grid-template-columns:repeat(2,1fr)}.climate-bridge{grid-template-columns:auto 1fr}.climate-bridge .cb-value{grid-column:1/-1;text-align:left;padding-left:37px}.quick-question{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body><main>
@@ -191,6 +213,39 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <section class="dash" id="resumoAgoraCard">
 <div class="dash-head"><div class="dash-head-title">📊 SITUAÇÃO DO GUAXANDUVA AGORA</div><div class="dash-tags"><span class="dash-tag">RESUMO EM LINGUAGEM SIMPLES</span><span class="dash-tag model">DADOS + MODELO</span><span class="dash-tag">V0.21 • EXPERIMENTAL</span></div></div>
 <div class="dash-status"><div class="dash-status-icon">🌊</div><div class="dash-status-text" id="resumoFrase">Carregando situação atual...</div></div>
+
+<div class="leigo-console" id="leigoConsole">
+  <div class="leigo-console-head">
+    <div><strong>🧭 PRECISO ME PREOCUPAR AGORA?</strong><br><small>Resposta rápida com os sinais locais que o Monitor consegue sustentar.</small></div>
+    <small id="leigoAtualizacao">Aguardando dados...</small>
+  </div>
+  <div class="leigo-answer">
+    <div class="leigo-signal" id="leigoSignal">⏳</div>
+    <div><b id="leigoTitulo">Calculando a situação...</b><p id="leigoTexto">Nenhuma ausência de dado será tratada como situação normal.</p></div>
+  </div>
+  <div class="hazard-ribbon" id="leigoHazards">
+    <div class="hazard-chip cinza"><span class="hi">🌧️</span><b>Chuva</b><small>carregando</small></div>
+    <div class="hazard-chip cinza"><span class="hi">⛈️</span><b>Tempestade</b><small>carregando</small></div>
+    <div class="hazard-chip cinza"><span class="hi">🧊</span><b>Granizo</b><small>carregando</small></div>
+    <div class="hazard-chip cinza"><span class="hi">💨</span><b>Rajadas</b><small>carregando</small></div>
+    <div class="hazard-chip cinza"><span class="hi">🌀</span><b>Ciclone</b><small>carregando</small></div>
+    <div class="hazard-chip cinza"><span class="hi">🌊</span><b>Maré</b><small>carregando</small></div>
+    <div class="hazard-chip cinza"><span class="hi">🏞️</span><b>Rio</b><small>carregando</small></div>
+    <div class="hazard-chip cinza"><span class="hi">🌧️🌊</span><b>Chuva + maré</b><small>carregando</small></div>
+  </div>
+  <div class="climate-bridge">
+    <div class="cb-icon">🌎</div>
+    <div><b>Contexto climático ENSO</b><small id="leigoEnsoTexto">Carregando NOAA/PMEL...</small></div>
+    <div class="cb-value" id="leigoEnsoValor">--</div>
+  </div>
+  <div class="quick-question">
+    <div><b>AGORA</b><span id="leigoAgora">--</span></div>
+    <div><b>PRÓXIMA HORA</b><span id="leigo1h">--</span></div>
+    <div><b>RIO + MARÉ</b><span id="leigoRioMare">--</span></div>
+    <div><b>FONTE / CERTEZA</b><span id="leigoCerteza">Observado, previsto e modelado separados.</span></div>
+  </div>
+</div>
+
 <div class="truth-strip" aria-label="Como interpretar os dados"><div class="truth-item obs"><b>📍 OBSERVADO</b>Radar, pluviômetros e maré descrevem medições/observações disponíveis.</div><div class="truth-item prev"><b>🕒 PREVISTO</b>Tempo e chuva futura vêm de modelo meteorológico e podem mudar.</div><div class="truth-item mod"><b>🧮 MODELADO</b>Nível do Guaxanduva e Método #170 são estimativas, não sensores do rio.</div></div>
  
 <div class="dash-cards">
@@ -735,6 +790,26 @@ function renderEnso173(d){
   }).join("");
   const ms=(V.medicoes||[]).map(x=>x.nivel_m!=null?Number(x.nivel_m).toFixed(2)+" m"+(x.hora_local?" às "+x.hora_local:""):"").filter(Boolean);
   $("enso173Campo").textContent="0,607 m = referência hidráulica local fixa • "+(ms.length?"medições: "+ms.join(" e "):"validação de campo registrada")+" • não recalibra automaticamente a base.";
+
+  // OBRA DE ARTE V1 • síntese leiga: usa exatamente os impactos já calculados pelo #173.
+  const nomesLeigo={chuva_24h:"Chuva",tempestade:"Tempestade",granizo:"Granizo",vento:"Rajadas",ciclone:"Ciclone",mare:"Maré",rio_guaxanduva:"Rio",chuva_mais_mare:"Chuva + maré"};
+  const iconesLeigo={chuva_24h:"🌧️",tempestade:"⛈️",granizo:"🧊",vento:"💨",ciclone:"🌀",mare:"🌊",rio_guaxanduva:"🏞️",chuva_mais_mare:"🌧️🌊"};
+  const peso={verde:0,azul:0,cinza:0,amarelo:1,laranja:2,vermelho:3};
+  let pior=0, inconclusivos=0;
+  $("leigoHazards").innerHTML=ordem.map(k=>{
+    const x=imp[k]||{}, cor=String(x.cor||"cinza").toLowerCase();
+    pior=Math.max(pior,peso[cor]??0); if(cor==="cinza")inconclusivos++;
+    const msg=String(x.mensagem||x.estado||"Sem dado conclusivo");
+    return '<div class="hazard-chip '+cor+'"><span class="hi">'+iconesLeigo[k]+'</span><b>'+nomesLeigo[k]+'</b><small>'+msg+'</small></div>';
+  }).join("");
+  const sig=$("leigoSignal"), tit=$("leigoTitulo"), txt=$("leigoTexto");
+  if(pior>=3){sig.textContent="🔴";tit.textContent="Há sinal forte que merece atenção imediata.";txt.textContent="Abra os impactos em vermelho e confira avisos oficiais e horários antes de decidir qualquer ação.";}
+  else if(pior===2){sig.textContent="🟠";tit.textContent="Há sinal de atenção elevada.";txt.textContent="Existe pelo menos um impacto local em nível laranja. Veja o motivo e a janela de tempo abaixo.";}
+  else if(pior===1){sig.textContent="🟡";tit.textContent="Atenção: há um sinal local acima do nível básico.";txt.textContent="O Monitor encontrou pelo menos um fator amarelo. Os demais podem estar verdes, azuis ou inconclusivos.";}
+  else if(inconclusivos>0){sig.textContent="🔵";tit.textContent="Sem sinal local superior identificado, mas há itens inconclusivos.";txt.textContent="Isto não significa risco zero: dados ausentes ou não validados continuam explicitamente inconclusivos.";}
+  else{sig.textContent="🟢";tit.textContent="Nenhum sinal local superior identificado nas entradas disponíveis.";txt.textContent="Situação calculada com as fontes atuais; continue acompanhando porque previsão e maré mudam.";}
+  $("leigoEnsoValor").textContent=(rv==null?"RONI --":"RONI "+Number(rv).toFixed(2)+" °C")+(pv==null?"":" • "+Number(pv).toFixed(0)+"%");
+  $("leigoEnsoTexto").textContent="Contexto de fundo do Pacífico/ENSO • "+rp+" • não é alerta local e não muda sozinho a cor dos impactos.";
  }catch(e){
   $("enso173Estado").innerHTML='<span class="erro">🔴 Painel #173 indisponível: dados incompletos.</span>';
  }
@@ -1164,6 +1239,11 @@ async function carregar(){
  
   // DASHBOARD V2: espelha somente dados já carregados acima.
   $("dashResumoLinha").textContent=frase;
+  $("leigoAtualizacao").textContent=d.gerado_em?"Dados: "+new Date(d.gerado_em).toLocaleString("pt-BR"):"Horário da coleta indisponível";
+  $("leigoAgora").textContent=(a.temperatura_c==null?"Tempo indisponível":f(a.temperatura_c,1)+" °C • "+tempoNome)+(a.vento_kmh==null?"":" • vento "+f(a.vento_kmh,0)+" km/h");
+  $("leigo1h").textContent=(ph.precipitacao_mm==null?"Chuva indisponível":f(ph.precipitacao_mm,1)+" mm")+(ph.probabilidade_chuva_pct==null?"":" • "+Math.round(ph.probabilidade_chuva_pct)+"%");
+  $("leigoRioMare").textContent=(nvResumo==null?"Rio indisponível":f(nvResumo,2)+" m "+nomeFamilia(tendResumo.classe||""))+" • maré "+(entResumo.mare_jusante_m==null?(mo.nivel_m==null?"--":f(mo.nivel_m,2)+" m"):f(entResumo.mare_jusante_m,2)+" m");
+  $("leigoCerteza").textContent="OBS: radar/maré/estações • PREV: tempo • MOD: rio/ciclone quando indicado";
   $("dashRadarEstado").textContent=rad.status?nomeFamilia(rad.status):"--";
   $("dashRadarHora").textContent=rad.horario_ultimo_quadro?horaCurta(rad.horario_ultimo_quadro):"--";
   $("dashRadarIdade").textContent=rad.idade_ultimo_quadro_min==null?"--":f(rad.idade_ultimo_quadro_min,1)+" min";

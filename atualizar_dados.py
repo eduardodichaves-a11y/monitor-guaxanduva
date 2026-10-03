@@ -17388,5 +17388,62 @@ def main():
     )
  
  
+
+# =========================================================
+# #173-PERF-1 — TELEMETRIA DE TEMPO (SOMENTE DIAGNOSTICA)
+# Nao altera calculos, gates, fontes ou retornos.
+# Acumula tempo de parede das funcoes de alto nivel e imprime
+# um ranking no fim da execucao (inclusive se houver excecao).
+# =========================================================
+_PERF173 = {}
+_PERF173_PREFIXOS = (
+    "buscar_", "diagnosticar_", "investigar_", "salvar_", "coletar_",
+    "registrar_", "construir_", "calcular_", "sincronizar_", "validar_",
+    "rastrear_", "auditar_", "atualizar_", "carregar_", "decodificar_",
+    "granizo_", "chuva_observada_",
+)
+
+def _perf173_wrap(nome, func):
+    @functools.wraps(func)
+    def _wrapped(*args, **kwargs):
+        _t0 = time.perf_counter()
+        try:
+            return func(*args, **kwargs)
+        finally:
+            _dt = time.perf_counter() - _t0
+            _r = _PERF173.setdefault(nome, {"chamadas": 0, "segundos": 0.0, "max_s": 0.0})
+            _r["chamadas"] += 1
+            _r["segundos"] += _dt
+            if _dt > _r["max_s"]:
+                _r["max_s"] = _dt
+    return _wrapped
+
+def _perf173_relatorio():
+    try:
+        print("\\n=== #173-PERF-1 RANKING DE TEMPO ===")
+        _itens = sorted(_PERF173.items(), key=lambda kv: kv[1]["segundos"], reverse=True)
+        for _nome, _r in _itens[:40]:
+            print(
+                "PERF173 | %8.2fs | %3dx | max %7.2fs | %s"
+                % (_r["segundos"], _r["chamadas"], _r["max_s"], _nome)
+            )
+        print("=== FIM #173-PERF-1 ===")
+    except Exception as _e:
+        print("PERF173_RELATORIO_ERRO =", str(_e)[:300])
+
+# functools e time ja sao dependencias da biblioteca padrao.
+import functools
+import atexit
+atexit.register(_perf173_relatorio)
+
+for _perf173_nome, _perf173_obj in list(globals().items()):
+    if (
+        callable(_perf173_obj)
+        and getattr(_perf173_obj, "__module__", None) == __name__
+        and _perf173_nome.startswith(_PERF173_PREFIXOS)
+        and _perf173_nome not in {"registrar_historico_validacao"}
+    ):
+        globals()[_perf173_nome] = _perf173_wrap(_perf173_nome, _perf173_obj)
+
 if __name__ == "__main__":
     main()

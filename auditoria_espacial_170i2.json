@@ -1,0 +1,4069 @@
+{
+  "monitor": "Monitor Guaxanduva",
+  "tipo": "auditoria_espacial_direta_radarsc_cemaden",
+  "versao": "#170-I.2",
+  "atualizado_em": "2026-10-02T23:26:26.580309-03:00",
+  "preserva": "#170-I.1",
+  "fonte_geometria": "#172",
+  "fonte_temporal": "#170-H2",
+  "base_temporal": {
+    "versao": "#170-H2",
+    "status": "VALIDADO",
+    "semantica_cemaden": "valor horario rotulado em T = acumulado em (T-60min,T]",
+    "episodios_positivos_persistidos": 35
+  },
+  "criterio_espacial": {
+    "metodo": "coordenada_estacao_172 -> geo2px -> RGB_exato_do_pixel_da_estacao",
+    "janela_radar": "(T-60min,T]",
+    "rgb": "somente_cor_canonica_exata_da_paleta_oficial_validada",
+    "fonte_coordenada": "geometria_rede_observacional_172",
+    "proibicoes": [
+      "nao_usar_eco_mais_proximo_como_criterio_principal",
+      "nao_usar_janela_5x5_para_promover_pareamento_direto",
+      "nao_usar_cor_mais_proxima",
+      "nao_interpolar_rgb",
+      "nao_converter_rgb_nao_canonico_em_0_dbz",
+      "nao_converter_ausencia_de_eco_em_sem_chuva"
+    ]
+  },
+  "episodios": [
+    {
+      "estacao": {
+        "id": "6960",
+        "codigo": "420910208A",
+        "nome": "Nova Brasília"
+      },
+      "t_utc": "2026-10-01T01:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T00:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T01:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.3309,
+        "longitude": -48.875,
+        "distancia_guaxanduva_km": 9.359,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [],
+      "resultado": "EVIDENCIA_INSUFICIENTE",
+      "motivo": "nenhum_frame_radarsc_persistido_na_janela_h2"
+    },
+    {
+      "estacao": {
+        "id": "6960",
+        "codigo": "420910208A",
+        "nome": "Nova Brasília"
+      },
+      "t_utc": "2026-10-01T02:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T01:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T02:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.6,
+      "coordenada_172": {
+        "latitude": -26.3309,
+        "longitude": -48.875,
+        "distancia_guaxanduva_km": 9.359,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [],
+      "resultado": "EVIDENCIA_INSUFICIENTE",
+      "motivo": "nenhum_frame_radarsc_persistido_na_janela_h2"
+    },
+    {
+      "estacao": {
+        "id": "6960",
+        "codigo": "420910208A",
+        "nome": "Nova Brasília"
+      },
+      "t_utc": "2026-10-01T03:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T02:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T03:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.6,
+      "coordenada_172": {
+        "latitude": -26.3309,
+        "longitude": -48.875,
+        "distancia_guaxanduva_km": 9.359,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100102500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T02:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100103000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T03:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T04:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T03:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T04:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100103200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T03:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100103300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T03:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100103400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T03:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100103500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T03:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100104000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T04:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T09:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T08:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T09:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100108500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T08:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            165,
+            255,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100109000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T09:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6960",
+        "codigo": "420910208A",
+        "nome": "Nova Brasília"
+      },
+      "t_utc": "2026-10-01T09:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T08:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T09:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.3309,
+        "longitude": -48.875,
+        "distancia_guaxanduva_km": 9.359,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100108300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T08:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100108400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T08:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100108500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T08:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            90,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100109000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T09:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            90,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6960",
+        "codigo": "420910208A",
+        "nome": "Nova Brasília"
+      },
+      "t_utc": "2026-10-01T10:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T09:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T10:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 6.4,
+      "coordenada_172": {
+        "latitude": -26.3309,
+        "longitude": -48.875,
+        "distancia_guaxanduva_km": 9.359,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100109300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T09:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100109400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T09:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            57,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100109500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T09:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            85,
+            156,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100110000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T10:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            57,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T11:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T10:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T11:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.4,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100110100000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T10:10:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            43,
+            107,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100110200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T10:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100110300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T10:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            128,
+            206,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100110400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T10:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            128,
+            206,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100110500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T10:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            128,
+            206,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100111000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6960",
+        "codigo": "420910208A",
+        "nome": "Nova Brasília"
+      },
+      "t_utc": "2026-10-01T11:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T10:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T11:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.6,
+      "coordenada_172": {
+        "latitude": -26.3309,
+        "longitude": -48.875,
+        "distancia_guaxanduva_km": 9.359,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100110200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T10:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            90,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100110300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T10:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            85,
+            156,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100110400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T10:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            128,
+            206,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100110500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T10:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            90,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100111000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            55,
+            145,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T12:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T11:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T12:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.4,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100111100000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:10:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            90,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100111200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            128,
+            206,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100111300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            128,
+            206,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100111400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100111500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100112000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T12:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6262",
+        "codigo": "420910206A",
+        "nome": "Centro"
+      },
+      "t_utc": "2026-10-01T12:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T11:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T12:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.301,
+        "longitude": -48.841,
+        "distancia_guaxanduva_km": 4.614,
+        "classe_espacial": "PROXIMA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100111300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 733,
+            "y": 122
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3032796,
+            "longitude": -48.8407068,
+            "distancia_estacao_ao_centro_celula_km": 0.255158
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100111400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 733,
+            "y": 122
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3032796,
+            "longitude": -48.8407068,
+            "distancia_estacao_ao_centro_celula_km": 0.255158
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100111500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 733,
+            "y": 122
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3032796,
+            "longitude": -48.8407068,
+            "distancia_estacao_ao_centro_celula_km": 0.255158
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100112000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T12:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 733,
+            "y": 122
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3032796,
+            "longitude": -48.8407068,
+            "distancia_estacao_ao_centro_celula_km": 0.255158
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6960",
+        "codigo": "420910208A",
+        "nome": "Nova Brasília"
+      },
+      "t_utc": "2026-10-01T12:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T11:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T12:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.4,
+      "coordenada_172": {
+        "latitude": -26.3309,
+        "longitude": -48.875,
+        "distancia_guaxanduva_km": 9.359,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100111300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100111400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100111500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T11:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100112000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T12:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            90,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T13:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T12:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T13:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.4,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100112200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T12:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100112300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T12:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            90,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100112400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T12:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100112500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T12:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100113000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T13:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            90,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6960",
+        "codigo": "420910208A",
+        "nome": "Nova Brasília"
+      },
+      "t_utc": "2026-10-01T13:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T12:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T13:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.4,
+      "coordenada_172": {
+        "latitude": -26.3309,
+        "longitude": -48.875,
+        "distancia_guaxanduva_km": 9.359,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100112200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T12:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100112300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T12:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            90,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100112400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T12:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100112500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T12:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            170,
+            255,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100113000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T13:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            55,
+            145,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T14:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T13:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T14:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.4,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100113200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T13:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            110,
+            200,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100113300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T13:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            90,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100113400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T13:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            110,
+            200,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100113500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T13:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100114000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T14:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6960",
+        "codigo": "420910208A",
+        "nome": "Nova Brasília"
+      },
+      "t_utc": "2026-10-01T14:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T13:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T14:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.4,
+      "coordenada_172": {
+        "latitude": -26.3309,
+        "longitude": -48.875,
+        "distancia_guaxanduva_km": 9.359,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100113100000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T13:10:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100113200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T13:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            128,
+            206,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100113300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T13:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            110,
+            200,
+            255
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100113400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T13:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100113500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T13:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T15:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T14:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T15:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100114100000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T14:10:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100114200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T14:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100114300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T14:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100114400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T14:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100114500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T14:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100115000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T15:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T16:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T15:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T16:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.4,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100115300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T15:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100115400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T15:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100115500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T15:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100116000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T16:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T17:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T16:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T17:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100116200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T16:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100116300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T16:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100116400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T16:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100116500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T16:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100117000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T17:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T18:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T17:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T18:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100117100000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T17:10:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100117200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T17:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100117300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T17:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100117400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T17:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100117500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T17:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100118000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T18:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T19:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T18:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T19:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100118200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T18:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100118300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T18:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100118400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T18:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100118500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T18:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100119000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T19:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T20:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T19:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T20:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100119100000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T19:10:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100119200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T19:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100119300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T19:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100119400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T19:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100119500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T19:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100120000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T20:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T21:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T20:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T21:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100120100000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T20:10:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100120200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T20:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100120300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T20:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100120400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T20:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100120500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T20:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100121000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T21:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T22:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T21:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T22:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.4,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100121500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T21:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100122000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T22:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-01T23:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-01T22:00:00+00:00",
+        "fim_inclusivo": "2026-10-01T23:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100122300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T22:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100122400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T22:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100122500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T22:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100123000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-01T23:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-02T01:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-02T00:00:00+00:00",
+        "fim_inclusivo": "2026-10-02T01:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [],
+      "resultado": "EVIDENCIA_INSUFICIENTE",
+      "motivo": "nenhum_frame_radarsc_persistido_na_janela_h2"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-02T02:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-02T01:00:00+00:00",
+        "fim_inclusivo": "2026-10-02T02:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.4,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [],
+      "resultado": "EVIDENCIA_INSUFICIENTE",
+      "motivo": "nenhum_frame_radarsc_persistido_na_janela_h2"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-02T03:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-02T02:00:00+00:00",
+        "fim_inclusivo": "2026-10-02T03:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100202400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T02:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100202500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T02:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100203000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T03:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-02T04:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-02T03:00:00+00:00",
+        "fim_inclusivo": "2026-10-02T04:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.4,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100203200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T03:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100203300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T03:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100203400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T03:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100203500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T03:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100204000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T04:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-02T05:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-02T04:00:00+00:00",
+        "fim_inclusivo": "2026-10-02T05:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.4,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100204400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T04:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100204500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T04:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100205000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T05:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-02T06:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-02T05:00:00+00:00",
+        "fim_inclusivo": "2026-10-02T06:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100205100000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T05:10:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100205200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T05:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100205300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T05:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100205400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T05:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100205500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T05:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100206000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T06:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-02T07:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-02T06:00:00+00:00",
+        "fim_inclusivo": "2026-10-02T07:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100206400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T06:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100206500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T06:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100207000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T07:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6258",
+        "codigo": "420910202A",
+        "nome": "Paranaguamirim"
+      },
+      "t_utc": "2026-10-02T08:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-02T07:00:00+00:00",
+        "fim_inclusivo": "2026-10-02T08:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.347,
+        "longitude": -48.781,
+        "distancia_guaxanduva_km": 8.958,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100207200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T07:20:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100207300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T07:30:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100207400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T07:40:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100207500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T07:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100208000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T08:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 738,
+            "y": 125
+          },
+          "rgb_pixel_exato": [
+            0,
+            0,
+            0
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.341097,
+            "longitude": -48.7777844,
+            "distancia_estacao_ao_centro_celula_km": 0.730417
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6960",
+        "codigo": "420910208A",
+        "nome": "Nova Brasília"
+      },
+      "t_utc": "2026-10-02T18:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-02T17:00:00+00:00",
+        "fim_inclusivo": "2026-10-02T18:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.3309,
+        "longitude": -48.875,
+        "distancia_guaxanduva_km": 9.359,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100217500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T17:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100218000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T18:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    },
+    {
+      "estacao": {
+        "id": "6960",
+        "codigo": "420910208A",
+        "nome": "Nova Brasília"
+      },
+      "t_utc": "2026-10-02T19:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-02T18:00:00+00:00",
+        "fim_inclusivo": "2026-10-02T19:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "coordenada_172": {
+        "latitude": -26.3309,
+        "longitude": -48.875,
+        "distancia_guaxanduva_km": 9.359,
+        "classe_espacial": "INTERMEDIARIA"
+      },
+      "frames": [
+        {
+          "arquivo": "2026100218500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T18:50:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        },
+        {
+          "arquivo": "2026100219000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-02T19:00:00+00:00",
+          "diagnostico": "SEM_RGB_CANONICO_OFICIAL_NA_CELULA",
+          "pixel_estacao": {
+            "x": 730,
+            "y": 124
+          },
+          "rgb_pixel_exato": [
+            200,
+            200,
+            200
+          ],
+          "correspondencia_rgb": "RGB_NAO_CANONICO_OFICIAL",
+          "classe_interna_monitor": null,
+          "faixa_dbz": null,
+          "centro_celula_aprox": {
+            "latitude": -26.3284912,
+            "longitude": -48.8784602,
+            "distancia_estacao_ao_centro_celula_km": 0.436644
+          },
+          "eco_oficial_canonico_na_celula": false,
+          "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB"
+        }
+      ],
+      "resultado": "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+    }
+  ],
+  "placar_gates": {
+    "temporal_cemaden_h2": "VALIDADO",
+    "geometria_estacoes_172": "VALIDADA_PARA_PAREAMENTO",
+    "espacial_radarsc_cemaden": "EM_VALIDACAO",
+    "zr": "BLOQUEADO",
+    "dbz_para_mm_h": "BLOQUEADO"
+  },
+  "pareamento_temporal_validado": true,
+  "elegivel_calibracao_zr": false,
+  "zr_validada": false,
+  "conversao_dbz_mm_h_liberada": false,
+  "mm_h_radar_operacional": null,
+  "uso_operacional": false,
+  "regra_seguranca": "A #170-I.2 apenas demonstra ou nao demonstra coincidencia espacial direta entre chuva H2 e eco canonico RadarSC na celula da estacao. Nao calibra Z-R e nao transforma ausencia de RGB canonico em ausencia de chuva.",
+  "resumo": {
+    "episodios_h2": 35,
+    "estacoes_h2_distintas": 3,
+    "pareamento_espacial_direto_valido": 0,
+    "sem_eco_canonico_oficial_na_celula": 31,
+    "evidencia_insuficiente": 4,
+    "frames_avaliados": 135,
+    "frames_com_pareamento_direto": 0,
+    "frames_sem_rgb_canonico_na_celula": 135,
+    "frames_evidencia_insuficiente": 0,
+    "pngs_historicos_unicos_tentados": 111
+  },
+  "status": "EVIDENCIA_INSUFICIENTE",
+  "proximo_gate": "Se houver pares diretos suficientes e independentes, uma etapa posterior deve avaliar quantidade, diversidade de chuva/dBZ, independencia temporal e ajuste Z-R. #170-I.2 nao calibra nem libera Z-R."
+}

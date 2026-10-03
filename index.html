@@ -724,8 +724,8 @@ function renderEnso173(d){
   $("enso173RioMeta").textContent="MODELADO • "+(t.classe||"tendência indisponível")+" • confiança "+(N.confianca||"não informada");
   $("enso173Estado").innerHTML=(E.status==="online_completo"?"🟢":"🟡")+" <b>"+(E.status||"status indisponível")+"</b> • "+(E.fontes_online??"--")+"/"+(E.fontes_testadas??"--")+" fontes ENSO/Pacífico online • ENSO é contexto climático, não alerta local.";
   const mapa={verde:"🟢",amarelo:"🟡",laranja:"🟠",vermelho:"🔴",azul:"🔵",cinza:"⚪"};
-  const ordem=["chuva_24h","tempestade","granizo","vento","ciclone","mare","rio_guaxanduva","chuva_mare"];
-  const nomes={chuva_24h:"Chuva 24 h",tempestade:"Tempestade",granizo:"Granizo",vento:"Rajadas",ciclone:"Ciclone",mare:"Maré",rio_guaxanduva:"Guaxanduva",chuva_mare:"Chuva + maré"};
+  const ordem=["chuva_24h","tempestade","granizo","vento","ciclone","mare","rio_guaxanduva","chuva_mais_mare"];
+  const nomes={chuva_24h:"Chuva 24 h",tempestade:"Tempestade",granizo:"Granizo",vento:"Rajadas",ciclone:"Ciclone",mare:"Maré",rio_guaxanduva:"Guaxanduva",chuva_mais_mare:"Chuva + maré"};
   const imp=I.impactos||{};
   $("enso173Impactos").innerHTML=ordem.map(k=>{
     const x=imp[k]||{}, cor=(x.cor||"cinza").toLowerCase(), ic=mapa[cor]||"⚪";
@@ -1242,7 +1242,7 @@ async function carregar(){
   $("dashMareNivel").textContent=mareDash==null?"INDISPONÍVEL":f(mareDash,3)+" m";
   $("dashMareDet").textContent="Joinville/Babitonga • condição de jusante • não é nível do rio";
   $("dashMareObs").textContent=mo.nivel_m==null?"--":f(mo.nivel_m,3)+" m";
-  const proxDash=(m.proximo_extremo||m.proxima||{});
+  const proxDash=(m.proximo_extremo||m.proximo||m.proxima||{});
   $("dashMareProx").textContent=(proxDash.altura_m==null?"--":f(proxDash.altura_m,2)+" m")+(proxDash.horario?" • "+horaCurta(proxDash.horario):"");
   $("dashMareGauge").style.width=mareDash==null?"0%":Math.max(0,Math.min(100,Number(mareDash)/2.5*100))+"%";
   $("dashWindVel").textContent=a.vento_kmh==null?"--":f(a.vento_kmh,1)+" km/h";
@@ -1373,6 +1373,17 @@ carregar();carregarHistorico();carregarAuditoria170();setInterval(carregar,60000
 function iniciarCardsRecolhiveis(){
  const manterAbertos=["🌊 SITUAÇÃO DO GUAXANDUVA AGORA","🌧️ PREVISÃO DE CHUVA • PRÓXIMOS 7 DIAS","📡 SISTEMA AUTOMÁTICO","PAINEL HIDROMETEOROLÓGICO"];
  document.querySelectorAll(".card").forEach((card)=>{
+  const cabExistente=card.querySelector(":scope > .card-cabecalho");
+  const conteudoExistente=card.querySelector(":scope > .card-conteudo");
+  if(cabExistente&&conteudoExistente){
+   cabExistente.setAttribute("role","button");
+   cabExistente.setAttribute("tabindex","0");
+   cabExistente.setAttribute("aria-expanded",card.classList.contains("fechado")?"false":"true");
+   const alternarExistente=()=>{const fechado=card.classList.toggle("fechado");cabExistente.setAttribute("aria-expanded",fechado?"false":"true");};
+   cabExistente.addEventListener("click",alternarExistente);
+   cabExistente.addEventListener("keydown",(e)=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();alternarExistente()}});
+   return;
+  }
   const local=card.querySelector(":scope > .local");
   const h2=card.querySelector(":scope > h2");
   if(!h2)return;

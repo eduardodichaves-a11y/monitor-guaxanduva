@@ -244,6 +244,10 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
     <div><b>RIO + MARÉ</b><span id="leigoRioMare">--</span></div>
     <div><b>FONTE / CERTEZA</b><span id="leigoCerteza">Observado, previsto e modelado separados.</span></div>
   </div>
+  <div style="margin:0 12px 12px;padding:10px 12px;border:1px solid rgba(76,167,232,.35);border-radius:12px;background:rgba(29,91,139,.12)">
+    <b>🔭 PREVISÃO ACOPLADA #174 • 24 HORAS</b>
+    <div id="leigo174" style="margin-top:5px;color:#b9d9e5;font-size:.86rem">Aguardando projeção chuva + maré + resposta do rio + rajadas.</div>
+  </div>
 </div>
 
 <div class="truth-strip" aria-label="Como interpretar os dados"><div class="truth-item obs"><b>📍 OBSERVADO</b>Radar, pluviômetros e maré descrevem medições/observações disponíveis.</div><div class="truth-item prev"><b>🕒 PREVISTO</b>Tempo e chuva futura vêm de modelo meteorológico e podem mudar.</div><div class="truth-item mod"><b>🧮 MODELADO</b>Nível do Guaxanduva e Método #170 são estimativas, não sensores do rio.</div></div>
@@ -1242,8 +1246,25 @@ async function carregar(){
   $("leigoAtualizacao").textContent=d.gerado_em?"Dados: "+new Date(d.gerado_em).toLocaleString("pt-BR"):"Horário da coleta indisponível";
   $("leigoAgora").textContent=(a.temperatura_c==null?"Tempo indisponível":f(a.temperatura_c,1)+" °C • "+tempoNome)+(a.vento_kmh==null?"":" • vento "+f(a.vento_kmh,0)+" km/h");
   $("leigo1h").textContent=(ph.precipitacao_mm==null?"Chuva indisponível":f(ph.precipitacao_mm,1)+" mm")+(ph.probabilidade_chuva_pct==null?"":" • "+Math.round(ph.probabilidade_chuva_pct)+"%");
-  $("leigoRioMare").textContent=(nvResumo==null?"Rio indisponível":f(nvResumo,2)+" m "+nomeFamilia(tendResumo.classe||""))+" • maré "+(entResumo.mare_jusante_m==null?(mo.nivel_m==null?"--":f(mo.nivel_m,2)+" m"):f(entResumo.mare_jusante_m,2)+" m");
-  $("leigoCerteza").textContent="OBS: radar/maré/estações • PREV: tempo • MOD: rio/ciclone quando indicado";
+  const g174=d.projecao_guaxanduva_174||{}, pk174=g174.pico||{}, vw174=g174.vento||{}, ch174=g174.chuva||{};
+  const hora174=(s)=>{if(!s)return "--";try{return new Date(s).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch(_){return s;}};
+  $("leigoRioMare").textContent=(g174.status==="projecao_experimental_calculada"&&pk174.nivel_m!=null)
+    ? "Agora "+f(nvResumo,2)+" m • pico 24h "+f(pk174.nivel_m,2)+" m ("+f(pk174.min_m,2)+"–"+f(pk174.max_m,2)+") • "+hora174(pk174.horario)
+    : (nvResumo==null?"Rio indisponível":f(nvResumo,2)+" m "+nomeFamilia(tendResumo.classe||""))+" • maré "+(entResumo.mare_jusante_m==null?(mo.nivel_m==null?"--":f(mo.nivel_m,2)+" m"):f(entResumo.mare_jusante_m,2)+" m");
+  if(g174.status==="projecao_experimental_calculada"&&vw174.rajada_max_kmh!=null){
+    const windChip=[...document.querySelectorAll("#leigoHazards .hazard-chip")].find(el=>el.querySelector("b")?.textContent==="Rajadas");
+    if(windChip) windChip.querySelector("small").textContent="Pico 24h "+f(vw174.rajada_max_kmh,1)+" km/h • "+hora174(vw174.horario);
+  }
+  $("leigoCerteza").textContent=(g174.status==="projecao_experimental_calculada")
+    ?"Pico do rio #174: MODELADO, confiança baixa • faixa obrigatória"
+    :"OBS: radar/maré/estações • PREV: tempo • MOD: rio/ciclone quando indicado";
+  $("leigo174").textContent=(g174.status==="projecao_experimental_calculada")
+    ?"Rio: pico "+f(pk174.nivel_m,2)+" m (faixa "+f(pk174.min_m,2)+"–"+f(pk174.max_m,2)+" m) por volta de "+hora174(pk174.horario)
+      +" • maré no pico "+f(pk174.mare_no_pico_m,2)+" m"
+      +" • chuva 24h "+f(ch174.acumulado_24h_mm,1)+" mm"
+      +" • rajada máxima "+f(vw174.rajada_max_kmh,1)+" km/h por volta de "+hora174(vw174.horario)
+      +" • EXPERIMENTAL / NÃO OPERACIONAL"
+    :"#174 inconclusivo nesta atualização; o Monitor não inventa pico sem as forcantes completas.";
   $("dashRadarEstado").textContent=rad.status?nomeFamilia(rad.status):"--";
   $("dashRadarHora").textContent=rad.horario_ultimo_quadro?horaCurta(rad.horario_ultimo_quadro):"--";
   $("dashRadarIdade").textContent=rad.idade_ultimo_quadro_min==null?"--":f(rad.idade_ultimo_quadro_min,1)+" min";

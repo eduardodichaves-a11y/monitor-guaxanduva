@@ -16851,7 +16851,7 @@ def rastrear_minimo_sinotico_173_a323(diag_a321, valid_a322):
 
 def diagnosticar_dominio_ciclonico_173_a324():
     base={
-        "versao":"#173-A3.2.5-SH",
+        "versao":"#173-A3.2.4",
         "status":"inconclusivo",
         "natureza":"DIAGNOSTICO_REGIONAL_MODELADO_NAO_VALIDADO",
         "fonte":"ECMWF via Open-Meteo ECMWF API",
@@ -16860,7 +16860,6 @@ def diagnosticar_dominio_ciclonico_173_a324():
                    "descricao":"Sul do Brasil e Atlantico Sul adjacente"},
         "janela_h":72,
         "ciclone_confirmado_monitor":False,
-        "sentido_ciclonico_hemisferio_sul":"horario",
         "uso_operacional":False,
         "gates_existentes_alterados":False,
         "regra_seguranca":"Baixa pressao, minimo interior ou circulacao modelada isoladamente nao confirmam ciclone nem geram alerta local."
@@ -16942,7 +16941,7 @@ def diagnosticar_dominio_ciclonico_173_a324():
             dist=hav(mn["lat"],mn["lon"],x["lat"],x["lon"])
             if dist<150 or dist>700: continue
             radial=rumo(mn["lat"],mn["lon"],x["lat"],x["lon"])
-            para=(d+180)%360; tang=(radial+90)%360
+            para=(d+180)%360; tang=(radial-90)%360
             coer.append(difang(para,tang)<=60)
         frac=(sum(coer)/len(coer)) if coer else None
         candidatos.append({"horario":hor,"lat":mn["lat"],"lon":mn["lon"],
@@ -17065,21 +17064,6 @@ def avaliar_influencia_joinville_173_a33(dominio, previsao, impactos):
     return base
 
 
-
-# =========================================================
-# VALIDACAO DE CAMPO GUAXANDUVA - BASE 0.607 m FIXA
-# =========================================================
-def carregar_validacao_campo_guaxanduva():
-    caminho = os.path.join(os.path.dirname(__file__), "VALIDACAO_CAMPO_GUAXANDUVA.json")
-    try:
-        with open(caminho, "r", encoding="utf-8") as f:
-            d = json.load(f)
-        return d if isinstance(d, dict) else {"status":"arquivo_invalido"}
-    except Exception as e:
-        return {"status":"indisponivel","erro":str(e)[:300],
-                "referencia_base_fixa_m":GUAXANDUVA_V021_H_BASE_BAIXA_M}
-
-
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_cemaden144 = chuva_observada_cemaden_144(chuva_cemaden)
@@ -17096,18 +17080,15 @@ def main():
     criterio163 = calcular_criterio_hidrometeorologico_plancon_163(previsao, mare_observada160)
     mare_prevista164 = calcular_pico_mare_previsto_24h_164(previsao)
     sincronizacao_chuva_mare173 = sincronizar_chuva_mare_173_a31(previsao, mare_prevista164)
-    # #173-ESTABILIZACAO-ROTINA
-    # Etapas A3.2.1/A3.2.2/A3.2.3 preservadas no codigo, mas fora do ciclo de 15 min.
-    ciclone_sinotico173 = {"versao":"#173-A3.2.1","status":"desativado_na_rotina_15min","natureza":"HISTORICO_EXPERIMENTAL","uso_operacional":False}
-    validacao_centro_sinotico173 = {"versao":"#173-A3.2.2","status":"desativado_na_rotina_15min","natureza":"HISTORICO_EXPERIMENTAL","uso_operacional":False}
-    rastreamento_minimo_sinotico173 = {"versao":"#173-A3.2.3","status":"desativado_na_rotina_15min","natureza":"HISTORICO_EXPERIMENTAL","uso_operacional":False}
+    ciclone_sinotico173 = diagnosticar_ciclone_sinotico_173_a32()
+    validacao_centro_sinotico173 = validar_centro_sinotico_173_a322(ciclone_sinotico173)
+    rastreamento_minimo_sinotico173 = rastrear_minimo_sinotico_173_a323(ciclone_sinotico173, validacao_centro_sinotico173)
     dominio_ciclonico173 = diagnosticar_dominio_ciclonico_173_a324()
     guaxanduva166 = atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160)
     modelo_guaxanduva_v01 = construir_modelo_computacional_guaxanduva_v01(guaxanduva166)
     tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
     hidrologia_guaxanduva_v019 = calcular_hidrologia_guaxanduva_v019()
     nivel_guaxanduva_v021 = calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_guaxanduva_v019)
-    validacao_campo_guaxanduva = carregar_validacao_campo_guaxanduva()
     impactos_locais173 = construir_impactos_locais_173_a2(previsao, granizo157, mare_observada160, mare_prevista164, criterio163, nivel_guaxanduva_v021, super_el_nino173)
     influencia_joinville173 = avaliar_influencia_joinville_173_a33(dominio_ciclonico173, previsao, impactos_locais173)
     goes19_tathu167 = buscar_goes19_tathu_167()
@@ -17220,8 +17201,6 @@ def main():
  
         "nivel_guaxanduva_v021":
             nivel_guaxanduva_v021,
-        "validacao_campo_guaxanduva":
-            validacao_campo_guaxanduva,
  
         "rio": {
             "nome":

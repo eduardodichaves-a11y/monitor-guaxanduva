@@ -14348,6 +14348,302 @@ def salvar_auditoria_espacial_170i(radar_atual):
         json.dump(base, f, ensure_ascii=False, indent=2)
     return base
 
+
+# =========================================================
+# #170-I.2 - PAREAMENTO ESPACIAL DIRETO NA CELULA DA ESTACAO
+# =========================================================
+# Preserva integralmente a #170-I.1 como registro historico.
+# A #170-I.2 usa a geometria #172 como fonte soberana de coordenadas e
+# reabre o PNG RadarSC historico pelo nome de arquivo persistido na janela H2.
+# O teste principal deixa de ser "eco oficial mais proximo" e passa a ser o
+# RGB EXATO do pixel/celula geografica da propria estacao.
+#
+# Regras fail-closed:
+# - somente RGB canonico exato da paleta oficial validada pode virar classe/dBZ;
+# - RGB nao canonico na celula NAO vira 0 dBZ, "sem chuva" ou classe aproximada;
+# - frame ausente/indisponivel permanece EVIDENCIA_INSUFICIENTE;
+# - nenhum resultado desta etapa libera Z-R ou dBZ->mm/h instrumental.
+
+def _indice_geometria_172_para_170i2(geometria172):
+    idx = {}
+    for e in (geometria172 or {}).get("estacoes") or []:
+        if not isinstance(e, dict):
+            continue
+        for v in (e.get("id"), e.get("codigo")):
+            if v is not None:
+                idx[str(v)] = e
+    return idx
+
+
+def _amostrar_celula_exata_170i2(imagem, lat, lon, mapa_classes):
+    x, y = geo2px(float(lon), float(lat), imagem.width, imagem.height)
+    x = max(0, min(imagem.width - 1, int(x)))
+    y = max(0, min(imagem.height - 1, int(y)))
+    rgb = tuple(int(v) for v in imagem.getpixel((x, y))[:3])
+    rgb_para_classe = {tuple(info["rgb"]): c for c, info in mapa_classes.items()}
+    classe = rgb_para_classe.get(rgb)
+    info = mapa_classes.get(classe) if classe is not None else None
+    lat_c, lon_c = px2geo(x, y, imagem.width, imagem.height)
+    dist_centro = hav(float(lat), float(lon), lat_c, lon_c)
+    return {
+        "pixel_estacao": {"x": x, "y": y},
+        "rgb_pixel_exato": list(rgb),
+        "correspondencia_rgb": "CANONICA_EXATA" if info else "RGB_NAO_CANONICO_OFICIAL",
+        "classe_interna_monitor": int(classe) if classe is not None else None,
+        "faixa_dbz": (
+            {"min": info["dbz_min"], "max": info["dbz_max"], "unidade": "dBZ"}
+            if info else None
+        ),
+        "centro_celula_aprox": {
+            "latitude": round(lat_c, 7),
+            "longitude": round(lon_c, 7),
+            "distancia_estacao_ao_centro_celula_km": round(dist_centro, 6),
+        },
+        "eco_oficial_canonico_na_celula": info is not None,
+        "regra": "um_pixel_georreferenciado_da_estacao; sem_busca_por_vizinhanca; sem_aproximacao_RGB",
+    }
+
+
+def salvar_auditoria_espacial_170i2(radar_atual, geometria172):
+    """#170-I.2: pareamento direto H2 x celula RadarSC usando coordenadas soberanas da #172."""
+    episodios_h2, erro_h2 = _carregar_episodios_h2_170i()
+    base = {
+        "monitor": "Monitor Guaxanduva",
+        "tipo": "auditoria_espacial_direta_radarsc_cemaden",
+        "versao": "#170-I.2",
+        "atualizado_em": agora().isoformat(),
+        "preserva": "#170-I.1",
+        "fonte_geometria": "#172",
+        "fonte_temporal": "#170-H2",
+        "base_temporal": {
+            "versao": "#170-H2",
+            "status": "VALIDADO",
+            "semantica_cemaden": "valor horario rotulado em T = acumulado em (T-60min,T]",
+            "episodios_positivos_persistidos": len(episodios_h2),
+        },
+        "criterio_espacial": {
+            "metodo": "coordenada_estacao_172 -> geo2px -> RGB_exato_do_pixel_da_estacao",
+            "janela_radar": "(T-60min,T]",
+            "rgb": "somente_cor_canonica_exata_da_paleta_oficial_validada",
+            "fonte_coordenada": "geometria_rede_observacional_172",
+            "proibicoes": [
+                "nao_usar_eco_mais_proximo_como_criterio_principal",
+                "nao_usar_janela_5x5_para_promover_pareamento_direto",
+                "nao_usar_cor_mais_proxima",
+                "nao_interpolar_rgb",
+                "nao_converter_rgb_nao_canonico_em_0_dbz",
+                "nao_converter_ausencia_de_eco_em_sem_chuva",
+            ],
+        },
+        "episodios": [],
+        "placar_gates": {
+            "temporal_cemaden_h2": "VALIDADO",
+            "geometria_estacoes_172": (
+                "VALIDADA_PARA_PAREAMENTO"
+                if ((geometria172 or {}).get("resumo") or {}).get("cobertura_inventario_100pct") is True
+                else "INCOMPLETA"
+            ),
+            "espacial_radarsc_cemaden": "EM_VALIDACAO",
+            "zr": "BLOQUEADO",
+            "dbz_para_mm_h": "BLOQUEADO",
+        },
+        "pareamento_temporal_validado": True,
+        "elegivel_calibracao_zr": False,
+        "zr_validada": False,
+        "conversao_dbz_mm_h_liberada": False,
+        "mm_h_radar_operacional": None,
+        "uso_operacional": False,
+        "regra_seguranca": (
+            "A #170-I.2 apenas demonstra ou nao demonstra coincidencia espacial direta "
+            "entre chuva H2 e eco canonico RadarSC na celula da estacao. "
+            "Nao calibra Z-R e nao transforma ausencia de RGB canonico em ausencia de chuva."
+        ),
+    }
+
+    if erro_h2:
+        base["status"] = "EVIDENCIA_INSUFICIENTE"
+        base["erro_h2"] = erro_h2
+        return base
+    if not episodios_h2:
+        base["status"] = "EVIDENCIA_INSUFICIENTE"
+        base["erro_h2"] = "nenhuma_evidencia_temporal_positiva_persistida"
+        return base
+
+    try:
+        with open(HISTORICO_ZR_170_ARQUIVO, "r", encoding="utf-8") as f:
+            hist = json.load(f)
+        registros = hist.get("registros", []) if isinstance(hist, dict) else []
+    except Exception as e:
+        base["status"] = "EVIDENCIA_INSUFICIENTE"
+        base["erro"] = "historico_zr_170_indisponivel: " + str(e)[:220]
+        return base
+
+    mapa_classes = _mapa_classes_dbz_170(radar_atual) or {}
+    if len(mapa_classes) != 16:
+        base["status"] = "EVIDENCIA_INSUFICIENTE"
+        base["erro"] = "paleta_oficial_dbz_incompleta_ou_nao_validada"
+        return base
+
+    idx172 = _indice_geometria_172_para_170i2(geometria172)
+    cache_png = {}
+
+    def carregar_png(nome):
+        if nome in cache_png:
+            return cache_png[nome]
+        try:
+            bruto = get(IMAGEM, {"prod": 4, "radar": "COMP", "file": nome}, True).content
+            if not bruto.startswith(b"\x89PNG\r\n\x1a\n"):
+                raise ValueError("conteudo_nao_e_png")
+            img = Image.open(io.BytesIO(bruto)).convert("RGBA")
+            cache_png[nome] = (img, None)
+        except Exception as e:
+            cache_png[nome] = (None, str(e)[:220])
+        return cache_png[nome]
+
+    for ep in episodios_h2:
+        t_fim = _utc_170i(ep.get("t_utc"))
+        if t_fim is None:
+            continue
+        t_inicio = t_fim - timedelta(minutes=60)
+        geo = idx172.get(str(ep.get("estacao_id"))) or idx172.get(str(ep.get("codigo")))
+        r = _registro_h2_170i(registros, ep)
+        item = {
+            "estacao": {
+                "id": ep.get("estacao_id"),
+                "codigo": ep.get("codigo"),
+                "nome": ep.get("nome"),
+            },
+            "t_utc": t_fim.isoformat(),
+            "janela_radar_utc": {
+                "inicio_exclusivo": t_inicio.isoformat(),
+                "fim_inclusivo": t_fim.isoformat(),
+            },
+            "chuva_cemaden_1h_mm_h2": ep.get("chuva_1h_mm"),
+            "coordenada_172": None,
+            "frames": [],
+            "resultado": "EVIDENCIA_INSUFICIENTE",
+        }
+
+        if not isinstance(geo, dict):
+            item["motivo"] = "estacao_h2_nao_encontrada_na_geometria_172"
+            base["episodios"].append(item)
+            continue
+        lat, lon = geo.get("latitude"), geo.get("longitude")
+        if not (
+            isinstance(lat, (int, float)) and not isinstance(lat, bool)
+            and isinstance(lon, (int, float)) and not isinstance(lon, bool)
+        ):
+            item["motivo"] = "coordenada_172_ausente_ou_invalida"
+            base["episodios"].append(item)
+            continue
+        item["coordenada_172"] = {
+            "latitude": float(lat),
+            "longitude": float(lon),
+            "distancia_guaxanduva_km": geo.get("distancia_guaxanduva_km"),
+            "classe_espacial": geo.get("classe_espacial"),
+        }
+
+        if not isinstance(r, dict):
+            item["motivo"] = "registro_exato_h2_nao_encontrado_no_historico_zr_170"
+            base["episodios"].append(item)
+            continue
+
+        for a in ((r.get("radar") or {}).get("amostras") or []):
+            if not isinstance(a, dict):
+                continue
+            t = _utc_170i(a.get("horario_utc") or a.get("horario_local"))
+            if t is None or not (t_inicio < t <= t_fim):
+                continue
+            nome = a.get("arquivo")
+            fr = {
+                "arquivo": nome,
+                "horario_utc": t.isoformat(),
+                "diagnostico": "EVIDENCIA_INSUFICIENTE",
+            }
+            if not nome:
+                fr["erro"] = "nome_arquivo_radar_ausente"
+                item["frames"].append(fr)
+                continue
+            img, erro = carregar_png(nome)
+            if erro or img is None:
+                fr["erro"] = "png_historico_indisponivel: " + str(erro)
+                item["frames"].append(fr)
+                continue
+            try:
+                am = _amostrar_celula_exata_170i2(img, lat, lon, mapa_classes)
+                fr.update(am)
+                fr["diagnostico"] = (
+                    "PAREAMENTO_ESPACIAL_DIRETO_VALIDO"
+                    if am.get("eco_oficial_canonico_na_celula") is True
+                    else "SEM_RGB_CANONICO_OFICIAL_NA_CELULA"
+                )
+            except Exception as e:
+                fr["erro"] = "falha_amostragem_celula: " + str(e)[:220]
+            item["frames"].append(fr)
+
+        if not item["frames"]:
+            item["motivo"] = "nenhum_frame_radarsc_persistido_na_janela_h2"
+        elif any(f.get("diagnostico") == "PAREAMENTO_ESPACIAL_DIRETO_VALIDO" for f in item["frames"]):
+            item["resultado"] = "PAREAMENTO_ESPACIAL_DIRETO_VALIDO"
+        elif all(f.get("diagnostico") == "SEM_RGB_CANONICO_OFICIAL_NA_CELULA" for f in item["frames"]):
+            item["resultado"] = "SEM_ECO_CANONICO_OFICIAL_NA_CELULA"
+        else:
+            item["motivo"] = "um_ou_mais_frames_sem_evidencia_digital_suficiente"
+        base["episodios"].append(item)
+
+    resultados = [e.get("resultado") for e in base["episodios"]]
+    n_validos = resultados.count("PAREAMENTO_ESPACIAL_DIRETO_VALIDO")
+    n_sem = resultados.count("SEM_ECO_CANONICO_OFICIAL_NA_CELULA")
+    n_insuf = resultados.count("EVIDENCIA_INSUFICIENTE")
+    frames = [f for e in base["episodios"] for f in (e.get("frames") or [])]
+    base["resumo"] = {
+        "episodios_h2": len(base["episodios"]),
+        "estacoes_h2_distintas": len({str(e["estacao"].get("id")) for e in base["episodios"]}),
+        "pareamento_espacial_direto_valido": n_validos,
+        "sem_eco_canonico_oficial_na_celula": n_sem,
+        "evidencia_insuficiente": n_insuf,
+        "frames_avaliados": len(frames),
+        "frames_com_pareamento_direto": sum(
+            f.get("diagnostico") == "PAREAMENTO_ESPACIAL_DIRETO_VALIDO" for f in frames
+        ),
+        "frames_sem_rgb_canonico_na_celula": sum(
+            f.get("diagnostico") == "SEM_RGB_CANONICO_OFICIAL_NA_CELULA" for f in frames
+        ),
+        "frames_evidencia_insuficiente": sum(
+            f.get("diagnostico") == "EVIDENCIA_INSUFICIENTE" for f in frames
+        ),
+        "pngs_historicos_unicos_tentados": len(cache_png),
+    }
+
+    if n_validos > 0 and n_insuf == 0:
+        base["status"] = "PARES_ESPACIAIS_DIRETOS_DEMONSTRADOS"
+        base["placar_gates"]["espacial_radarsc_cemaden"] = "VALIDADO"
+    elif n_validos > 0:
+        base["status"] = "PARES_DIRETOS_DEMONSTRADOS_COM_LACUNAS"
+        base["placar_gates"]["espacial_radarsc_cemaden"] = "EM_VALIDACAO_COM_PARES_DIRETOS"
+    elif n_insuf > 0:
+        base["status"] = "EVIDENCIA_INSUFICIENTE"
+    else:
+        base["status"] = "SEM_PARES_DIRETOS_POSITIVOS_NOS_EPISODIOS_H2"
+
+    # Mesmo se o gate espacial vier a ser demonstrado, Z-R continua separado.
+    base["elegivel_calibracao_zr"] = False
+    base["zr_validada"] = False
+    base["conversao_dbz_mm_h_liberada"] = False
+    base["proximo_gate"] = (
+        "Se houver pares diretos suficientes e independentes, uma etapa posterior deve "
+        "avaliar quantidade, diversidade de chuva/dBZ, independencia temporal e ajuste Z-R. "
+        "#170-I.2 nao calibra nem libera Z-R."
+    )
+
+    try:
+        with open("auditoria_espacial_170i2.json", "w", encoding="utf-8") as f:
+            json.dump(base, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+    return base
+
+
 def _censo_paleta_radarsc_170_j6(registros):
     """#170-J.6: censo longitudinal fail-closed das PLTE observadas pela #170-J.5.
 
@@ -15229,7 +15525,7 @@ def construir_estado_cientifico_vigente_171(radar_atual, chuva144, rede165, audi
         "espacial_radarsc_cemaden": {
             "status": "VALIDADO" if espacial_ok else "EM_VALIDACAO",
             "validado": espacial_ok,
-            "evidencia_vigente": "#170-I.1",
+            "evidencia_vigente": (auditoria170i or {}).get("versao") or "#170-I",
         },
         "zr_instrumental": {
             "status": "VALIDADO" if (auditoria170i or {}).get("zr_validada") is True else "BLOQUEADO",
@@ -15310,12 +15606,13 @@ def main():
         print("J6_LOG_ERRO =", str(_e_j6_log)[:300])
 
     auditoria_temporal170g = salvar_auditoria_temporal_170_g(historico_zr170)
-    auditoria_espacial170i = salvar_auditoria_espacial_170i(radar_atual)
+    auditoria_espacial170i = salvar_auditoria_espacial_170i(radar_atual)  # #170-I.1 preservada
+    auditoria_espacial170i2 = salvar_auditoria_espacial_170i2(radar_atual, geometria_rede172)
     metodo_guaxanduva_radar_v01 = construir_metodo_guaxanduva_refletividade_v01(historico_zr170, auditoria_espacial170i)
     metodo_guaxanduva_zr_v02 = construir_metodo_guaxanduva_zr_operacional_v02(metodo_guaxanduva_radar_v01)
     metodo_guaxanduva_publicacao_v03 = construir_metodo_guaxanduva_publicacao_operacional_v03(metodo_guaxanduva_zr_v02)
     estado_cientifico_vigente171 = construir_estado_cientifico_vigente_171(
-        radar_atual, chuva_cemaden144, rede165, auditoria_temporal170g, auditoria_espacial170i,
+        radar_atual, chuva_cemaden144, rede165, auditoria_temporal170g, auditoria_espacial170i2,
         metodo_guaxanduva_radar_v01, metodo_guaxanduva_zr_v02, metodo_guaxanduva_publicacao_v03,
         nivel_guaxanduva_v021, criterio163
     )
@@ -15486,6 +15783,9 @@ def main():
 
         "auditoria_espacial_zr_170_i":
             auditoria_espacial170i,
+
+        "auditoria_espacial_zr_170_i2":
+            auditoria_espacial170i2,
 
         "metodo_guaxanduva_refletividade_v01":
             metodo_guaxanduva_radar_v01,

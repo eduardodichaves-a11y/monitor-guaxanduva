@@ -579,6 +579,13 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
  
 <section class="card"><div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2><div id="sistema" class="box aviso">Carregando dados.json...</div><p><small id="coleta">Última coleta: --</small></p><div class="radar-grid"><div class="radar-item">📡 dBZ oficial<b id="vigDbz">--</b></div><div class="radar-item">🕐 CEMADEN temporal<b id="vigTemporal">--</b></div><div class="radar-item">🗺️ Radar × pluviômetro<b id="vigEspacial">--</b></div><div class="radar-item">🌧️ Z–R instrumental<b id="vigZr">--</b></div><div class="radar-item">📏 Nível Guaxanduva<b id="vigNivel">--</b></div><div class="radar-item">🌦️ Rede de chuva<b id="vigRede">--</b></div></div><small>Resumo científico vigente <b id="vigVersao">#171.1</b>. Registros históricos permanecem preservados na auditoria, mas não definem estes badges.<br><span id="vigEspacialDetalhe">Carregando evidência espacial vigente...</span></small></section>
 
+<details class="card accordion" id="auditoriaEmpirica170I4Card"><summary><div><div class="accordion-kicker">🧪 #170-I.4 • CONFRONTO EMPÍRICO</div><div class="accordion-title">Radar modelado × chuva observada</div></div></summary><div class="accordion-body">
+<div class="radar-grid"><div class="radar-item">🌧️ Episódios<b id="i4Episodios">--</b></div><div class="radar-item">📍 Estações<b id="i4Estacoes">--</b></div><div class="radar-item">📈 Máximo × chuva<b id="i4RhoMax">--</b></div><div class="radar-item">📊 Média × chuva<b id="i4RhoMedia">--</b></div></div>
+<div class="box aviso" id="i4Estado">Carregando diagnóstico #170-I.4...</div>
+<div class="box"><b>Progresso experimental</b><div id="i4Progresso">--</div><small>Referência atual: 20 episódios e 4 estações para sair do estágio inicial de amostra insuficiente. Atingir esse marco não transforma automaticamente o modelo em calibração física.</small></div>
+<p><small id="i4Explicacao">A #170-I.4 confronta a intensidade MODELADA do radar com a chuva observada CEMADEN H2.</small></p>
+</div></details>
+
 <section class="card"><h2>🚨 Emergência</h2><div class="em"><div>Defesa Civil<div class="num">199</div></div><div>Bombeiros<div class="num">193</div></div></div></section>
  
 <script>
@@ -647,7 +654,7 @@ async function carregarHistorico(){
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
-  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},r172=d.geometria_rede_observacional_172||{},e171=d.estado_cientifico_vigente_171||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{},x168=d.liberacao_experimental_168||{},gxaK=d.metodo_guaxanduva_refletividade_v01||{},gxaL=d.metodo_guaxanduva_zr_operacional_v02||{},gxaM=d.metodo_guaxanduva_publicacao_operacional_v03||{};
+  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},r172=d.geometria_rede_observacional_172||{},e171=d.estado_cientifico_vigente_171||{},i4=d.auditoria_empirica_raster_chuva_170_i4||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{},x168=d.liberacao_experimental_168||{},gxaK=d.metodo_guaxanduva_refletividade_v01||{},gxaL=d.metodo_guaxanduva_zr_operacional_v02||{},gxaM=d.metodo_guaxanduva_publicacao_operacional_v03||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
   const badgeVigente=(obj)=>{const st=String((obj||{}).status||"");if(!st)return "NÃO INFORMADO";if(st.includes("VALIDADO_COM_LACUNAS"))return "VALIDADO • COM LACUNAS";if(st.includes("VALIDADO")||st.includes("LIBERADO"))return "VALIDADO";if(st.includes("EM_VALIDACAO"))return "EM VALIDAÇÃO";if(st.includes("BLOQUEADO"))return "BLOQUEADO";if(st.includes("MODELADO"))return "MODELADO";return nomeFamilia(st)};
@@ -662,6 +669,16 @@ async function carregar(){
   const rv=e171.rede_pluviometrica||{};
   $("vigRede").textContent=(rv.com_leitura_atual??"--")+"/"+(rv.catalogadas??"--")+" com leitura • "+(rv.integradas??"--")+" integradas";
  
+  const i4r=i4.resumo||{}, nI4=Number(i4r.episodios_pareados_utilizados||0), nEst=Number(i4r.estacoes_distintas||0);
+  $("i4Episodios").textContent=nI4||"--";
+  $("i4Estacoes").textContent=nEst||"--";
+  $("i4RhoMax").textContent=i4r.spearman_chuva_vs_dbz_modelado_max==null?"--":Number(i4r.spearman_chuva_vs_dbz_modelado_max).toFixed(3).replace(".",",");
+  $("i4RhoMedia").textContent=i4r.spearman_chuva_vs_dbz_modelado_medio==null?"--":Number(i4r.spearman_chuva_vs_dbz_modelado_medio).toFixed(3).replace(".",",");
+  $("i4Progresso").textContent=Math.min(nI4,20)+"/20 episódios • "+Math.min(nEst,4)+"/4 estações";
+  const i4Status=String(i4.status||"");
+  $("i4Estado").innerHTML=i4Status.includes("AMOSTRA_INSUFICIENTE")?'<span class="aviso">🧪 Diagnóstico empírico inicial • amostra ainda insuficiente para calibração</span>':(i4Status?'<span class="ok">🟢 '+nomeFamilia(i4Status)+'</span>':'<span class="erro">⚪ #170-I.4 ainda indisponível nesta coleta</span>');
+  $("i4Explicacao").textContent="A intensidade MODELADA do radar é confrontada com a chuva observada CEMADEN H2 por episódio horário. "+(i4r.spearman_chuva_vs_dbz_modelado_max!=null?"Nesta amostra: máximo×chuva "+Number(i4r.spearman_chuva_vs_dbz_modelado_max).toFixed(3).replace(".",",")+"; média×chuva "+Number(i4r.spearman_chuva_vs_dbz_modelado_medio).toFixed(3).replace(".",",")+". ":"")+"Isso testa a coerência empírica da #170-K, mas não calibra RGB→dBZ oficial, Z–R ou dBZ→mm/h instrumental.";
+
   const rt=rad.rastreamento_temporal||{}, av=rad.avaliacao_trajetorias||{};
   $("radarHora").textContent=horaCurta(rad.horario_ultimo_quadro);
   $("radarIdade").textContent=rad.idade_ultimo_quadro_min==null?"--":f(rad.idade_ultimo_quadro_min,1)+" min";

@@ -14814,6 +14814,184 @@ def salvar_auditoria_espacial_170i3(auditoria_i2, metodo_v01):
     return base
 
 
+# =========================================================
+# #170-I.4 - CONFRONTO EMPIRICO RGB RASTER x CHUVA H2
+# =========================================================
+# Etapa diagnostica nova: usa SOMENTE os episodios ja pareados pela #170-I.3.
+# A chuva CEMADEN H2 e acumulada na janela (T-60,T], portanto NAO e atribuida
+# como chuva instantanea a cada frame. Para evitar pseudorreplicacao, a unidade
+# estatistica principal e o EPISODIO horario, nao o pixel/frame.
+# Esta etapa testa coerencia empirica da ordem/modelo #170-K, mas nao calibra
+# dBZ oficial, nao ajusta Z-R e nao libera conversao instrumental.
+
+def _rank_medio_170i4(valores):
+    pares = sorted(enumerate(valores), key=lambda x: x[1])
+    ranks = [0.0] * len(valores)
+    i = 0
+    while i < len(pares):
+        j = i + 1
+        while j < len(pares) and pares[j][1] == pares[i][1]:
+            j += 1
+        r = (i + 1 + j) / 2.0
+        for k in range(i, j):
+            ranks[pares[k][0]] = r
+        i = j
+    return ranks
+
+
+def _pearson_170i4(x, y):
+    n = min(len(x), len(y))
+    if n < 3:
+        return None
+    x, y = x[:n], y[:n]
+    mx, my = sum(x)/n, sum(y)/n
+    sx = sum((v-mx)**2 for v in x)
+    sy = sum((v-my)**2 for v in y)
+    if sx <= 0 or sy <= 0:
+        return None
+    return sum((a-mx)*(b-my) for a,b in zip(x,y)) / ((sx*sy)**0.5)
+
+
+def _spearman_170i4(x, y):
+    if len(x) < 3 or len(y) < 3:
+        return None
+    return _pearson_170i4(_rank_medio_170i4(x), _rank_medio_170i4(y))
+
+
+def salvar_auditoria_empirica_170i4(auditoria_i3):
+    base = {
+        "monitor": "Monitor Guaxanduva",
+        "tipo": "confronto_empirico_rgb_raster_chuva_cemaden_h2",
+        "versao": "#170-I.4",
+        "atualizado_em": agora().isoformat(),
+        "preserva": ["#170-H2", "#170-I.3", "#170-K/GXA-RADAR-V0.1"],
+        "unidade_estatistica_principal": "EPISODIO_HORARIO_CEMADEN_H2",
+        "hipotese_testada": (
+            "verificar se a intensidade/refletividade MODELADA do raster apresenta "
+            "coerencia monotona com a chuva observada CEMADEN H2 nos episodios pareados"
+        ),
+        "regra_ouro": (
+            "chuva H2 pertence a janela (T-60,T]; nao atribuir o mesmo acumulado horario "
+            "a cada frame como se fosse chuva instantanea"
+        ),
+        "calibra_dbz_oficial": False,
+        "calibra_zr": False,
+        "zr_validada": False,
+        "conversao_dbz_mm_h_liberada": False,
+        "uso_operacional": False,
+        "episodios": [],
+    }
+    if not isinstance(auditoria_i3, dict) or auditoria_i3.get("versao") != "#170-I.3":
+        base.update({"status":"EVIDENCIA_INSUFICIENTE","motivo":"auditoria_170_i3_ausente"})
+        return base
+
+    xs_chuva, xs_max, xs_media = [], [], []
+    cor_por_episodio = {}
+    estacoes = set()
+
+    for ep in auditoria_i3.get("episodios") or []:
+        if ep.get("resultado") != "PAREAMENTO_ESPACIAL_RASTER_VALIDO":
+            continue
+        chuva = ep.get("chuva_cemaden_1h_mm_h2")
+        try:
+            chuva = float(chuva)
+        except Exception:
+            continue
+
+        vals = []
+        cores_ep = set()
+        for fr in ep.get("frames") or []:
+            if fr.get("eco_raster_reconhecido") is not True:
+                continue
+            refl = fr.get("refletividade") or {}
+            dbz = refl.get("dbz_central_modelado")
+            try:
+                dbz = float(dbz)
+            except Exception:
+                continue
+            vals.append(dbz)
+            hx = fr.get("hex")
+            if hx:
+                cores_ep.add(str(hx).upper())
+
+        if not vals:
+            continue
+        est = ep.get("estacao") or {}
+        nome = est.get("nome") if isinstance(est, dict) else str(est)
+        if nome:
+            estacoes.add(nome)
+        item = {
+            "estacao": est,
+            "t_utc": ep.get("t_utc"),
+            "chuva_cemaden_1h_mm_h2": chuva,
+            "frames_rgb_reconhecidos": len(vals),
+            "dbz_modelado_max_no_episodio": round(max(vals), 3),
+            "dbz_modelado_medio_no_episodio": round(sum(vals)/len(vals), 3),
+            "cores_presentes": sorted(cores_ep),
+        }
+        base["episodios"].append(item)
+        xs_chuva.append(chuva)
+        xs_max.append(max(vals))
+        xs_media.append(sum(vals)/len(vals))
+        for hx in cores_ep:
+            cor_por_episodio.setdefault(hx, []).append(chuva)
+
+    n = len(xs_chuva)
+    rho_max = _spearman_170i4(xs_max, xs_chuva)
+    rho_media = _spearman_170i4(xs_media, xs_chuva)
+
+    cores_resumo = {}
+    for hx, chuvas in sorted(cor_por_episodio.items()):
+        cores_resumo[hx] = {
+            "episodios_com_cor": len(chuvas),
+            "chuva_h2_min_mm": round(min(chuvas),3),
+            "chuva_h2_media_mm": round(sum(chuvas)/len(chuvas),3),
+            "chuva_h2_max_mm": round(max(chuvas),3),
+            "nota": "associacao por presenca no episodio; nao chuva instantanea do frame",
+        }
+
+    base["resumo"] = {
+        "episodios_pareados_utilizados": n,
+        "estacoes_distintas": len(estacoes),
+        "estacoes": sorted(estacoes),
+        "chuva_h2_min_mm": round(min(xs_chuva),3) if xs_chuva else None,
+        "chuva_h2_max_mm": round(max(xs_chuva),3) if xs_chuva else None,
+        "spearman_chuva_vs_dbz_modelado_max": round(rho_max,4) if rho_max is not None else None,
+        "spearman_chuva_vs_dbz_modelado_medio": round(rho_media,4) if rho_media is not None else None,
+        "cores_por_episodio": cores_resumo,
+    }
+
+    # Critério deliberadamente conservador: esta coleta vem de poucos episódios,
+    # poucas estações e forte concentração temporal; serve para confronto inicial,
+    # não para "validar" fisicamente a #170-K.
+    if n < 20 or len(estacoes) < 4:
+        base["status"] = "DIAGNOSTICO_EMPIRICO_INICIAL_AMOSTRA_INSUFICIENTE_PARA_CALIBRACAO"
+    else:
+        base["status"] = "DIAGNOSTICO_EMPIRICO_DISPONIVEL_NAO_CALIBRANTE"
+
+    base["interpretacao"] = {
+        "pode_testar": "sinal monotono/reprodutibilidade da camada MODELADA #170-K",
+        "nao_pode_provar": [
+            "RGB raster -> dBZ oficial",
+            "lei Z-R instrumental",
+            "chuva instantanea por frame",
+            "validade operacional instrumental",
+        ],
+        "motivos_cautela": [
+            "amostra pequena e concentrada temporalmente",
+            "episodios compartilham o mesmo evento meteorologico",
+            "chuva CEMADEN e acumulado horario enquanto radar e instantaneo",
+            "nenhum dos 48 frames reconhecidos da #170-I.3 atingiu a ancora oficial #FFFF00/C10",
+        ],
+    }
+    try:
+        with open("auditoria_empirica_170i4.json", "w", encoding="utf-8") as f:
+            json.dump(base, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+    return base
+
+
 def _censo_paleta_radarsc_170_j6(registros):
     """#170-J.6: censo longitudinal fail-closed das PLTE observadas pela #170-J.5.
 
@@ -15841,6 +16019,7 @@ def main():
     auditoria_espacial170i2 = salvar_auditoria_espacial_170i2(radar_atual, geometria_rede172)
     metodo_guaxanduva_radar_v01 = construir_metodo_guaxanduva_refletividade_v01(historico_zr170, auditoria_espacial170i)
     auditoria_espacial170i3 = salvar_auditoria_espacial_170i3(auditoria_espacial170i2, metodo_guaxanduva_radar_v01)
+    auditoria_empirica170i4 = salvar_auditoria_empirica_170i4(auditoria_espacial170i3)
     metodo_guaxanduva_zr_v02 = construir_metodo_guaxanduva_zr_operacional_v02(metodo_guaxanduva_radar_v01)
     metodo_guaxanduva_publicacao_v03 = construir_metodo_guaxanduva_publicacao_operacional_v03(metodo_guaxanduva_zr_v02)
     estado_cientifico_vigente171 = construir_estado_cientifico_vigente_171(
@@ -16021,6 +16200,9 @@ def main():
 
         "auditoria_espacial_zr_170_i3":
             auditoria_espacial170i3,
+
+        "auditoria_empirica_raster_chuva_170_i4":
+            auditoria_empirica170i4,
 
         "metodo_guaxanduva_refletividade_v01":
             metodo_guaxanduva_radar_v01,

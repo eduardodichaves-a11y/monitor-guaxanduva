@@ -734,10 +734,21 @@ def buscar_previsao():
                     2,
                 )
                 previsao_24h["integridade"] = True
-                previsao_24h["serie_horaria"] = [
-                    {"horario": tempos_janela[k], "precipitacao_mm": round(valores_validos[k], 3)}
-                    for k in range(24)
-                ]
+                previsao_24h["serie_horaria"] = []
+                for k in range(24):
+                    gi = indice + k
+                    def _h24(chave):
+                        arr = horario.get(chave, [])
+                        return arr[gi] if gi < len(arr) else None
+                    previsao_24h["serie_horaria"].append({
+                        "horario": tempos_janela[k],
+                        "precipitacao_mm": round(valores_validos[k], 3),
+                        "probabilidade_chuva_pct": _h24("precipitation_probability"),
+                        "vento_kmh": _h24("wind_speed_10m"),
+                        "direcao_graus": _h24("wind_direction_10m"),
+                        "rajada_kmh": _h24("wind_gusts_10m"),
+                        "codigo_tempo_wmo": _h24("weather_code"),
+                    })
             else:
                 previsao_24h["status"] = "janela_incompleta"
                 previsao_24h["observacao"] = (
@@ -13041,6 +13052,156 @@ def calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_v019):
     }
  
 
+
+# =========================================================
+# #174 - PROJECAO ACOPLADA GUAXANDUVA 24H • CHUVA + MARE + VENTO
+# EXPERIMENTAL / NAO OPERACIONAL
+# Usa somente forcantes ja presentes no Monitor:
+# - serie horaria Open-Meteo (#162);
+# - extremos de mare EPAGRI/CIRAM (#164);
+# - estado/parametros do GXA-V0.21.
+# A chuva futura entra em reservatorio linear de 1a ordem (tau=Tc/60).
+# A mare entre extremos e interpolada por meia-onda cossenoidal.
+# O envelope usa os mesmos C e alpha minimo/maximo do V0.21.
+# =========================================================
+
+def projetar_guaxanduva_24h_174(previsao, mare_observada, mare_prevista, nivel_v021, hidrologia_v019):
+    r = {
+        "versao": "#174-GXA-PREV24-EXPERIMENTAL",
+        "status": "inconclusivo",
+        "natureza": "MODELADO_NAO_INSTRUMENTAL",
+        "uso_operacional": False,
+        "horizonte_h": 24,
+        "metodo": {
+            "chuva": "reservatorio_linear_1a_ordem_com_tau_derivado_do_Tc",
+            "mare": "interpolacao_cossenoidal_entre_extremos_EPAGRI_CIRAM",
+            "rio": "mesmas_equacoes_e_envelope_C_alpha_do_GXA_V0.21",
+        },
+        "serie_horaria": [],
+        "pico": {"nivel_m": None, "min_m": None, "max_m": None, "horario": None},
+        "vento": {"rajada_max_kmh": None, "horario": None, "vento_kmh": None, "direcao_graus": None},
+        "chuva": {"acumulado_24h_mm": None, "hora_mais_chuvosa_mm": None, "horario": None},
+        "limitacoes": [
+            "Previsao experimental; nao e leitura de sensor nem alerta operacional.",
+            "A resposta da chuva usa reservatorio concentrado e ainda requer calibracao com mais eventos de campo.",
+            "A mare entre extremos e aproximada matematicamente; nao substitui serie maregrafica futura observada.",
+            "A faixa e obrigatoria porque C e transmissao de mare ainda nao foram calibrados localmente.",
+        ],
+    }
+    p24=(previsao or {}).get("proximas_24h") or {}
+    serie=p24.get("serie_horaria") or []
+    eventos=(mare_prevista or {}).get("eventos_na_janela") or []
+    nv=nivel_v021 or {}
+    if p24.get("integridade") is not True or len(serie)!=24 or not eventos or nv.get("status")!="nivel_modelado_calculado":
+        r["dados_faltantes"]={
+            "previsao_24h_integra": p24.get("integridade") is True and len(serie)==24,
+            "eventos_mare": len(eventos),
+            "nivel_v021": nv.get("status"),
+        }
+        return r
+
+    def dt(x):
+        try:
+            z=datetime.fromisoformat(str(x))
+            return z.replace(tzinfo=FUSO) if z.tzinfo is None else z.astimezone(FUSO)
+        except Exception:
+            return None
+
+    # Knots: observed tide at current time + official future extrema.
+    knots=[]
+    mo=(mare_observada or {}).get("nivel_m")
+    mt=dt((mare_observada or {}).get("horario") or (mare_observada or {}).get("horario_medicao"))
+    if isinstance(mo,(int,float)) and mt:
+        knots.append((mt,float(mo),"observado"))
+    for e in eventos:
+        t=dt(e.get("horario")); h=e.get("altura_m")
+        if t and isinstance(h,(int,float)):
+            knots.append((t,float(h),"extremo_previsto"))
+    knots=sorted({(a,b,c) for a,b,c in knots}, key=lambda x:x[0])
+    if len(knots)<2:
+        r["dados_faltantes"]={"mare_knots_validos":len(knots)}
+        return r
+
+    def tide_at(t):
+        if t<=knots[0][0]: return knots[0][1]
+        if t>=knots[-1][0]: return knots[-1][1]
+        for i in range(len(knots)-1):
+            t0,h0,_=knots[i]; t1,h1,_=knots[i+1]
+            if t0<=t<=t1:
+                span=(t1-t0).total_seconds()
+                if span<=0: return h1
+                f=(t-t0).total_seconds()/span
+                # smooth half-cosine: zero slope at official extrema.
+                s=(1-math.cos(math.pi*f))/2
+                return h0+(h1-h0)*s
+        return None
+
+    area=float(((hidrologia_v019 or {}).get("area_contribuinte_controle") or {}).get("km2") or GUAXANDUVA_V019_AREA_CONTRIBUINTE_KM2)
+    phi=float(((hidrologia_v019 or {}).get("metodo_racional_modificado") or {}).get("phi") or 0.865067)
+    tc=float(((hidrologia_v019 or {}).get("tempo_concentracao") or {}).get("Tc_calculado_min") or 55.0)
+    tau=max(tc/60.0,0.25)
+    decay=math.exp(-1.0/tau)
+    imem=((nv.get("entradas") or {}).get("chuva_memoria_mm_h_equivalente"))
+    if not isinstance(imem,(int,float)): imem=0.0
+
+    chuva_total=0.0
+    pico_chuva=(-1.0,None)
+    rows=[]
+    for x in serie:
+        t=dt(x.get("horario"))
+        p=x.get("precipitacao_mm")
+        if not t or not isinstance(p,(int,float)) or p<0: continue
+        p=float(p); chuva_total+=p
+        if p>pico_chuva[0]: pico_chuva=(p,t)
+        # Forecast precipitation for the hour updates catchment memory.
+        imem=decay*imem+(1.0-decay)*p
+        mare=tide_at(t)
+        if mare is None: continue
+        cen=_v021_estado(imem,mare,area,phi,GUAXANDUVA_V021_C_CENTRAL,GUAXANDUVA_V021_ALPHA_MARE_CENTRAL)
+        lo=_v021_estado(imem,mare,area,phi,GUAXANDUVA_V021_C_MIN,GUAXANDUVA_V021_ALPHA_MARE_MIN)
+        hi=_v021_estado(imem,mare,area,phi,GUAXANDUVA_V021_C_MAX,GUAXANDUVA_V021_ALPHA_MARE_MAX)
+        rows.append({
+            "horario":t.isoformat(),
+            "chuva_mm":round(p,3),
+            "chuva_memoria_mm_h":round(imem,3),
+            "mare_prevista_m":round(mare,3),
+            "nivel_central_m":None if cen.get("h_m") is None else round(cen["h_m"],3),
+            "nivel_min_m":None if lo.get("h_m") is None else round(lo["h_m"],3),
+            "nivel_max_m":None if hi.get("h_m") is None else round(hi["h_m"],3),
+            "rajada_kmh":x.get("rajada_kmh"),
+            "vento_kmh":x.get("vento_kmh"),
+            "direcao_graus":x.get("direcao_graus"),
+            "probabilidade_chuva_pct":x.get("probabilidade_chuva_pct"),
+        })
+    valid=[x for x in rows if isinstance(x.get("nivel_central_m"),(int,float))]
+    if not valid:
+        r["dados_faltantes"]={"serie_modelada_valida":0}
+        return r
+    peak=max(valid,key=lambda x:x["nivel_central_m"])
+    gust=[x for x in rows if isinstance(x.get("rajada_kmh"),(int,float))]
+    gp=max(gust,key=lambda x:x["rajada_kmh"]) if gust else None
+    r["serie_horaria"]=rows
+    r["pico"]={
+        "nivel_m":peak.get("nivel_central_m"),"min_m":peak.get("nivel_min_m"),"max_m":peak.get("nivel_max_m"),
+        "horario":peak.get("horario"),"mare_no_pico_m":peak.get("mare_prevista_m"),
+        "chuva_memoria_no_pico_mm_h":peak.get("chuva_memoria_mm_h"),
+    }
+    r["vento"]={
+        "rajada_max_kmh":None if not gp else round(float(gp["rajada_kmh"]),1),
+        "horario":None if not gp else gp.get("horario"),
+        "vento_kmh":None if not gp else gp.get("vento_kmh"),
+        "direcao_graus":None if not gp else gp.get("direcao_graus"),
+    }
+    r["chuva"]={
+        "acumulado_24h_mm":round(chuva_total,2),
+        "hora_mais_chuvosa_mm":None if pico_chuva[1] is None else round(pico_chuva[0],2),
+        "horario":None if pico_chuva[1] is None else pico_chuva[1].isoformat(),
+    }
+    r["status"]="projecao_experimental_calculada"
+    r["confianca"]="baixa_experimental"
+    return r
+
+
 # =========================================================
 # #170-A - COLETA PARA CALIBRACAO Z-R (FAIL-CLOSED)
 # =========================================================
@@ -17211,6 +17372,7 @@ def main():
     tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
     hidrologia_guaxanduva_v019 = calcular_hidrologia_guaxanduva_v019()
     nivel_guaxanduva_v021 = calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_guaxanduva_v019)
+    projecao_guaxanduva174 = projetar_guaxanduva_24h_174(previsao, mare_observada160, mare_prevista164, nivel_guaxanduva_v021, hidrologia_guaxanduva_v019)
     impactos_locais173 = construir_impactos_locais_173_a2(previsao, granizo157, mare_observada160, mare_prevista164, criterio163, nivel_guaxanduva_v021, super_el_nino173)
     ciclone_multifonte173 = sintetizar_ciclone_173_a325(diag156, dominio_ciclonico173, impactos_locais173)
     validacao_campo_guaxanduva = {
@@ -17336,6 +17498,7 @@ def main():
  
         "nivel_guaxanduva_v021":
             nivel_guaxanduva_v021,
+        "projecao_guaxanduva_174": projecao_guaxanduva174,
 
         "validacao_campo_guaxanduva":
             validacao_campo_guaxanduva,

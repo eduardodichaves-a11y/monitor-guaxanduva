@@ -12680,7 +12680,7 @@ def calcular_hidrologia_guaxanduva_v019():
 GUAXANDUVA_V021_LARGURA_REF_M = 3.5
 GUAXANDUVA_V021_MANNING_N = 0.012
 GUAXANDUVA_V021_DECLIVIDADE_REF = 0.0041
-GUAXANDUVA_V021_H_BASE_BAIXA_M = 1.50
+GUAXANDUVA_V021_H_BASE_BAIXA_M = 0.607
 GUAXANDUVA_V021_MARE_REF_BAIXA_M = -0.20
 GUAXANDUVA_V021_ALPHA_MARE_CENTRAL = 0.50
 GUAXANDUVA_V021_ALPHA_MARE_MIN = 0.25
@@ -13008,7 +13008,7 @@ def calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_v019):
             "C atual e alpha de transmissao da mare ainda nao foram calibrados localmente; por isso a faixa e obrigatoria.",
             "A tendencia e derivada de estados modelados, nao de duas leituras instrumentais do rio.",
             "A V0.21 continua sendo modelo concentrado; nao substitui Saint-Venant nem levantamento de secoes do rio.",
-            "A profundidade base de 1,50 m e referencia de campo/modelo, nao datum geodesico oficial.",
+            "A profundidade base de 0,607 m e referencia de campo/modelo, nao datum geodesico oficial.",
         ],
         "uso_operacional_alerta_liberado": False,
     }
@@ -16580,6 +16580,129 @@ def diagnosticar_ciclone_sinotico_173_a32():
     })
     return base
 
+
+# =========================================================
+# #173-A3.2.2 - VALIDACAO ESPACIAL DO CENTRO SINOTICO
+# =========================================================
+# Expande a grade quando o minimo do A3.2.1 cai na borda.
+# Procura um minimo interior e verifica, de forma geometrica, se os ventos
+# em 850 hPa apresentam circulacao ciclonica coerente ao redor do candidato.
+# Continua fail-closed: NAO confirma ciclone nem libera uso operacional.
+
+def validar_centro_sinotico_173_a322(diag_a321):
+    base = {
+        "versao":"#173-A3.2.2",
+        "status":"inconclusivo",
+        "natureza":"VALIDACAO_ESPACIAL_MODELADA_NAO_OPERACIONAL",
+        "fonte":"ECMWF via Open-Meteo ECMWF API",
+        "gerado_em":agora().isoformat(),
+        "ciclone_confirmado_monitor":False,
+        "uso_operacional":False,
+        "gates_existentes_alterados":False,
+        "regra_seguranca":"Minimo interior e circulacao coerente sao evidencias diagnosticas; nao equivalem, isoladamente, a confirmacao de ciclone."
+    }
+    minimo=((diag_a321 or {}).get("minimo_regional") or {})
+    if (diag_a321 or {}).get("status") not in ("diagnostico_coletado_completo","diagnostico_parcial_fail_closed"):
+        base["status"]="bloqueado_sem_a321_valido"
+        return base
+    lat0=minimo.get("lat"); lon0=minimo.get("lon"); alvo=minimo.get("horario")
+    if not all(isinstance(x,(int,float)) for x in (lat0,lon0)) or not alvo:
+        base["status"]="bloqueado_sem_minimo_a321"
+        return base
+
+    # A grade A3.2.1 tinha limites fixos; identifica se o minimo tocou borda.
+    borda = lat0 in (-32.0,-24.0) or lon0 in (-54.0,-42.0)
+    base["minimo_a321_na_borda"]=borda
+    base["minimo_a321"]={"lat":lat0,"lon":lon0,"horario":alvo,"pressao_msl_hpa":minimo.get("pressao_msl_hpa")}
+
+    # Grade de refinamento centrada no candidato, 7x7, passo 1 grau.
+    pontos=[(round(lat0+dy,3),round(lon0+dx,3))
+            for dy in (-3,-2,-1,0,1,2,3) for dx in (-3,-2,-1,0,1,2,3)]
+    endpoint="https://api.open-meteo.com/v1/ecmwf"
+    lotes=[pontos[i:i+7] for i in range(0,len(pontos),7)]
+    amostras=[]; logs=[]
+    for n,lote in enumerate(lotes,1):
+        reg={"lote":n,"status":"falhou","tentativas":[]}
+        payload=None
+        params={
+            "latitude":",".join(str(p[0]) for p in lote),
+            "longitude":",".join(str(p[1]) for p in lote),
+            "hourly":"pressure_msl,wind_speed_850hPa,wind_direction_850hPa,wind_gusts_10m",
+            "forecast_days":4,"timezone":"America/Sao_Paulo","cell_selection":"nearest"}
+        for tent in (1,2):
+            try:
+                r=requests.get(endpoint,params=params,timeout=20,headers={"User-Agent":"Monitor-Guaxanduva/1.0"})
+                r.raise_for_status(); payload=r.json()
+                reg["tentativas"].append({"n":tent,"ok":True,"http":r.status_code}); reg["status"]="ok"; break
+            except Exception as e:
+                reg["tentativas"].append({"n":tent,"ok":False,"erro":str(e)[:180]})
+                if tent==1: time.sleep(1)
+        logs.append(reg)
+        if payload is None: continue
+        locais=payload if isinstance(payload,list) else [payload]
+        for i,loc in enumerate(locais):
+            if i>=len(lote) or not isinstance(loc,dict): continue
+            h=loc.get("hourly") or {}; ts=h.get("time") or []
+            # compara hora civil sem offset, pois Open-Meteo foi pedido em America/Sao_Paulo
+            alvo_naive=str(alvo)[:16]
+            j=next((j for j,t in enumerate(ts) if str(t)[:16]==alvo_naive),None)
+            if j is None: continue
+            def v(k):
+                a=h.get(k) or []
+                if j>=len(a): return None
+                x=a[j]
+                return float(x) if isinstance(x,(int,float)) and math.isfinite(float(x)) else None
+            p=v("pressure_msl")
+            if p is None: continue
+            amostras.append({"lat":lote[i][0],"lon":lote[i][1],"pressao_msl_hpa":p,
+                             "vento_850hpa_kmh":v("wind_speed_850hPa"),
+                             "direcao_850hpa_graus":v("wind_direction_850hPa"),
+                             "rajada_10m_kmh":v("wind_gusts_10m")})
+
+    ok=sum(x["status"]=="ok" for x in logs)
+    base["coleta_refino"]={"pontos":49,"lotes":logs,"lotes_ok":ok,"lotes_total":len(lotes),"cobertura_completa":ok==len(lotes)}
+    if not amostras:
+        base["status"]="indisponivel_sem_amostras_refino"; return base
+
+    centro=min(amostras,key=lambda x:x["pressao_msl_hpa"])
+    interior=(abs(centro["lat"]-lat0)<3 and abs(centro["lon"]-lon0)<3)
+    # Contraste com anel externo da grade refinada.
+    anel=[x["pressao_msl_hpa"] for x in amostras
+          if abs(x["lat"]-lat0)>=2.5 or abs(x["lon"]-lon0)>=2.5]
+    contraste=(statistics.median(anel)-centro["pressao_msl_hpa"]) if anel else None
+
+    # Teste geométrico de circulação: para cada ponto próximo, compara a direção
+    # do vento com a tangente anti-horária ao vetor centro->ponto.
+    coer=[] 
+    for x in amostras:
+        d=x.get("direcao_850hpa_graus"); sp=x.get("vento_850hpa_kmh")
+        if not isinstance(d,(int,float)) or not isinstance(sp,(int,float)): continue
+        dist=hav(centro["lat"],centro["lon"],x["lat"],x["lon"])
+        if dist<70 or dist>350: continue
+        radial=rumo(centro["lat"],centro["lon"],x["lat"],x["lon"])
+        # direcao meteorologica e "de onde vem"; converte para vetor "para onde vai".
+        para=(d+180)%360
+        tangente_ccw=(radial-90)%360
+        erro=difang(para,tangente_ccw)
+        coer.append({"dist_km":round(dist,1),"erro_tangencial_graus":round(erro,1),"coerente":erro<=60})
+    frac=(sum(x["coerente"] for x in coer)/len(coer)) if coer else None
+
+    base.update({
+        "status":"validacao_espacial_coletada" if ok==len(lotes) else "validacao_espacial_parcial_fail_closed",
+        "centro_refinado":{**centro,"distancia_joinville_km":round(hav(LAT,LON,centro["lat"],centro["lon"]),1),
+                           "interior_grade_refino":interior,
+                           "contraste_mediana_anel_hpa":round(contraste,2) if contraste is not None else None},
+        "circulacao_850hpa":{"amostras_avaliadas":len(coer),
+                            "fracao_tangencial_ccw_ate_60graus":round(frac,3) if frac is not None else None,
+                            "metodo":"geometrico_experimental_nao_validado"},
+        "evidencia_minimo_interior": bool(interior and contraste is not None and contraste>0),
+        "evidencia_circulacao_ciclonica": bool(frac is not None and len(coer)>=8 and frac>=0.60),
+        "ciclone_confirmado_monitor":False,
+        "observacao":"As evidencias servem para auditoria e validacao historica. Nenhuma delas libera classificacao operacional."
+    })
+    return base
+
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_cemaden144 = chuva_observada_cemaden_144(chuva_cemaden)
@@ -16597,6 +16720,7 @@ def main():
     mare_prevista164 = calcular_pico_mare_previsto_24h_164(previsao)
     sincronizacao_chuva_mare173 = sincronizar_chuva_mare_173_a31(previsao, mare_prevista164)
     ciclone_sinotico173 = diagnosticar_ciclone_sinotico_173_a32()
+    validacao_centro_sinotico173 = validar_centro_sinotico_173_a322(ciclone_sinotico173)
     guaxanduva166 = atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160)
     modelo_guaxanduva_v01 = construir_modelo_computacional_guaxanduva_v01(guaxanduva166)
     tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
@@ -16752,6 +16876,8 @@ def main():
             sincronizacao_chuva_mare173,
         "diagnostico_ciclone_sinotico_173":
             ciclone_sinotico173,
+        "validacao_centro_sinotico_173":
+            validacao_centro_sinotico173,
  
         "astronomia_joinville":
             astronomia_joinville,

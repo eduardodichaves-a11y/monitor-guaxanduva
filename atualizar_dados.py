@@ -11862,10 +11862,10 @@ def _gxa_calcular_nivel_experimental_v02(guaxanduva166, propagacao_grafo=None):
  
     resultado = {
         "versao": "GXA-V0.18-CONTEXTO-HIDROMETRICO-CALIBRACAO-VISUAL",
-        "status": "resultados_modelados_com_contexto_hidrometrico_e_calibracao_visual_pendente",
+        "status": "resultados_modelados_com_contexto_hidrometrico_referencia_campo_fixada_calibracao_metrica_hw_tw_pendente",
         "nivel_estimado_m": None,
         "incerteza_m": None,
-        "confianca": "fisica_parcial_sem_calibracao_de_nivel",
+        "confianca": "fisica_parcial_com_referencia_local_sem_calibracao_metrica_hw_tw",
         "metodo": "geometria_oficial_de_projeto_mais_FHWA_HDS5_e_Manning_com_premissas_documentais_rastreaveis",
         "instante": agora().isoformat(),
         "uso_operacional": False,

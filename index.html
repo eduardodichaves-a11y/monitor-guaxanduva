@@ -142,6 +142,29 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 }
 @media(max-width:380px){.dash-cards{grid-template-columns:1fr 1fr}.hero-logo{display:none}.hero-monitor{grid-template-columns:1fr}.hero-time{display:none}.dash-mini .v{font-size:17px}}
 
+
+/* V0.27 — correção mobile da #172: nenhum nome/status pode escapar do card */
+#rede172Estacoes{max-width:100%;overflow:hidden}
+#rede172Estacoes .estacao-linha{min-width:0;align-items:flex-start}
+#rede172Estacoes .estacao-linha>div{min-width:0;max-width:100%}
+#rede172Estacoes .estacao-linha>div:first-child{flex:1 1 auto}
+#rede172Estacoes .estacao-mm{
+  flex:0 1 48%;
+  min-width:0;
+  max-width:48%;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  text-align:right;
+  line-height:1.25
+}
+#rede172Estacoes b,#rede172Estacoes .estacao-meta{overflow-wrap:anywhere;word-break:normal}
+@media(max-width:520px){
+ #rede172Estacoes .estacao-linha{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;padding:13px 0}
+ #rede172Estacoes .estacao-mm{max-width:100%;width:100%;text-align:left}
+ #rede172Estacoes .estacao-meta{font-size:12px;line-height:1.55}
+}
+
 </style>
 </head>
 <body><main>
@@ -554,7 +577,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <div class="box"><small>ℹ️ Previsões, estimativas e produtos modelados não substituem avisos oficiais da Defesa Civil.</small></div>
 </div></details>
  
-<section class="card"><div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2><div id="sistema" class="box aviso">Carregando dados.json...</div><p><small id="coleta">Última coleta: --</small></p><div class="radar-grid"><div class="radar-item">📡 dBZ oficial<b id="vigDbz">--</b></div><div class="radar-item">🕐 CEMADEN temporal<b id="vigTemporal">--</b></div><div class="radar-item">🗺️ Radar × pluviômetro<b id="vigEspacial">--</b></div><div class="radar-item">🌧️ Z–R instrumental<b id="vigZr">--</b></div><div class="radar-item">📏 Nível Guaxanduva<b id="vigNivel">--</b></div><div class="radar-item">🌦️ Rede de chuva<b id="vigRede">--</b></div></div><small>Resumo científico vigente #171. Registros históricos permanecem preservados na auditoria, mas não definem estes badges.</small></section>
+<section class="card"><div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2><div id="sistema" class="box aviso">Carregando dados.json...</div><p><small id="coleta">Última coleta: --</small></p><div class="radar-grid"><div class="radar-item">📡 dBZ oficial<b id="vigDbz">--</b></div><div class="radar-item">🕐 CEMADEN temporal<b id="vigTemporal">--</b></div><div class="radar-item">🗺️ Radar × pluviômetro<b id="vigEspacial">--</b></div><div class="radar-item">🌧️ Z–R instrumental<b id="vigZr">--</b></div><div class="radar-item">📏 Nível Guaxanduva<b id="vigNivel">--</b></div><div class="radar-item">🌦️ Rede de chuva<b id="vigRede">--</b></div></div><small>Resumo científico vigente <b id="vigVersao">#171.1</b>. Registros históricos permanecem preservados na auditoria, mas não definem estes badges.<br><span id="vigEspacialDetalhe">Carregando evidência espacial vigente...</span></small></section>
 
 <section class="card"><h2>🚨 Emergência</h2><div class="em"><div>Defesa Civil<div class="num">199</div></div><div>Bombeiros<div class="num">193</div></div></div></section>
  
@@ -627,10 +650,13 @@ async function carregar(){
   const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},r172=d.geometria_rede_observacional_172||{},e171=d.estado_cientifico_vigente_171||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{},x168=d.liberacao_experimental_168||{},gxaK=d.metodo_guaxanduva_refletividade_v01||{},gxaL=d.metodo_guaxanduva_zr_operacional_v02||{},gxaM=d.metodo_guaxanduva_publicacao_operacional_v03||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
-  const badgeVigente=(obj)=>{const st=String((obj||{}).status||"");if(!st)return "NÃO INFORMADO";if(st.includes("VALIDADO")||st.includes("LIBERADO"))return "VALIDADO";if(st.includes("EM_VALIDACAO"))return "EM VALIDAÇÃO";if(st.includes("BLOQUEADO"))return "BLOQUEADO";if(st.includes("MODELADO"))return "MODELADO";return nomeFamilia(st)};
+  const badgeVigente=(obj)=>{const st=String((obj||{}).status||"");if(!st)return "NÃO INFORMADO";if(st.includes("VALIDADO_COM_LACUNAS"))return "VALIDADO • COM LACUNAS";if(st.includes("VALIDADO")||st.includes("LIBERADO"))return "VALIDADO";if(st.includes("EM_VALIDACAO"))return "EM VALIDAÇÃO";if(st.includes("BLOQUEADO"))return "BLOQUEADO";if(st.includes("MODELADO"))return "MODELADO";return nomeFamilia(st)};
+  $("vigVersao").textContent=e171.versao||"#171";
   $("vigDbz").textContent=badgeVigente(e171.radar_dbz_oficial);
-  $("vigTemporal").textContent=badgeVigente(e171.temporal_cemaden)+(e171.temporal_cemaden?.episodios_positivos_persistidos!=null?" • "+e171.temporal_cemaden.episodios_positivos_persistidos+" confirmações":"");
-  $("vigEspacial").textContent=badgeVigente(e171.espacial_radarsc_cemaden);
+  $("vigTemporal").textContent=badgeVigente(e171.temporal_cemaden)+(e171.temporal_cemaden?.episodios_positivos_persistidos!=null?" • "+e171.temporal_cemaden.episodios_positivos_persistidos+" episódios":"");
+  $("vigEspacial").textContent=badgeVigente(e171.espacial_radarsc_cemaden)+(e171.espacial_radarsc_cemaden?.pares_espaciais_raster_validos!=null?" • "+e171.espacial_radarsc_cemaden.pares_espaciais_raster_validos+"/"+(e171.espacial_radarsc_cemaden.episodios_h2??"--")+" episódios":"");
+  const evEsp=e171.espacial_radarsc_cemaden||{};
+  $("vigEspacialDetalhe").textContent=(evEsp.evidencia_vigente?"Evidência espacial "+evEsp.evidencia_vigente+". ":"")+(evEsp.validado===true?"Eco RadarSC e chuva observada coincidiram na mesma célula/janela em episódios reais. ":"")+(evEsp.com_lacunas_historicas===true?"Há lacunas históricas preservadas. ":"")+"Isso não libera Z–R nem transforma todas as cores do raster em dBZ oficial.";
   $("vigZr").textContent=badgeVigente(e171.zr_instrumental);
   $("vigNivel").textContent=badgeVigente(e171.nivel_guaxanduva);
   const rv=e171.rede_pluviometrica||{};

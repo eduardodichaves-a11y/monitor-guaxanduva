@@ -17064,6 +17064,21 @@ def avaliar_influencia_joinville_173_a33(dominio, previsao, impactos):
     return base
 
 
+
+# =========================================================
+# VALIDACAO DE CAMPO GUAXANDUVA - BASE 0.607 m FIXA
+# =========================================================
+def carregar_validacao_campo_guaxanduva():
+    caminho = os.path.join(os.path.dirname(__file__), "VALIDACAO_CAMPO_GUAXANDUVA.json")
+    try:
+        with open(caminho, "r", encoding="utf-8") as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {"status":"arquivo_invalido"}
+    except Exception as e:
+        return {"status":"indisponivel","erro":str(e)[:300],
+                "referencia_base_fixa_m":GUAXANDUVA_V021_H_BASE_BAIXA_M}
+
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_cemaden144 = chuva_observada_cemaden_144(chuva_cemaden)
@@ -17089,6 +17104,7 @@ def main():
     tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
     hidrologia_guaxanduva_v019 = calcular_hidrologia_guaxanduva_v019()
     nivel_guaxanduva_v021 = calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_guaxanduva_v019)
+    validacao_campo_guaxanduva = carregar_validacao_campo_guaxanduva()
     impactos_locais173 = construir_impactos_locais_173_a2(previsao, granizo157, mare_observada160, mare_prevista164, criterio163, nivel_guaxanduva_v021, super_el_nino173)
     influencia_joinville173 = avaliar_influencia_joinville_173_a33(dominio_ciclonico173, previsao, impactos_locais173)
     goes19_tathu167 = buscar_goes19_tathu_167()
@@ -17201,6 +17217,8 @@ def main():
  
         "nivel_guaxanduva_v021":
             nivel_guaxanduva_v021,
+        "validacao_campo_guaxanduva":
+            validacao_campo_guaxanduva,
  
         "rio": {
             "nome":

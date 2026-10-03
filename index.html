@@ -846,10 +846,10 @@ async function carregar(){
   const linhaDimEsp=(dimEsp.largura!=null&&dimEsp.altura!=null)?dimEsp.largura+"×"+dimEsp.altura:"--";
   $("paletaDiagnostico169").innerHTML=
    '<b>🔬 Diagnóstico #169.1 • '+(v169.status?nomeFamilia(v169.status):"INDISPONÍVEL")+'</b><br><small>'+
-   'Dimensões: <b>'+linhaDim+'</b> • referência '+linhaDimEsp+' • '+(v169.dimensoes_validas===true?'OK':(v169.dimensoes_validas===false?'DIVERGENTE':'--'))+'<br>'+
-   'Segmentos: <b>'+(qtdObs??"--")+'</b> • referência '+(qtdEsp??"--")+' • '+(v169.quantidade_classes_valida===true?'OK':(v169.quantidade_classes_valida===false?'DIVERGENTE':'--'))+'<br>'+
-   'RGB/geometria: <b>'+(v169.rgb_geometria_validos===true?'OK':(v169.rgb_geometria_validos===false?'DIVERGENTE':'--'))+'</b><br>'+
-   'SHA-256: <b>'+(v169.sha256_confere===true?'IGUAL À REFERÊNCIA':(v169.sha256_confere===false?'DIFERENTE • somente diagnóstico':'--'))+'</b><br>'+
+   'Dimensões: <b>'+linhaDim+'</b> • referência '+linhaDimEsp+' • '+(v169.dimensoes_validas===true?'OK':(v169.dimensoes_validas===false?'DIVERGENTE':'NÃO INFORMADO NESTA COLETA'))+'<br>'+
+   'Segmentos: <b>'+(qtdObs??"--")+'</b> • referência '+(qtdEsp??"--")+' • '+(v169.quantidade_classes_valida===true?'OK':(v169.quantidade_classes_valida===false?'DIVERGENTE':'NÃO INFORMADO NESTA COLETA'))+'<br>'+
+   'RGB/geometria: <b>'+(v169.rgb_geometria_validos===true?'OK':(v169.rgb_geometria_validos===false?'DIVERGENTE':'NÃO INFORMADO NESTA COLETA'))+'</b><br>'+
+   'SHA-256: <b>'+(v169.sha256_confere===true?'IGUAL À REFERÊNCIA':(v169.sha256_confere===false?'DIFERENTE • somente diagnóstico':'NÃO INFORMADO NESTA COLETA'))+'</b><br>'+
    'Observado: <span style="word-break:break-all">'+shaObs+'</span><br>'+
    'Referência: <span style="word-break:break-all">'+shaEsp+'</span><br>'+
    'Gate dBZ: <b>'+(dbz169?'LIBERADO':'BLOQUEADO')+'</b>'+

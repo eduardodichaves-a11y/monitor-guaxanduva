@@ -16433,6 +16433,129 @@ def construir_impactos_locais_173_a2(previsao, granizo, mare_observada, mare_pre
     }
 
 
+
+# =========================================================
+# #173-A3.2 - DIAGNOSTICO SINOTICO REGIONAL DE BAIXA PRESSAO
+# =========================================================
+# EXPERIMENTAL / FAIL-CLOSED.
+# Uma baixa modelada NAO e declarada ciclone. O bloco procura candidatos
+# sinoticos em uma malha SC + Atlantico adjacente usando ECMWF/Open-Meteo.
+# O gate "ciclone_confirmado_monitor" permanece False ate validacao historica.
+
+def diagnosticar_ciclone_sinotico_173_a32():
+    pontos = []
+    # Malha deliberadamente regional e pequena: SC, litoral e Atlantico adjacente.
+    for lat in (-32.0, -30.0, -28.0, -26.0, -24.0):
+        for lon in (-54.0, -51.0, -48.0, -45.0, -42.0):
+            pontos.append((lat, lon))
+
+    base = {
+        "versao": "#173-A3.2",
+        "status": "inconclusivo",
+        "natureza": "DIAGNOSTICO_SINOTICO_MODELADO_NAO_VALIDADO",
+        "fonte": "ECMWF via Open-Meteo ECMWF API",
+        "endpoint": "https://api.open-meteo.com/v1/ecmwf",
+        "gerado_em": agora().isoformat(),
+        "malha": {"quantidade_pontos": len(pontos), "latitudes": [-32,-30,-28,-26,-24], "longitudes": [-54,-51,-48,-45,-42]},
+        "janela_h": 72,
+        "candidato_baixa_pressao": False,
+        "ciclone_confirmado_monitor": False,
+        "uso_operacional": False,
+        "gates_existentes_alterados": False,
+        "regra_seguranca": "Minimo de pressao ou vento forte nao equivale a ciclone. Este bloco somente armazena candidatos sinoticos para validacao historica.",
+    }
+    try:
+        params = {
+            "latitude": ",".join(str(x[0]) for x in pontos),
+            "longitude": ",".join(str(x[1]) for x in pontos),
+            "hourly": "pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,wind_speed_850hPa,wind_direction_850hPa",
+            "forecast_days": 4,
+            "timezone": "America/Sao_Paulo",
+            "cell_selection": "nearest",
+        }
+        payload = get(base["endpoint"], params).json()
+        locais = payload if isinstance(payload, list) else [payload]
+        amostras = []
+        agora_local = agora()
+        fim = agora_local + timedelta(hours=72)
+
+        for idx, loc in enumerate(locais):
+            if idx >= len(pontos) or not isinstance(loc, dict):
+                continue
+            hourly = loc.get("hourly") or {}
+            tempos = hourly.get("time") or []
+            press = hourly.get("pressure_msl") or []
+            v10 = hourly.get("wind_speed_10m") or []
+            d10 = hourly.get("wind_direction_10m") or []
+            gust = hourly.get("wind_gusts_10m") or []
+            v850 = hourly.get("wind_speed_850hPa") or []
+            d850 = hourly.get("wind_direction_850hPa") or []
+            lat, lon = pontos[idx]
+            for j,t in enumerate(tempos):
+                try:
+                    dt=datetime.fromisoformat(str(t))
+                    dt=dt.replace(tzinfo=FUSO) if dt.tzinfo is None else dt.astimezone(FUSO)
+                except Exception:
+                    continue
+                if dt < agora_local - timedelta(hours=1) or dt > fim:
+                    continue
+                def vv(arr):
+                    if j>=len(arr): return None
+                    v=arr[j]
+                    return float(v) if isinstance(v,(int,float)) and math.isfinite(float(v)) else None
+                p=vv(press)
+                if p is None: continue
+                amostras.append({
+                    "horario":dt.isoformat(),"lat":lat,"lon":lon,"pressao_msl_hpa":p,
+                    "vento_10m_kmh":vv(v10),"direcao_10m_graus":vv(d10),
+                    "rajada_10m_kmh":vv(gust),"vento_850hpa_kmh":vv(v850),
+                    "direcao_850hpa_graus":vv(d850),
+                })
+
+        if not amostras:
+            base["status"]="inconclusivo_sem_amostras_validas"
+            return base
+
+        minimo=min(amostras,key=lambda x:x["pressao_msl_hpa"])
+        mesmo_h=[x for x in amostras if x["horario"]==minimo["horario"]]
+        pressoes=[x["pressao_msl_hpa"] for x in mesmo_h]
+        mediana=statistics.median(pressoes) if pressoes else None
+        contraste=(mediana-minimo["pressao_msl_hpa"]) if mediana is not None else None
+        dist=hav(LAT,LON,minimo["lat"],minimo["lon"])
+        max_gust=max((x["rajada_10m_kmh"] for x in mesmo_h if isinstance(x.get("rajada_10m_kmh"),(int,float))),default=None)
+        max850=max((x["vento_850hpa_kmh"] for x in mesmo_h if isinstance(x.get("vento_850hpa_kmh"),(int,float))),default=None)
+
+        # Heuristica SOMENTE para selecionar casos para auditoria historica.
+        # Nao e criterio meteorologico de confirmacao de ciclone.
+        candidato=bool(contraste is not None and contraste >= 4.0 and minimo["pressao_msl_hpa"] <= 1010.0)
+        base.update({
+            "status":"diagnostico_coletado",
+            "amostras_validas":len(amostras),
+            "horarios_distintos":len(set(x["horario"] for x in amostras)),
+            "minimo_regional":{
+                **minimo,
+                "distancia_joinville_km":round(dist,1),
+                "mediana_pressao_malha_mesmo_horario_hpa":round(mediana,2) if mediana is not None else None,
+                "contraste_para_mediana_hpa":round(contraste,2) if contraste is not None else None,
+                "rajada_max_malha_mesmo_horario_kmh":max_gust,
+                "vento_850hpa_max_malha_mesmo_horario_kmh":max850,
+            },
+            "candidato_baixa_pressao":candidato,
+            "criterio_triagem_nao_validado":{
+                "pressao_minima_hpa_max":1010.0,
+                "contraste_mediana_hpa_min":4.0,
+                "uso":"SOMENTE_SELECAO_DE_CASOS_PARA_AUDITORIA",
+            },
+            "ciclone_confirmado_monitor":False,
+            "observacao":"Mesmo quando candidato_baixa_pressao=true, o Monitor NAO declara ciclone. E necessario validar estrutura/circulacao e episodios historicos conhecidos.",
+        })
+        return base
+    except Exception as e:
+        base["status"]="indisponivel"
+        base["erro"]=str(e)[:500]
+        return base
+
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_cemaden144 = chuva_observada_cemaden_144(chuva_cemaden)
@@ -16449,6 +16572,7 @@ def main():
     criterio163 = calcular_criterio_hidrometeorologico_plancon_163(previsao, mare_observada160)
     mare_prevista164 = calcular_pico_mare_previsto_24h_164(previsao)
     sincronizacao_chuva_mare173 = sincronizar_chuva_mare_173_a31(previsao, mare_prevista164)
+    ciclone_sinotico173 = diagnosticar_ciclone_sinotico_173_a32()
     guaxanduva166 = atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160)
     modelo_guaxanduva_v01 = construir_modelo_computacional_guaxanduva_v01(guaxanduva166)
     tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
@@ -16602,6 +16726,8 @@ def main():
             impactos_locais173,
         "sincronizacao_chuva_mare_173":
             sincronizacao_chuva_mare173,
+        "diagnostico_ciclone_sinotico_173":
+            ciclone_sinotico173,
  
         "astronomia_joinville":
             astronomia_joinville,

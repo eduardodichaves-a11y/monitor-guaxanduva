@@ -16194,7 +16194,7 @@ def buscar_super_el_nino_173():
         status = "fontes_externas_indisponiveis"
 
     return {
-        "versao": "#173-A1",
+        "versao": "#173-FINAL-V1",
         "titulo": "SUPER EL NINO 2026-27 - DO PACIFICO AO GUAXANDUVA",
         "status": status,
         "coletado_em": agora().isoformat(),
@@ -16800,7 +16800,7 @@ def rastrear_minimo_sinotico_173_a323(diag_a321, valid_a322):
             dist=hav(mn["lat"],mn["lon"],x["lat"],x["lon"])
             if dist<70 or dist>350: continue
             radial=rumo(mn["lat"],mn["lon"],x["lat"],x["lon"])
-            para=(d+180)%360; tang=(radial-90)%360
+            para=(d+180)%360; tang=(radial+90)%360
             coer.append(difang(para,tang)<=60)
         frac=(sum(coer)/len(coer)) if coer else None
 
@@ -16854,6 +16854,7 @@ def diagnosticar_dominio_ciclonico_173_a324():
         "versao":"#173-A3.2.4",
         "status":"inconclusivo",
         "natureza":"DIAGNOSTICO_REGIONAL_MODELADO_NAO_VALIDADO",
+        "sentido_ciclonico_hemisferio_sul":"horario",
         "fonte":"ECMWF via Open-Meteo ECMWF API",
         "gerado_em":agora().isoformat(),
         "dominio":{"lat_min":-38.0,"lat_max":-22.0,"lon_min":-60.0,"lon_max":-38.0,
@@ -16941,7 +16942,7 @@ def diagnosticar_dominio_ciclonico_173_a324():
             dist=hav(mn["lat"],mn["lon"],x["lat"],x["lon"])
             if dist<150 or dist>700: continue
             radial=rumo(mn["lat"],mn["lon"],x["lat"],x["lon"])
-            para=(d+180)%360; tang=(radial-90)%360
+            para=(d+180)%360; tang=(radial+90)%360
             coer.append(difang(para,tang)<=60)
         frac=(sum(coer)/len(coer)) if coer else None
         candidatos.append({"horario":hor,"lat":mn["lat"],"lon":mn["lon"],
@@ -17090,6 +17091,18 @@ def main():
     hidrologia_guaxanduva_v019 = calcular_hidrologia_guaxanduva_v019()
     nivel_guaxanduva_v021 = calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_guaxanduva_v019)
     impactos_locais173 = construir_impactos_locais_173_a2(previsao, granizo157, mare_observada160, mare_prevista164, criterio163, nivel_guaxanduva_v021, super_el_nino173)
+    validacao_campo_guaxanduva = {
+        "versao": "GXA-CAMPO-V1-FINAL",
+        "status": "referencias_de_campo_registradas",
+        "natureza": "MEDICAO_MANUAL_DE_CAMPO",
+        "referencia_base_fixa_m": 0.607,
+        "regra": "0,607 m permanece fixo; novas medicoes validam a dinamica e nao recalibram a base.",
+        "medicoes": [
+            {"data": "2026-10-03", "nivel_m": 1.34, "origem": "medicao_manual_usuario"},
+            {"data": "2026-10-03", "hora_local": "15:49", "timezone": "America/Sao_Paulo", "nivel_m": 1.33, "origem": "medicao_manual_usuario"}
+        ],
+        "uso_operacional": False
+    }
     influencia_joinville173 = avaliar_influencia_joinville_173_a33(dominio_ciclonico173, previsao, impactos_locais173)
     goes19_tathu167 = buscar_goes19_tathu_167()
     radar_atual = buscar_radar()
@@ -17201,6 +17214,9 @@ def main():
  
         "nivel_guaxanduva_v021":
             nivel_guaxanduva_v021,
+
+        "validacao_campo_guaxanduva":
+            validacao_campo_guaxanduva,
  
         "rio": {
             "nome":

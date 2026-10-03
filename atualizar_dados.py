@@ -16981,6 +16981,89 @@ def diagnosticar_dominio_ciclonico_173_a324():
     return base
 
 
+
+# =========================================================
+# #173-A3.3 - TRAJETORIA E INFLUENCIA SOBRE JOINVILLE
+# =========================================================
+# Traduz o diagnostico regional em tendencia espacial + impactos locais.
+# Nao confirma ciclone e nao cria alerta oficial/operacional.
+
+def avaliar_influencia_joinville_173_a33(dominio, previsao, impactos):
+    base={
+        "versao":"#173-A3.3",
+        "status":"inconclusivo",
+        "natureza":"INFLUENCIA_REGIONAL_MODELADA_NAO_VALIDADA",
+        "gerado_em":agora().isoformat(),
+        "horizontes_h":[24,48,72],
+        "ciclone_confirmado_monitor":False,
+        "uso_operacional":False,
+        "gates_existentes_alterados":False,
+        "regra_seguranca":"Baixa regional e aproximacao geometrica nao significam ciclone nem impacto local. Impactos locais dependem das previsoes/observacoes proprias."
+    }
+    if not isinstance(dominio,dict) or dominio.get("status")!="diagnostico_regional_coletado":
+        base["status"]="bloqueado_sem_dominio_regional_completo"; return base
+
+    # O A3.2.4 guarda apenas o melhor candidato. Para A3.3, usamos esse candidato
+    # como referencia espacial e combinamos com os sinais locais ja calculados.
+    cand=dominio.get("melhor_candidato") or {}
+    if not isinstance(cand.get("distancia_joinville_km"),(int,float)):
+        base["status"]="sem_candidato_regional_util"; return base
+
+    # Extrai a serie horaria local ja preservada pelo #162/A3.1.
+    serie=(((previsao or {}).get("proximas_24h") or {}).get("serie_horaria") or [])
+    chuva24=sum((x.get("precipitacao_mm") or 0) for x in serie
+                if isinstance(x,dict) and isinstance(x.get("precipitacao_mm"),(int,float)))
+    raj24=max((x.get("rajada_kmh") for x in serie
+               if isinstance(x,dict) and isinstance(x.get("rajada_kmh"),(int,float))),default=None)
+
+    # Fallback para estruturas diarias/impactos quando a serie nao possui rajada.
+    if raj24 is None:
+        dias=(previsao or {}).get("proximos_7_dias") or []
+        raj24=max((x.get("rajada_max_kmh") for x in dias[:1]
+                   if isinstance(x,dict) and isinstance(x.get("rajada_max_kmh"),(int,float))),default=None)
+
+    imp=impactos or {}
+    resumo=imp.get("resumo") or {}
+    base.update({
+        "status":"influencia_avaliada",
+        "sistema_referencia":{
+            "horario":cand.get("horario"),"lat":cand.get("lat"),"lon":cand.get("lon"),
+            "pressao_msl_hpa":cand.get("pressao_msl_hpa"),
+            "distancia_joinville_km":cand.get("distancia_joinville_km"),
+            "contraste_regional_hpa":cand.get("contraste_regional_hpa"),
+            "circulacao_850hpa_fracao":cand.get("circulacao_850hpa_fracao"),
+            "evidencia_circulacao_ciclonica":bool(dominio.get("evidencia_circulacao_ciclonica")),
+            "ciclone_confirmado_monitor":False
+        },
+        "joinville_24h":{
+            "chuva_prevista_mm":round(chuva24,1),
+            "rajada_max_prevista_kmh":raj24,
+            "estado_impactos_monitor":resumo.get("cor") or resumo.get("estado"),
+            "motivo_impactos_monitor":resumo.get("motivo") or resumo.get("texto")
+        },
+        "interpretacao":{
+            "sistema_organizado_demonstrado":bool(dominio.get("evidencia_circulacao_ciclonica")),
+            "impacto_local_nao_inferido_da_pressao":True,
+            "mensagem":"O sistema regional e os impactos de Joinville sao avaliados separadamente; pressao baixa distante nao eleva sozinha o risco local."
+        }
+    })
+    # Classificacao didatica, sem valor de alerta.
+    dist=cand.get("distancia_joinville_km")
+    circ=bool(dominio.get("evidencia_circulacao_ciclonica"))
+    if circ and dist<=500:
+        faixa="SISTEMA_ORGANIZADO_PROXIMO_PARA_AUDITORIA"
+    elif circ and dist<=1000:
+        faixa="SISTEMA_ORGANIZADO_REGIONAL_PARA_AUDITORIA"
+    elif circ:
+        faixa="SISTEMA_ORGANIZADO_DISTANTE_PARA_AUDITORIA"
+    elif dist<=1000:
+        faixa="BAIXA_REGIONAL_SEM_CIRCULACAO_DEMONSTRADA"
+    else:
+        faixa="SEM_SISTEMA_ORGANIZADO_RELEVANTE_DEMONSTRADO"
+    base["faixa_didatica"]=faixa
+    return base
+
+
 def main():
     chuva_cemaden = buscar_chuva_cemaden_136()
     chuva_cemaden144 = chuva_observada_cemaden_144(chuva_cemaden)
@@ -17001,6 +17084,7 @@ def main():
     validacao_centro_sinotico173 = validar_centro_sinotico_173_a322(ciclone_sinotico173)
     rastreamento_minimo_sinotico173 = rastrear_minimo_sinotico_173_a323(ciclone_sinotico173, validacao_centro_sinotico173)
     dominio_ciclonico173 = diagnosticar_dominio_ciclonico_173_a324()
+    influencia_joinville173 = avaliar_influencia_joinville_173_a33(dominio_ciclonico173, previsao, impactos_locais173)
     guaxanduva166 = atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160)
     modelo_guaxanduva_v01 = construir_modelo_computacional_guaxanduva_v01(guaxanduva166)
     tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
@@ -17162,6 +17246,8 @@ def main():
             rastreamento_minimo_sinotico173,
         "dominio_ciclonico_173":
             dominio_ciclonico173,
+        "influencia_joinville_173":
+            influencia_joinville173,
  
         "astronomia_joinville":
             astronomia_joinville,

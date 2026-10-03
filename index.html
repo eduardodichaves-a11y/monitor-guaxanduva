@@ -357,6 +357,24 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <div class="box"><small><b>Regra de segurança:</b> cada pluviômetro representa seu próprio ponto. Leituras de estações diferentes não são somadas nem promediadas como se fossem chuva no Comasa. Valor ausente nunca é convertido em 0 mm. Fontes identificadas sem telemetria automática validada aparecem sem valor atual.</small></div>
 </div>
 <div class="card">
+<div class="local">🌧️📍 REDE OBSERVACIONAL DO GUAXANDUVA • #172</div>
+<h2>Geometria de todas as estações</h2>
+<div class="sub">100% do inventário #165 • distância até o ponto técnico do segmento 30960 do Rio Guaxanduva • posição espacial e leitura atual são critérios independentes</div>
+<div class="radar-grid">
+<div class="radar-item">📍 Catalogadas no #165<b id="rede172Total">--</b></div>
+<div class="radar-item">🧭 Processadas no #172<b id="rede172Processadas">--</b></div>
+<div class="radar-item">🗺️ Com coordenada<b id="rede172Coordenadas">--</b></div>
+<div class="radar-item">⚪ Sem coordenada<b id="rede172SemCoordenada">--</b></div>
+<div class="radar-item">🎯 Próximas ≤ 5 km<b id="rede172Proximas">--</b></div>
+<div class="radar-item">📐 Intermediárias ≤ 15 km<b id="rede172Intermediarias">--</b></div>
+<div class="radar-item">🌎 Regionais &gt; 15 km<b id="rede172Regionais">--</b></div>
+<div class="radar-item">🧪 Candidatas #170-I agora<b id="rede172Candidatas">--</b></div>
+</div>
+<div id="rede172Estado" class="box aviso">Carregando geometria da rede observacional #172...</div>
+<div id="rede172Estacoes" class="box"><small>Carregando todas as estações do inventário...</small></div>
+<div class="box"><small><b>Como ler:</b> 🟢 integrada com leitura atual • ⚪ integrada sem leitura atual • 🟡 integração automática pendente. <b>PRÓXIMA / INTERMEDIÁRIA / REGIONAL</b> são classes heurísticas modeladas pela distância ao Guaxanduva, não zonas oficiais de risco. Uma estação próxima sem leitura continua espacialmente importante. Distância não transforma a medição da estação em chuva observada no Rio Guaxanduva e não libera, sozinha, a validação espacial #170-I.</small></div>
+</div>
+<div class="card">
 <div class="local">🌊 OBSERVADO • EPAGRI/CIRAM • JOINVILLE/BABITONGA</div><h2>Maré observada</h2><div class="sub">Medição instrumental do marégrafo oficial • separada da tábua de maré prevista</div>
 <div class="mare-grid">
 <div class="mare-item">🌊 Nível observado<div class="mare-valor" id="mareObsNivel">--</div><div class="mare-hora" id="mareObsHora">--</div></div>
@@ -605,7 +623,7 @@ async function carregarHistorico(){
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
-  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},e171=d.estado_cientifico_vigente_171||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{},x168=d.liberacao_experimental_168||{},gxaK=d.metodo_guaxanduva_refletividade_v01||{},gxaL=d.metodo_guaxanduva_zr_operacional_v02||{},gxaM=d.metodo_guaxanduva_publicacao_operacional_v03||{};
+  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},r172=d.geometria_rede_observacional_172||{},e171=d.estado_cientifico_vigente_171||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{},x168=d.liberacao_experimental_168||{},gxaK=d.metodo_guaxanduva_refletividade_v01||{},gxaL=d.metodo_guaxanduva_zr_operacional_v02||{},gxaM=d.metodo_guaxanduva_publicacao_operacional_v03||{};
   $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
   $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
   const badgeVigente=(obj)=>{const st=String((obj||{}).status||"");if(!st)return "NÃO INFORMADO";if(st.includes("VALIDADO")||st.includes("LIBERADO"))return "VALIDADO";if(st.includes("EM_VALIDACAO"))return "EM VALIDAÇÃO";if(st.includes("BLOQUEADO"))return "BLOQUEADO";if(st.includes("MODELADO"))return "MODELADO";return nomeFamilia(st)};
@@ -736,6 +754,71 @@ async function carregar(){
    $("rede165Estado").innerHTML='<span class="aviso">⚪ #165 não recebida por completo nesta coleta</span> • ausência de dado nunca é interpretada como 0 mm';
   }
  
+  // #172 — geometria de 100% do inventário #165.
+  const rs172=r172.resumo||{};
+  const est172=Array.isArray(r172.estacoes)?[...r172.estacoes]:[];
+  $("rede172Total").textContent=rs172.total_catalogadas_165??"--";
+  $("rede172Processadas").textContent=rs172.total_processadas_172??"--";
+  $("rede172Coordenadas").textContent=rs172.com_coordenada??"--";
+  $("rede172SemCoordenada").textContent=rs172.sem_coordenada??"--";
+  $("rede172Proximas").textContent=rs172.proximas??"--";
+  $("rede172Intermediarias").textContent=rs172.intermediarias??"--";
+  $("rede172Regionais").textContent=rs172.regionais??"--";
+  $("rede172Candidatas").textContent=rs172.candidatas_170_i_nesta_coleta??"--";
+
+  if(r172.versao==="#172"&&rs172.cobertura_inventario_100pct===true){
+   const completa=(rs172.sem_coordenada??0)===0;
+   $("rede172Estado").innerHTML=
+    '<span class="'+(completa?'ok':'aviso')+'">'+(completa?'🟢':'🟡')+' #172 • 100% DO INVENTÁRIO PROCESSADO</span> • '+
+    String(rs172.com_coordenada??0)+' com coordenada • '+String(rs172.sem_coordenada??0)+' sem coordenada'+
+    '<br><small>Referência: segmento '+String((r172.referencia_guaxanduva||{}).segmento??"30960")+
+    ' do Rio Guaxanduva. Cobertura do inventário não significa validação espacial #170-I.</small>';
+  }else if(r172.versao==="#172"){
+   $("rede172Estado").innerHTML='<span class="erro">🔴 #172 • INVENTÁRIO NÃO PROCESSADO POR COMPLETO</span> • conferir #165 e a coleta atual';
+  }else{
+   $("rede172Estado").innerHTML='<span class="aviso">⚪ #172 ainda não recebido no dados.json desta coleta</span>';
+  }
+
+  const ordemClasse172={"PROXIMA":0,"INTERMEDIARIA":1,"REGIONAL":2,"SEM_COORDENADA":3};
+  est172.sort((x,y)=>{
+   const cx=ordemClasse172[String(x.classe_espacial||"SEM_COORDENADA")]??9;
+   const cy=ordemClasse172[String(y.classe_espacial||"SEM_COORDENADA")]??9;
+   if(cx!==cy)return cx-cy;
+   const dx=x.distancia_guaxanduva_km,dy=y.distancia_guaxanduva_km;
+   if(dx==null&&dy!=null)return 1;
+   if(dx!=null&&dy==null)return -1;
+   if(dx!=null&&dy!=null&&Number(dx)!==Number(dy))return Number(dx)-Number(dy);
+   return String(x.nome||"").localeCompare(String(y.nome||""));
+  });
+
+  const rotuloClasse172=(c)=>{
+   c=String(c||"SEM_COORDENADA");
+   if(c==="PROXIMA")return "PRÓXIMA";
+   if(c==="INTERMEDIARIA")return "INTERMEDIÁRIA";
+   if(c==="REGIONAL")return "REGIONAL";
+   return "SEM COORDENADA";
+  };
+
+  $("rede172Estacoes").innerHTML=est172.length?
+   '<b>📍 Todas as estações catalogadas</b><br><small>Ordenadas pela relação espacial com o Guaxanduva. Nenhuma estação é ocultada por estar sem leitura.</small>'+
+   est172.map(e=>{
+    const integrada=e.aquisicao_automatica_integrada===true;
+    const leitura=e.leitura_atual_disponivel===true;
+    const icone=leitura?"🟢":(integrada?"⚪":"🟡");
+    const rede=String(e.rede||e.fonte||"fonte não informada");
+    const codigo=e.codigo??e.id;
+    const codtxt=codigo!=null?" • "+String(codigo):"";
+    const dist=e.distancia_guaxanduva_km==null?"distância não calculada":f(e.distancia_guaxanduva_km,2)+" km do Guaxanduva";
+    const az=e.azimute_desde_guaxanduva_graus==null?"":(" • "+f(e.azimute_desde_guaxanduva_graus,1)+"° "+String(e.direcao_desde_guaxanduva||""));
+    const classe=rotuloClasse172(e.classe_espacial);
+    const estado=leitura?"LEITURA ATUAL":(integrada?"INTEGRADA • SEM LEITURA ATUAL":"INTEGRAÇÃO PENDENTE");
+    const candidata=e.apta_candidata_170_i===true?" • candidata #170-I nesta coleta":"";
+    return '<div class="estacao-linha"><div><b>'+icone+' '+String(e.nome||"Estação")+'</b>'+
+     '<div class="estacao-meta">'+rede+codtxt+'<br>'+dist+az+' • '+classe+candidata+'</div></div>'+
+     '<div class="estacao-mm">'+estado+'</div></div>';
+   }).join("")
+   :'<small>Nenhuma estação recebida pela #172 nesta coleta.</small>';
+
   $("mareObsNivel").textContent=mo.nivel_m==null?"--":f(mo.nivel_m,3)+" m";
   $("mareObsHora").textContent=mo.horario?dataHoraBR(mo.horario):"--";
   $("mareObsIdade").textContent=mo.idade_min==null?"--":f(mo.idade_min,1)+" min";

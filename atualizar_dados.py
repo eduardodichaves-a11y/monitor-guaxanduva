@@ -671,6 +671,7 @@ def buscar_previsao():
             "horas_esperadas": 24,
             "horas_validas": 0,
             "precipitacao_acumulada_mm": None,
+            "serie_horaria": [],
             "integridade": False,
             "uso_no_risco": False,
             "observacao": (
@@ -733,6 +734,10 @@ def buscar_previsao():
                     2,
                 )
                 previsao_24h["integridade"] = True
+                previsao_24h["serie_horaria"] = [
+                    {"horario": tempos_janela[k], "precipitacao_mm": round(valores_validos[k], 3)}
+                    for k in range(24)
+                ]
             else:
                 previsao_24h["status"] = "janela_incompleta"
                 previsao_24h["observacao"] = (
@@ -16212,6 +16217,66 @@ def buscar_super_el_nino_173():
 
 
 # =========================================================
+# #173-A3.1 - SINCRONIZACAO TEMPORAL CHUVA x EXTREMOS DE MARE
+# =========================================================
+def sincronizar_chuva_mare_173_a31(previsao, mare_prevista):
+    """Cruza a serie horaria #162 com extremos oficiais de mare #164.
+
+    Nao interpola a curva de mare e nao cria limiar novo de risco. Para cada
+    extremo oficial, soma a chuva prevista nas horas cujo centro fica a ate
+    2 h do horario do extremo. O resultado descreve coincidencia temporal;
+    os gatilhos normativos continuam pertencendo ao #163.
+    """
+    resultado = {
+        "versao": "#173-A3.1", "status": "inconclusivo",
+        "tipo": "sincronizacao_temporal_chuva_extremos_mare",
+        "janela_tolerancia_h": 2,
+        "fonte_chuva": "Open-Meteo / #162",
+        "fonte_mare": "EPAGRI/CIRAM / #164",
+        "eventos": [], "maior_coincidencia": None,
+        "uso_como_alerta_oficial": False, "altera_criterio_163": False,
+        "regra_seguranca": "Nao interpola mare, nao inventa nivel horario e nao cria novo limiar de alerta.",
+    }
+    p24 = (previsao or {}).get("proximas_24h") or {}
+    serie = p24.get("serie_horaria") or []
+    extremos = (mare_prevista or {}).get("eventos_na_janela") or []
+    if p24.get("integridade") is not True or len(serie) != 24:
+        resultado["status"] = "inconclusivo_serie_chuva_incompleta"
+        return resultado
+    if (mare_prevista or {}).get("integridade") is not True or not extremos:
+        resultado["status"] = "inconclusivo_extremos_mare_indisponiveis"
+        return resultado
+    horas=[]
+    try:
+        for x in serie:
+            dt=datetime.fromisoformat(str(x.get("horario")))
+            dt=dt.replace(tzinfo=FUSO) if dt.tzinfo is None else dt.astimezone(FUSO)
+            v=x.get("precipitacao_mm")
+            if not isinstance(v,(int,float)) or isinstance(v,bool): raise ValueError("chuva horaria invalida")
+            horas.append((dt,float(v)))
+        for e in extremos:
+            mt=datetime.fromisoformat(str(e.get("horario")))
+            mt=mt.replace(tzinfo=FUSO) if mt.tzinfo is None else mt.astimezone(FUSO)
+            altura=e.get("altura_m")
+            proximas=[(h,v) for h,v in horas if abs((h-mt).total_seconds()) <= 2*3600]
+            soma=round(sum(v for _,v in proximas),2)
+            pico=max((v for _,v in proximas),default=None)
+            item={
+                "mare_horario": mt.isoformat(), "mare_extremo_m": altura,
+                "chuva_janela_mais_menos_2h_mm": soma,
+                "chuva_horaria_max_na_vizinhanca_mm": None if pico is None else round(pico,3),
+                "horas_chuva_consideradas": [h.isoformat() for h,_ in proximas],
+            }
+            resultado["eventos"].append(item)
+        if resultado["eventos"]:
+            resultado["maior_coincidencia"] = max(resultado["eventos"], key=lambda x:x["chuva_janela_mais_menos_2h_mm"])
+            resultado["status"] = "calculado"
+        return resultado
+    except Exception as e:
+        resultado["status"]="inconclusivo_erro_processamento"; resultado["erro"]=str(e)
+        return resultado
+
+# =========================================================
 # #173-A2 - CAMADA DIDATICA DE IMPACTOS LOCAIS
 # =========================================================
 # Traduz SOMENTE evidencias ja existentes no Monitor para linguagem humana.
@@ -16303,7 +16368,8 @@ def construir_impactos_locais_173_a2(previsao, granizo, mare_observada, mare_pre
         "icone":"🌊", "estado":"OBSERVADA_ATUAL" if mo is not None and mf=="atual" else "DADO_NAO_ATUAL",
         "cor":"azul" if mo is not None and mf=="atual" else "cinza", "janela":"agora_e_24h",
         "mensagem": (f"Mare observada em Joinville/Babitonga: {mo:.2f} m." if isinstance(mo,(int,float)) else "Mare observada indisponivel."),
-        "nivel_observado_m":mo, "pico_previsto_24h_m": (mare_prevista or {}).get("pico_mare_m"),
+        "nivel_observado_m":mo, "pico_previsto_24h_m": (mare_prevista or {}).get("pico_previsto_m"),
+        "pico_previsto_24h_horario": (mare_prevista or {}).get("pico_previsto_horario"),
         "natureza":"OBSERVADO_E_PREVISTO", "fonte":"EPAGRI/CIRAM", "alerta_oficial":False,
         "regra_visual":"Mare isolada e informativa; combinacao chuva+mare usa os criterios #163."
     }
@@ -16382,6 +16448,7 @@ def main():
     mare_observada160 = buscar_mare_observada_joinville_160()
     criterio163 = calcular_criterio_hidrometeorologico_plancon_163(previsao, mare_observada160)
     mare_prevista164 = calcular_pico_mare_previsto_24h_164(previsao)
+    sincronizacao_chuva_mare173 = sincronizar_chuva_mare_173_a31(previsao, mare_prevista164)
     guaxanduva166 = atualizar_historico_guaxanduva_166(chuva_epagri165, mare_observada160)
     modelo_guaxanduva_v01 = construir_modelo_computacional_guaxanduva_v01(guaxanduva166)
     tabela_mestra_guaxanduva = carregar_tabela_mestra_guaxanduva()
@@ -16533,6 +16600,8 @@ def main():
 
         "impactos_locais_173":
             impactos_locais173,
+        "sincronizacao_chuva_mare_173":
+            sincronizacao_chuva_mare173,
  
         "astronomia_joinville":
             astronomia_joinville,

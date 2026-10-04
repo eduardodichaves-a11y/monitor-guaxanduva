@@ -31,16 +31,20 @@ jobs:
           pip install requests beautifulsoup4 pillow paho-mqtt
       - name: Atualizar estado operacional
         run: python atualizar_operacional.py
+      - name: Calcular Guaxanduva Fusion #175
+        run: python fusion_guaxanduva_175.py
       - name: Publicar dados operacionais
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           cp dados.json /tmp/dados-operacional.json
+          cp fusion_guaxanduva_175.json /tmp/fusion-guaxanduva-175.json
           git fetch origin main
           git reset --hard origin/main
           cp /tmp/dados-operacional.json dados.json
-          git add dados.json
+          cp /tmp/fusion-guaxanduva-175.json fusion_guaxanduva_175.json
+          git add dados.json fusion_guaxanduva_175.json
           if git diff --cached --quiet; then
             echo "Dados operacionais já publicados."
             exit 0
@@ -51,7 +55,8 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             cp /tmp/dados-operacional.json dados.json
-            git add dados.json
+            cp /tmp/fusion-guaxanduva-175.json fusion_guaxanduva_175.json
+            git add dados.json fusion_guaxanduva_175.json
             git diff --cached --quiet && exit 0
             git commit -m "Atualiza estado operacional do Monitor Guaxanduva"
           done

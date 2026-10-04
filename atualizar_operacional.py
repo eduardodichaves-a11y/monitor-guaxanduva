@@ -17,6 +17,7 @@ from atualizar_dados import (
     construir_rede_pluviometrica_multifonte_165,
     construir_geometria_rede_observacional_172,
     buscar_chuva_observada_inmet,
+    buscar_mare,
     buscar_mare_observada_joinville_160,
     atualizar_historico_guaxanduva_166,
     calcular_hidrologia_guaxanduva_v019,
@@ -25,6 +26,7 @@ from atualizar_dados import (
     calcular_pico_mare_previsto_24h_164,
     projetar_guaxanduva_24h_174,
     construir_liberacao_experimental_168,
+    construir_impactos_locais_173_a2,
 )
 
 ARQUIVO = Path("dados.json")
@@ -58,6 +60,7 @@ def main():
     rede = seguro("rede multifonte #165", lambda: construir_rede_pluviometrica_multifonte_165(cemaden, epagri))
     geometria = seguro("geometria #172", lambda: construir_geometria_rede_observacional_172(rede))
     inmet = seguro("INMET", buscar_chuva_observada_inmet)
+    mare = seguro("tábua de maré prevista", buscar_mare)
     mare160 = seguro("maré observada #160", buscar_mare_observada_joinville_160)
     h166 = seguro("histórico Guaxanduva #166", lambda: atualizar_historico_guaxanduva_166(epagri, mare160))
     h019 = seguro("hidrologia Guaxanduva V0.19", calcular_hidrologia_guaxanduva_v019)
@@ -69,6 +72,9 @@ def main():
     # operacional evita que o painel misture o V0.21 atual com um snapshot antigo.
     tathu167 = dados.get("goes19_tathu_167", {}) if isinstance(dados, dict) else {}
     liberacao168 = seguro("liberação experimental #168", lambda: construir_liberacao_experimental_168(radar, tathu167, v021, mare160, mare164))
+    granizo_existente = dados.get("granizo", {}) if isinstance(dados, dict) else {}
+    enso_existente = dados.get("super_el_nino_173", {}) if isinstance(dados, dict) else {}
+    impactos173 = seguro("impactos locais #173", lambda: construir_impactos_locais_173_a2(previsao, granizo_existente, mare160, mare164, criterio163, v021, enso_existente))
 
     # Síntese operacional única para o card principal. Não confunde radar,
     # pluviômetro regional e modelo meteorológico.
@@ -108,9 +114,41 @@ def main():
         "gerado_em": agora().isoformat(),
     }
 
+    # Estado canônico: cards não devem manter cópias independentes de rio/maré/radar/chuva.
+    estado_canonico = {
+        "gerado_em": agora().isoformat(),
+        "rio": {
+            "nivel_modelado_m": v021.get("nivel_estimado_m") if isinstance(v021, dict) else None,
+            "faixa_m": v021.get("faixa_estimativa_m") if isinstance(v021, dict) else None,
+            "tendencia": v021.get("tendencia") if isinstance(v021, dict) else None,
+            "natureza": "MODELADO_NAO_INSTRUMENTAL",
+            "fonte": "GXA-V0.21",
+        },
+        "mare": {
+            "observada_m": mare160.get("nivel_m") if isinstance(mare160, dict) else None,
+            "horario_observado": mare160.get("horario") if isinstance(mare160, dict) else None,
+            "proximo_extremo": mare.get("proximo") if isinstance(mare, dict) else None,
+            "fonte": "EPAGRI/CIRAM",
+        },
+        "radar": {
+            "status": radar.get("status") if isinstance(radar, dict) else "indisponivel",
+            "dados_frescos": radar_fresco,
+            "eco_qualitativo_local": eco_local,
+            "menor_raio_eco_km": raio_eco,
+            "classe_dbz_atual": (liberacao168.get("radar_estimativa_quantitativa") or {}).get("classe_radar") if isinstance(liberacao168, dict) else None,
+        },
+        "chuva": {
+            "estado": estado_agora,
+            "observada_regional_max_1h_mm": obs_max,
+            "observada_regional_media_1h_mm": obs_media,
+            "previsao_proxima_hora_mm": ((previsao.get("proxima_hora") or {}).get("precipitacao_mm") if isinstance(previsao, dict) else None),
+        },
+    }
+
     dados.update({
         "gerado_em": agora().isoformat(),
         "previsao": previsao,
+        "mare": mare,
         "radar": radar,
         "chuva": cemaden,
         "chuva_observada_cemaden_144": cemaden144,
@@ -126,6 +164,8 @@ def main():
         "mare_prevista_24h_164": mare164,
         "projecao_guaxanduva_174": proj174,
         "liberacao_experimental_168": liberacao168,
+        "impactos_locais_173": impactos173,
+        "estado_canonico_operacional": estado_canonico,
         "estado_agora_operacional": estado_operacional,
         "atualizacao_operacional_rapida": {
             "status": "concluida",

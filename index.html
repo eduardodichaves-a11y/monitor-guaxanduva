@@ -1338,18 +1338,48 @@ async function carregar(){
       const lower=[...serie174].reverse().map((x,j)=>{const i=serie174.length-1-j;return `${X(i).toFixed(1)},${Y(Number(x.nivel_min_m)).toFixed(1)}`}).join(" ");
       const peakIndex=serie174.reduce((bi,x,i)=>Number(x.nivel_central_m)>Number(serie174[bi].nivel_central_m)?i:bi,0);
       const pX=X(peakIndex),pY=Y(Number(serie174[peakIndex].nivel_central_m));
+      const dt174=s=>new Date(s);
+      const fmtDataHora174=s=>dt174(s).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})+" • "+dt174(s).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+      const firstDt=dt174(serie174[0].horario), lastDt=dt174(serie174[serie174.length-1].horario);
+      const midIndex=Math.floor((serie174.length-1)/2);
+      const daySegments=[];
+      let segStart=0, segNight=(dt174(serie174[0].horario).getHours()<6||dt174(serie174[0].horario).getHours()>=18);
+      for(let i=1;i<serie174.length;i++){
+        const h=dt174(serie174[i].horario).getHours(), night=(h<6||h>=18);
+        if(night!==segNight){ daySegments.push([segStart,i-1,segNight]); segStart=i; segNight=night; }
+      }
+      daySegments.push([segStart,serie174.length-1,segNight]);
+      const bands=daySegments.map(([a,b,night])=>{
+        const x1=Math.max(L,X(a)-(a?PW/(serie174.length-1)/2:0)), x2=Math.min(W-R,X(b)+(b<serie174.length-1?PW/(serie174.length-1)/2:0));
+        const mid=(x1+x2)/2, d=dt174(serie174[Math.floor((a+b)/2)].horario);
+        const label=night?"☾ NOITE":"☀ DIA";
+        return `<rect x="${x1}" y="${T}" width="${Math.max(0,x2-x1)}" height="${PH}" fill="${night?"rgba(45,66,110,.10)":"rgba(255,210,80,.035)"}"/>
+          <text x="${mid}" y="13" text-anchor="middle" fill="${night?"#c8c8ff":"#ffd45d"}" font-size="10" font-weight="700">${label} • ${d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}</text>`;
+      }).join("");
       const rainMarks=serie174.map((x,i)=>Number(x.chuva_mm)>0?`<circle cx="${X(i).toFixed(1)}" cy="${(H-17).toFixed(1)}" r="${Math.min(5,1.5+Number(x.chuva_mm)).toFixed(1)}" fill="#69bfff"><title>Chuva ${x.chuva_mm} mm • ${hora174(x.horario)}</title></circle>`:"").join("");
-      const ticks=[0,Math.floor((serie174.length-1)/2),serie174.length-1].map(i=>`<text x="${X(i)}" y="${H-3}" text-anchor="${i===0?"start":i===serie174.length-1?"end":"middle"}" fill="#88aab7" font-size="11">${new Date(serie174[i].horario).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</text>`).join("");
+      const ticks=[0,midIndex,serie174.length-1].map(i=>`<text x="${X(i)}" y="${H-3}" text-anchor="${i===0?"start":i===serie174.length-1?"end":"middle"}" fill="#b8d6e1" font-size="11" font-weight="700">${fmtDataHora174(serie174[i].horario)}</text>`).join("");
+      const nowX=X(0), nowY=Y(Number(serie174[0].nivel_central_m));
+      const tideIndex=serie174.reduce((bi,x,i)=>{
+        const a=Math.abs(dt174(x.horario)-dt174(pk174.horario));
+        const b=Math.abs(dt174(serie174[bi].horario)-dt174(pk174.horario));
+        return a<b?i:bi;
+      },0);
+      const tideX=X(tideIndex);
       svg174.innerHTML=`
+        ${bands}
         <line x1="${L}" y1="${T}" x2="${L}" y2="${H-B}" stroke="#315766"/>
         <line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="#315766"/>
         <text x="4" y="${T+8}" fill="#88aab7" font-size="11">${ymax.toFixed(2)} m</text>
         <text x="4" y="${H-B}" fill="#88aab7" font-size="11">${ymin.toFixed(2)} m</text>
         <polygon points="${upper} ${lower}" fill="rgba(90,183,220,.18)" stroke="none"/>
         <polyline points="${pts("nivel_central_m")}" fill="none" stroke="#55c9ee" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="${nowX}" cy="${nowY}" r="5" fill="#ffffff" stroke="#55c9ee" stroke-width="3"/>
+        <text x="${Math.min(W-120,nowX+9)}" y="${Math.max(28,nowY-10)}" fill="#ffffff" font-size="10" font-weight="700">AGORA ${Number(serie174[0].nivel_central_m).toFixed(2)} m</text>
+        ${pk174.mare_no_pico_m!=null?`<line x1="${tideX}" y1="${T+15}" x2="${tideX}" y2="${H-B}" stroke="#dcecff" stroke-width="1.5" stroke-dasharray="3 6" opacity=".8"/>
+        <text x="${Math.min(W-135,tideX+8)}" y="${T+29}" fill="#dcecff" font-size="10" font-weight="700">🌊 MARÉ ${Number(pk174.mare_no_pico_m).toFixed(2)} m</text>`:""}
         <line x1="${pX}" y1="${T}" x2="${pX}" y2="${H-B}" stroke="#f1c75b" stroke-dasharray="5 5"/>
         <circle cx="${pX}" cy="${pY}" r="6" fill="#f1c75b" stroke="#fff" stroke-width="2"/>
-        <text x="${Math.min(W-150,pX+9)}" y="${Math.max(14,pY-9)}" fill="#f7df91" font-size="12" font-weight="700">PICO ${Number(pk174.nivel_m).toFixed(2)} m</text>
+        <text x="${Math.min(W-155,pX+9)}" y="${Math.max(42,pY-9)}" fill="#f7df91" font-size="11" font-weight="800">PICO ${Number(pk174.nivel_m).toFixed(2)} m • ${hora174(pk174.horario)}</text>
         ${rainMarks}${ticks}`;
     }else{
       svg174.innerHTML='<text x="360" y="95" text-anchor="middle" fill="#88aab7" font-size="14">Série horária #174 indisponível nesta atualização</text>';
@@ -1361,6 +1391,8 @@ async function carregar(){
       +(pk174.mare_no_pico_m!=null?"Maré prevista no pico: "+f(pk174.mare_no_pico_m,2)+" m. ":"")
       +(ch174.acumulado_24h_mm!=null?"Chuva prevista em 24 h: "+f(ch174.acumulado_24h_mm,1)+" mm. ":"")
       +(vw174.rajada_max_kmh!=null?"Rajada máxima prevista: "+f(vw174.rajada_max_kmh,1)+" km/h por volta de "+hora174(vw174.horario)+". ":"")
+      +(pk174.mare_no_pico_m!=null&&ch174.acumulado_24h_mm!=null&&Number(ch174.acumulado_24h_mm)<5
+        ?"Neste cenário, a maré é a principal influência prevista para o pico e a chuva tem contribuição pequena. ":"")
       +"Resultado modelado, experimental e não instrumental."
     :"#174 inconclusivo nesta atualização; o Monitor não inventa pico sem as forçantes completas.";
   $("dashRadarEstado").textContent=rad.status?nomeFamilia(rad.status):"--";

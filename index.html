@@ -999,11 +999,14 @@ async function carregar(){
   $("cemadenEstacao").textContent=(cop.estacao&&cop.estacao.nome)||ce.nome||"NÃO IDENTIFICADA";
   $("cemadenDistancia").textContent=ce.distancia_comasa_aprox_km==null?"--":f(ce.distancia_comasa_aprox_km,2)+" km";
   $("cemadenCodigo").textContent=(ce.codigo??ce.id??"--");
-  $("cemadenQtd").textContent=c.quantidade_estacoes_joinville_ativas??"--";
+  $("cemadenQtd").textContent=Array.isArray(c.estacoes_joinville_ativas)?c.estacoes_joinville_ativas.filter(e=>e&&e.acumulado_disponivel===true&&Number.isFinite(Number(e.acumulado_24h_mm))).length:"--";
   $("cemadenHorario").textContent=cop.horario_ultima_celula_local?(horaCurta(cop.horario_ultima_celula_local)+" • "+f(cop.idade_leitura_min,0)+" min"):"--";
-  const estacoes=Array.isArray(c.estacoes_joinville_ativas)?[...c.estacoes_joinville_ativas]:[];
+  const estacoesTodas=Array.isArray(c.estacoes_joinville_ativas)?[...c.estacoes_joinville_ativas]:[];
+  // Painel operacional: exibe somente PCDs que realmente entregam leitura numérica nesta coleta.
+  // Cadastro CEMADEN status=0 não prova transmissão recente.
+  const estacoes=estacoesTodas.filter(e=>e&&e.acumulado_disponivel===true&&Number.isFinite(Number(e.acumulado_24h_mm)));
   estacoes.sort((x,y)=>{const ax=x.acumulado_24h_mm,ay=y.acumulado_24h_mm;if(ax==null&&ay==null)return String(x.nome||"").localeCompare(String(y.nome||""));if(ax==null)return 1;if(ay==null)return -1;return Number(ay)-Number(ax)});
-  $("cemadenPanorama").innerHTML='<b>🌧️ Panorama pluviométrico de Joinville • últimas 24 h</b><br><small>OBSERVADO nas estações CEMADEN • não representa condição das vias nem risco automático.</small>'+estacoes.map(e=>'<div class="estacao-linha"><div><b>'+String(e.nome||"Estação")+'</b><div class="estacao-meta">'+(e.distancia_comasa_aprox_km==null?"distância --":f(e.distancia_comasa_aprox_km,2)+" km da referência do Comasa")+'</div></div><div class="estacao-mm">'+(e.acumulado_24h_mm==null?"SEM LEITURA ATUAL":f(e.acumulado_24h_mm,2)+" mm")+'</div></div>').join("");
+  $("cemadenPanorama").innerHTML='<b>🌧️ Panorama pluviométrico de Joinville • últimas 24 h</b><br><small>OBSERVADO somente nas estações CEMADEN com leitura numérica nesta coleta • PCDs sem transmissão atual foram retiradas do painel operacional • não representa condição das vias nem risco automático.</small>'+estacoes.map(e=>'<div class="estacao-linha"><div><b>'+String(e.nome||"Estação")+'</b><div class="estacao-meta">'+(e.distancia_comasa_aprox_km==null?"distância --":f(e.distancia_comasa_aprox_km,2)+" km da referência do Comasa")+'</div></div><div class="estacao-mm">'+(e.acumulado_24h_mm==null?"SEM LEITURA ATUAL":f(e.acumulado_24h_mm,2)+" mm")+'</div></div>').join("");
   if(cop.status==="online_fresco_validado"){
    $("cs").innerHTML='<span class="ok">🟢 OBSERVADO • CEMADEN • 1 h / 6 h / 24 h validados</span>';
    $("cemadenNota").innerHTML='<b>✅ #144 operacional e validada.</b><br><small>As janelas de 1 h, 6 h e 24 h estão liberadas. A #170-H2 validou a semântica temporal horária do CEMADEN: T representa (T−60 min, T]. A granularidade explícita de 10 min continua separada e não é inferida.</small>';
@@ -1029,10 +1032,10 @@ async function carregar(){
   $("rede165NaoIntegradas").textContent=r165.quantidade_sem_leitura_automatica_integrada==null?"--":String(r165.quantidade_sem_leitura_automatica_integrada);
   $("rede165Risco").textContent=r165.uso_no_risco===true?"SIM":"NÃO";
   const est165=Array.isArray(r165.estacoes)?[...r165.estacoes]:[];
-  const est165Exibidas=est165.filter(e=>String(e.rede||e.fonte||"")!=="CEMADEN");
+  const est165Exibidas=est165.filter(e=>String(e.rede||e.fonte||"")!=="CEMADEN" && e.leitura_atual_disponivel===true);
   const ordem165={"EPAGRI/CIRAM":0,"ANA/SNIRH":1};
   est165Exibidas.sort((x,y)=>{const rx=ordem165[x.rede]??9,ry=ordem165[y.rede]??9;if(rx!==ry)return rx-ry;const ax=x.acumulado_24h_mm??x.precipitacao_1h_mm,ay=y.acumulado_24h_mm??y.precipitacao_1h_mm;if(ax==null&&ay!=null)return 1;if(ax!=null&&ay==null)return -1;if(ax!=null&&ay!=null&&Number(ax)!==Number(ay))return Number(ay)-Number(ax);return String(x.nome||"").localeCompare(String(y.nome||""))});
-  $("rede165Estacoes").innerHTML=est165Exibidas.length?'<b>Fontes complementares</b><br><small>🟢 leitura atual • ⚪ integrada, mas sem dado atual • 🟡 estação identificada, integração automática ainda pendente</small>'+est165Exibidas.map(e=>{const ehEpagri=String(e.rede||e.fonte||"").includes("EPAGRI");const medida=ehEpagri?e.precipitacao_1h_mm:e.acumulado_24h_mm;const leitura=e.leitura_atual_disponivel===true&&medida!=null;const integrada=e.aquisicao_automatica_integrada===true;const icone=leitura?"🟢":(integrada?"⚪":"🟡");const janela=ehEpagri?" • última 1 h":"";const valor=leitura?f(medida,2)+" mm"+janela:(integrada?"INTEGRADA • sem dado atual":"INTEGRAÇÃO PENDENTE");const codigo=e.codigo?" • "+String(e.codigo):"";const horario=ehEpagri&&e.horario_medicao?(" • medição "+dataHoraBR(e.horario_medicao)):"";return '<div class="estacao-linha"><div><b>'+icone+' '+String(e.nome||"Estação")+'</b><div class="estacao-meta">'+String(e.rede||e.fonte||"fonte não informada")+codigo+horario+'</div></div><div class="estacao-mm">'+valor+'</div></div>'}).join(""):'<small>Nenhuma fonte complementar recebida nesta coleta.</small>';
+  $("rede165Estacoes").innerHTML=est165Exibidas.length?'<b>Fontes complementares operacionais</b><br><small>🟢 somente fontes com leitura atual nesta coleta • inventários históricos e integrações sem telemetria foram retirados do painel operacional</small>'+est165Exibidas.map(e=>{const ehEpagri=String(e.rede||e.fonte||"").includes("EPAGRI");const medida=ehEpagri?e.precipitacao_1h_mm:e.acumulado_24h_mm;const leitura=e.leitura_atual_disponivel===true&&medida!=null;const integrada=e.aquisicao_automatica_integrada===true;const icone=leitura?"🟢":(integrada?"⚪":"🟡");const janela=ehEpagri?" • última 1 h":"";const valor=leitura?f(medida,2)+" mm"+janela:(integrada?"INTEGRADA • sem dado atual":"INTEGRAÇÃO PENDENTE");const codigo=e.codigo?" • "+String(e.codigo):"";const horario=ehEpagri&&e.horario_medicao?(" • medição "+dataHoraBR(e.horario_medicao)):"";return '<div class="estacao-linha"><div><b>'+icone+' '+String(e.nome||"Estação")+'</b><div class="estacao-meta">'+String(e.rede||e.fonte||"fonte não informada")+codigo+horario+'</div></div><div class="estacao-mm">'+valor+'</div></div>'}).join(""):'<small>Nenhuma fonte complementar recebida nesta coleta.</small>';
   if(r165.versao==="#165"&&est165.length){
    $("rede165Estado").innerHTML='<span class="ok">🟢 #165 RECEBIDA</span> • CEMADEN acima; aqui apenas redes complementares • sem agregação espacial automática';
   }else{
@@ -1041,7 +1044,9 @@ async function carregar(){
  
   // #172 — geometria de 100% do inventário #165.
   const rs172=r172.resumo||{};
-  const est172=Array.isArray(r172.estacoes)?[...r172.estacoes]:[];
+  const est172Todas=Array.isArray(r172.estacoes)?[...r172.estacoes]:[];
+  // #172 no site mostra apenas a geometria das fontes que estão efetivamente transmitindo.
+  const est172=est172Todas.filter(e=>e&&e.leitura_atual_disponivel===true);
   $("rede172Total").textContent=rs172.total_catalogadas_165??"--";
   $("rede172Processadas").textContent=rs172.total_processadas_172??"--";
   $("rede172Coordenadas").textContent=rs172.com_coordenada??"--";
@@ -1085,7 +1090,7 @@ async function carregar(){
   };
 
   $("rede172Estacoes").innerHTML=est172.length?
-   '<b>📍 Todas as estações catalogadas</b><br><small>Ordenadas pela relação espacial com o Guaxanduva. Nenhuma estação é ocultada por estar sem leitura.</small>'+
+   '<b>📍 Estações operacionais nesta coleta</b><br><small>Ordenadas pela relação espacial com o Guaxanduva. Estações sem telemetria/leitura atual não são exibidas como fonte operacional.</small>'+ 
    est172.map(e=>{
     const integrada=e.aquisicao_automatica_integrada===true;
     const leitura=e.leitura_atual_disponivel===true;

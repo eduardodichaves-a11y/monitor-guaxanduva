@@ -65,6 +65,44 @@ def main():
     mare164 = seguro("maré prevista #164", lambda: calcular_pico_mare_previsto_24h_164(previsao))
     proj174 = seguro("projeção Guaxanduva #174", lambda: projetar_guaxanduva_24h_174(previsao, mare160, mare164, v021, h019))
 
+    # Síntese operacional única para o card principal. Não confunde radar,
+    # pluviômetro regional e modelo meteorológico.
+    estacoes_rede = rede.get("estacoes", []) if isinstance(rede, dict) else []
+    obs_frescas = [e for e in estacoes_rede if isinstance(e, dict) and e.get("dados_frescos") is True
+                   and e.get("leitura_atual_disponivel") is True and isinstance(e.get("precipitacao_1h_mm"), (int, float))]
+    obs_max = max((float(e["precipitacao_1h_mm"]) for e in obs_frescas), default=None)
+    obs_media = (sum(float(e["precipitacao_1h_mm"]) for e in obs_frescas) / len(obs_frescas)) if obs_frescas else None
+    qrad = {}
+    if isinstance(radar, dict):
+        quadros = radar.get("quadros") or []
+        if quadros and isinstance(quadros[-1], dict):
+            qrad = quadros[-1].get("classificacao_qualitativa_local_130") or {}
+    por_raio = qrad.get("por_raio", {}) if isinstance(qrad, dict) else {}
+    raio_eco = next((r for r in (2, 5, 10, 25) if (por_raio.get(str(r)) or {}).get("eco_qualitativo_detectado") is True), None)
+    radar_fresco = isinstance(radar, dict) and radar.get("status") == "online" and radar.get("dados_frescos") is True
+    eco_local = radar_fresco and raio_eco is not None
+    if eco_local and obs_max is not None and obs_max > 0:
+        estado_agora = "SINAIS_DE_CHUVA_AGORA"
+        mensagem_agora = f"Eco RadarSC em até {raio_eco} km e chuva observada na rede regional (máx. {obs_max:.1f} mm/1h)."
+    elif eco_local:
+        estado_agora = "ECO_RADAR_LOCAL_AGORA"
+        mensagem_agora = f"Eco qualitativo RadarSC detectado em até {raio_eco} km; sem pluviômetro no Comasa para confirmar chuva no solo."
+    elif obs_max is not None and obs_max > 0:
+        estado_agora = "CHUVA_OBSERVADA_REGIONAL_AGORA"
+        mensagem_agora = f"Rede regional registra chuva (máx. {obs_max:.1f} mm/1h); isso não equivale a medição no Comasa."
+    else:
+        estado_agora = "SEM_CONFIRMACAO_LOCAL_DE_CHUVA"
+        mensagem_agora = "Sem confirmação local suficiente nesta coleta; ausência de evidência não é tratada como ausência de chuva."
+    estado_operacional = {
+        "status": estado_agora, "mensagem": mensagem_agora,
+        "radar_fresco": radar_fresco, "eco_qualitativo_local": eco_local, "menor_raio_eco_km": raio_eco,
+        "chuva_observada_regional_max_1h_mm": obs_max, "chuva_observada_regional_media_1h_mm": obs_media,
+        "estacoes_regionais_frescas": len(obs_frescas),
+        "chuva_modelo_openmeteo_mm": ((previsao.get("atual") or {}).get("precipitacao_mm") if isinstance(previsao, dict) else None),
+        "regra_seguranca": "Radar indica eco; pluviômetros medem chuva em suas estações; Open-Meteo é modelo. Nenhuma dessas fontes isoladamente é pluviômetro no Comasa.",
+        "gerado_em": agora().isoformat(),
+    }
+
     dados.update({
         "gerado_em": agora().isoformat(),
         "previsao": previsao,
@@ -82,6 +120,7 @@ def main():
         "criterio_hidrometeorologico_plancon_163": criterio163,
         "mare_prevista_24h_164": mare164,
         "projecao_guaxanduva_174": proj174,
+        "estado_agora_operacional": estado_operacional,
         "atualizacao_operacional_rapida": {
             "status": "concluida",
             "gerado_em": agora().isoformat(),

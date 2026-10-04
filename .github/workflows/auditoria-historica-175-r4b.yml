@@ -1,0 +1,26 @@
+name: Auditoria histórica #175 R4B
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditar-r4b:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Executar diagnóstico R4B
+        run: python auditar_mare_175_R4B.py
+      - name: Exibir auditoria
+        if: always()
+        run: |
+          test -f auditoria_mare_175_R4B.json
+          cat auditoria_mare_175_R4B.json

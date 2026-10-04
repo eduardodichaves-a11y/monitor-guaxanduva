@@ -319,7 +319,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 </div>
  
 <div class="dash-row">
-<div class="dash-panel"><h3>🌊 Rio Guaxanduva • Modelo V0.21</h3><div class="dash-big" id="dashRioNivel">--</div><div class="dash-muted" id="dashRioTend">MODELADO/NÃO INSTRUMENTAL</div><div class="gauge"><span id="dashRioGauge"></span></div><div class="dash-statgrid"><div class="dash-stat">Faixa estimativa<b id="dashRioFaixa">--</b></div><div class="dash-stat">Chuva memória<b id="dashRioChuva">--</b></div></div><div class="dash-muted" style="margin-top:7px">A barra apenas posiciona o valor dentro da própria faixa de incerteza do V0.21; não é escala de perigo.</div></div>
+<div class="dash-panel"><h3>🌊 Rio Guaxanduva • Modelo V0.21</h3><div class="dash-big" id="dashRioNivel">--</div><div class="dash-muted" id="dashRioTend">MODELADO/NÃO INSTRUMENTAL</div><div class="gauge"><span id="dashRioGauge"></span></div><div class="dash-statgrid"><div class="dash-stat">Faixa estimativa<b id="dashRioFaixa">--</b></div><div class="dash-stat">Forçante chuva • memória V0.21<b id="dashRioChuva">--</b></div></div><div class="dash-muted" style="margin-top:7px">A barra apenas posiciona o valor dentro da própria faixa de incerteza do V0.21; não é escala de perigo.</div></div>
 <div class="dash-panel"><h3>🌊 Maré • condição de jusante</h3><div class="dash-big" id="dashMareNivel">--</div><div class="dash-muted" id="dashMareDet">Joinville/Babitonga • não é nível do rio</div><div class="gauge"><span id="dashMareGauge"></span></div><div class="dash-statgrid"><div class="dash-stat">Observada EPAGRI<b id="dashMareObs">--</b></div><div class="dash-stat">Próximo extremo<b id="dashMareProx">--</b></div></div></div>
 <div class="dash-panel"><h3>🌬️ Vento • condições atuais</h3><div class="wind-rose"><span class="wind-n">N</span><span class="wind-s">S</span><span class="wind-l">L</span><span class="wind-o">O</span><span class="wind-arrow" id="dashWindArrow"></span></div><div style="text-align:center"><div class="dash-big" id="dashWindVel">--</div><div class="dash-muted" id="dashWindDet">--</div></div></div>
 </div>
@@ -1288,7 +1288,7 @@ async function carregar(){
     frase="O modelo V0.21 estima o Guaxanduva em "+f(nvResumo,2)+" m";
     if(tendResumo.classe)frase+=", "+nomeFamilia(tendResumo.classe).toLowerCase();
     if(entResumo.mare_jusante_m!=null)frase+=". A maré de jusante usada pelo modelo está em "+f(entResumo.mare_jusante_m,3)+" m";
-    if(entResumo.chuva_memoria_mm_h_equivalente!=null)frase+=" e a chuva efetiva com memória está em "+f(entResumo.chuva_memoria_mm_h_equivalente,3)+" mm/h";
+    if(entResumo.chuva_memoria_mm_h_equivalente!=null)frase+=" e a forçante regional de chuva com memória do modelo está em "+f(entResumo.chuva_memoria_mm_h_equivalente,3)+" mm/h";
     frase+=". O nível do rio é modelado, não medido por sensor.";
   }else{
     frase="O nível modelado V0.21 está indisponível nesta coleta; o Monitor não substitui ausência de dado por zero.";

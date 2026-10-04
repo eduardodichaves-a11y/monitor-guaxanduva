@@ -17,6 +17,10 @@ from atualizar_dados import (
     construir_rede_pluviometrica_multifonte_165,
     construir_geometria_rede_observacional_172,
     buscar_chuva_observada_inmet,
+    buscar_mare_observada_joinville_160,
+    atualizar_historico_guaxanduva_166,
+    calcular_hidrologia_guaxanduva_v019,
+    calcular_nivel_guaxanduva_v021,
 )
 
 ARQUIVO = Path("dados.json")
@@ -50,6 +54,10 @@ def main():
     rede = seguro("rede multifonte #165", lambda: construir_rede_pluviometrica_multifonte_165(cemaden, epagri))
     geometria = seguro("geometria #172", lambda: construir_geometria_rede_observacional_172(rede))
     inmet = seguro("INMET", buscar_chuva_observada_inmet)
+    mare160 = seguro("maré observada #160", buscar_mare_observada_joinville_160)
+    h166 = seguro("histórico Guaxanduva #166", lambda: atualizar_historico_guaxanduva_166(epagri, mare160))
+    h019 = seguro("hidrologia Guaxanduva V0.19", calcular_hidrologia_guaxanduva_v019)
+    v021 = seguro("nível Guaxanduva V0.21", lambda: calcular_nivel_guaxanduva_v021(h166, h019))
 
     dados.update({
         "gerado_em": agora().isoformat(),
@@ -61,6 +69,10 @@ def main():
         "rede_pluviometrica_multifonte_165": rede,
         "geometria_rede_observacional_172": geometria,
         "chuva_observada_inmet": inmet,
+        "mare_observada_joinville_160": mare160,
+        "historico_hidrometeorologico_guaxanduva_166": h166,
+        "hidrologia_guaxanduva_v019": h019,
+        "nivel_guaxanduva_v021": v021,
         "atualizacao_operacional_rapida": {
             "status": "concluida",
             "gerado_em": agora().isoformat(),

@@ -1006,7 +1006,7 @@ async function carregar(){
   // Cadastro CEMADEN status=0 não prova transmissão recente.
   const estacoes=estacoesTodas.filter(e=>e&&e.acumulado_disponivel===true&&Number.isFinite(Number(e.acumulado_24h_mm)));
   estacoes.sort((x,y)=>{const ax=x.acumulado_24h_mm,ay=y.acumulado_24h_mm;if(ax==null&&ay==null)return String(x.nome||"").localeCompare(String(y.nome||""));if(ax==null)return 1;if(ay==null)return -1;return Number(ay)-Number(ax)});
-  $("cemadenPanorama").innerHTML='<b>🌧️ Panorama pluviométrico de Joinville • últimas 24 h</b><br><small>OBSERVADO somente nas estações CEMADEN com leitura numérica nesta coleta • PCDs sem transmissão atual foram retiradas do painel operacional • não representa condição das vias nem risco automático.</small>'+estacoes.map(e=>'<div class="estacao-linha"><div><b>'+String(e.nome||"Estação")+'</b><div class="estacao-meta">'+(e.distancia_comasa_aprox_km==null?"distância --":f(e.distancia_comasa_aprox_km,2)+" km da referência do Comasa")+'</div></div><div class="estacao-mm">'+(e.acumulado_24h_mm==null?"SEM LEITURA ATUAL":f(e.acumulado_24h_mm,2)+" mm")+'</div></div>').join("");
+  $("cemadenPanorama").innerHTML='<b>🌧️ Panorama pluviométrico de Joinville • últimas 24 h</b><br><small>OBSERVADO somente nas estações CEMADEN habilitadas e com leitura numérica nesta coleta • PCDs sem transmissão e pluviômetros não validados foram retirados do painel operacional • não representa condição das vias nem risco automático.</small>'+estacoes.map(e=>'<div class="estacao-linha"><div><b>'+String(e.nome||"Estação")+'</b><div class="estacao-meta">'+(e.distancia_comasa_aprox_km==null?"distância --":f(e.distancia_comasa_aprox_km,2)+" km da referência do Comasa")+'</div></div><div class="estacao-mm">'+(e.acumulado_24h_mm==null?"SEM LEITURA ATUAL":f(e.acumulado_24h_mm,2)+" mm")+'</div></div>').join("");
   if(cop.status==="online_fresco_validado"){
    $("cs").innerHTML='<span class="ok">🟢 OBSERVADO • CEMADEN • 1 h / 6 h / 24 h validados</span>';
    $("cemadenNota").innerHTML='<b>✅ #144 operacional e validada.</b><br><small>As janelas de 1 h, 6 h e 24 h estão liberadas. A #170-H2 validou a semântica temporal horária do CEMADEN: T representa (T−60 min, T]. A granularidade explícita de 10 min continua separada e não é inferida.</small>';
@@ -1015,7 +1015,7 @@ async function carregar(){
    $("cemadenNota").innerHTML='<b>✅ #144 validada.</b><br><small>A estrutura 1 h / 6 h / 24 h está liberada; esta coleta está apenas fora do limite de frescor.</small>';
   }else if(c.status==="online_dado_bruto_24h"){
    $("cs").innerHTML='<span class="aviso">🟡 CEMADEN • somente dado bruto de 24 h disponível</span>';
-   $("cemadenNota").innerHTML='<b>Estação selecionada automaticamente:</b> '+(ce.nome||"--")+'<br><small>É a estação automática ativa mais próxima da referência pública aproximada do Comasa entre as que possuem acumulado válido. Não é um pluviômetro localizado no Comasa.</small>';
+   $("cemadenNota").innerHTML='<b>Estação selecionada automaticamente:</b> '+(ce.nome||"--")+'<br><small>É a estação operacional habilitada mais próxima da referência pública aproximada do Comasa entre as que possuem acumulado válido. Não é um pluviômetro localizado no Comasa.</small>';
   }else if(c.status==="online_sem_acumulado_valido"){
    $("cs").innerHTML='<span class="aviso">🟡 Estação localizada • acumulado 24 h indisponível</span>';
    $("cemadenNota").innerHTML='<small>O feed respondeu, mas não trouxe acumulado válido para a estação selecionada. O Monitor não converte ausência de leitura em 0 mm.</small>';

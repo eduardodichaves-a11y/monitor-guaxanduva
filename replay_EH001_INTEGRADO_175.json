@@ -1,0 +1,70 @@
+{
+  "id": "EH-001-INTEGRADO",
+  "natureza": "REPLAY_HISTORICO_CAUSAL_NAO_OPERACIONAL",
+  "janela_local": {
+    "inicio": "2020-12-31T18:00:00-03:00",
+    "fim": "2021-01-01T06:00:00-03:00"
+  },
+  "evidencias_causais": [
+    {
+      "id": "P139",
+      "tipo": "chuva",
+      "janela": "22:00-00:00",
+      "valor_mm": 139.0,
+      "disponibilidade_publica_aprox": "2021-01-01T01:42:00-03:00",
+      "regra": "NÃO retroinjetar 139 mm/2h antes da disponibilidade; no replay cego usar somente telemetria que exista por frame."
+    },
+    {
+      "id": "P169",
+      "tipo": "chuva_pos_evento",
+      "valor_mm_aprox": 169.0,
+      "duracao_h": 6,
+      "regra": "VALIDAÇÃO posterior; não é entrada causal durante o evento."
+    },
+    {
+      "id": "MARE",
+      "tipo": "mare_astronomica_reconstruida",
+      "preamar_modelada_aprox": "2020-12-31T20:24:40-03:00",
+      "baixamar_modelada_aprox": "2021-01-01T02:37:17-03:00",
+      "altura_m": null,
+      "observada": false,
+      "regra": "Contexto/forçante de fase; nunca tratar como observação ou altura absoluta."
+    }
+  ],
+  "evidencias_de_validacao": [
+    {
+      "hora_local": "2020-12-31T21:30:00-03:00",
+      "evento": "início aproximado do temporal em relato contemporâneo"
+    },
+    {
+      "hora_local": "2021-01-01T00:30:00-03:00",
+      "evento": "água começou a entrar na Paróquia Santo Antônio"
+    },
+    {
+      "hora_local": "2021-01-01T00:50:00-03:00",
+      "evento": "registro de alagamento na Rua Gerônimo Coelho"
+    }
+  ],
+  "criterio_de_sucesso": {
+    "proibicoes": [
+      "usar impacto futuro como entrada",
+      "usar decreto posterior como entrada",
+      "chamar maré reconstruída de observada",
+      "inventar chuva por frame"
+    ],
+    "metricas_futuras": [
+      "primeiro alerta causal",
+      "lead time até primeiro impacto validado",
+      "TP/TN/FP/FN em múltiplos eventos",
+      "POD",
+      "FAR",
+      "CSI/F1"
+    ]
+  },
+  "resultado_atual": {
+    "alerta_reconstituido": null,
+    "lead_time_min": null,
+    "motivo": "Ainda não existe nesta etapa uma série causal frame-a-frame de chuva/telemetria de 2020. Com agregados publicados depois do evento, calcular antecedência seria vazamento de informação."
+  },
+  "conclusao": "O envelope integrado está pronto, mas o teste honesto de antecedência permanece BLOQUEADO até haver entradas temporais disponíveis por frame. Impactos conhecidos servem somente como verdade-terreno."
+}

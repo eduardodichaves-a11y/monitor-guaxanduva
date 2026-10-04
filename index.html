@@ -807,7 +807,7 @@ async function carregarHistorico(){
 
 function renderEnso173(d){
  try{
-  const E=d.super_el_nino_173||{}, I=d.impactos_locais_173||{}, IF=d.influencia_joinville_173||{}, CM=d.ciclone_multifonte_173||{}, N=d.nivel_guaxanduva_v021||{}, V=d.validacao_campo_guaxanduva||{};
+  const E=d.super_el_nino_173||{}, I=d.impactos_locais_173||{}, IF=d.influencia_joinville_173||{}, CM=d.ciclone_multifonte_173||{}, C=d.estado_canonico_operacional||{}, CR=C.rio||{}, CMare=C.mare||{}, N=(CR.nivel_modelado_m!=null?{nivel_estimado_m:CR.nivel_modelado_m,tendencia:CR.tendencia||{},confianca:(d.nivel_guaxanduva_v021||{}).confianca}:d.nivel_guaxanduva_v021||{}), V=d.validacao_campo_guaxanduva||{};
   const en=E.enso||{}, r=en.roni_observado||{}, pp=en.probabilidades_oficiais||{};
   const rv=r.valor!=null?r.valor:(r.roni!=null?r.roni:null);
   const rp=r.periodo||r.trimestre||r.estacao||"--";
@@ -834,7 +834,10 @@ function renderEnso173(d){
   const mapa={verde:"🟢",amarelo:"🟡",laranja:"🟠",vermelho:"🔴",azul:"🔵",cinza:"⚪"};
   const ordem=["chuva_24h","tempestade","granizo","vento","ciclone","mare","rio_guaxanduva","chuva_mais_mare"];
   const nomes={chuva_24h:"Chuva 24 h",tempestade:"Tempestade",granizo:"Granizo",vento:"Rajadas",ciclone:"Ciclone",mare:"Maré",rio_guaxanduva:"Guaxanduva",chuva_mais_mare:"Chuva + maré"};
-  const imp=I.impactos||{};
+  const imp=Object.assign({},I.impactos||{});
+  // Estado atual canônico prevalece sobre snapshots copiados em cards derivados.
+  if(CMare.observada_m!=null){imp.mare=Object.assign({},imp.mare||{},{estado:"OBSERVADA_ATUAL",cor:"azul",icone:"🌊",mensagem:"Maré observada em Joinville/Babitonga: "+Number(CMare.observada_m).toFixed(2)+" m.",nivel_observado_m:CMare.observada_m});}
+  if(CR.nivel_modelado_m!=null){const tt=CR.tendencia||{};imp.rio_guaxanduva=Object.assign({},imp.rio_guaxanduva||{},{estado:"MODELADO_"+String(tt.classe||"ATUAL").toUpperCase(),cor:"azul",icone:"🏞️",mensagem:"Nível modelado "+Number(CR.nivel_modelado_m).toFixed(2)+" m"+(tt.classe?"; tendência "+String(tt.classe).toLowerCase()+(tt.cm_h==null?"":" ("+(Number(tt.cm_h)>=0?"+":"")+Number(tt.cm_h).toFixed(1)+" cm/h)"):"")+".",nivel_modelado_m:CR.nivel_modelado_m,tendencia:tt.classe,cm_h:tt.cm_h,natureza:"MODELADO_NAO_INSTRUMENTAL",fonte:"GXA-V0.21 • estado canônico operacional"});}
   $("enso173Impactos").innerHTML=ordem.map(k=>{
     const x=imp[k]||{}, cor=(x.cor||"cinza").toLowerCase(), ic=mapa[cor]||"⚪";
     return '<div class="enso173-impacto enso173-'+cor+'"><span>'+ic+' '+(x.icone||"")+'</span><b>'+nomes[k]+'</b><small>'+(x.mensagem||x.estado||"Sem dado conclusivo")+'</small></div>';
@@ -1325,9 +1328,8 @@ async function carregar(){
   $("leigo1h").textContent=(ph.precipitacao_mm==null?"Chuva indisponível":f(ph.precipitacao_mm,1)+" mm")+(ph.probabilidade_chuva_pct==null?"":" • "+Math.round(ph.probabilidade_chuva_pct)+"%");
   const g174=d.projecao_guaxanduva_174||{}, pk174=g174.pico||{}, vw174=g174.vento||{}, ch174=g174.chuva||{};
   const hora174=(s)=>{if(!s)return "--";try{return new Date(s).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch(_){return s;}};
-  $("leigoRioMare").textContent=(g174.status==="projecao_experimental_calculada"&&pk174.nivel_m!=null)
-    ? "Agora "+f(nvResumo,2)+" m • pico 24h "+f(pk174.nivel_m,2)+" m ("+f(pk174.min_m,2)+"–"+f(pk174.max_m,2)+") • "+hora174(pk174.horario)
-    : (nvResumo==null?"Rio indisponível":f(nvResumo,2)+" m "+nomeFamilia(tendResumo.classe||""))+" • maré "+(entResumo.mare_jusante_m==null?(mo.nivel_m==null?"--":f(mo.nivel_m,2)+" m"):f(entResumo.mare_jusante_m,2)+" m");
+  const rioCanon=(canon.rio||{}).nivel_modelado_m??nvResumo, mareCanon=(canon.mare||{}).observada_m??mo.nivel_m??entResumo.mare_jusante_m;
+  $("leigoRioMare").textContent=(rioCanon==null?"Rio indisponível":"rio "+f(rioCanon,2)+" m")+" • "+(mareCanon==null?"maré indisponível":"maré "+f(mareCanon,2)+" m")+(g174.status==="projecao_experimental_calculada"&&pk174.nivel_m!=null?" • pico modelado 24h "+f(pk174.nivel_m,2)+" m":"");
   if(g174.status==="projecao_experimental_calculada"&&vw174.rajada_max_kmh!=null){
     const windChip=[...document.querySelectorAll("#leigoHazards .hazard-chip")].find(el=>el.querySelector("b")?.textContent==="Rajadas");
     if(windChip) windChip.querySelector("small").textContent="Pico 24h "+f(vw174.rajada_max_kmh,1)+" km/h • "+hora174(vw174.horario);
@@ -1532,7 +1534,7 @@ async function carregar(){
   $("dashMareNivel").textContent=mareDash==null?"INDISPONÍVEL":f(mareDash,3)+" m";
   $("dashMareDet").textContent="Joinville/Babitonga • condição de jusante • não é nível do rio";
   $("dashMareObs").textContent=mo.nivel_m==null?"--":f(mo.nivel_m,3)+" m";
-  const proxDash=(m.proximo_extremo||m.proximo||m.proxima||{});
+  const proxDash=((canon.mare||{}).proximo_extremo||m.proximo_extremo||m.proximo||m.proxima||{});
   $("dashMareProx").textContent=(proxDash.altura_m==null?"--":f(proxDash.altura_m,2)+" m")+(proxDash.horario?" • "+horaCurta(proxDash.horario):"");
   $("dashMareGauge").style.width=mareDash==null?"0%":Math.max(0,Math.min(100,Number(mareDash)/2.5*100))+"%";
   $("dashWindVel").textContent=a.vento_kmh==null?"--":f(a.vento_kmh,1)+" km/h";
@@ -1548,7 +1550,7 @@ async function carregar(){
 
   /* #168 • liberação experimental • leitura fail-closed */
   const eta168=x168.eta_fortracc_tathu||{}, radar168=x168.radar_estimativa_quantitativa||{},
-        nivel168=(v021&&v021.status==="nivel_modelado_calculado"?v021:(x168.nivel_guaxanduva_modelado||{})), conf168=x168.indice_confianca||{},
+        nivel168=(n21&&n21.status==="nivel_modelado_calculado"?n21:(x168.nivel_guaxanduva_modelado||{})), conf168=x168.indice_confianca||{},
         alerta168=x168.alerta_automatico_monitor||{}, tend168=nivel168.tendencia||{},
         faixa168=nivel168.faixa_estimativa_m||{}, val168=eta168.validacao_historica_condicional||{};
 

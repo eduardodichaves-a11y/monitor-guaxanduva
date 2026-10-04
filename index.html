@@ -869,7 +869,7 @@ function renderEnso173(d){
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
-  const d=await r.json(),agoraOp=d.estado_agora_operacional||{},c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},r172=d.geometria_rede_observacional_172||{},e171=d.estado_cientifico_vigente_171||{},i4=d.auditoria_empirica_raster_chuva_170_i4||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{},x168=d.liberacao_experimental_168||{},gxaK=d.metodo_guaxanduva_refletividade_v01||{},gxaL=d.metodo_guaxanduva_zr_operacional_v02||{},gxaM=d.metodo_guaxanduva_publicacao_operacional_v03||{};
+  const d=await r.json(),canon=d.estado_canonico_operacional||{},agoraOp=d.estado_agora_operacional||{},c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},r172=d.geometria_rede_observacional_172||{},e171=d.estado_cientifico_vigente_171||{},i4=d.auditoria_empirica_raster_chuva_170_i4||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{},x168=d.liberacao_experimental_168||{},gxaK=d.metodo_guaxanduva_refletividade_v01||{},gxaL=d.metodo_guaxanduva_zr_operacional_v02||{},gxaM=d.metodo_guaxanduva_publicacao_operacional_v03||{};
   // Segunda barreira auditável: se dados.json vier sem resumo topológico,
   // o card estrutural lê a última topologia validada persistida no repositório.
   if(!gxa.resumo || gxa.resumo.segmentos_microbacia==null){
@@ -1139,7 +1139,7 @@ async function carregar(){
   $("guax166MareQtd").textContent=h166.quantidade_mare_observada==null?"--":String(h166.quantidade_mare_observada);
   $("guax166NivelLiberado").textContent=(gxa.inferencia_estados_hidraulicos_v017||(gxa.camada_matematica||{}).inferencia_estados_hidraulicos_v017)?"ATIVO":"--";
   const est166=Array.isArray(h166.chuva_por_estacao)?h166.chuva_por_estacao:[];
-  $("guax166Estacoes").innerHTML=est166.length?'<b>🌧️ Janelas observadas por estação</b><br><small>'+est166.map(e=>{const janela=(rot,obj)=>{const x=obj||{};return rot+': <b>'+(x.disponivel===true&&x.valor_mm!=null?f(x.valor_mm,2)+' mm':'INDISPONÍVEL')+'</b>'};return '<div class="estacao-linha"><div><b>'+String(e.nome||e.codigo||"Estação")+'</b><div class="estacao-meta">'+String(e.fonte||"fonte não informada")+' • '+(e.equivale_medicao_no_comasa===true?'medição no Comasa':'não equivale a medição no Comasa')+'</div></div><div class="estacao-mm">'+janela('P1h',e.P1h)+'<br>'+janela('P3h',e.P3h)+'<br>'+janela('P6h',e.P6h)+'<br>'+janela('P24h',e.P24h)+'</div></div>'}).join('')+'</small>':'<small>Histórico #166 ainda sem série horária suficiente.</small>';
+  $("guax166Estacoes").innerHTML=est166.length?'<b>🌧️ Janelas observadas por estação</b><br><small>'+est166.map(e=>{const janela=(rot,obj)=>{const x=obj||{};let txt;if(x.disponivel===true&&x.valor_mm!=null)txt=f(x.valor_mm,2)+' mm';else if(x.motivo==='janela_horaria_incompleta')txt='JANELA INCOMPLETA ('+(x.horas_validas??0)+'/'+(x.horas_necessarias??'?')+' h)';else txt='INDISPONÍVEL';return rot+': <b>'+txt+'</b>'};return '<div class="estacao-linha"><div><b>'+String(e.nome||e.codigo||"Estação")+'</b><div class="estacao-meta">'+String(e.fonte||"fonte não informada")+' • '+(e.equivale_medicao_no_comasa===true?'medição no Comasa':'não equivale a medição no Comasa')+'</div></div><div class="estacao-mm">'+janela('P1h',e.P1h)+'<br>'+janela('P3h',e.P3h)+'<br>'+janela('P6h',e.P6h)+'<br>'+janela('P24h',e.P24h)+'</div></div>'}).join('')+'</small>':'<small>Histórico #166 ainda sem série horária suficiente.</small>';
   const mj166=h166.mare_jusante_mais_recente||{};
   $("guax166Mare").innerHTML=mj166.horario_medicao?'<b>🌊 Condição de jusante mais recente</b><br><small>'+dataHoraBR(mj166.horario_medicao)+' • nível observado no marégrafo: <b>'+(mj166.nivel_m==null?'--':f(mj166.nivel_m,3)+' m')+'</b><br>Joinville/Babitonga • não representa nível do Rio Guaxanduva.</small>':'<small>Maré observada de jusante ainda indisponível no histórico #166.</small>';
   if(h166.status==="historico_em_formacao"){
@@ -1658,8 +1658,8 @@ async function carregar(){
    $("granizoLink").textContent="ABRIR ALERTAS DO INMET";
   }
  }catch(e){
-  $("sistema").innerHTML='<span class="erro">🔴 Falha ao carregar dados.json</span>';$("coleta").textContent=e.message;$("radarEstado").innerHTML='<span class="erro">🔴 Falha ao carregar radar</span>';
-  $("ecoQualEstado").innerHTML='<span class="erro">🔴 Falha ao carregar classificação qualitativa</span>';
+  $("sistema").innerHTML='<span class="erro">🔴 Falha de renderização do painel</span>';$("coleta").textContent=e.message;
+  console.error("Falha ao renderizar Monitor Guaxanduva",e);
  }
 }
 carregar();carregarHistorico();carregarAuditoria170();setInterval(carregar,60000);setInterval(carregarHistorico,60000);setInterval(carregarAuditoria170,60000);

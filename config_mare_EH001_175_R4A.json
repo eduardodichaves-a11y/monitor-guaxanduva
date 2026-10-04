@@ -1,0 +1,74 @@
+{
+  "schema": "1.0-R4A",
+  "versao": "#175-R4A",
+  "status": "LABORATORIO_NAO_OPERACIONAL",
+  "evento": "EH-001",
+  "janela": {
+    "inicio": "2020-12-31T18:00:00-03:00",
+    "fim": "2021-01-01T06:00:00-03:00",
+    "passo_min": 10
+  },
+  "estacao_referencia": {
+    "nome": "Joinville Iate Clube",
+    "codigo_dhn": "60222",
+    "localidade": "Ilha dos Espinheiros",
+    "lat_aprox": -26.2916667,
+    "lon_aprox": -48.7733333,
+    "fonte": "F-41 DHN 60222 versão 2/2010",
+    "zo_cm": 81.8,
+    "so_cm": 120.9,
+    "observacao": "A ficha comprova estação/referencial e análise harmônica histórica; não fornece constantes harmônicas de 2020 nem a série 31/12/2020–01/01/2021."
+  },
+  "regras_fail_closed": [
+    "mare_observada permanece N/D",
+    "reconstrucao não é observação",
+    "nenhuma altura absoluta em metros será produzida sem datum + nível médio/constantes ou âncora histórica compatível",
+    "componente meteorológica não é assumida zero quando vento/pressão históricos faltam",
+    "não alterar Fusion A1, pesos, index.html ou dados.json"
+  ],
+  "modelo": {
+    "tipo": "ensemble_harmonico_relativo",
+    "amostras": 5000,
+    "seed": 175041,
+    "constituintes": [
+      {
+        "nome": "M2",
+        "periodo_h": 12.4206012
+      },
+      {
+        "nome": "S2",
+        "periodo_h": 12.0
+      },
+      {
+        "nome": "N2",
+        "periodo_h": 12.6583475
+      },
+      {
+        "nome": "K1",
+        "periodo_h": 23.9344721
+      },
+      {
+        "nome": "O1",
+        "periodo_h": 25.8193387
+      }
+    ],
+    "parametros_adimensionais": {
+      "semidiurno_total": [
+        0.55,
+        0.9
+      ],
+      "diurno_total": [
+        0.1,
+        0.45
+      ],
+      "observacao": "Faixas são ensemble exploratório adimensional, não constantes da estação 60222."
+    }
+  },
+  "saidas_permitidas": [
+    "fase_relativa_normalizada_-1_a_1",
+    "percentis_ensemble_relativos",
+    "incerteza_relativa",
+    "mare_observada=N/D",
+    "altura_absoluta_m=N/D"
+  ]
+}

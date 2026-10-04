@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""#174-C — Monitor Oceânico experimental do Monitor Guaxanduva.
+"""#174-D — Monitor Oceânico experimental do Monitor Guaxanduva.
 
 Lê o diagnóstico GOES-19/TATHU do CPTEC/INPE, faz triagem ampla de sistemas
 convectivos no entorno da América do Sul e calcula, de forma fail-closed,
@@ -135,7 +135,7 @@ def normalizar(feature):
     else:
         compat = "VETOR_NAO_ALINHADO"
 
-    # #174-C: ETA fica bloqueado até a convenção de Dir/Vel ser documentalmente
+    # #174-D: ETA fica bloqueado até a convenção de Dir/Vel ser documentalmente
     # validada e a aproximação ser confirmada em múltiplos quadros.
     eta_h = None
 
@@ -208,14 +208,76 @@ def aplicar_tendencia_observada(sistemas, payload_anterior, intervalo_minutos=10
         s["delta_distancia_km"] = delta
         # Coordenadas TATHU aparecem centesimais; banda morta de 2 km evita
         # transformar quantização/ruído de centroide em tendência meteorológica.
-        if delta <= -2.0:
-            s["tendencia_distancia_observada"] = "APROXIMANDO_OBSERVADO"
+        s["velocidade_centroide_implicita_km_h"] = round(abs(delta) / (intervalo_minutos / 60.0), 1)
+        s["continuidade_apta_trajetoria"] = str(s.get("evento") or "").upper() == "CONTINUITY"
+        s["salto_centroide_plausivel"] = s["velocidade_centroide_implicita_km_h"] <= 250.0
+        if not s["continuidade_apta_trajetoria"]:
+            s["tendencia_distancia_observada"] = "EVENTO_DESCONTINUO_NAO_USAR_TRAJETORIA"
+        elif not s["salto_centroide_plausivel"]:
+            s["tendencia_distancia_observada"] = "SALTO_CENTROIDE_INCOMPATIVEL"
+        elif delta <= -2.0:
+            s["tendencia_distancia_observada"] = "APROXIMANDO_OBSERVADO_CONTINUO"
         elif delta >= 2.0:
-            s["tendencia_distancia_observada"] = "AFASTANDO_OBSERVADO"
+            s["tendencia_distancia_observada"] = "AFASTANDO_OBSERVADO_CONTINUO"
         else:
             s["tendencia_distancia_observada"] = "SEM_TENDENCIA_SIGNIFICATIVA"
         s["intervalo_comparacao_min"] = intervalo_minutos
     return sistemas
+
+
+def confirmar_ecmwf_850(sistemas, horario_produto, timeout=12, limite=20):
+    """Confirma, sem liberar previsão, se o escoamento ECMWF 850 hPa apoia o rumo a Joinville.
+
+    A direção meteorológica é DE ONDE o vento vem; convertemos para o vetor PARA ONDE
+    somando 180°. Apenas candidatos CONTINUITY, com aproximação plausível, são consultados.
+    """
+    candidatos = [s for s in sistemas if s.get("tendencia_distancia_observada") == "APROXIMANDO_OBSERVADO_CONTINUO"]
+    candidatos.sort(key=lambda x: x["distancia_joinville_km"])
+    candidatos = candidatos[:max(1, limite)]
+    for s in sistemas:
+        s["confirmacao_sinotica_850hpa"] = "NAO_AVALIADA"
+        s["ecmwf_850hpa"] = None
+    if not candidatos:
+        return {"status": "sem_candidatos_continuos", "avaliados": 0, "fonte": "ECMWF via Open-Meteo ECMWF API"}
+    endpoint = "https://api.open-meteo.com/v1/ecmwf"
+    params = {
+        "latitude": ",".join(str(s["latitude"]) for s in candidatos),
+        "longitude": ",".join(str(s["longitude"]) for s in candidatos),
+        "hourly": "wind_speed_850hPa,wind_direction_850hPa",
+        "forecast_days": 2, "timezone": "UTC", "cell_selection": "nearest"
+    }
+    try:
+        r = requests.get(endpoint, params=params, timeout=timeout, headers={"User-Agent": "Monitor-Guaxanduva/174-D"})
+        r.raise_for_status(); payload = r.json()
+        locais = payload if isinstance(payload, list) else [payload]
+    except Exception as e:
+        return {"status": "fonte_indisponivel_fail_closed", "avaliados": 0, "erro": str(e)[:180], "fonte": "ECMWF via Open-Meteo ECMWF API"}
+    alvo = horario_produto.replace(minute=0, second=0, microsecond=0) if horario_produto else datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+    avaliados = apoiados = rejeitados = 0
+    for s, loc in zip(candidatos, locais):
+        h = (loc or {}).get("hourly") or {}; tempos = h.get("time") or []
+        if not tempos: continue
+        def parse_t(t):
+            try: return datetime.fromisoformat(str(t)).replace(tzinfo=UTC)
+            except Exception: return None
+        pares=[(abs((tt-alvo).total_seconds()),i,tt) for i,t in enumerate(tempos) if (tt:=parse_t(t)) is not None]
+        if not pares: continue
+        _, j, tt = min(pares)
+        vs = h.get("wind_speed_850hPa") or []; ds = h.get("wind_direction_850hPa") or []
+        sp = numero(vs[j]) if j < len(vs) else None; dfrom = numero(ds[j]) if j < len(ds) else None
+        if sp is None or dfrom is None: continue
+        dto = (dfrom + 180.0) % 360.0
+        erro = diferenca_angular(dto, s["rumo_sistema_para_joinville_graus"])
+        if sp < 10:
+            status = "INCONCLUSIVO_VENTO_FRACO"
+        elif erro <= 60:
+            status = "APOIA_CORREDOR_PARA_JOINVILLE"; apoiados += 1
+        else:
+            status = "NAO_APOIA_CORREDOR_PARA_JOINVILLE"; rejeitados += 1
+        avaliados += 1
+        s["confirmacao_sinotica_850hpa"] = status
+        s["ecmwf_850hpa"] = {"horario_utc": tt.isoformat(), "vento_km_h": round(sp,1), "direcao_de_graus": round(dfrom,1), "vetor_para_graus": round(dto,1), "erro_para_joinville_graus": round(erro,1), "natureza": "MODELADO_NAO_OPERACIONAL"}
+    return {"status": "coletado" if avaliados else "sem_amostras_fail_closed", "avaliados": avaliados, "apoiam": apoiados, "nao_apoiam": rejeitados, "fonte": "ECMWF via Open-Meteo ECMWF API", "regra": "Vento 850 hPa e evidencia sinotica auxiliar; nao prova chegada de sistema convectivo."}
 
 
 def processar(payload, horario_produto=None, url=None, tentativas=None, payload_anterior=None, horario_anterior=None, url_anterior=None):
@@ -227,10 +289,12 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
             sistemas.append(x)
     sistemas = aplicar_tendencia_observada(sistemas, payload_anterior)
     sistemas.sort(key=lambda x: x["distancia_joinville_km"])
-    aproximando = [x for x in sistemas if x["tendencia_distancia_observada"] == "APROXIMANDO_OBSERVADO"]
+    sinotica = confirmar_ecmwf_850(sistemas, horario_produto)
+    aproximando = [x for x in sistemas if x["tendencia_distancia_observada"] == "APROXIMANDO_OBSERVADO_CONTINUO"]
     aproximando.sort(key=lambda x: x["distancia_joinville_km"])
+    confirmados = [x for x in aproximando if x.get("confirmacao_sinotica_850hpa") == "APOIA_CORREDOR_PARA_JOINVILLE"]
     return {
-        "versao": "#174-C",
+        "versao": "#174-D",
         "status": "experimental_dados_processados",
         "uso_operacional": False,
         "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
@@ -243,20 +307,25 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
         "dominio_triagem": {"lat_min": -60, "lat_max": 5, "lon_min": -100, "lon_max": -20},
         "sistemas_no_dominio": len(sistemas),
         "sistemas_geometricamente_compativeis": None,
-        "sistemas_aproximando_observado": len(aproximando),
+        "sistemas_aproximando_observado_continuo": len(aproximando),
+        "sistemas_aproximando_com_apoio_sinotico_850hpa": len(confirmados),
         "sistema_aproximando_mais_proximo": aproximando[0] if aproximando else None,
+        "confirmacao_sinotica": sinotica,
         "quadro_anterior_horario_utc": horario_anterior.isoformat() if horario_anterior else None,
         "quadro_anterior_url": url_anterior,
         "sistemas": sistemas,
         "tentativas_fonte": tentativas or [],
         "regras_seguranca": [
             "Alinhamento angular isolado nao significa que o sistema chegara a Joinville.",
-            "Aproximacao observada exige o mesmo ID em dois quadros e reducao de distancia superior a banda morta de 2 km.",
-            "ETA permanece bloqueado no #174-C.",
+            "Aproximacao observada exige mesmo ID, evento CONTINUITY, dois quadros e reducao de distancia superior a banda morta de 2 km.",
+            "MERGE, SPLIT e SPONTANEOUS_GENERATION nunca sustentam trajetoria continua.",
+            "Deslocamento de centroide acima de 250 km/h e rejeitado como salto incompativel neste gate experimental.",
+            "ECMWF 850 hPa e confirmacao sinotica auxiliar; vento meteorologico DE e convertido para vetor PARA antes da comparacao.",
+            "ETA permanece bloqueado no #174-D.",
             "Vel do TATHU e preservado e convertido de m/s para km/h apenas como diagnostico; Vel=0 invalida o vetor direcional.",
             "Valores sentinela <= -900 sao tratados como ausentes.",
             "Ausencia/erro da fonte nunca significa ausencia de tempestade.",
-            "#174-C nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
+            "#174-D nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
         ],
     }
 
@@ -276,7 +345,7 @@ def main():
         payload, horario, url, tentativas = buscar_ultimo(timeout=max(1.0, args.timeout), max_tentativas=max(1, min(args.tentativas, 25)))
         if payload is None:
             resultado = {
-                "versao": "#174-C", "status": "fonte_indisponivel_fail_closed",
+                "versao": "#174-D", "status": "fonte_indisponivel_fail_closed",
                 "uso_operacional": False, "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
                 "sistemas_no_dominio": None, "sistemas_geometricamente_compativeis": None,
                 "sistema_compativel_mais_proximo": None, "sistemas": [], "tentativas_fonte": tentativas,
@@ -290,7 +359,7 @@ def main():
             url_anterior = TATHU_BASE + horario_anterior.strftime("%Y/%m/") + "goes19_diagnostic_" + horario_anterior.strftime("%Y%m%d%H%M") + ".json"
             payload_anterior = None
             try:
-                rr = requests.get(url_anterior, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-C"})
+                rr = requests.get(url_anterior, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-D"})
                 if rr.status_code == 200:
                     candidato = rr.json()
                     if isinstance(candidato, dict) and isinstance(candidato.get("features"), list):

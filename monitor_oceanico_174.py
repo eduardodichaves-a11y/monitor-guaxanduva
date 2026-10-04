@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""#174-H — Monitor Oceânico experimental do Monitor Guaxanduva.
+"""#174-I — Monitor Oceânico experimental do Monitor Guaxanduva.
 
 Lê o diagnóstico GOES-19/TATHU do CPTEC/INPE, faz triagem ampla de sistemas
 convectivos no entorno da América do Sul e calcula, de forma fail-closed,
@@ -26,6 +26,20 @@ LAT_JOINVILLE = -26.27
 LON_JOINVILLE = -48.81
 TATHU_BASE = "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/"
 SAIDA_PADRAO = "monitor_oceanico_174.json"
+
+# Âncoras geográficas APROXIMADAS para triagem de corredor, não polígonos oficiais.
+# O objetivo é separar relevância regional (RS/SC/PR) de relevância local
+# (Norte de SC/Joinville) sem transformar uma em conclusão sobre a outra.
+ALVOS_SUL_BRASIL = {
+    "RS_PORTO_ALEGRE": (-30.03, -51.23),
+    "SC_FLORIANOPOLIS": (-27.59, -48.55),
+    "PR_CURITIBA": (-25.43, -49.27),
+}
+ALVOS_NORTE_SC = {
+    "JOINVILLE": (LAT_JOINVILLE, LON_JOINVILLE),
+    "SAO_FRANCISCO_DO_SUL": (-26.24, -48.64),
+    "JARAGUA_DO_SUL": (-26.49, -49.07),
+}
 
 
 def numero(v):
@@ -103,6 +117,18 @@ def dentro_dominio(lat, lon):
     return -60 <= lat <= 5 and -100 <= lon <= -20
 
 
+def metricas_alvos(lat, lon, alvos):
+    itens = []
+    for nome, (alat, alon) in alvos.items():
+        itens.append({
+            "alvo": nome,
+            "distancia_km": round(haversine_km(lat, lon, alat, alon), 1),
+            "rumo_graus": round(bearing(lat, lon, alat, alon), 1),
+        })
+    itens.sort(key=lambda x: x["distancia_km"])
+    return itens
+
+
 def normalizar(feature):
     if not isinstance(feature, dict):
         return None
@@ -138,6 +164,8 @@ def normalizar(feature):
     # #174-D: ETA fica bloqueado até a convenção de Dir/Vel ser documentalmente
     # validada e a aproximação ser confirmada em múltiplos quadros.
     eta_h = None
+    alvos_sul = metricas_alvos(lat, lon, ALVOS_SUL_BRASIL)
+    alvos_norte = metricas_alvos(lat, lon, ALVOS_NORTE_SC)
 
     return {
         "id_sistema": p.get("name"),
@@ -149,6 +177,10 @@ def normalizar(feature):
         "setor_geografico": setor_origem(lat, lon),
         "distancia_joinville_km": round(dist, 1),
         "rumo_sistema_para_joinville_graus": round(rumo, 1),
+        "destinos_geograficos_174i": {
+            "sul_brasil": {"alvo_mais_proximo": alvos_sul[0]["alvo"], "distancia_km": alvos_sul[0]["distancia_km"], "rumo_graus": alvos_sul[0]["rumo_graus"], "ancoras": alvos_sul},
+            "norte_sc_joinville": {"alvo_mais_proximo": alvos_norte[0]["alvo"], "distancia_km": alvos_norte[0]["distancia_km"], "rumo_graus": alvos_norte[0]["rumo_graus"], "ancoras": alvos_norte},
+        },
         "direcao_movimento_graus": None if direcao is None else round(direcao, 1),
         "diferenca_angular_graus": None if dif is None else round(dif, 1),
         "velocidade_movimento_m_s": None if vel_ms is None else round(vel_ms, 2),
@@ -225,7 +257,7 @@ def aplicar_tendencia_observada(sistemas, payload_anterior, intervalo_minutos=10
     return sistemas
 
 
-def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5, tentativas=2):
+def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=30, lote=5, tentativas=2):
     """Gate #174-F: confirmação sinótica robusta e explicitamente triestatal.
 
     FAVORAVEL/CONTRARIO só existem quando uma amostra ECMWF 850 hPa válida foi obtida.
@@ -239,9 +271,15 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
     """
     # #174-G: prioridade por evidência. Persistência temporal vence proximidade instantânea.
     aproximando = [s for s in sistemas if s.get("tendencia_distancia_observada") == "APROXIMANDO_OBSERVADO_CONTINUO"]
-    p60 = sorted((s for s in aproximando if s.get("persistencia_60min") == "CONFIRMADA"), key=lambda x: x["distancia_joinville_km"])
-    p30 = sorted((s for s in aproximando if s.get("persistencia_30min") == "CONFIRMADA" and s.get("persistencia_60min") != "CONFIRMADA"), key=lambda x: x["distancia_joinville_km"])
-    p10 = sorted((s for s in aproximando if s.get("persistencia_30min") != "CONFIRMADA"), key=lambda x: x["distancia_joinville_km"])
+    def nivel_dest(s, minutos):
+        dg = s.get("destinos_geograficos_174i") or {}
+        return any((dg.get(k) or {}).get(f"persistencia_{minutos}min") == "CONFIRMADA" for k in ("sul_brasil", "norte_sc_joinville"))
+    # #174-I: a fila inclui evidência para qualquer um dos dois destinos. Assim,
+    # um sistema relevante para RS/SC/PR não precisa apontar já para Joinville.
+    p60 = sorted((s for s in sistemas if nivel_dest(s, 60)), key=lambda x: min(((x.get("destinos_geograficos_174i") or {}).get(k) or {}).get("distancia_km", 1e9) for k in ("sul_brasil", "norte_sc_joinville")))
+    p30 = sorted((s for s in sistemas if nivel_dest(s, 30) and not nivel_dest(s, 60)), key=lambda x: min(((x.get("destinos_geograficos_174i") or {}).get(k) or {}).get("distancia_km", 1e9) for k in ("sul_brasil", "norte_sc_joinville")))
+    ids_priorizados = {id(x) for x in p60 + p30}
+    p10 = sorted((s for s in aproximando if id(s) not in ids_priorizados), key=lambda x: x["distancia_joinville_km"])
     fila = p60 + p30 + p10
     candidatos = fila[:max(1, limite)]
     ids_selecionados = {str(s.get("id_sistema")) for s in candidatos}
@@ -250,8 +288,8 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
         s["estado_sinotico_174f"] = "NAO_AVALIADO"
         s["ecmwf_850hpa"] = None
         if str(s.get("id_sistema")) in ids_selecionados:
-            s["prioridade_sinotica_174g"] = "P60" if s.get("persistencia_60min") == "CONFIRMADA" else ("P30" if s.get("persistencia_30min") == "CONFIRMADA" else "P10")
-            if s.get("persistencia_60min") == "CONFIRMADA":
+            s["prioridade_sinotica_174g"] = "P60" if s in p60 else ("P30" if s in p30 else "P10")
+            if s in p60:
                 s["persistencia_sinotica_174h"] = "FONTE_INDISPONIVEL_FAIL_CLOSED"
                 s["janela_sinotica_3h"] = [
                     {"offset_h": -1, "estado": "FONTE_INDISPONIVEL"},
@@ -284,7 +322,7 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
         for tentativa in range(1, max(1, tentativas) + 1):
             try:
                 r = requests.get(endpoint, params=params, timeout=timeout,
-                                 headers={"User-Agent": "Monitor-Guaxanduva/174-H"})
+                                 headers={"User-Agent": "Monitor-Guaxanduva/174-I"})
                 r.raise_for_status()
                 payload = r.json()
                 locais = payload if isinstance(payload, list) else [payload]
@@ -335,10 +373,24 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
             s["ecmwf_850hpa"] = {"horario_utc": tt.isoformat(), "vento_km_h": round(sp,1),
                                   "direcao_de_graus": round(dfrom,1), "vetor_para_graus": round(dto,1),
                                   "erro_para_joinville_graus": round(erro,1), "natureza": "MODELADO_NAO_OPERACIONAL"}
+            # #174-I: o mesmo vetor modelado é testado contra dois destinos independentes.
+            dg = s.get("destinos_geograficos_174i") or {}
+            for chave in ("sul_brasil", "norte_sc_joinville"):
+                info = dg.get(chave) or {}
+                ancoras = info.get("ancoras") or []
+                if sp < 10 or not ancoras:
+                    est = "INCONCLUSIVO"; melhor = None
+                else:
+                    errs = [(diferenca_angular(dto, a["rumo_graus"]), a["alvo"]) for a in ancoras]
+                    melhor = min(errs)
+                    est = "FAVORAVEL" if melhor[0] <= 60 else "CONTRARIO"
+                info["sinotica_instantanea"] = est
+                info["melhor_alvo_sinotico"] = None if melhor is None else melhor[1]
+                info["erro_angular_min_graus"] = None if melhor is None else round(melhor[0], 1)
 
             # #174-H — persistência sinótica modelada H-1/H/H+1 somente para P60.
             # Cada hora recebe estado independente; amostra ausente falha fechada.
-            if s.get("persistencia_60min") == "CONFIRMADA":
+            if s in p60:
                 amostras_h = []
                 for desloc_h in (-1, 0, 1):
                     alvo_h = alvo + timedelta(hours=desloc_h)
@@ -360,9 +412,19 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
                     dto2 = (df2 + 180.0) % 360.0
                     er2 = diferenca_angular(dto2, s["rumo_sistema_para_joinville_graus"])
                     est2 = "INCONCLUSIVO" if sp2 < 10 else ("FAVORAVEL" if er2 <= 60 else "CONTRARIO")
-                    amostras_h.append({"offset_h": desloc_h, "horario_utc": t2.isoformat(),
-                                       "vento_km_h": round(sp2,1), "vetor_para_graus": round(dto2,1),
-                                       "erro_para_joinville_graus": round(er2,1), "estado": est2})
+                    amostra = {"offset_h": desloc_h, "horario_utc": t2.isoformat(),
+                               "vento_km_h": round(sp2,1), "vetor_para_graus": round(dto2,1),
+                               "erro_para_joinville_graus": round(er2,1), "estado": est2}
+                    for chave in ("sul_brasil", "norte_sc_joinville"):
+                        info = (s.get("destinos_geograficos_174i") or {}).get(chave) or {}
+                        ancoras = info.get("ancoras") or []
+                        if sp2 < 10 or not ancoras:
+                            amostra["estado_" + chave] = "INCONCLUSIVO"
+                        else:
+                            er_min = min(diferenca_angular(dto2, a["rumo_graus"]) for a in ancoras)
+                            amostra["estado_" + chave] = "FAVORAVEL" if er_min <= 60 else "CONTRARIO"
+                            amostra["erro_min_" + chave + "_graus"] = round(er_min, 1)
+                    amostras_h.append(amostra)
                 estados_h = [a.get("estado") for a in amostras_h]
                 if len(estados_h) == 3 and all(e == "FAVORAVEL" for e in estados_h):
                     persist_h = "FAVORAVEL_PERSISTENTE_3H"
@@ -376,6 +438,19 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
                     persist_h = "OSCILANTE_OU_INCONCLUSIVO"
                 s["persistencia_sinotica_174h"] = persist_h
                 s["janela_sinotica_3h"] = amostras_h
+                for chave in ("sul_brasil", "norte_sc_joinville"):
+                    estados_dest = [a.get("estado_" + chave, "FONTE_INDISPONIVEL") for a in amostras_h]
+                    if len(estados_dest) == 3 and all(e == "FAVORAVEL" for e in estados_dest):
+                        pd = "FAVORAVEL_PERSISTENTE_3H"
+                    elif "FONTE_INDISPONIVEL" in estados_dest:
+                        pd = "FONTE_INDISPONIVEL_FAIL_CLOSED"
+                    elif all(e == "CONTRARIO" for e in estados_dest):
+                        pd = "CONTRARIO_PERSISTENTE_3H"
+                    elif "FAVORAVEL" in estados_dest and "CONTRARIO" not in estados_dest:
+                        pd = "FAVORAVEL_NAO_PERSISTENTE"
+                    else:
+                        pd = "OSCILANTE_OU_INCONCLUSIVO"
+                    (s.get("destinos_geograficos_174i") or {}).get(chave, {})["persistencia_sinotica_3h"] = pd
             else:
                 s["persistencia_sinotica_174h"] = "NAO_APLICAVEL_NAO_P60"
                 s["janela_sinotica_3h"] = None
@@ -392,9 +467,9 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
             "nao_apoiam": contrarios, "erros": erros[:5], "lote_maximo": lote, "tentativas_por_lote": tentativas,
             "fonte": fonte,
             "prioridade": {"p60_disponiveis": len(p60), "p30_disponiveis": len(p30), "p10_disponiveis": len(p10),
-                           "p60_selecionados": sum(1 for s in candidatos if s.get("persistencia_60min") == "CONFIRMADA"),
-                           "p30_selecionados": sum(1 for s in candidatos if s.get("persistencia_30min") == "CONFIRMADA" and s.get("persistencia_60min") != "CONFIRMADA"),
-                           "p10_selecionados": sum(1 for s in candidatos if s.get("persistencia_30min") != "CONFIRMADA")},
+                           "p60_selecionados": sum(1 for s in candidatos if s in p60),
+                           "p30_selecionados": sum(1 for s in candidatos if s in p30),
+                           "p10_selecionados": sum(1 for s in candidatos if s in p10)},
             "regra": "#174-G: P60 > P30 > P10; dentro de cada nivel, menor distancia primeiro. FAVORAVEL/CONTRARIO exigem amostra ECMWF valida; falha de fonte nunca equivale a CONTRARIO."}
 
 
@@ -446,6 +521,38 @@ def aplicar_persistencia_temporal(sistemas, historico_quadros):
         s["persistencia_60min"] = "CONFIRMADA" if p60 else "NAO_CONFIRMADA"
         s["passos_temporais_avaliados"] = passos
         s["trajetoria_persistente_gate"] = "PERSISTENTE_60MIN" if p60 else ("PERSISTENTE_30MIN" if p30 else "NAO_PERSISTENTE")
+
+        # #174-I: repetir o mesmo teste temporal para os dois destinos, sem usar
+        # Joinville como substituto do Sul do Brasil. A distância usada é a da
+        # âncora mais próxima em cada quadro; isso é triagem de corredor.
+        for chave, sufixo in (("sul_brasil", "sul_brasil"), ("norte_sc_joinville", "norte_sc_joinville")):
+            cur_info = (s.get("destinos_geograficos_174i") or {}).get(chave) or {}
+            serie_d = [{"distancia_km": cur_info.get("distancia_km"), "evento": s.get("evento")}]
+            for h, idx in indices:
+                x = idx.get(sid)
+                if x:
+                    xi = (x.get("destinos_geograficos_174i") or {}).get(chave) or {}
+                    serie_d.append({"distancia_km": xi.get("distancia_km"), "evento": x.get("evento")})
+                else:
+                    serie_d.append(None)
+            passos_d = []
+            for i in range(min(6, len(serie_d)-1)):
+                aa, bb = serie_d[i], serie_d[i+1]
+                if aa is None or bb is None or aa.get("distancia_km") is None or bb.get("distancia_km") is None:
+                    passos_d.append({"valido": False, "motivo": "SEM_PAREAMENTO"}); continue
+                ev_ok = str(aa.get("evento") or "").upper() == "CONTINUITY" and str(bb.get("evento") or "").upper() == "CONTINUITY"
+                dd = round(aa["distancia_km"] - bb["distancia_km"], 1)
+                vv = round(abs(dd) * 6.0, 1)
+                pl = vv <= 250.0
+                ap = dd <= -2.0
+                passos_d.append({"valido": ev_ok and pl, "delta_distancia_km": dd, "velocidade_centroide_implicita_km_h": vv, "continuidade": ev_ok, "plausivel": pl, "aproxima": ap})
+            def gd(n):
+                return len(passos_d) >= n and all(z.get("valido") and z.get("aproxima") for z in passos_d[:n])
+            p30d, p60d = gd(3), gd(6)
+            cur_info["persistencia_30min"] = "CONFIRMADA" if p30d else "NAO_CONFIRMADA"
+            cur_info["persistencia_60min"] = "CONFIRMADA" if p60d else "NAO_CONFIRMADA"
+            cur_info["passos_temporais"] = passos_d
+            cur_info["trajetoria_persistente_gate"] = "PERSISTENTE_60MIN" if p60d else ("PERSISTENTE_30MIN" if p30d else "NAO_PERSISTENTE")
     return sistemas
 
 
@@ -467,8 +574,22 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
     persist60 = [x for x in sistemas if x.get("persistencia_60min") == "CONFIRMADA"]
     persist30_sinotica = [x for x in persist30 if x.get("confirmacao_sinotica_850hpa") == "APOIA_CORREDOR_PARA_JOINVILLE"]
     persist60_sinotica_3h = [x for x in persist60 if x.get("persistencia_sinotica_174h") == "FAVORAVEL_PERSISTENTE_3H"]
+    # #174-I: duas leituras de destino independentes. Só P60 + apoio sinótico 3h
+    # pode chegar a TRAJETORIA_REFORCADA; demais estados permanecem acompanhamento/observação.
+    def resumo_destino(chave):
+        p60 = [x for x in sistemas if ((x.get("destinos_geograficos_174i") or {}).get(chave) or {}).get("persistencia_60min") == "CONFIRMADA"]
+        fav = [x for x in p60 if ((x.get("destinos_geograficos_174i") or {}).get(chave) or {}).get("persistencia_sinotica_3h") == "FAVORAVEL_PERSISTENTE_3H"]
+        if fav:
+            nivel = "TRAJETORIA_REFORCADA_EXPERIMENTAL"
+        elif p60:
+            nivel = "ACOMPANHAMENTO"
+        else:
+            nivel = "OBSERVACAO"
+        return {"nivel_evidencia": nivel, "p60_em_acompanhamento": len(p60), "p60_com_apoio_sinotico_persistente_3h": len(fav),
+                "sistema_mais_proximo_com_apoio": min(fav, key=lambda x: ((x.get("destinos_geograficos_174i") or {}).get(chave) or {}).get("distancia_km", 1e9))["id_sistema"] if fav else None}
+    destinos_174i = {"sul_brasil_rs_sc_pr": resumo_destino("sul_brasil"), "norte_sc_joinville": resumo_destino("norte_sc_joinville")}
     return {
-        "versao": "#174-H",
+        "versao": "#174-I",
         "status": "experimental_dados_processados",
         "uso_operacional": False,
         "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
@@ -478,6 +599,7 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
         "produto_horario_local": horario_produto.astimezone(FUSO).isoformat() if horario_produto else None,
         "url_produto": url,
         "referencia": {"local": "Joinville/SC - coordenada publica aproximada", "lat": LAT_JOINVILLE, "lon": LON_JOINVILLE},
+        "destinos_174i": destinos_174i,
         "dominio_triagem": {"lat_min": -60, "lat_max": 5, "lon_min": -100, "lon_max": -20},
         "sistemas_no_dominio": len(sistemas),
         "sistemas_geometricamente_compativeis": None,
@@ -501,14 +623,16 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
             "ECMWF 850 hPa e confirmacao sinotica auxiliar; vento meteorologico DE e convertido para vetor PARA antes da comparacao.",
             "Persistencia de 30 min exige 3 passos consecutivos de 10 min, todos CONTINUITY, plausiveis e aproximando >=2 km por passo.",
             "Persistencia de 60 min exige 6 passos consecutivos sob a mesma regra.",
-            "ETA permanece bloqueado no #174-H.",
+            "ETA permanece bloqueado no #174-I.",
             "Vel do TATHU e preservado e convertido de m/s para km/h apenas como diagnostico; Vel=0 invalida o vetor direcional.",
             "Valores sentinela <= -900 sao tratados como ausentes.",
             "Ausencia/erro da fonte nunca significa ausencia de tempestade.",
-            "#174-H nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
+            "#174-I nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
             "#174-H preserva a priorizacao #174-G e prioriza confirmacao ECMWF nesta ordem: persistentes 60 min, persistentes 30 min, candidatos 10 min; proximidade desempata dentro do mesmo nivel.",
             "FAVORAVEL, CONTRARIO e FONTE_INDISPONIVEL sao estados distintos; indisponibilidade jamais conta como rejeicao meteorologica.",
             "#174-H exige, para o novo gate sinotico P60, coerencia modelada em H-1/H/H+1; isso nao equivale a observacao nem libera ETA.",
+            "#174-I separa destino regional Sul do Brasil (RS/SC/PR) de destino local Norte de SC/Joinville; um nao implica o outro.",
+            "As ancoras geograficas do #174-I sao pontos aproximados de triagem de corredor, nao limites administrativos nem previsao oficial de impacto.",
         ],
     }
 
@@ -528,7 +652,7 @@ def main():
         payload, horario, url, tentativas = buscar_ultimo(timeout=max(1.0, args.timeout), max_tentativas=max(1, min(args.tentativas, 25)))
         if payload is None:
             resultado = {
-                "versao": "#174-H", "status": "fonte_indisponivel_fail_closed",
+                "versao": "#174-I", "status": "fonte_indisponivel_fail_closed",
                 "uso_operacional": False, "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
                 "sistemas_no_dominio": None, "sistemas_geometricamente_compativeis": None,
                 "sistema_compativel_mais_proximo": None, "sistemas": [], "tentativas_fonte": tentativas,
@@ -543,7 +667,7 @@ def main():
                 uu = TATHU_BASE + hh.strftime("%Y/%m/") + "goes19_diagnostic_" + hh.strftime("%Y%m%d%H%M") + ".json"
                 pp = None
                 try:
-                    rr = requests.get(uu, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-H"})
+                    rr = requests.get(uu, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-I"})
                     if rr.status_code == 200:
                         candidato = rr.json()
                         if isinstance(candidato, dict) and isinstance(candidato.get("features"), list):

@@ -1,0 +1,113 @@
+{
+  "versao": "#175-A1",
+  "status": "EXPERIMENTAL_NAO_OPERACIONAL",
+  "gerado_em": "2026-10-04T17:12:18.639127-03:00",
+  "indice_pressao_hidrometeorologica": 12.7,
+  "classe_experimental": "BAIXO",
+  "classe_css": "baixo",
+  "confianca_dados_pct": 65.8,
+  "cobertura_fatores_pct": 94.0,
+  "natureza_indice": "Índice composto de pressão hidrometeorológica; NÃO é probabilidade percentual de inundação.",
+  "fatores": {
+    "chuva_observada": {
+      "peso": 0.24,
+      "score": 8.8,
+      "valor": {
+        "max_1h_mm": 0.0,
+        "max_24h_mm": 7.0
+      },
+      "nota": "Máximo entre estações disponíveis; não equivale a chuva medida no Comasa."
+    },
+    "chuva_prevista_24h": {
+      "peso": 0.12,
+      "score": 7.9,
+      "valor": 6.3,
+      "nota": "Open-Meteo; previsão, não observação."
+    },
+    "memoria_bacia": {
+      "peso": 0.12,
+      "score": 0,
+      "valor": 0.0,
+      "nota": "Forçante de memória hidrológica do V0.21."
+    },
+    "radar_tendencia": {
+      "peso": 0.14,
+      "score": 0.0,
+      "valor": {
+        "fresco": true,
+        "tendencia": "afastando"
+      },
+      "nota": "Eco/tendência qualitativos; sem conversão automática para chuva no solo."
+    },
+    "rio_tendencia_modelada": {
+      "peso": 0.16,
+      "score": 5.2,
+      "valor": {
+        "nivel_m": 1.281,
+        "cm_h": 1.04
+      },
+      "nota": "MODELADO/NÃO INSTRUMENTAL; nível absoluto não usa cotas de perigo não validadas."
+    },
+    "mare_jusante": {
+      "peso": 0.16,
+      "score": 50.0,
+      "valor": {
+        "observada_m": 1.148,
+        "pico_24h_m": 1.5
+      },
+      "nota": "Condição de jusante; não é nível do Guaxanduva."
+    },
+    "drenagem_urbana": {
+      "peso": 0.06,
+      "score": null,
+      "valor": null,
+      "nota": "Sem sensor operacional/estado de obstrução validado; excluído do cálculo em fail-closed."
+    }
+  },
+  "horizontes": {
+    "+30min": {
+      "score": null,
+      "status": "NAO_CALIBRADO",
+      "nota": "Aguardando replay histórico #175 e calibração independente."
+    },
+    "+60min": {
+      "score": null,
+      "status": "NAO_CALIBRADO",
+      "nota": "Aguardando replay histórico #175 e calibração independente."
+    },
+    "+120min": {
+      "score": null,
+      "status": "NAO_CALIBRADO",
+      "nota": "Aguardando replay histórico #175 e calibração independente."
+    }
+  },
+  "historico": {
+    "status": "BASE_EM_CONSTRUCAO",
+    "evento_benchmark": "EH-001 • 31/12/2020–01/01/2021",
+    "uso_na_pontuacao": false,
+    "nota": "Eventos históricos serão usados em replay cego antes de liberar pesos/limiares calibrados."
+  },
+  "regras_seguranca": [
+    "Ausência de dado não vira zero; fator indisponível é retirado e reduz cobertura/confiança.",
+    "PLANCON oficial não é inferido pelo #175.",
+    "Nível do Guaxanduva permanece MODELADO/NÃO INSTRUMENTAL.",
+    "Maré de Joinville/Babitonga é condição de jusante, não nível do rio.",
+    "Radar não é convertido automaticamente em chuva no solo.",
+    "Horizontes +30/+60/+120 e ETA permanecem bloqueados até validação histórica.",
+    "Defesa Civil/199 permanece referência oficial para emergência."
+  ],
+  "metodo": {
+    "tipo": "fusão determinística transparente com renormalização por disponibilidade",
+    "pesos_nominais": {
+      "chuva_observada": 0.24,
+      "chuva_prevista_24h": 0.12,
+      "memoria_bacia": 0.12,
+      "radar_tendencia": 0.14,
+      "rio_tendencia_modelada": 0.16,
+      "mare_jusante": 0.16,
+      "drenagem_urbana": 0.06
+    },
+    "calibrado_historicamente": false,
+    "probabilidade_inundacao": false
+  }
+}

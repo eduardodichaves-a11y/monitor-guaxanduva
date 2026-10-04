@@ -5279,7 +5279,7 @@ def diagnostico_eco_oficial_local(imagem, legenda_oficial):
     por={}
     for raio in (2,5,10,25):
       por[str(raio)]={"pixels_eco_radar":total[raio],"pixels_classes_oficiais":sum(n for c,n in cont[raio].items() if c in oficiais),
-        "eco_radar_detectado":total[raio]>0,"eco_oficial_detectado":total[raio]>0,
+        "eco_radar_detectado":total[raio]>0,"eco_qualitativo_detectado":total[raio]>0,"eco_oficial_detectado":sum(n for c,n in cont[raio].items() if c in oficiais)>0,
         "cores_presentes":[{"rgb":list(c),"pixels":n,"classe_oficial":oficiais.get(c)} for c,n in cont[raio].most_common()]}
     out={**base,"por_raio":por,"eco_oficial_mais_proximo":None}
     if perto:
@@ -5409,10 +5409,12 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
     for raio in (2, 5, 10, 25):
         total = sum(contagens[raio].values())
         por_raio[str(raio)] = {
-            "pixels_oficiais_classificados": total,
-            "eco_oficial_detectado": total > 0,
+            "pixels_eco_qualitativo": total,
+            "pixels_oficiais_classificados": sum(n for (cl, _rgb), n in contagens[raio].items() if cl is not None),
+            "eco_qualitativo_detectado": total > 0,
+            "eco_oficial_detectado": any(cl is not None for (cl, _rgb) in contagens[raio]),
             "classes_presentes": [
-                {"classe": chave[0], "rgb": list(chave[1]), "pixels": n}
+                {"classe": chave[0], "rgb": list(chave[1]), "pixels": n, "tipo": ("classe_oficial" if chave[0] is not None else "eco_qualitativo") }
                 for chave, n in contagens[raio].most_common()
             ],
             "familias_cor": [
@@ -5426,7 +5428,7 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
         "por_raio": por_raio,
         "regra_seguranca": (
             "#175: presença de cor da paleta operacional é detecção qualitativa por radar, não medição de chuva no solo. "
-            "RGB operacional não recebe dBZ automaticamente; mm/h continua bloqueado."
+            "Cores da paleta operacional sem classe oficial confirmam somente presença qualitativa de eco. Apenas RGB ligado a C1–C16 pode receber faixa dBZ validada; mm/h continua bloqueado."
         ),
     }
  
@@ -13381,8 +13383,10 @@ def _diagnostico_espacial_estacao_170_c(imagem, lat, lon, classes, raios_km=(2, 
             })
         por_raio[str(int(r) if r.is_integer() else r)] = {
             "raio_km": r,
-            "pixels_oficiais_classificados": total,
-            "eco_oficial_detectado": total > 0,
+            "pixels_eco_qualitativo": total,
+            "pixels_oficiais_classificados": sum(n for (cl, _rgb), n in contagens[raio].items() if cl is not None),
+            "eco_qualitativo_detectado": total > 0,
+            "eco_oficial_detectado": any(cl is not None for (cl, _rgb) in contagens[raio]),
             "classes_presentes": classes_presentes,
             "classe_mais_forte": min(contagens[r]) if contagens[r] else None,
         }

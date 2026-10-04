@@ -483,7 +483,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <div class="radar-item">🧩 Classe interna do Monitor<b id="ecoQualClasse">--</b></div>
 <div class="radar-item">📍 Menor raio com eco<b id="ecoQualRaio">--</b></div>
 <div class="radar-item">📡 Faixa RadarSC<b id="ecoQualDbz">--</b></div>
-<div class="radar-item">🔎 Pixels oficiais<b id="ecoQualPixels">--</b></div>
+<div class="radar-item">🔎 Pixels de eco / oficiais<b id="ecoQualPixels">--</b></div>
 </div>
 <div id="ecoQualInterpretacao" class="box aviso">Aguardando diagnóstico qualitativo...</div>
 <small>DETECTADO POR RADAR. O RGB é comparado com a legenda oficial do RadarSC. C1–C16 são índices internos do Monitor. A faixa dBZ só é exibida quando a validação #169 está íntegra; dBZ é refletividade do radar, não chuva medida no solo, e não é convertido em mm/h.</small>
@@ -932,7 +932,7 @@ async function carregar(){
   let escolhido=null;
   for(const raio of ["2","5","10","25"]){
    const x=pr[raio]||{};
-   if(x.eco_oficial_detectado){escolhido={raio,...x};break}
+   if(x.eco_qualitativo_detectado===true || x.eco_oficial_detectado===true){escolhido={raio,...x};break}
   }
   if(escolhido){
    const cls=(escolhido.classes_presentes||[])[0]||{};
@@ -945,14 +945,14 @@ async function carregar(){
    $("ecoQualClasse").textContent=cls.classe==null?"--":"C"+cls.classe+" • ÍNDICE INTERNO";
    $("ecoQualDbz").textContent=dbzOk?f(infoDbz.dbz_min,1)+"–"+f(infoDbz.dbz_max,1)+" dBZ":"BLOQUEADA";
    $("ecoQualRaio").textContent="≤ "+escolhido.raio+" km";
-   $("ecoQualPixels").textContent=escolhido.pixels_oficiais_classificados??"--";
+   $("ecoQualPixels").textContent=(escolhido.pixels_oficiais_classificados??0)+" oficiais • "+(escolhido.pixels_eco_qualitativo??escolhido.pixels_oficiais_classificados??0)+" eco";
    const fresco=radarFrescoReal;
-   $("ecoQualEstado").innerHTML=fresco?'<span class="ok">🟢 ECO OFICIAL DETECTADO</span> • RGB idêntico à legenda RadarSC':'<span class="aviso">🟡 ECO OFICIAL DETECTADO EM QUADRO DESATUALIZADO</span>';
-   $("ecoQualInterpretacao").innerHTML='<b>'+textoCategoria(fam.categoria)+'</b><br><small>Raio mostrado = menor raio em que a #130 encontrou pixel de classe oficial. Não significa que esteja chovendo no ponto de referência.</small>';
+   $("ecoQualEstado").innerHTML=fresco?'<span class="ok">🟢 ECO RADARSC DETECTADO</span> • detecção qualitativa':'<span class="aviso">🟡 ECO DETECTADO EM QUADRO DESATUALIZADO</span>';
+   $("ecoQualInterpretacao").innerHTML=(cls.classe==null?'<b>DETECÇÃO QUALITATIVA • intensidade física não atribuída</b>':'<b>'+textoCategoria(fam.categoria)+'</b>')+'<br><small>Raio mostrado = menor raio com eco reconhecido. Sem C1–C16 válida, não publicar dBZ nem intensidade. Radar não equivale a chuva medida no solo.</small>';
   }else if(cq.status){
    $("ecoQualCor").textContent="SEM ECO OFICIAL";$("ecoQualClasse").textContent="NÃO APLICÁVEL";$("ecoQualDbz").textContent="NÃO APLICÁVEL";$("ecoQualRaio").textContent="NENHUM ≤ 25 km";$("ecoQualPixels").textContent="0";
-   $("ecoQualEstado").innerHTML='<span class="aviso">⚪ Nenhum RGB oficial detectado até 25 km neste quadro</span>';
-   $("ecoQualInterpretacao").innerHTML='<small>Ausência de eco oficial nesta busca não prova ausência de chuva no solo.</small>';
+   $("ecoQualEstado").innerHTML='<span class="aviso">⚪ Nenhum eco RadarSC reconhecido até 25 km neste quadro</span>';
+   $("ecoQualInterpretacao").innerHTML='<small>Ausência de eco nesta busca não prova ausência de chuva no solo.</small>';
   }else{
    $("ecoQualEstado").innerHTML='<span class="erro">🔴 Diagnóstico qualitativo #130 indisponível</span>';
   }

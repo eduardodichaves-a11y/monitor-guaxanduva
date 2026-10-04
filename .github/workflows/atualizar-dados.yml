@@ -33,7 +33,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 pillow paho-mqtt
 
-      - name: Atualizar dados e históricos
+      - name: Atualização operacional rápida
+        run: python atualizar_operacional.py
+
+      - name: Publicar meteorologia operacional imediatamente
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dados.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Atualiza meteorologia operacional do Monitor Guaxanduva"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+
+      - name: Atualizar dados, modelos e históricos completos
+        continue-on-error: true
         run: python atualizar_dados.py
 
       - name: Auditar proveniência temporal CEMADEN

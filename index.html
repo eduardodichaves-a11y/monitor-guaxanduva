@@ -1582,8 +1582,10 @@ async function carregar(){
 
   if(radar168.faixa_dbz&&radar168.faixa_dbz.min!=null&&radar168.faixa_dbz.max!=null){
    $("exp168Radar").textContent=f(radar168.faixa_dbz.min,1)+"–"+f(radar168.faixa_dbz.max,1)+" dBZ";
+  }else if(radar168.eco_qualitativo_detectado===true){
+   $("exp168Radar").textContent="ECO ≤ "+(radar168.menor_raio_eco_qualitativo_km??"--")+" km • QUALITATIVO";
   }else{
-   $("exp168Radar").textContent=radar168.status==="indisponivel"?"INDISPONÍVEL":(radar168.status?nomeFamilia(radar168.status):"INDISPONÍVEL");
+   $("exp168Radar").textContent=radar168.status==="indisponivel"?"SEM CLASSE dBZ":(radar168.status?nomeFamilia(radar168.status):"INDISPONÍVEL");
   }
 
   $("exp168Alerta").textContent=alerta168.classe?nomeFamilia(alerta168.classe):"INDISPONÍVEL";
@@ -1615,8 +1617,10 @@ async function carregar(){
      '<br>'+(alerta168.regra_seguranca||"Não substitui comunicações oficiais.")+'</small>'
    :'<span class="aviso">⚪ Alerta experimental indisponível nesta coleta.</span>';
 
-  $("exp168RadarDetalhe").innerHTML=radar168.status==="indisponivel"
-   ?'<span class="aviso">⚪ REFLETIVIDADE RADAR INDISPONÍVEL</span><br><small>Esta coleta não forneceu classe local suficiente. Nenhum valor foi fabricado. '+(radar168.aviso||"")+'</small>'
+  $("exp168RadarDetalhe").innerHTML=radar168.eco_qualitativo_detectado===true && !(radar168.faixa_dbz&&radar168.faixa_dbz.min!=null)
+   ?'<span class="ok">🟢 ECO RADARSC DETECTADO • QUALITATIVO</span><br><small>Menor raio: <b>≤ '+(radar168.menor_raio_eco_qualitativo_km??"--")+' km</b> • '+(radar168.pixels_eco_qualitativo??0)+' pixel(is) de eco.<br><b>C1–C16/dBZ:</b> NÃO ATRIBUÍDO • <b>mm/h:</b> NÃO ATRIBUÍDO.<br>'+(radar168.aviso||"Detecção de eco não equivale a chuva medida no solo.")+'</small>'
+   :radar168.status==="indisponivel"
+   ?'<span class="aviso">⚪ SEM CLASSE LOCAL dBZ NESTA COLETA</span><br><small>Nenhum valor foi fabricado. '+(radar168.aviso||"")+'</small>'
    :'<b>📡 '+nomeFamilia(radar168.status||"experimental")+'</b><br><small>Natureza: '+nomeFamilia(radar168.natureza)+
      '<br>Classe interna: '+(radar168.classe_radar==null?"--":"C"+radar168.classe_radar)+
      (radar168.faixa_dbz&&radar168.faixa_dbz.min!=null&&radar168.faixa_dbz.max!=null?'<br>Faixa RadarSC: <b>'+f(radar168.faixa_dbz.min,1)+'–'+f(radar168.faixa_dbz.max,1)+' dBZ</b>':'')+

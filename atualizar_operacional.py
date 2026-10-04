@@ -24,6 +24,7 @@ from atualizar_dados import (
     calcular_criterio_hidrometeorologico_plancon_163,
     calcular_pico_mare_previsto_24h_164,
     projetar_guaxanduva_24h_174,
+    construir_liberacao_experimental_168,
 )
 
 ARQUIVO = Path("dados.json")
@@ -64,6 +65,10 @@ def main():
     criterio163 = seguro("critério hidrometeorológico #163", lambda: calcular_criterio_hidrometeorologico_plancon_163(previsao, mare160))
     mare164 = seguro("maré prevista #164", lambda: calcular_pico_mare_previsto_24h_164(previsao))
     proj174 = seguro("projeção Guaxanduva #174", lambda: projetar_guaxanduva_24h_174(previsao, mare160, mare164, v021, h019))
+    # #168 contém cópias de radar/nível/maré. Reconstruí-lo em toda atualização
+    # operacional evita que o painel misture o V0.21 atual com um snapshot antigo.
+    tathu167 = dados.get("goes19_tathu_167", {}) if isinstance(dados, dict) else {}
+    liberacao168 = seguro("liberação experimental #168", lambda: construir_liberacao_experimental_168(radar, tathu167, v021, mare160, mare164))
 
     # Síntese operacional única para o card principal. Não confunde radar,
     # pluviômetro regional e modelo meteorológico.
@@ -120,6 +125,7 @@ def main():
         "criterio_hidrometeorologico_plancon_163": criterio163,
         "mare_prevista_24h_164": mare164,
         "projecao_guaxanduva_174": proj174,
+        "liberacao_experimental_168": liberacao168,
         "estado_agora_operacional": estado_operacional,
         "atualizacao_operacional_rapida": {
             "status": "concluida",

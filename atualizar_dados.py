@@ -40,6 +40,21 @@ IBGE_JOINVILLE = "4209102"
 INMET_ATUAL = "https://apiprevmet3.inmet.gov.br/estacao/proxima/"
 CEMADEN_RECURSOS = "https://resources.cemaden.gov.br"
 CEMADEN_PLUV_24H = CEMADEN_RECURSOS + "/dados/311_24.json"
+
+# PCDs excluídas do uso pluviométrico operacional após validação manual.
+# Aventureiro (420910203A / id 6259) transmitiu timestamps, porém a consulta
+# histórica oficial mostrou 0,00 mm continuamente em 03–04/10/2026 durante
+# episódio com chuva confirmada por outras PCDs de Joinville. Até nova prova
+# positiva verificável, não pode ser tratada como pluviômetro operacional,
+# nem participar de #144/#170-I ou de sínteses de chuva observada.
+CEMADEN_PCD_QUARENTENA = {
+    "420910203A": {
+        "nome": "Aventureiro",
+        "id": 6259,
+        "motivo": "TRANSMISSAO_ATIVA_PLUVIOMETRO_NAO_VALIDADO",
+        "desde": "2026-10-04",
+    },
+}
 DEFESA_CIVIL_SC_BUSCA = "https://www.defesacivil.sc.gov.br/"
  
 FUSO = ZoneInfo("America/Sao_Paulo")
@@ -6412,6 +6427,13 @@ def buscar_chuva_cemaden_136():
             if cidade.casefold() != "joinville":
                 continue
             if uf != "SC" or tipo != 1 or status != 0:
+                continue
+
+            # Fail-closed: cadastro ativo e valor numérico não bastam para
+            # provar que o pluviômetro está funcional. PCDs em quarentena
+            # ficam fora de toda a cadeia operacional até revalidação.
+            codigo_estacao = str(estacao.get("codestacao") or "").strip()
+            if codigo_estacao in CEMADEN_PCD_QUARENTENA:
                 continue
  
             try:

@@ -25,7 +25,7 @@ jobs:
           python-version: "3.12"
       - name: Instalar dependência mínima
         run: pip install requests
-      - name: Executar motor experimental #174-H
+      - name: Executar motor experimental #174-I
         run: python -u monitor_oceanico_174.py --saida monitor_oceanico_174.json --timeout 4 --tentativas 13
       - name: Validar saída fail-closed
         run: |
@@ -34,7 +34,7 @@ jobs:
           from pathlib import Path
           p = Path("monitor_oceanico_174.json")
           d = json.loads(p.read_text(encoding="utf-8"))
-          assert d.get("versao") == "#174-H"
+          assert d.get("versao") == "#174-I"
           assert d.get("uso_operacional") is False
           assert d.get("status") in {"experimental_dados_processados", "fonte_indisponivel_fail_closed"}
           if d.get("status") == "experimental_dados_processados":
@@ -53,10 +53,12 @@ jobs:
               assert d.get("sistemas_persistencia_60min_confirmada") <= d.get("sistemas_persistencia_30min_confirmada")
               cs = d.get("confirmacao_sinotica") or {}
               pr = cs.get("prioridade") or {}
-              assert int(pr.get("p60_selecionados", 0)) == min(int(pr.get("p60_disponiveis", 0)), 20)
-              if int(pr.get("p60_disponiveis", 0)) <= 20:
+              assert int(pr.get("p60_selecionados", 0)) == min(int(pr.get("p60_disponiveis", 0)), 30)
+              if int(pr.get("p60_disponiveis", 0)) <= 30:
                   for s in d["sistemas"]:
-                      if s.get("persistencia_60min") == "CONFIRMADA" and s.get("tendencia_distancia_observada") == "APROXIMANDO_OBSERVADO_CONTINUO":
+                      dg = s.get("destinos_geograficos_174i") or {}
+                      p60_dest = any((dg.get(k) or {}).get("persistencia_60min") == "CONFIRMADA" for k in ("sul_brasil", "norte_sc_joinville"))
+                      if p60_dest:
                           assert s.get("prioridade_sinotica_174g") == "P60"
                           assert s.get("estado_sinotico_174f") != "NAO_AVALIADO"
               assert cs.get("status") in {"coletado", "coletado_parcial", "fonte_indisponivel_fail_closed", "sem_candidatos_continuos"}
@@ -65,13 +67,19 @@ jobs:
               for s in d["sistemas"]:
                   if s.get("estado_sinotico_174f") == "FONTE_INDISPONIVEL":
                       assert s.get("confirmacao_sinotica_850hpa") in {"FONTE_INDISPONIVEL", "SEM_AMOSTRA_MODELO"}
-          # #174-H: todo P60 selecionado e avaliado deve carregar o novo gate de 3h.
+          # #174-I: todo P60 selecionado e avaliado deve carregar o novo gate de 3h.
               for s in d["sistemas"]:
-                  if s.get("persistencia_60min") == "CONFIRMADA" and s.get("prioridade_sinotica_174g") == "P60":
+                  if s.get("prioridade_sinotica_174g") == "P60":
                       assert s.get("persistencia_sinotica_174h") in {"FAVORAVEL_PERSISTENTE_3H", "CONTRARIO_PERSISTENTE_3H", "FAVORAVEL_NAO_PERSISTENTE", "OSCILANTE_OU_INCONCLUSIVO", "FONTE_INDISPONIVEL_FAIL_CLOSED"}
                       assert isinstance(s.get("janela_sinotica_3h"), list) and len(s.get("janela_sinotica_3h")) == 3
+                      dg = s.get("destinos_geograficos_174i") or {}
+                      assert "sul_brasil" in dg and "norte_sc_joinville" in dg
+              destinos = d.get("destinos_174i") or {}
+              assert set(destinos) == {"sul_brasil_rs_sc_pr", "norte_sc_joinville"}
+              for k in destinos:
+                  assert destinos[k].get("nivel_evidencia") in {"OBSERVACAO", "ACOMPANHAMENTO", "TRAJETORIA_REFORCADA_EXPERIMENTAL"}
               assert isinstance(d.get("sistemas_persistencia_60min_com_apoio_sinotico_persistente_3h"), int)
-          print("VALIDAÇÃO #174-H OK:", d.get("status"), "sistemas=", d.get("sistemas_no_dominio"), "aproximando_continuo=", d.get("sistemas_aproximando_observado_continuo"), "apoio_850=", d.get("sistemas_aproximando_com_apoio_sinotico_850hpa"))
+          print("VALIDAÇÃO #174-I OK:", d.get("status"), "sistemas=", d.get("sistemas_no_dominio"), "aproximando_continuo=", d.get("sistemas_aproximando_observado_continuo"), "apoio_850=", d.get("sistemas_aproximando_com_apoio_sinotico_850hpa"))
           PY
       - name: Publicar somente JSON experimental
         run: |

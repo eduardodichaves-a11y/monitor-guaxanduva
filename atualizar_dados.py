@@ -1974,7 +1974,7 @@ def diagnostico(imagem):
     )
  
     contagem = Counter(
-        imagem.getdata()
+        imagem.get_flattened_data()
     )
  
     itens = []
@@ -2090,7 +2090,7 @@ def mascara(imagem):
     indices = {}
  
     for indice in set(
-        imagem.getdata()
+        imagem.get_flattened_data()
     ):
         rgb = rgb_idx(
             paleta,
@@ -2160,7 +2160,7 @@ def mascara_oficial_133(imagem, legenda_oficial):
     indices = {}
     classes_por_indice = {}
  
-    for indice in set(imagem.getdata()):
+    for indice in set(imagem.get_flattened_data()):
         rgb = rgb_idx(paleta, indice)
         if (
             alpha_idx(transparencia, indice) > 0
@@ -13680,7 +13680,7 @@ def _autopsia_paleta_png_170_j(imagem_original, classes):
 
     paleta = imagem_original.getpalette() or []
     transparencia = imagem_original.info.get("transparency")
-    contagem = Counter(imagem_original.getdata())
+    contagem = Counter(imagem_original.get_flattened_data())
     total_slots = len(paleta) // 3
 
     rgb_para_classe = {

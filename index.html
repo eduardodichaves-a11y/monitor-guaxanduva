@@ -301,7 +301,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
  
 <div class="dash-cards">
 <div class="dash-mini"><div class="k">🌊 Nível do rio • modelo</div><div class="v" id="resRio">--</div><div class="d" id="resRioDet">V0.21 • não instrumental</div></div>
-<div class="dash-mini"><div class="k">🌧️ Chuva recente</div><div class="v" id="resChuva">--</div><div class="d" id="resChuvaDet">forçante regional</div></div>
+<div class="dash-mini"><div class="k">🌧️ Chuva agora • modelo</div><div class="v" id="resChuva">--</div><div class="d" id="resChuvaDet">Open-Meteo • não é pluviômetro</div></div>
 <div class="dash-mini"><div class="k">🌊 Maré • jusante</div><div class="v" id="resMare">--</div><div class="d" id="resMareDet">Joinville/Babitonga</div></div>
 <div class="dash-mini"><div class="k">🌡️ Temperatura</div><div class="v" id="resTempo">--</div><div class="d" id="resTempoDet">condição atual</div></div>
 <div class="dash-mini"><div class="k">🌬️ Vento</div><div class="v" id="resVento">--</div><div class="d" id="resVentoDet">vento e rajadas</div></div>
@@ -886,8 +886,11 @@ async function carregar(){
    }catch(_erroGrafoVisual){}
   }
   renderEnso173(d);
-  $("sistema").innerHTML='<span class="ok">🟢 Monitor automático conectado</span>';
-  $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR");
+  const coletaTs=Date.parse(d.gerado_em||"");
+  const coletaIdadeMin=Number.isFinite(coletaTs)?Math.max(0,(Date.now()-coletaTs)/60000):Infinity;
+  const coletaFresca=coletaIdadeMin<=45;
+  $("sistema").innerHTML=coletaFresca?'<span class="ok">🟢 Monitor automático conectado • coleta atual</span>':'<span class="erro">🔴 DADOS DESATUALIZADOS • NÃO INTERPRETAR COMO CONDIÇÃO ATUAL</span>';
+  $("coleta").textContent="Última coleta: "+new Date(d.gerado_em).toLocaleString("pt-BR")+(coletaFresca?"":" • "+Math.round(coletaIdadeMin)+" min atrás");
   const badgeVigente=(obj)=>{const st=String((obj||{}).status||"");if(!st)return "NÃO INFORMADO";if(st.includes("VALIDADO_COM_LACUNAS"))return "VALIDADO • COM LACUNAS";if(st.includes("VALIDADO")||st.includes("LIBERADO"))return "VALIDADO";if(st.includes("EM_VALIDACAO"))return "EM VALIDAÇÃO";if(st.includes("BLOQUEADO"))return "BLOQUEADO";if(st.includes("MODELADO"))return "MODELADO";return nomeFamilia(st)};
   $("vigVersao").textContent=e171.versao||"#171";
   $("vigDbz").textContent=badgeVigente(e171.radar_dbz_oficial);
@@ -915,8 +918,12 @@ async function carregar(){
   $("radarIdade").textContent=rad.idade_ultimo_quadro_min==null?"--":f(rad.idade_ultimo_quadro_min,1)+" min";
   $("radarTrilhas").textContent=rt.quantidade_trilhas??"--";
   $("radarElegiveis").textContent=rt.quantidade_trilhas_elegiveis??"--";
-  if(rad.status==="online"&&rad.dados_frescos){$("radarEstado").innerHTML='<span class="ok">🟢 Radar online • dados frescos</span>'}
-  else if(rad.status){$("radarEstado").innerHTML='<span class="aviso">🟡 Radar '+rad.status+' • conferir frescor</span>'}
+  const radarTs=Date.parse(rad.horario_ultimo_quadro||"");
+  const radarIdadeRealMin=Number.isFinite(radarTs)?Math.max(0,(Date.now()-radarTs)/60000):Infinity;
+  const radarFrescoReal=coletaFresca&&radarIdadeRealMin<=30;
+  $("radarIdade").textContent=Number.isFinite(radarIdadeRealMin)?f(radarIdadeRealMin,1)+" min":"--";
+  if(rad.status==="online"&&radarFrescoReal){$("radarEstado").innerHTML='<span class="ok">🟢 Radar online • quadro atual</span>'}
+  else if(rad.status){$("radarEstado").innerHTML='<span class="erro">🔴 Radar '+rad.status+' • QUADRO DESATUALIZADO • não representa agora</span>'}
   else{$("radarEstado").innerHTML='<span class="erro">🔴 Radar indisponível</span>'}
   const cand=av.quantidade_candidatos_eta??0;
   $("etaEstado").innerHTML='<span class="aviso">🧪 ETA experimental bloqueado • candidatos atuais: '+cand+'</span>';
@@ -939,7 +946,7 @@ async function carregar(){
    $("ecoQualDbz").textContent=dbzOk?f(infoDbz.dbz_min,1)+"–"+f(infoDbz.dbz_max,1)+" dBZ":"BLOQUEADA";
    $("ecoQualRaio").textContent="≤ "+escolhido.raio+" km";
    $("ecoQualPixels").textContent=escolhido.pixels_oficiais_classificados??"--";
-   const fresco=rad.dados_frescos===true;
+   const fresco=radarFrescoReal;
    $("ecoQualEstado").innerHTML=fresco?'<span class="ok">🟢 ECO OFICIAL DETECTADO</span> • RGB idêntico à legenda RadarSC':'<span class="aviso">🟡 ECO OFICIAL DETECTADO EM QUADRO DESATUALIZADO</span>';
    $("ecoQualInterpretacao").innerHTML='<b>'+textoCategoria(fam.categoria)+'</b><br><small>Raio mostrado = menor raio em que a #130 encontrou pixel de classe oficial. Não significa que esteja chovendo no ponto de referência.</small>';
   }else if(cq.status){
@@ -1250,8 +1257,8 @@ async function carregar(){
   const setaResumo=classeResumo==="subindo"?"↗️":(classeResumo==="descendo"?"↘️":(classeResumo==="estavel"?"➡️":"❔"));
   $("resRio").textContent=nvResumo==null?"INDISPONÍVEL":f(nvResumo,2)+" m";
   $("resRioDet").textContent=nvResumo==null?"V0.21 sem forçantes completas":setaResumo+" "+nomeFamilia(tendResumo.classe||"tendência indisponível")+" • MODELADO/NÃO INSTRUMENTAL";
-  $("resChuva").textContent=entResumo.chuva_memoria_mm_h_equivalente==null?"INDISPONÍVEL":f(entResumo.chuva_memoria_mm_h_equivalente,3)+" mm/h";
-  $("resChuvaDet").textContent=entResumo.chuva_janela_memoria_h==null?"Memória hidrológica V0.21":"memória de "+f(entResumo.chuva_janela_memoria_h,1)+" h • EPAGRI/CIRAM regional";
+  $("resChuva").textContent=!coletaFresca?"DESATUALIZADO":(a.precipitacao_mm==null?"INDISPONÍVEL":f(a.precipitacao_mm,2)+" mm");
+  $("resChuvaDet").textContent=!coletaFresca?("última coleta há "+Math.round(coletaIdadeMin)+" min • não representa agora"):("Open-Meteo • "+(a.horario?horaCurta(a.horario):"horário --")+" • modelo, não pluviômetro");
   $("resMare").textContent=entResumo.mare_jusante_m==null?(mo.nivel_m==null?"INDISPONÍVEL":f(mo.nivel_m,3)+" m"):f(entResumo.mare_jusante_m,3)+" m";
   $("resMareDet").textContent="Joinville/Babitonga • condição de jusante usada pelo modelo";
   const wmo=a.codigo_tempo_wmo;
@@ -1443,10 +1450,12 @@ async function carregar(){
     const motivos=(v169Dash.motivos_bloqueio||[]).join(", ");
     $("dashRadarEco").innerHTML='<span class="aviso">⚠ FAIXAS dBZ TEMPORARIAMENTE NÃO PUBLICADAS</span><br><small>A detecção RGB C1–C16 continua ativa. A #169 bloqueou apenas os números dBZ'+(motivos?' • diagnóstico: '+motivos:'')+'.</small>';
   }
-  if(escolhido&&classeAtual!==null){
+  if(escolhido&&classeAtual!==null&&radarFrescoReal){
     const atualInfo=dicRadar.find(x=>Number(x.classe)===classeAtual)||{classe:classeAtual};
     const famAtual=atualInfo.familia_cor||((escolhido.familias_cor||[])[0]||{}).familia||"não informada";
     $("dashRadarEco").innerHTML='<span class="ok">▼ ECO AGORA • C'+classeAtual+' • '+faixaDbzDash(atualInfo)+'</span><br><small>Cor: '+nomeFamilia(famAtual)+' • eco RadarSC detectado em até '+escolhido.raio+' km da referência. A faixa em dBZ descreve refletividade do radar. Quando houver correspondência modelada e a guarda #170-M autorizar, o Monitor pode publicar mm/h ESTIMADO; isso não equivale a pluviômetro.</small>';
+  }else if(cq.status&&!radarFrescoReal){
+    $("dashRadarEco").innerHTML='<span class="erro">⚠ QUADRO DESATUALIZADO • SEM CONCLUSÃO SOBRE AGORA</span><br><small>O último quadro não é recente o bastante para afirmar presença ou ausência de chuva neste momento.</small>';
   }else if(cq.status){
     $("dashRadarEco").innerHTML='<span class="aviso">○ SEM ECO OFICIAL DETECTADO ≤ 25 km</span><br><small>Nenhum índice interno C1–C16 foi detectado nesta busca. Isso não prova ausência de chuva no solo.</small>';
   }else{
@@ -1454,7 +1463,8 @@ async function carregar(){
   }
   const prevTemChuva=(ph.precipitacao_mm!=null&&Number(ph.precipitacao_mm)>0)||(ph.probabilidade_chuva_pct!=null&&Number(ph.probabilidade_chuva_pct)>=50);
   if($("dashRadarSintese")){
-    if(escolhido&&classeAtual!==null){$("dashRadarSintese").innerHTML='<strong>📡 Eco detectado no radar agora</strong>Há refletividade classificada em até '+escolhido.raio+' km. A previsão da próxima hora é '+(ph.precipitacao_mm==null?'--':f(ph.precipitacao_mm,1)+' mm')+' ('+(ph.probabilidade_chuva_pct==null?'--':Math.round(ph.probabilidade_chuva_pct)+'%')+').';}
+    if(!radarFrescoReal){$("dashRadarSintese").innerHTML='<strong>⚠ Radar desatualizado</strong>O último quadro tem '+(Number.isFinite(radarIdadeRealMin)?f(radarIdadeRealMin,0)+' min':'idade desconhecida')+'. O Monitor não afirma “sem eco agora” usando imagem antiga.';}
+    else if(escolhido&&classeAtual!==null){$("dashRadarSintese").innerHTML='<strong>📡 Eco detectado no radar agora</strong>Há refletividade classificada em até '+escolhido.raio+' km. A previsão da próxima hora é '+(ph.precipitacao_mm==null?'--':f(ph.precipitacao_mm,1)+' mm')+' ('+(ph.probabilidade_chuva_pct==null?'--':Math.round(ph.probabilidade_chuva_pct)+'%')+').';}
     else if(cq.status&&prevTemChuva){$("dashRadarSintese").innerHTML='<strong>📡 Sem eco detectado agora • ☔ chuva prevista na próxima hora</strong>Os dados não medem a mesma coisa: o radar procura eco no quadro recente; a previsão estima a próxima hora. Chuva prevista pode ainda não aparecer no radar local e a previsão pode mudar. Previsão: '+(ph.precipitacao_mm==null?'--':f(ph.precipitacao_mm,1)+' mm')+' • '+(ph.probabilidade_chuva_pct==null?'--':Math.round(ph.probabilidade_chuva_pct)+'%')+'.';}
     else if(cq.status){$("dashRadarSintese").innerHTML='<strong>📡 Sem eco detectado agora</strong>Nenhuma classe C1–C16 foi detectada nesta busca. Isso não prova ausência de chuva no solo.';}
     else{$("dashRadarSintese").innerHTML='<strong>📡 Radar sem classificação local</strong>A leitura qualitativa está indisponível nesta coleta.';}

@@ -232,17 +232,27 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
     Falha HTTP, timeout, JSON inválido ou ausência de amostra produz FONTE_INDISPONIVEL
     (ou SEM_AMOSTRA), nunca CONTRARIO. Consultas são feitas em lotes pequenos com retry.
     """
-    candidatos = [s for s in sistemas if s.get("tendencia_distancia_observada") == "APROXIMANDO_OBSERVADO_CONTINUO"]
-    candidatos.sort(key=lambda x: x["distancia_joinville_km"])
-    candidatos = candidatos[:max(1, limite)]
+    # #174-G: prioridade por evidência. Persistência temporal vence proximidade instantânea.
+    aproximando = [s for s in sistemas if s.get("tendencia_distancia_observada") == "APROXIMANDO_OBSERVADO_CONTINUO"]
+    p60 = sorted((s for s in aproximando if s.get("persistencia_60min") == "CONFIRMADA"), key=lambda x: x["distancia_joinville_km"])
+    p30 = sorted((s for s in aproximando if s.get("persistencia_30min") == "CONFIRMADA" and s.get("persistencia_60min") != "CONFIRMADA"), key=lambda x: x["distancia_joinville_km"])
+    p10 = sorted((s for s in aproximando if s.get("persistencia_30min") != "CONFIRMADA"), key=lambda x: x["distancia_joinville_km"])
+    fila = p60 + p30 + p10
+    candidatos = fila[:max(1, limite)]
+    ids_selecionados = {str(s.get("id_sistema")) for s in candidatos}
     for s in sistemas:
         s["confirmacao_sinotica_850hpa"] = "NAO_AVALIADA"
         s["estado_sinotico_174f"] = "NAO_AVALIADO"
         s["ecmwf_850hpa"] = None
+        if str(s.get("id_sistema")) in ids_selecionados:
+            s["prioridade_sinotica_174g"] = "P60" if s.get("persistencia_60min") == "CONFIRMADA" else ("P30" if s.get("persistencia_30min") == "CONFIRMADA" else "P10")
+        else:
+            s["prioridade_sinotica_174g"] = "FORA_DO_LIMITE" if s in aproximando else "NAO_CANDIDATO"
     fonte = "ECMWF via Open-Meteo ECMWF API"
     if not candidatos:
         return {"status": "sem_candidatos_continuos", "estado_fonte": "NAO_NECESSARIA", "avaliados": 0,
-                "favoraveis": 0, "contrarios": 0, "inconclusivos": 0, "indisponiveis": 0, "fonte": fonte}
+                "favoraveis": 0, "contrarios": 0, "inconclusivos": 0, "indisponiveis": 0, "fonte": fonte,
+                "prioridade": {"p60_selecionados": 0, "p30_selecionados": 0, "p10_selecionados": 0}}
 
     endpoint = "https://api.open-meteo.com/v1/ecmwf"
     alvo = horario_produto.replace(minute=0, second=0, microsecond=0) if horario_produto else datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
@@ -324,7 +334,12 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
             "avaliados": avaliados, "favoraveis": favoraveis, "contrarios": contrarios,
             "inconclusivos": inconclusivos, "indisponiveis": indisponiveis, "apoiam": favoraveis,
             "nao_apoiam": contrarios, "erros": erros[:5], "lote_maximo": lote, "tentativas_por_lote": tentativas,
-            "fonte": fonte, "regra": "FAVORAVEL/CONTRARIO exigem amostra ECMWF valida; falha de fonte nunca equivale a CONTRARIO."}
+            "fonte": fonte,
+            "prioridade": {"p60_disponiveis": len(p60), "p30_disponiveis": len(p30), "p10_disponiveis": len(p10),
+                           "p60_selecionados": sum(1 for s in candidatos if s.get("persistencia_60min") == "CONFIRMADA"),
+                           "p30_selecionados": sum(1 for s in candidatos if s.get("persistencia_30min") == "CONFIRMADA" and s.get("persistencia_60min") != "CONFIRMADA"),
+                           "p10_selecionados": sum(1 for s in candidatos if s.get("persistencia_30min") != "CONFIRMADA")},
+            "regra": "#174-G: P60 > P30 > P10; dentro de cada nivel, menor distancia primeiro. FAVORAVEL/CONTRARIO exigem amostra ECMWF valida; falha de fonte nunca equivale a CONTRARIO."}
 
 
 def indexar_quadro_completo(payload):
@@ -396,7 +411,7 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
     persist60 = [x for x in sistemas if x.get("persistencia_60min") == "CONFIRMADA"]
     persist30_sinotica = [x for x in persist30 if x.get("confirmacao_sinotica_850hpa") == "APOIA_CORREDOR_PARA_JOINVILLE"]
     return {
-        "versao": "#174-F",
+        "versao": "#174-G",
         "status": "experimental_dados_processados",
         "uso_operacional": False,
         "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
@@ -428,11 +443,12 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
             "ECMWF 850 hPa e confirmacao sinotica auxiliar; vento meteorologico DE e convertido para vetor PARA antes da comparacao.",
             "Persistencia de 30 min exige 3 passos consecutivos de 10 min, todos CONTINUITY, plausiveis e aproximando >=2 km por passo.",
             "Persistencia de 60 min exige 6 passos consecutivos sob a mesma regra.",
-            "ETA permanece bloqueado no #174-F.",
+            "ETA permanece bloqueado no #174-G.",
             "Vel do TATHU e preservado e convertido de m/s para km/h apenas como diagnostico; Vel=0 invalida o vetor direcional.",
             "Valores sentinela <= -900 sao tratados como ausentes.",
             "Ausencia/erro da fonte nunca significa ausencia de tempestade.",
-            "#174-F nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
+            "#174-G nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
+            "#174-G prioriza confirmacao ECMWF nesta ordem: persistentes 60 min, persistentes 30 min, candidatos 10 min; proximidade desempata dentro do mesmo nivel.",
             "FAVORAVEL, CONTRARIO e FONTE_INDISPONIVEL sao estados distintos; indisponibilidade jamais conta como rejeicao meteorologica.",
         ],
     }
@@ -453,7 +469,7 @@ def main():
         payload, horario, url, tentativas = buscar_ultimo(timeout=max(1.0, args.timeout), max_tentativas=max(1, min(args.tentativas, 25)))
         if payload is None:
             resultado = {
-                "versao": "#174-F", "status": "fonte_indisponivel_fail_closed",
+                "versao": "#174-G", "status": "fonte_indisponivel_fail_closed",
                 "uso_operacional": False, "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
                 "sistemas_no_dominio": None, "sistemas_geometricamente_compativeis": None,
                 "sistema_compativel_mais_proximo": None, "sistemas": [], "tentativas_fonte": tentativas,

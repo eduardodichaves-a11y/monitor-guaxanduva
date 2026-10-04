@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1-R2",
   "projeto": "Monitor Guaxanduva",
   "finalidade": "Base auditável para replay histórico cego do #175; não é alerta operacional.",
   "timezone": "America/Sao_Paulo",
@@ -61,6 +61,56 @@
           "disponivel_em": "2021-01-05T00:00:00-03:00",
           "usar_no_replay_em_tempo_real": false,
           "nota": "Máximo oficial retrospectivo. Série sub-horária original ainda não recuperada."
+        },
+        {
+          "id": "E004",
+          "variavel": "alerta_temporal",
+          "valor": true,
+          "unidade": null,
+          "janela": null,
+          "resolucao": "documental",
+          "tipo": "previsao_contextual",
+          "local": "Litoral/Norte de Santa Catarina",
+          "fonte_id": "F003",
+          "disponivel_em": "2020-12-30T12:00:00-03:00",
+          "usar_no_replay_em_tempo_real": true,
+          "peso_no_score": false,
+          "nota": "Contexto causal disponível antes do evento; não recebe peso numérico no R2."
+        },
+        {
+          "id": "E005",
+          "variavel": "condicao_mare",
+          "valor": "DESFAVORAVEL_PREVISTA",
+          "unidade": null,
+          "janela": "31/12/2020–02/01/2021",
+          "resolucao": "documental",
+          "tipo": "previsao_contextual",
+          "local": "Litoral de SC / Joinville",
+          "fonte_id": "F003",
+          "disponivel_em": "2020-12-30T12:00:00-03:00",
+          "usar_no_replay_em_tempo_real": true,
+          "peso_no_score": false,
+          "nota": "Maré alta/sizígia + vento sul previstos; altura e horário exatos permanecem N/D."
+        },
+        {
+          "id": "E006",
+          "variavel": "chuva_acumulada",
+          "valor": 139.0,
+          "unidade": "mm",
+          "janela": "22:00–00:00",
+          "resolucao": "2h_documental_contemporaneo",
+          "tipo": "observado_divulgado_durante_evento",
+          "local": "Joinville",
+          "fonte_id": "F004",
+          "disponivel_em": "2021-01-01T01:42:00-03:00",
+          "usar_no_replay_em_tempo_real": true,
+          "peso_no_score": false,
+          "restricao": {
+            "inicio": "2020-12-31T22:00:00-03:00",
+            "fim": "2021-01-01T00:00:00-03:00",
+            "soma_mm": 139.0
+          },
+          "nota": "Pode entrar como informação causal somente a partir da publicação; não é distribuído artificialmente em 10 min."
         }
       ],
       "gabarito_impactos": [
@@ -114,6 +164,47 @@
           "tipo": "documental",
           "url": "https://static.ndmais.com.br/2021/03/Lista-de-Endere%C3%A7os-do-Munic%C3%ADpio-de-Joinville-Atingidos-por-Alagamentos-em-31-12-2020-e-01-01-2021.pdf",
           "qualidade": "alta_para_presenca"
+        },
+        {
+          "id": "F003",
+          "titulo": "Alerta para temporais e maré alta em Santa Catarina — 30/12/2020",
+          "tipo": "contemporaneo_pre_evento",
+          "url": "https://www.climatempo.com.br/noticia/2020/12/30/alerta-para-temporais-no-centro-sul-do-brasil-nos-proximos-dias-7160",
+          "qualidade": "media_alta_contextual"
+        },
+        {
+          "id": "F004",
+          "titulo": "Joinville registra vários pontos de alagamentos durante a virada — 01/01/2021 01:42",
+          "tipo": "contemporaneo_durante_evento",
+          "url": "https://scc10.com.br/geral/tempo/joinville-registra-varios-pontos-de-alagamentos-durante-a-virada/",
+          "qualidade": "media_alta; atribui 139 mm à Defesa Civil SC"
+        }
+      ],
+      "restricoes_reconstrucao": [
+        {
+          "id": "C001",
+          "tipo": "soma_janela",
+          "inicio": "2020-12-31T22:00:00-03:00",
+          "fim": "2021-01-01T00:00:00-03:00",
+          "valor_mm": 139.0,
+          "fonte_id": "F004",
+          "uso": "restricao; não interpolar"
+        },
+        {
+          "id": "C002",
+          "tipo": "maximo_janela_1h",
+          "valor_mm": 90.0,
+          "local": "CEMADEN Iririú",
+          "fonte_id": "F001",
+          "uso": "gabarito retrospectivo; horário exato N/D"
+        },
+        {
+          "id": "C003",
+          "tipo": "soma_janela",
+          "janela": "6h",
+          "valor_mm": 169.0,
+          "fonte_id": "F001",
+          "uso": "gabarito retrospectivo; não interpolar"
         }
       ]
     }

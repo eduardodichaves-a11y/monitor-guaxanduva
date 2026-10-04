@@ -301,7 +301,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
  
 <div class="dash-cards">
 <div class="dash-mini"><div class="k">🌊 Nível do rio • modelo</div><div class="v" id="resRio">--</div><div class="d" id="resRioDet">V0.21 • não instrumental</div></div>
-<div class="dash-mini"><div class="k">🌧️ Chuva agora • modelo</div><div class="v" id="resChuva">--</div><div class="d" id="resChuvaDet">Open-Meteo • não é pluviômetro</div></div>
+<div class="dash-mini"><div class="k">🌧️ Sinais de chuva agora</div><div class="v" id="resChuva">--</div><div class="d" id="resChuvaDet">Open-Meteo • não é pluviômetro</div></div>
 <div class="dash-mini"><div class="k">🌊 Maré • jusante</div><div class="v" id="resMare">--</div><div class="d" id="resMareDet">Joinville/Babitonga</div></div>
 <div class="dash-mini"><div class="k">🌡️ Temperatura</div><div class="v" id="resTempo">--</div><div class="d" id="resTempoDet">condição atual</div></div>
 <div class="dash-mini"><div class="k">🌬️ Vento</div><div class="v" id="resVento">--</div><div class="d" id="resVentoDet">vento e rajadas</div></div>
@@ -869,7 +869,7 @@ function renderEnso173(d){
 async function carregar(){
  try{
   const r=await fetch("dados.json?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
-  const d=await r.json(),c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},r172=d.geometria_rede_observacional_172||{},e171=d.estado_cientifico_vigente_171||{},i4=d.auditoria_empirica_raster_chuva_170_i4||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{},x168=d.liberacao_experimental_168||{},gxaK=d.metodo_guaxanduva_refletividade_v01||{},gxaL=d.metodo_guaxanduva_zr_operacional_v02||{},gxaM=d.metodo_guaxanduva_publicacao_operacional_v03||{};
+  const d=await r.json(),agoraOp=d.estado_agora_operacional||{},c=d.chuva||{},r165=d.rede_pluviometrica_multifonte_165||{},r172=d.geometria_rede_observacional_172||{},e171=d.estado_cientifico_vigente_171||{},i4=d.auditoria_empirica_raster_chuva_170_i4||{},m=d.mare||{},mo=d.mare_observada_joinville_160||{},m24=d.mare_prevista_24h_164||{},h166=d.historico_hidrometeorologico_guaxanduva_166||{},gxa=d.modelo_computacional_guaxanduva_v01||{},h19=d.hidrologia_guaxanduva_v019||{},n21=d.nivel_guaxanduva_v021||{},tm=d.tabela_mestra_guaxanduva||{},q=d.rio||{},p=d.previsao||{},a=p.atual||{},ph=p.proxima_hora||{},g=d.granizo||{},rad=d.radar||{},rh=d.criterio_hidrometeorologico_plancon_163||{},astro=d.astronomia_joinville||{},x168=d.liberacao_experimental_168||{},gxaK=d.metodo_guaxanduva_refletividade_v01||{},gxaL=d.metodo_guaxanduva_zr_operacional_v02||{},gxaM=d.metodo_guaxanduva_publicacao_operacional_v03||{};
   // Segunda barreira auditável: se dados.json vier sem resumo topológico,
   // o card estrutural lê a última topologia validada persistida no repositório.
   if(!gxa.resumo || gxa.resumo.segmentos_microbacia==null){
@@ -1268,12 +1268,18 @@ async function carregar(){
   if(!coletaFresca){
     $("resChuva").textContent="DESATUALIZADO";
     $("resChuvaDet").textContent="última coleta há "+Math.round(coletaIdadeMin)+" min • não representa agora";
-  }else if(obsChuvaMax!=null){
-    $("resChuva").textContent=f(obsChuvaMax,1)+" mm/1h";
-    $("resChuvaDet").textContent="OBSERVADO • maior estação fresca da rede regional"+(estObsChuva.length>1?" • média "+f(obsChuvaMed,1)+" mm/1h":"")+" • não equivale a pluviômetro no Comasa";
+  }else if(agoraOp.status==="SINAIS_DE_CHUVA_AGORA"){
+    $("resChuva").textContent="🌧️ SINAIS DE CHUVA AGORA";
+    $("resChuvaDet").textContent=agoraOp.mensagem||"Radar local e rede pluviométrica regional apresentam sinal de precipitação.";
+  }else if(agoraOp.status==="ECO_RADAR_LOCAL_AGORA"){
+    $("resChuva").textContent="📡 ECO LOCAL AGORA";
+    $("resChuvaDet").textContent=agoraOp.mensagem||"Eco RadarSC local; sem pluviômetro no Comasa para confirmar chuva no solo.";
+  }else if(agoraOp.status==="CHUVA_OBSERVADA_REGIONAL_AGORA" || obsChuvaMax!=null&&obsChuvaMax>0){
+    $("resChuva").textContent="🌧️ CHUVA NA REDE REGIONAL";
+    $("resChuvaDet").textContent=(agoraOp.mensagem||("OBSERVADO • até "+f(obsChuvaMax,1)+" mm/1h"))+" • não equivale a pluviômetro no Comasa";
   }else{
-    $("resChuva").textContent=a.precipitacao_mm==null?"INDISPONÍVEL":f(a.precipitacao_mm,2)+" mm";
-    $("resChuvaDet").textContent="MODELO Open-Meteo • "+(a.horario?horaCurta(a.horario):"horário --")+" • sem pluviômetro fresco disponível";
+    $("resChuva").textContent="SEM CONFIRMAÇÃO LOCAL";
+    $("resChuvaDet").textContent="Radar/pluviômetros sem confirmação suficiente nesta coleta • Open-Meteo atual: "+(a.precipitacao_mm==null?"--":f(a.precipitacao_mm,2)+" mm")+" (MODELO)";
   }
   $("resMare").textContent=entResumo.mare_jusante_m==null?(mo.nivel_m==null?"INDISPONÍVEL":f(mo.nivel_m,3)+" m"):f(entResumo.mare_jusante_m,3)+" m";
   $("resMareDet").textContent="Joinville/Babitonga • condição de jusante usada pelo modelo";
@@ -1314,7 +1320,8 @@ async function carregar(){
   // DASHBOARD V2: espelha somente dados já carregados acima.
   $("dashResumoLinha").textContent=frase;
   $("leigoAtualizacao").textContent=d.gerado_em?"Dados: "+new Date(d.gerado_em).toLocaleString("pt-BR"):"Horário da coleta indisponível";
-  $("leigoAgora").textContent=(a.temperatura_c==null?"Tempo indisponível":f(a.temperatura_c,1)+" °C • "+tempoNome)+(a.vento_kmh==null?"":" • vento "+f(a.vento_kmh,0)+" km/h");
+  const sinalAgora=agoraOp.status==="SINAIS_DE_CHUVA_AGORA"?"🌧️ SINAIS DE CHUVA AGORA • ":(agoraOp.status==="ECO_RADAR_LOCAL_AGORA"?"📡 ECO LOCAL AGORA • ":(agoraOp.status==="CHUVA_OBSERVADA_REGIONAL_AGORA"?"🌧️ CHUVA NA REDE REGIONAL • ":""));
+  $("leigoAgora").textContent=sinalAgora+(a.temperatura_c==null?"Tempo indisponível":f(a.temperatura_c,1)+" °C • "+tempoNome)+(a.vento_kmh==null?"":" • vento "+f(a.vento_kmh,0)+" km/h");
   $("leigo1h").textContent=(ph.precipitacao_mm==null?"Chuva indisponível":f(ph.precipitacao_mm,1)+" mm")+(ph.probabilidade_chuva_pct==null?"":" • "+Math.round(ph.probabilidade_chuva_pct)+"%");
   const g174=d.projecao_guaxanduva_174||{}, pk174=g174.pico||{}, vw174=g174.vento||{}, ch174=g174.chuva||{};
   const hora174=(s)=>{if(!s)return "--";try{return new Date(s).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}catch(_){return s;}};

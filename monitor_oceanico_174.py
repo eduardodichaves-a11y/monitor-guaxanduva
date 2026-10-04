@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""#174-D — Monitor Oceânico experimental do Monitor Guaxanduva.
+"""#174-E — Monitor Oceânico experimental do Monitor Guaxanduva.
 
 Lê o diagnóstico GOES-19/TATHU do CPTEC/INPE, faz triagem ampla de sistemas
 convectivos no entorno da América do Sul e calcula, de forma fail-closed,
-distância e rumo para Joinville e compara dois quadros consecutivos para verificar
-se a distância do mesmo sistema realmente diminuiu. Vetores instantâneos são apenas
+distância e rumo para Joinville e compara uma janela temporal de até 60 minutos para verificar
+se a distância do mesmo sistema diminui de forma persistente e fisicamente plausível. Vetores instantâneos são apenas
 diagnóstico secundário; ETA continua bloqueado para uso operacional.
 
 Este módulo NÃO altera dados.json e NÃO gera alerta operacional.
@@ -247,7 +247,7 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=12, limite=20):
         "forecast_days": 2, "timezone": "UTC", "cell_selection": "nearest"
     }
     try:
-        r = requests.get(endpoint, params=params, timeout=timeout, headers={"User-Agent": "Monitor-Guaxanduva/174-D"})
+        r = requests.get(endpoint, params=params, timeout=timeout, headers={"User-Agent": "Monitor-Guaxanduva/174-E"})
         r.raise_for_status(); payload = r.json()
         locais = payload if isinstance(payload, list) else [payload]
     except Exception as e:
@@ -280,7 +280,58 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=12, limite=20):
     return {"status": "coletado" if avaliados else "sem_amostras_fail_closed", "avaliados": avaliados, "apoiam": apoiados, "nao_apoiam": rejeitados, "fonte": "ECMWF via Open-Meteo ECMWF API", "regra": "Vento 850 hPa e evidencia sinotica auxiliar; nao prova chegada de sistema convectivo."}
 
 
-def processar(payload, horario_produto=None, url=None, tentativas=None, payload_anterior=None, horario_anterior=None, url_anterior=None):
+def indexar_quadro_completo(payload):
+    out = {}
+    for f in (payload or {}).get("features", []):
+        x = normalizar(f)
+        if x and x.get("id_sistema"):
+            out[str(x["id_sistema"])] = x
+    return out
+
+
+def aplicar_persistencia_temporal(sistemas, historico_quadros):
+    """Gate #174-E: exige continuidade e aproximação em todos os passos da janela.
+
+    30 min = quadro atual + 3 anteriores (4 observações).
+    60 min = quadro atual + 6 anteriores (7 observações).
+    Um passo só é válido se ambos os registros forem CONTINUITY, o deslocamento
+    implícito não exceder 250 km/h e a distância cair ao menos 2 km/10 min.
+    """
+    indices = [(h, indexar_quadro_completo(p)) for h, p, _ in historico_quadros if p]
+    for s in sistemas:
+        sid = str(s.get("id_sistema"))
+        serie = [{"horario_utc": None, "distancia_km": s["distancia_joinville_km"], "evento": s.get("evento")}]
+        for h, idx in indices:
+            x = idx.get(sid)
+            if x:
+                serie.append({"horario_utc": h.isoformat(), "distancia_km": x["distancia_joinville_km"], "evento": x.get("evento")})
+            else:
+                serie.append(None)
+        # historico vem do mais recente para o mais antigo; avaliamos pares atual<-anterior.
+        passos = []
+        for i in range(min(6, len(serie)-1)):
+            atual, ant = serie[i], serie[i+1]
+            if atual is None or ant is None:
+                passos.append({"valido": False, "motivo": "SEM_PAREAMENTO"}); continue
+            eventos_ok = str(atual.get("evento") or "").upper() == "CONTINUITY" and str(ant.get("evento") or "").upper() == "CONTINUITY"
+            delta = round(atual["distancia_km"] - ant["distancia_km"], 1)
+            vel = round(abs(delta) * 6.0, 1)
+            plausivel = vel <= 250.0
+            aproxima = delta <= -2.0
+            passos.append({"valido": eventos_ok and plausivel, "delta_distancia_km": delta, "velocidade_centroide_implicita_km_h": vel, "continuidade": eventos_ok, "plausivel": plausivel, "aproxima": aproxima})
+        def gate(n):
+            if len(passos) < n: return False
+            q = passos[:n]
+            return all(x.get("valido") and x.get("aproxima") for x in q)
+        p30, p60 = gate(3), gate(6)
+        s["persistencia_30min"] = "CONFIRMADA" if p30 else "NAO_CONFIRMADA"
+        s["persistencia_60min"] = "CONFIRMADA" if p60 else "NAO_CONFIRMADA"
+        s["passos_temporais_avaliados"] = passos
+        s["trajetoria_persistente_gate"] = "PERSISTENTE_60MIN" if p60 else ("PERSISTENTE_30MIN" if p30 else "NAO_PERSISTENTE")
+    return sistemas
+
+
+def processar(payload, horario_produto=None, url=None, tentativas=None, payload_anterior=None, horario_anterior=None, url_anterior=None, historico_quadros=None):
     agora = datetime.now(UTC)
     sistemas = []
     for f in (payload or {}).get("features", []):
@@ -288,13 +339,17 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
         if x:
             sistemas.append(x)
     sistemas = aplicar_tendencia_observada(sistemas, payload_anterior)
+    sistemas = aplicar_persistencia_temporal(sistemas, historico_quadros or [])
     sistemas.sort(key=lambda x: x["distancia_joinville_km"])
     sinotica = confirmar_ecmwf_850(sistemas, horario_produto)
     aproximando = [x for x in sistemas if x["tendencia_distancia_observada"] == "APROXIMANDO_OBSERVADO_CONTINUO"]
     aproximando.sort(key=lambda x: x["distancia_joinville_km"])
     confirmados = [x for x in aproximando if x.get("confirmacao_sinotica_850hpa") == "APOIA_CORREDOR_PARA_JOINVILLE"]
+    persist30 = [x for x in sistemas if x.get("persistencia_30min") == "CONFIRMADA"]
+    persist60 = [x for x in sistemas if x.get("persistencia_60min") == "CONFIRMADA"]
+    persist30_sinotica = [x for x in persist30 if x.get("confirmacao_sinotica_850hpa") == "APOIA_CORREDOR_PARA_JOINVILLE"]
     return {
-        "versao": "#174-D",
+        "versao": "#174-E",
         "status": "experimental_dados_processados",
         "uso_operacional": False,
         "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
@@ -309,6 +364,9 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
         "sistemas_geometricamente_compativeis": None,
         "sistemas_aproximando_observado_continuo": len(aproximando),
         "sistemas_aproximando_com_apoio_sinotico_850hpa": len(confirmados),
+        "sistemas_persistencia_30min_confirmada": len(persist30),
+        "sistemas_persistencia_60min_confirmada": len(persist60),
+        "sistemas_persistencia_30min_com_apoio_sinotico": len(persist30_sinotica),
         "sistema_aproximando_mais_proximo": aproximando[0] if aproximando else None,
         "confirmacao_sinotica": sinotica,
         "quadro_anterior_horario_utc": horario_anterior.isoformat() if horario_anterior else None,
@@ -321,11 +379,13 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
             "MERGE, SPLIT e SPONTANEOUS_GENERATION nunca sustentam trajetoria continua.",
             "Deslocamento de centroide acima de 250 km/h e rejeitado como salto incompativel neste gate experimental.",
             "ECMWF 850 hPa e confirmacao sinotica auxiliar; vento meteorologico DE e convertido para vetor PARA antes da comparacao.",
-            "ETA permanece bloqueado no #174-D.",
+            "Persistencia de 30 min exige 3 passos consecutivos de 10 min, todos CONTINUITY, plausiveis e aproximando >=2 km por passo.",
+            "Persistencia de 60 min exige 6 passos consecutivos sob a mesma regra.",
+            "ETA permanece bloqueado no #174-E.",
             "Vel do TATHU e preservado e convertido de m/s para km/h apenas como diagnostico; Vel=0 invalida o vetor direcional.",
             "Valores sentinela <= -900 sao tratados como ausentes.",
             "Ausencia/erro da fonte nunca significa ausencia de tempestade.",
-            "#174-D nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
+            "#174-E nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
         ],
     }
 
@@ -345,28 +405,31 @@ def main():
         payload, horario, url, tentativas = buscar_ultimo(timeout=max(1.0, args.timeout), max_tentativas=max(1, min(args.tentativas, 25)))
         if payload is None:
             resultado = {
-                "versao": "#174-D", "status": "fonte_indisponivel_fail_closed",
+                "versao": "#174-E", "status": "fonte_indisponivel_fail_closed",
                 "uso_operacional": False, "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
                 "sistemas_no_dominio": None, "sistemas_geometricamente_compativeis": None,
                 "sistema_compativel_mais_proximo": None, "sistemas": [], "tentativas_fonte": tentativas,
                 "regra_seguranca": "Falha de consulta nao equivale a ausencia de tempestade."
             }
         else:
-            # Busca o quadro imediatamente anterior ao produto encontrado. Se ele
-            # faltar, não pula silenciosamente para outro horário: tendência fica
-            # sem pareamento, preservando a cronologia científica.
-            horario_anterior = horario - timedelta(minutes=10)
-            url_anterior = TATHU_BASE + horario_anterior.strftime("%Y/%m/") + "goes19_diagnostic_" + horario_anterior.strftime("%Y%m%d%H%M") + ".json"
-            payload_anterior = None
-            try:
-                rr = requests.get(url_anterior, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-D"})
-                if rr.status_code == 200:
-                    candidato = rr.json()
-                    if isinstance(candidato, dict) and isinstance(candidato.get("features"), list):
-                        payload_anterior = candidato
-            except Exception:
-                payload_anterior = None
-            resultado = processar(payload, horario, url, tentativas, payload_anterior, horario_anterior if payload_anterior else None, url_anterior if payload_anterior else None)
+            # #174-E: busca exatamente os 6 quadros anteriores (janela de 60 min).
+            # Não pula lacunas: quadro ausente quebra a persistência, em fail-closed.
+            historico = []
+            for passo in range(1, 7):
+                hh = horario - timedelta(minutes=10 * passo)
+                uu = TATHU_BASE + hh.strftime("%Y/%m/") + "goes19_diagnostic_" + hh.strftime("%Y%m%d%H%M") + ".json"
+                pp = None
+                try:
+                    rr = requests.get(uu, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-E"})
+                    if rr.status_code == 200:
+                        candidato = rr.json()
+                        if isinstance(candidato, dict) and isinstance(candidato.get("features"), list):
+                            pp = candidato
+                except Exception:
+                    pp = None
+                historico.append((hh, pp, uu))
+            horario_anterior, payload_anterior, url_anterior = historico[0]
+            resultado = processar(payload, horario, url, tentativas, payload_anterior, horario_anterior if payload_anterior else None, url_anterior if payload_anterior else None, historico)
 
     Path(args.saida).write_text(json.dumps(resultado, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({k: resultado.get(k) for k in ("versao", "status", "sistemas_no_dominio", "sistemas_geometricamente_compativeis")}, ensure_ascii=False))

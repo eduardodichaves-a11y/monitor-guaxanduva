@@ -1548,7 +1548,7 @@ async function carregar(){
 
   /* #168 • liberação experimental • leitura fail-closed */
   const eta168=x168.eta_fortracc_tathu||{}, radar168=x168.radar_estimativa_quantitativa||{},
-        nivel168=x168.nivel_guaxanduva_modelado||{}, conf168=x168.indice_confianca||{},
+        nivel168=(v021&&v021.status==="nivel_modelado_calculado"?v021:(x168.nivel_guaxanduva_modelado||{})), conf168=x168.indice_confianca||{},
         alerta168=x168.alerta_automatico_monitor||{}, tend168=nivel168.tendencia||{},
         faixa168=nivel168.faixa_estimativa_m||{}, val168=eta168.validacao_historica_condicional||{};
 

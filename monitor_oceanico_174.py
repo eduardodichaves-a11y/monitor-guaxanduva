@@ -163,13 +163,13 @@ def normalizar(feature):
     }
 
 
-def buscar_ultimo(timeout=8):
+def buscar_ultimo(timeout=4, max_tentativas=13):
     agora = datetime.now(UTC)
     base = agora.replace(minute=(agora.minute // 10) * 10, second=0, microsecond=0)
     tentativas = []
     sessao = requests.Session()
     sessao.headers.update({"User-Agent": "Monitor-Guaxanduva/174-A"})
-    for passo in range(25):
+    for passo in range(max_tentativas):
         t = base - timedelta(minutes=10 * passo)
         url = TATHU_BASE + t.strftime("%Y/%m/") + "goes19_diagnostic_" + t.strftime("%Y%m%d%H%M") + ".json"
         try:
@@ -228,13 +228,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--entrada", help="GeoJSON TATHU local para teste reprodutivel")
     ap.add_argument("--saida", default=SAIDA_PADRAO)
+    ap.add_argument("--timeout", type=float, default=4.0, help="Timeout HTTP por tentativa em segundos")
+    ap.add_argument("--tentativas", type=int, default=13, help="Quantidade maxima de quadros de 10 min a procurar")
     args = ap.parse_args()
 
     if args.entrada:
         payload = json.loads(Path(args.entrada).read_text(encoding="utf-8"))
         resultado = processar(payload)
     else:
-        payload, horario, url, tentativas = buscar_ultimo()
+        payload, horario, url, tentativas = buscar_ultimo(timeout=max(1.0, args.timeout), max_tentativas=max(1, min(args.tentativas, 25)))
         if payload is None:
             resultado = {
                 "versao": "#174-A", "status": "fonte_indisponivel_fail_closed",

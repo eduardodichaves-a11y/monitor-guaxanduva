@@ -1,0 +1,75 @@
+{
+  "id": "EH001_ENSEMBLE_175",
+  "natureza": "HINDCAST_PROBABILISTICO_EXPERIMENTAL_NAO_OPERACIONAL",
+  "fuso": "America/Sao_Paulo",
+  "janela_modelada": {
+    "inicio": "2020-12-31T21:30:00-03:00",
+    "fim": "2021-01-01T03:00:00-03:00",
+    "passo_min": 10
+  },
+  "evidencias": {
+    "inicio_temporal_aprox": {
+      "hora": "2020-12-31T21:30:00-03:00",
+      "incerteza_min": 30,
+      "tipo": "marcador_jornalistico"
+    },
+    "chuva_22_00": {
+      "acumulado_mm": 139.0,
+      "janela": "22:00-00:00",
+      "tipo": "registro_contemporaneo"
+    },
+    "cemaden_iririu": {
+      "max_1h_mm": 90.0,
+      "hora_exata": null,
+      "tipo": "decreto_oficial"
+    },
+    "epagri_ciram": {
+      "max_2h_mm": 120.0,
+      "hora_exata": null,
+      "tipo": "decreto_oficial"
+    },
+    "total_aprox": {
+      "mm": 169.0,
+      "duracao_h": 6,
+      "tipo": "decreto_oficial"
+    },
+    "impacto_1": {
+      "hora": "2021-01-01T00:30:00-03:00",
+      "incerteza_min": 30,
+      "uso": "validacao"
+    },
+    "impacto_2": {
+      "hora": "2021-01-01T00:50:00-03:00",
+      "incerteza_min": 20,
+      "uso": "validacao"
+    },
+    "mare": {
+      "alta_modelada_aprox": "2020-12-31T20:24:40-03:00",
+      "baixa_modelada_aprox": "2021-01-01T02:37:17-03:00",
+      "observada": false,
+      "altura_absoluta_m": null
+    }
+  },
+  "politica_alerta": {
+    "principio": "C_FN >> C_FP",
+    "razoes_custo_FN_FP": [
+      10,
+      20,
+      50
+    ],
+    "nota": "Os limiares operacionais definitivos exigem múltiplos eventos positivos e negativos; este hindcast não os calibra."
+  },
+  "regras": [
+    "Impactos não entram como chuva.",
+    "Horários aproximados permanecem incertos.",
+    "Maré é fase modelada, não observada.",
+    "Não chamar frequência do ensemble de probabilidade empírica de inundação.",
+    "Não inventar nível do rio de 2020."
+  ],
+  "ensemble": {
+    "n": 50000,
+    "seed": 175001,
+    "metodo": "amostragem condicionada por restricoes; pesos de plausibilidade temporal"
+  },
+  "saida": "ensemble_EH001_175.json"
+}

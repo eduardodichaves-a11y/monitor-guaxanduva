@@ -225,59 +225,106 @@ def aplicar_tendencia_observada(sistemas, payload_anterior, intervalo_minutos=10
     return sistemas
 
 
-def confirmar_ecmwf_850(sistemas, horario_produto, timeout=12, limite=20):
-    """Confirma, sem liberar previsão, se o escoamento ECMWF 850 hPa apoia o rumo a Joinville.
+def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5, tentativas=2):
+    """Gate #174-F: confirmação sinótica robusta e explicitamente triestatal.
 
-    A direção meteorológica é DE ONDE o vento vem; convertemos para o vetor PARA ONDE
-    somando 180°. Apenas candidatos CONTINUITY, com aproximação plausível, são consultados.
+    FAVORAVEL/CONTRARIO só existem quando uma amostra ECMWF 850 hPa válida foi obtida.
+    Falha HTTP, timeout, JSON inválido ou ausência de amostra produz FONTE_INDISPONIVEL
+    (ou SEM_AMOSTRA), nunca CONTRARIO. Consultas são feitas em lotes pequenos com retry.
     """
     candidatos = [s for s in sistemas if s.get("tendencia_distancia_observada") == "APROXIMANDO_OBSERVADO_CONTINUO"]
     candidatos.sort(key=lambda x: x["distancia_joinville_km"])
     candidatos = candidatos[:max(1, limite)]
     for s in sistemas:
         s["confirmacao_sinotica_850hpa"] = "NAO_AVALIADA"
+        s["estado_sinotico_174f"] = "NAO_AVALIADO"
         s["ecmwf_850hpa"] = None
+    fonte = "ECMWF via Open-Meteo ECMWF API"
     if not candidatos:
-        return {"status": "sem_candidatos_continuos", "avaliados": 0, "fonte": "ECMWF via Open-Meteo ECMWF API"}
+        return {"status": "sem_candidatos_continuos", "estado_fonte": "NAO_NECESSARIA", "avaliados": 0,
+                "favoraveis": 0, "contrarios": 0, "inconclusivos": 0, "indisponiveis": 0, "fonte": fonte}
+
     endpoint = "https://api.open-meteo.com/v1/ecmwf"
-    params = {
-        "latitude": ",".join(str(s["latitude"]) for s in candidatos),
-        "longitude": ",".join(str(s["longitude"]) for s in candidatos),
-        "hourly": "wind_speed_850hPa,wind_direction_850hPa",
-        "forecast_days": 2, "timezone": "UTC", "cell_selection": "nearest"
-    }
-    try:
-        r = requests.get(endpoint, params=params, timeout=timeout, headers={"User-Agent": "Monitor-Guaxanduva/174-E"})
-        r.raise_for_status(); payload = r.json()
-        locais = payload if isinstance(payload, list) else [payload]
-    except Exception as e:
-        return {"status": "fonte_indisponivel_fail_closed", "avaliados": 0, "erro": str(e)[:180], "fonte": "ECMWF via Open-Meteo ECMWF API"}
     alvo = horario_produto.replace(minute=0, second=0, microsecond=0) if horario_produto else datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
-    avaliados = apoiados = rejeitados = 0
-    for s, loc in zip(candidatos, locais):
-        h = (loc or {}).get("hourly") or {}; tempos = h.get("time") or []
-        if not tempos: continue
-        def parse_t(t):
-            try: return datetime.fromisoformat(str(t)).replace(tzinfo=UTC)
-            except Exception: return None
-        pares=[(abs((tt-alvo).total_seconds()),i,tt) for i,t in enumerate(tempos) if (tt:=parse_t(t)) is not None]
-        if not pares: continue
-        _, j, tt = min(pares)
-        vs = h.get("wind_speed_850hPa") or []; ds = h.get("wind_direction_850hPa") or []
-        sp = numero(vs[j]) if j < len(vs) else None; dfrom = numero(ds[j]) if j < len(ds) else None
-        if sp is None or dfrom is None: continue
-        dto = (dfrom + 180.0) % 360.0
-        erro = diferenca_angular(dto, s["rumo_sistema_para_joinville_graus"])
-        if sp < 10:
-            status = "INCONCLUSIVO_VENTO_FRACO"
-        elif erro <= 60:
-            status = "APOIA_CORREDOR_PARA_JOINVILLE"; apoiados += 1
-        else:
-            status = "NAO_APOIA_CORREDOR_PARA_JOINVILLE"; rejeitados += 1
-        avaliados += 1
-        s["confirmacao_sinotica_850hpa"] = status
-        s["ecmwf_850hpa"] = {"horario_utc": tt.isoformat(), "vento_km_h": round(sp,1), "direcao_de_graus": round(dfrom,1), "vetor_para_graus": round(dto,1), "erro_para_joinville_graus": round(erro,1), "natureza": "MODELADO_NAO_OPERACIONAL"}
-    return {"status": "coletado" if avaliados else "sem_amostras_fail_closed", "avaliados": avaliados, "apoiam": apoiados, "nao_apoiam": rejeitados, "fonte": "ECMWF via Open-Meteo ECMWF API", "regra": "Vento 850 hPa e evidencia sinotica auxiliar; nao prova chegada de sistema convectivo."}
+    avaliados = favoraveis = contrarios = inconclusivos = indisponiveis = 0
+    erros = []
+
+    for ini in range(0, len(candidatos), max(1, lote)):
+        bloco = candidatos[ini:ini + max(1, lote)]
+        params = {
+            "latitude": ",".join(str(s["latitude"]) for s in bloco),
+            "longitude": ",".join(str(s["longitude"]) for s in bloco),
+            "hourly": "wind_speed_850hPa,wind_direction_850hPa",
+            "forecast_days": 2, "timezone": "UTC", "cell_selection": "nearest"
+        }
+        locais = None
+        ultimo_erro = None
+        for tentativa in range(1, max(1, tentativas) + 1):
+            try:
+                r = requests.get(endpoint, params=params, timeout=timeout,
+                                 headers={"User-Agent": "Monitor-Guaxanduva/174-F"})
+                r.raise_for_status()
+                payload = r.json()
+                locais = payload if isinstance(payload, list) else [payload]
+                break
+            except Exception as e:
+                ultimo_erro = f"lote={ini//max(1,lote)+1} tentativa={tentativa}: {str(e)[:160]}"
+        if locais is None:
+            erros.append(ultimo_erro or "erro_desconhecido")
+            for s in bloco:
+                s["confirmacao_sinotica_850hpa"] = "FONTE_INDISPONIVEL"
+                s["estado_sinotico_174f"] = "FONTE_INDISPONIVEL"
+                indisponiveis += 1
+            continue
+
+        # Resposta incompleta também é ausência de fonte/amostra, não oposição meteorológica.
+        while len(locais) < len(bloco):
+            locais.append(None)
+        for s, loc in zip(bloco, locais):
+            h = (loc or {}).get("hourly") or {}; tempos = h.get("time") or []
+            def parse_t(t):
+                try: return datetime.fromisoformat(str(t)).replace(tzinfo=UTC)
+                except Exception: return None
+            pares = [(abs((tt-alvo).total_seconds()), i, tt) for i,t in enumerate(tempos) if (tt:=parse_t(t)) is not None]
+            if not pares:
+                s["confirmacao_sinotica_850hpa"] = "SEM_AMOSTRA_MODELO"
+                s["estado_sinotico_174f"] = "FONTE_INDISPONIVEL"
+                indisponiveis += 1
+                continue
+            _, j, tt = min(pares)
+            vs = h.get("wind_speed_850hPa") or []; ds = h.get("wind_direction_850hPa") or []
+            sp = numero(vs[j]) if j < len(vs) else None; dfrom = numero(ds[j]) if j < len(ds) else None
+            if sp is None or dfrom is None:
+                s["confirmacao_sinotica_850hpa"] = "SEM_AMOSTRA_MODELO"
+                s["estado_sinotico_174f"] = "FONTE_INDISPONIVEL"
+                indisponiveis += 1
+                continue
+            dto = (dfrom + 180.0) % 360.0
+            erro = diferenca_angular(dto, s["rumo_sistema_para_joinville_graus"])
+            if sp < 10:
+                status = "INCONCLUSIVO_VENTO_FRACO"; estado = "INCONCLUSIVO"; inconclusivos += 1
+            elif erro <= 60:
+                status = "APOIA_CORREDOR_PARA_JOINVILLE"; estado = "FAVORAVEL"; favoraveis += 1
+            else:
+                status = "NAO_APOIA_CORREDOR_PARA_JOINVILLE"; estado = "CONTRARIO"; contrarios += 1
+            avaliados += 1
+            s["confirmacao_sinotica_850hpa"] = status
+            s["estado_sinotico_174f"] = estado
+            s["ecmwf_850hpa"] = {"horario_utc": tt.isoformat(), "vento_km_h": round(sp,1),
+                                  "direcao_de_graus": round(dfrom,1), "vetor_para_graus": round(dto,1),
+                                  "erro_para_joinville_graus": round(erro,1), "natureza": "MODELADO_NAO_OPERACIONAL"}
+
+    if avaliados and indisponiveis:
+        status_geral = "coletado_parcial"
+    elif avaliados:
+        status_geral = "coletado"
+    else:
+        status_geral = "fonte_indisponivel_fail_closed"
+    return {"status": status_geral, "estado_fonte": "PARCIAL" if indisponiveis and avaliados else ("DISPONIVEL" if avaliados else "INDISPONIVEL"),
+            "avaliados": avaliados, "favoraveis": favoraveis, "contrarios": contrarios,
+            "inconclusivos": inconclusivos, "indisponiveis": indisponiveis, "apoiam": favoraveis,
+            "nao_apoiam": contrarios, "erros": erros[:5], "lote_maximo": lote, "tentativas_por_lote": tentativas,
+            "fonte": fonte, "regra": "FAVORAVEL/CONTRARIO exigem amostra ECMWF valida; falha de fonte nunca equivale a CONTRARIO."}
 
 
 def indexar_quadro_completo(payload):
@@ -349,7 +396,7 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
     persist60 = [x for x in sistemas if x.get("persistencia_60min") == "CONFIRMADA"]
     persist30_sinotica = [x for x in persist30 if x.get("confirmacao_sinotica_850hpa") == "APOIA_CORREDOR_PARA_JOINVILLE"]
     return {
-        "versao": "#174-E",
+        "versao": "#174-F",
         "status": "experimental_dados_processados",
         "uso_operacional": False,
         "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
@@ -381,11 +428,12 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
             "ECMWF 850 hPa e confirmacao sinotica auxiliar; vento meteorologico DE e convertido para vetor PARA antes da comparacao.",
             "Persistencia de 30 min exige 3 passos consecutivos de 10 min, todos CONTINUITY, plausiveis e aproximando >=2 km por passo.",
             "Persistencia de 60 min exige 6 passos consecutivos sob a mesma regra.",
-            "ETA permanece bloqueado no #174-E.",
+            "ETA permanece bloqueado no #174-F.",
             "Vel do TATHU e preservado e convertido de m/s para km/h apenas como diagnostico; Vel=0 invalida o vetor direcional.",
             "Valores sentinela <= -900 sao tratados como ausentes.",
             "Ausencia/erro da fonte nunca significa ausencia de tempestade.",
-            "#174-E nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
+            "#174-F nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
+            "FAVORAVEL, CONTRARIO e FONTE_INDISPONIVEL sao estados distintos; indisponibilidade jamais conta como rejeicao meteorologica.",
         ],
     }
 
@@ -405,14 +453,14 @@ def main():
         payload, horario, url, tentativas = buscar_ultimo(timeout=max(1.0, args.timeout), max_tentativas=max(1, min(args.tentativas, 25)))
         if payload is None:
             resultado = {
-                "versao": "#174-E", "status": "fonte_indisponivel_fail_closed",
+                "versao": "#174-F", "status": "fonte_indisponivel_fail_closed",
                 "uso_operacional": False, "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
                 "sistemas_no_dominio": None, "sistemas_geometricamente_compativeis": None,
                 "sistema_compativel_mais_proximo": None, "sistemas": [], "tentativas_fonte": tentativas,
                 "regra_seguranca": "Falha de consulta nao equivale a ausencia de tempestade."
             }
         else:
-            # #174-E: busca exatamente os 6 quadros anteriores (janela de 60 min).
+            # #174-F: preserva a janela de persistência de 60 min do #174-E (janela de 60 min).
             # Não pula lacunas: quadro ausente quebra a persistência, em fail-closed.
             historico = []
             for passo in range(1, 7):
@@ -420,7 +468,7 @@ def main():
                 uu = TATHU_BASE + hh.strftime("%Y/%m/") + "goes19_diagnostic_" + hh.strftime("%Y%m%d%H%M") + ".json"
                 pp = None
                 try:
-                    rr = requests.get(uu, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-E"})
+                    rr = requests.get(uu, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-F"})
                     if rr.status_code == 200:
                         candidato = rr.json()
                         if isinstance(candidato, dict) and isinstance(candidato.get("features"), list):

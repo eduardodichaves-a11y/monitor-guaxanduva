@@ -1,7 +1,7 @@
 {
   "monitor": "Monitor Guaxanduva",
   "local": "Comasa - Joinville/SC",
-  "gerado_em": "2026-10-04T14:56:15.401333-03:00",
+  "gerado_em": "2026-10-04T15:01:46.159951-03:00",
   "chuva": {
     "status": "online_dado_bruto_24h",
     "versao_integracao": "#136",
@@ -130,7 +130,7 @@
     "equivale_medicao_no_comasa": false,
     "classificacao_risco_automatica": false,
     "regra_seguranca": "Dado bruto de estação CEMADEN. O acumulado pertence à estação selecionada e não equivale a medição no Comasa. Falha, ausência ou valor nulo nunca é convertido em 0 mm.",
-    "coletado_em": "2026-10-04T14:55:32.371425-03:00"
+    "coletado_em": "2026-10-04T15:01:33.953486-03:00"
   },
   "chuva_observada_epagri_165": {
     "status": "online",
@@ -150,7 +150,7 @@
         "longitude": -48.9708,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-10-04T14:00:00-03:00",
-        "idade_leitura_min": 55.6,
+        "idade_leitura_min": 61.7,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -166,7 +166,7 @@
         "longitude": -48.9889,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-10-04T14:00:00-03:00",
-        "idade_leitura_min": 55.6,
+        "idade_leitura_min": 61.7,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -318,7 +318,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-10-04T14:00:00-03:00",
-        "idade_leitura_min": 55.6,
+        "idade_leitura_min": 61.7,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -337,7 +337,7 @@
         "acumulado_24h_mm": null,
         "precipitacao_1h_mm": 0.0,
         "horario_medicao": "2026-10-04T14:00:00-03:00",
-        "idade_leitura_min": 55.6,
+        "idade_leitura_min": 61.7,
         "dados_frescos": true,
         "leitura_atual_disponivel": true,
         "aquisicao_automatica_integrada": true,
@@ -1582,9 +1582,9 @@
     "1h_mm": 0.0,
     "6h_mm": 0.0,
     "24h_mm": 0.2,
-    "horario_ultima_celula_utc": "2026-10-04T17:00:00+00:00",
-    "horario_ultima_celula_local": "2026-10-04T14:00:00-03:00",
-    "idade_leitura_min": 55.6,
+    "horario_ultima_celula_utc": "2026-10-04T18:00:00+00:00",
+    "horario_ultima_celula_local": "2026-10-04T15:00:00-03:00",
+    "idade_leitura_min": 1.6,
     "dados_frescos": true,
     "limite_frescor_min": 120,
     "granularidade": "horaria",
@@ -1606,17 +1606,24 @@
     "observacao": "Bloco operacional baseado em janelas horarias coerentes validadas nas #141-#143. O horario exibido e o rotulo temporal da ultima celula fornecida pelo CEMADEN; a #144 nao afirma se ele representa inicio ou fechamento do intervalo horario. Granularidade de 10 minutos permanece indisponivel."
   },
   "chuva_observada_inmet": {
-    "status": "indisponivel",
+    "status": "online_fresco",
     "tipo": "observacao_estacao_automatica",
     "fonte": "INMET",
+    "fonte_primaria": "Instituto Nacional de Meteorologia",
     "geocodigo_ibge_consultado": "4209102",
-    "leitura_horaria_mm": null,
-    "horario_medicao_utc": null,
-    "horario_medicao_local": null,
-    "idade_leitura_min": null,
-    "dados_frescos": false,
-    "erro": "HTTPSConnectionPool(host='apiprevmet3.inmet.gov.br', port=443): Max retries exceeded with url: /estacao/proxima/4209102 (Caused by ConnectTimeoutError(<HTTPSConnection(host='apiprevmet3.inmet.gov.br', port=443) at 0x7f6b7e1c20c0>, 'Connection to apiprevmet3.inmet.gov.br timed out. (connect timeout=10)'))",
-    "regra_seguranca": "Falha de coleta não é interpretada como ausência de chuva."
+    "estacao": {
+      "codigo": "A868",
+      "nome": "ITAJAI",
+      "uf": "SC",
+      "distancia_referencia_joinville_km": 81.0
+    },
+    "leitura_horaria_mm": 0.0,
+    "horario_medicao_utc": "2026-10-04T17:00:00+00:00",
+    "horario_medicao_local": "2026-10-04T14:00:00-03:00",
+    "idade_leitura_min": 61.7,
+    "dados_frescos": true,
+    "representatividade": "Medição observada na estação INMET mais próxima retornada para Joinville. Não equivale a medição no Comasa.",
+    "regra_seguranca": "Valor zero só significa zero na estação e no intervalo horário informado; nunca significa ausência de chuva no Comasa."
   },
   "investigacao_radarsc_128": {
     "status": "evidencia_textual_encontrada_para_revisao",
@@ -1835,7 +1842,7 @@
     "residual_cm": -26.6,
     "nmm_cm": 103.1,
     "horario": "2026-10-04T14:30:00-03:00",
-    "idade_min": 26.2,
+    "idade_min": 31.7,
     "frescor": "atual",
     "residual_aritmetica_validada": true,
     "uso_no_risco": false,
@@ -1858,8 +1865,8 @@
     "versao": "#164",
     "fonte": "EPAGRI/CIRAM",
     "tipo": "pico_mare_previsto_janela_24h",
-    "janela_inicio": "2026-10-04T15:00",
-    "janela_fim_exclusivo": "2026-10-05T15:00:00-03:00",
+    "janela_inicio": "2026-10-04T16:00",
+    "janela_fim_exclusivo": "2026-10-05T16:00:00-03:00",
     "datas_cobertas_fonte": [
       "2026-01-01",
       "2026-01-02",
@@ -3690,10 +3697,6 @@
     ],
     "eventos_na_janela": [
       {
-        "horario": "2026-10-04T15:10:00-03:00",
-        "altura_m": 1.4
-      },
-      {
         "horario": "2026-10-04T19:02:00-03:00",
         "altura_m": 0.4
       },
@@ -3718,7 +3721,7 @@
         "altura_m": 1.5
       }
     ],
-    "quantidade_eventos": 7,
+    "quantidade_eventos": 6,
     "pico_previsto_m": 1.5,
     "pico_previsto_horario": "2026-10-05T11:08:00-03:00",
     "integridade": true,
@@ -3729,7 +3732,7 @@
     "versao": "166-v0.2-historico-integrado",
     "status": "historico_em_formacao",
     "arquivo_historico": "historico_guaxanduva_166.json",
-    "gerado_em": "2026-10-04T14:56:13.761407-03:00",
+    "gerado_em": "2026-10-04T15:01:44.327049-03:00",
     "quantidade_registros": 995,
     "quantidade_chuva_horaria": 442,
     "quantidade_mare_observada": 553,
@@ -5637,8 +5640,8 @@
     "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
     "status": "nivel_modelado_calculado",
     "natureza": "MODELADO_NAO_INSTRUMENTAL",
-    "instante": "2026-10-04T14:56:13.782919-03:00",
-    "referencia_forcantes": "2026-10-04T14:56:13.782655-03:00",
+    "instante": "2026-10-04T15:01:44.348737-03:00",
+    "referencia_forcantes": "2026-10-04T15:01:44.348486-03:00",
     "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
     "nivel_estimado_m": 1.229,
     "faixa_estimativa_m": {
@@ -5649,12 +5652,12 @@
     "confianca": "baixa_experimental",
     "tendencia": {
       "classe": "estavel",
-      "cm_h": 0.61,
+      "cm_h": 0.0,
       "janela_min": 30.0,
-      "nivel_modelado_inicio_m": 1.226,
-      "horario_inicio": "2026-10-04T14:26:13.782655-03:00",
-      "mare_inicio_m": 1.038,
-      "mare_inicio_referencia": "2026-10-04T14:26:13.782655-03:00",
+      "nivel_modelado_inicio_m": 1.229,
+      "horario_inicio": "2026-10-04T14:31:44.348486-03:00",
+      "mare_inicio_m": 1.044,
+      "mare_inicio_referencia": "2026-10-04T14:30:00-03:00",
       "regra": "variacao_do_mesmo_modelo_entre_t_e_t_menos_30min"
     },
     "entradas": {
@@ -5666,12 +5669,12 @@
         {
           "horario": "2026-10-04T14:00:00-03:00",
           "chuva_mediana_mm": 0.0,
-          "idade_h": 0.937,
-          "peso_memoria": 0.356461
+          "idade_h": 1.029,
+          "peso_memoria": 0.322195
         }
       ],
       "chuva_ultima_amostra_horario": "2026-10-04T14:00:00-03:00",
-      "chuva_ultima_amostra_idade_min": 56.2,
+      "chuva_ultima_amostra_idade_min": 61.7,
       "mare_jusante_m": 1.044,
       "mare_horario": "2026-10-04T14:30:00-03:00",
       "area_km2": 4.2609,
@@ -5733,26 +5736,13 @@
     },
     "serie_horaria": [
       {
-        "horario": "2026-10-04T15:00:00-03:00",
-        "chuva_mm": 0.2,
-        "chuva_memoria_mm_h": 0.133,
-        "mare_prevista_m": 1.348,
-        "nivel_central_m": 1.381,
-        "nivel_min_m": 0.994,
-        "nivel_max_m": 1.768,
-        "rajada_kmh": 15.5,
-        "vento_kmh": 7.0,
-        "direcao_graus": 168,
-        "probabilidade_chuva_pct": 69
-      },
-      {
         "horario": "2026-10-04T16:00:00-03:00",
         "chuva_mm": 0.0,
-        "chuva_memoria_mm_h": 0.044,
-        "mare_prevista_m": 1.29,
-        "nivel_central_m": 1.352,
-        "nivel_min_m": 0.979,
-        "nivel_max_m": 1.724,
+        "chuva_memoria_mm_h": 0.0,
+        "mare_prevista_m": 0.885,
+        "nivel_central_m": 1.15,
+        "nivel_min_m": 0.878,
+        "nivel_max_m": 1.421,
         "rajada_kmh": 22.3,
         "vento_kmh": 7.1,
         "direcao_graus": 153,
@@ -5761,11 +5751,11 @@
       {
         "horario": "2026-10-04T17:00:00-03:00",
         "chuva_mm": 0.0,
-        "chuva_memoria_mm_h": 0.015,
-        "mare_prevista_m": 0.941,
-        "nivel_central_m": 1.177,
-        "nivel_min_m": 0.892,
-        "nivel_max_m": 1.462,
+        "chuva_memoria_mm_h": 0.0,
+        "mare_prevista_m": 0.67,
+        "nivel_central_m": 1.042,
+        "nivel_min_m": 0.825,
+        "nivel_max_m": 1.26,
         "rajada_kmh": 16.9,
         "vento_kmh": 4.9,
         "direcao_graus": 62,
@@ -5774,11 +5764,11 @@
       {
         "horario": "2026-10-04T18:00:00-03:00",
         "chuva_mm": 0.0,
-        "chuva_memoria_mm_h": 0.005,
-        "mare_prevista_m": 0.566,
-        "nivel_central_m": 0.99,
-        "nivel_min_m": 0.799,
-        "nivel_max_m": 1.182,
+        "chuva_memoria_mm_h": 0.0,
+        "mare_prevista_m": 0.479,
+        "nivel_central_m": 0.947,
+        "nivel_min_m": 0.777,
+        "nivel_max_m": 1.116,
         "rajada_kmh": 10.8,
         "vento_kmh": 3.4,
         "direcao_graus": 360,
@@ -5787,7 +5777,7 @@
       {
         "horario": "2026-10-04T19:00:00-03:00",
         "chuva_mm": 0.2,
-        "chuva_memoria_mm_h": 0.135,
+        "chuva_memoria_mm_h": 0.133,
         "mare_prevista_m": 0.4,
         "nivel_central_m": 0.907,
         "nivel_min_m": 0.757,
@@ -6043,6 +6033,19 @@
         "vento_kmh": 2.8,
         "direcao_graus": 117,
         "probabilidade_chuva_pct": 75
+      },
+      {
+        "horario": "2026-10-05T15:00:00-03:00",
+        "chuva_mm": 0.2,
+        "chuva_memoria_mm_h": 0.206,
+        "mare_prevista_m": 1.5,
+        "nivel_central_m": 1.457,
+        "nivel_min_m": 1.032,
+        "nivel_max_m": 1.882,
+        "rajada_kmh": 9.7,
+        "vento_kmh": 1.3,
+        "direcao_graus": 124,
+        "probabilidade_chuva_pct": 80
       }
     ],
     "pico": {
@@ -6112,27 +6115,27 @@
     "fonte": "Open-Meteo",
     "modelo": "Best Match",
     "atual": {
-      "horario": "2026-10-04T14:45",
-      "temperatura_c": 22.3,
-      "sensacao_termica_c": 26.0,
-      "codigo_tempo_wmo": 51,
-      "cobertura_nuvens_pct": 100,
-      "precipitacao_mm": 0.1,
-      "vento_kmh": 6.2,
-      "direcao_graus": 159,
-      "rajada_kmh": 16.2
-    },
-    "proxima_hora": {
       "horario": "2026-10-04T15:00",
       "temperatura_c": 22.4,
       "sensacao_termica_c": 25.9,
       "codigo_tempo_wmo": 51,
       "cobertura_nuvens_pct": 100,
-      "probabilidade_chuva_pct": 69,
-      "precipitacao_mm": 0.2,
+      "precipitacao_mm": 0.1,
       "vento_kmh": 7.0,
       "direcao_graus": 168,
       "rajada_kmh": 15.5
+    },
+    "proxima_hora": {
+      "horario": "2026-10-04T16:00",
+      "temperatura_c": 23.6,
+      "sensacao_termica_c": 26.9,
+      "codigo_tempo_wmo": 3,
+      "cobertura_nuvens_pct": 100,
+      "probabilidade_chuva_pct": 62,
+      "precipitacao_mm": 0.0,
+      "vento_kmh": 7.1,
+      "direcao_graus": 153,
+      "rajada_kmh": 22.3
     },
     "proximas_24h": {
       "status": "online_completo",
@@ -6140,22 +6143,13 @@
       "modelo": "Best Match",
       "tipo": "previsao_horaria_acumulada",
       "janela_horas": 24,
-      "inicio": "2026-10-04T15:00",
-      "fim": "2026-10-05T14:00",
-      "fim_exclusivo": "2026-10-05T15:00:00-03:00",
+      "inicio": "2026-10-04T16:00",
+      "fim": "2026-10-05T15:00",
+      "fim_exclusivo": "2026-10-05T16:00:00-03:00",
       "horas_esperadas": 24,
       "horas_validas": 24,
       "precipitacao_acumulada_mm": 3.3,
       "serie_horaria": [
-        {
-          "horario": "2026-10-04T15:00",
-          "precipitacao_mm": 0.2,
-          "probabilidade_chuva_pct": 69,
-          "vento_kmh": 7.0,
-          "direcao_graus": 168,
-          "rajada_kmh": 15.5,
-          "codigo_tempo_wmo": 51
-        },
         {
           "horario": "2026-10-04T16:00",
           "precipitacao_mm": 0.0,
@@ -6361,6 +6355,15 @@
           "vento_kmh": 2.8,
           "direcao_graus": 117,
           "rajada_kmh": 12.2,
+          "codigo_tempo_wmo": 51
+        },
+        {
+          "horario": "2026-10-05T15:00",
+          "precipitacao_mm": 0.2,
+          "probabilidade_chuva_pct": 80,
+          "vento_kmh": 1.3,
+          "direcao_graus": 124,
+          "rajada_kmh": 9.7,
           "codigo_tempo_wmo": 51
         }
       ],
@@ -6783,7 +6786,7 @@
     "versao": "#173-A2",
     "status": "calculado",
     "titulo": "IMPACTOS PARA JOINVILLE E GUAXANDUVA",
-    "gerado_em": "2026-10-04T14:56:15.401287-03:00",
+    "gerado_em": "2026-10-04T15:01:46.159908-03:00",
     "contexto_enso": {
       "status": "online_completo",
       "roni": 1.69,
@@ -6812,7 +6815,7 @@
         "cor": "verde",
         "janela": "proxima_hora",
         "mensagem": "O modelo nao indica codigo WMO de trovoada na proxima hora. Isso nao exclui mudancas posteriores.",
-        "codigo_wmo": 51,
+        "codigo_wmo": 3,
         "natureza": "PREVISTO_MODELADO",
         "fonte": "Open-Meteo",
         "alerta_oficial": false
@@ -6869,10 +6872,10 @@
         "estado": "MODELADO_ESTAVEL",
         "cor": "azul",
         "janela": "agora_modelado",
-        "mensagem": "Nivel modelado 1.23 m; tendencia estavel (+0.6 cm/h).",
+        "mensagem": "Nivel modelado 1.23 m; tendencia estavel (+0.0 cm/h).",
         "nivel_modelado_m": 1.229,
         "tendencia": "estavel",
-        "cm_h": 0.61,
+        "cm_h": 0.0,
         "confianca": "baixa_experimental",
         "natureza": "MODELADO_NAO_INSTRUMENTAL",
         "fonte": "Guaxanduva V0.21",
@@ -7588,10 +7591,10 @@
       "mare_observada_m": 1.044,
       "mare_observada_fresca": true,
       "mare_fonte": "EPAGRI/CIRAM",
-      "janela_inicio": "2026-10-04T15:00",
-      "janela_fim_exclusivo": "2026-10-05T15:00:00-03:00",
+      "janela_inicio": "2026-10-04T16:00",
+      "janela_fim_exclusivo": "2026-10-05T16:00:00-03:00",
       "mare_horario": "2026-10-04T14:30:00-03:00",
-      "mare_idade_min": 26.2
+      "mare_idade_min": 31.7
     },
     "criterios": {
       "mobilizacao_chuva_superior_20mm_24h": false,
@@ -7625,7 +7628,7 @@
     "todos_png_validos": true,
     "dimensoes_consistentes": true,
     "horario_ultimo_quadro": "2026-10-04T14:50:00-03:00",
-    "idade_ultimo_quadro_min": 5.5,
+    "idade_ultimo_quadro_min": 11.5,
     "dados_frescos": true,
     "limite_frescor_min": 30,
     "legenda_oficial": {
@@ -17304,7 +17307,7 @@
             "projecao_adiante_km": -133.63,
             "velocidade_recente_media_kmh": 48.8,
             "radar_fresco": true,
-            "idade_radar_min": 5.5,
+            "idade_radar_min": 11.5,
             "horario_ultimo_quadro": "2026-10-04T17:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -17351,7 +17354,7 @@
             "projecao_adiante_km": 299.54,
             "velocidade_recente_media_kmh": 63.5,
             "radar_fresco": true,
-            "idade_radar_min": 5.5,
+            "idade_radar_min": 11.5,
             "horario_ultimo_quadro": "2026-10-04T17:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -17398,7 +17401,7 @@
             "projecao_adiante_km": 245.92,
             "velocidade_recente_media_kmh": 44.1,
             "radar_fresco": true,
-            "idade_radar_min": 5.5,
+            "idade_radar_min": 11.5,
             "horario_ultimo_quadro": "2026-10-04T17:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -17445,7 +17448,7 @@
             "projecao_adiante_km": -270.29,
             "velocidade_recente_media_kmh": 39.7,
             "radar_fresco": true,
-            "idade_radar_min": 5.5,
+            "idade_radar_min": 11.5,
             "horario_ultimo_quadro": "2026-10-04T17:50:00+00:00",
             "criterios": {
               "minimo_transicoes": 3,
@@ -17490,7 +17493,7 @@
       "projecao_adiante_km": -133.63,
       "velocidade_recente_media_kmh": 48.8,
       "radar_fresco": true,
-      "idade_radar_min": 5.5,
+      "idade_radar_min": 11.5,
       "horario_ultimo_quadro": "2026-10-04T17:50:00+00:00",
       "criterios": {
         "minimo_transicoes": 3,
@@ -124720,8 +124723,8 @@
       "versao": "GXA-V0.21-MEMORIA-HIDROLOGICA-TENDENCIA",
       "status": "nivel_modelado_calculado",
       "natureza": "MODELADO_NAO_INSTRUMENTAL",
-      "instante": "2026-10-04T14:56:13.782919-03:00",
-      "referencia_forcantes": "2026-10-04T14:56:13.782655-03:00",
+      "instante": "2026-10-04T15:01:44.348737-03:00",
+      "referencia_forcantes": "2026-10-04T15:01:44.348486-03:00",
       "datum": "DATUM_HIDRAULICO_LOCAL_GUAXANDUVA",
       "nivel_estimado_m": 1.229,
       "faixa_estimativa_m": {
@@ -124732,12 +124735,12 @@
       "confianca": "baixa_experimental",
       "tendencia": {
         "classe": "estavel",
-        "cm_h": 0.61,
+        "cm_h": 0.0,
         "janela_min": 30.0,
-        "nivel_modelado_inicio_m": 1.226,
-        "horario_inicio": "2026-10-04T14:26:13.782655-03:00",
-        "mare_inicio_m": 1.038,
-        "mare_inicio_referencia": "2026-10-04T14:26:13.782655-03:00",
+        "nivel_modelado_inicio_m": 1.229,
+        "horario_inicio": "2026-10-04T14:31:44.348486-03:00",
+        "mare_inicio_m": 1.044,
+        "mare_inicio_referencia": "2026-10-04T14:30:00-03:00",
         "regra": "variacao_do_mesmo_modelo_entre_t_e_t_menos_30min"
       },
       "entradas": {
@@ -124749,12 +124752,12 @@
           {
             "horario": "2026-10-04T14:00:00-03:00",
             "chuva_mediana_mm": 0.0,
-            "idade_h": 0.937,
-            "peso_memoria": 0.356461
+            "idade_h": 1.029,
+            "peso_memoria": 0.322195
           }
         ],
         "chuva_ultima_amostra_horario": "2026-10-04T14:00:00-03:00",
-        "chuva_ultima_amostra_idade_min": 56.2,
+        "chuva_ultima_amostra_idade_min": 61.7,
         "mare_jusante_m": 1.044,
         "mare_horario": "2026-10-04T14:30:00-03:00",
         "area_km2": 4.2609,
@@ -127711,16 +127714,16 @@
     "estacoes_regionais_frescas": 2,
     "chuva_modelo_openmeteo_mm": 0.1,
     "regra_seguranca": "Radar indica eco; pluviômetros medem chuva em suas estações; Open-Meteo é modelo. Nenhuma dessas fontes isoladamente é pluviômetro no Comasa.",
-    "gerado_em": "2026-10-04T14:56:15.401322-03:00"
+    "gerado_em": "2026-10-04T15:01:46.159941-03:00"
   },
   "atualizacao_operacional_rapida": {
     "status": "concluida",
-    "gerado_em": "2026-10-04T14:56:15.401337-03:00",
+    "gerado_em": "2026-10-04T15:01:46.159956-03:00",
     "objetivo": "Atualizar meteorologia/radar antes das auditorias científicas pesadas.",
     "fail_closed": true
   },
   "estado_canonico_operacional": {
-    "gerado_em": "2026-10-04T14:56:15.401326-03:00",
+    "gerado_em": "2026-10-04T15:01:46.159945-03:00",
     "rio": {
       "nivel_modelado_m": 1.229,
       "faixa_m": {
@@ -127729,12 +127732,12 @@
       },
       "tendencia": {
         "classe": "estavel",
-        "cm_h": 0.61,
+        "cm_h": 0.0,
         "janela_min": 30.0,
-        "nivel_modelado_inicio_m": 1.226,
-        "horario_inicio": "2026-10-04T14:26:13.782655-03:00",
-        "mare_inicio_m": 1.038,
-        "mare_inicio_referencia": "2026-10-04T14:26:13.782655-03:00",
+        "nivel_modelado_inicio_m": 1.229,
+        "horario_inicio": "2026-10-04T14:31:44.348486-03:00",
+        "mare_inicio_m": 1.044,
+        "mare_inicio_referencia": "2026-10-04T14:30:00-03:00",
         "regra": "variacao_do_mesmo_modelo_entre_t_e_t_menos_30min"
       },
       "natureza": "MODELADO_NAO_INSTRUMENTAL",
@@ -127760,7 +127763,7 @@
       "estado": "SEM_CONFIRMACAO_LOCAL_DE_CHUVA",
       "observada_regional_max_1h_mm": 0.0,
       "observada_regional_media_1h_mm": 0.0,
-      "previsao_proxima_hora_mm": 0.2
+      "previsao_proxima_hora_mm": 0.0
     }
   }
 }

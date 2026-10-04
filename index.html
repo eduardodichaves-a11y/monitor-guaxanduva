@@ -1352,9 +1352,10 @@ async function carregar(){
       const bands=daySegments.map(([a,b,night])=>{
         const x1=Math.max(L,X(a)-(a?PW/(serie174.length-1)/2:0)), x2=Math.min(W-R,X(b)+(b<serie174.length-1?PW/(serie174.length-1)/2:0));
         const mid=(x1+x2)/2;
-        // O rótulo NOITE/DIA deve herdar a data em que o segmento começa.
-        // Isso evita que uma faixa iniciada antes da meia-noite receba a data do dia seguinte.
+        // Para a faixa noturna, horas após a meia-noite ainda pertencem à noite iniciada no dia anterior.
+        // Ex.: 04/10 02:00–05:00 => NOITE • 03/10; depois DIA • 04/10 e NOITE • 04/10.
         const d=dt174(serie174[a].horario);
+        if(night && d.getHours()<6) d.setDate(d.getDate()-1);
         const label=night?"☾ NOITE":"☀ DIA";
         return `<rect x="${x1}" y="${T}" width="${Math.max(0,x2-x1)}" height="${PH}" fill="${night?"rgba(45,66,110,.10)":"rgba(255,210,80,.035)"}"/>
           <text x="${mid}" y="13" text-anchor="middle" fill="${night?"#c8c8ff":"#ffd45d"}" font-size="10" font-weight="700">${label} • ${d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}</text>`;

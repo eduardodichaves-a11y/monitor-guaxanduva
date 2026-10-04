@@ -25,8 +25,8 @@ jobs:
           python-version: "3.12"
       - name: Instalar dependência mínima
         run: pip install requests
-      - name: Executar motor experimental #174-I
-        run: python -u monitor_oceanico_174.py --saida monitor_oceanico_174.json --timeout 4 --tentativas 13
+      - name: Executar motor experimental #174-J
+        run: python -u monitor_oceanico_174.py --saida monitor_oceanico_174.json --saida-dashboard monitor_oceanico_174_dashboard.json --timeout 4 --tentativas 13
       - name: Validar saída fail-closed
         run: |
           python - <<'PY'
@@ -34,7 +34,7 @@ jobs:
           from pathlib import Path
           p = Path("monitor_oceanico_174.json")
           d = json.loads(p.read_text(encoding="utf-8"))
-          assert d.get("versao") == "#174-I"
+          assert d.get("versao") == "#174-J"
           assert d.get("uso_operacional") is False
           assert d.get("status") in {"experimental_dados_processados", "fonte_indisponivel_fail_closed"}
           if d.get("status") == "experimental_dados_processados":
@@ -79,7 +79,16 @@ jobs:
               for k in destinos:
                   assert destinos[k].get("nivel_evidencia") in {"OBSERVACAO", "ACOMPANHAMENTO", "TRAJETORIA_REFORCADA_EXPERIMENTAL"}
               assert isinstance(d.get("sistemas_persistencia_60min_com_apoio_sinotico_persistente_3h"), int)
-          print("VALIDAÇÃO #174-I OK:", d.get("status"), "sistemas=", d.get("sistemas_no_dominio"), "aproximando_continuo=", d.get("sistemas_aproximando_observado_continuo"), "apoio_850=", d.get("sistemas_aproximando_com_apoio_sinotico_850hpa"))
+          dash = json.loads(Path("monitor_oceanico_174_dashboard.json").read_text(encoding="utf-8"))
+          assert dash.get("versao") == "#174-J"
+          assert dash.get("uso_operacional") is False and dash.get("eta_liberado") is False
+          if d.get("status") == "experimental_dados_processados":
+              assert set((dash.get("oceanos") or {})) == {"atlantico", "pacifico"}
+              for oc in dash["oceanos"].values():
+                  assert set(oc.get("destinos") or {}) == {"sul_brasil", "norte_sc_joinville"}
+                  for dst in oc["destinos"].values():
+                      assert dst.get("nivel_evidencia") in {"OBSERVACAO", "ACOMPANHAMENTO", "TRAJETORIA_REFORCADA_EXPERIMENTAL"}
+          print("VALIDAÇÃO #174-J OK:", d.get("status"), "sistemas=", d.get("sistemas_no_dominio"), "aproximando_continuo=", d.get("sistemas_aproximando_observado_continuo"), "apoio_850=", d.get("sistemas_aproximando_com_apoio_sinotico_850hpa"))
           PY
       - name: Publicar somente JSON experimental
         run: |
@@ -87,10 +96,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           cp monitor_oceanico_174.json /tmp/monitor_oceanico_174.json
+          cp monitor_oceanico_174_dashboard.json /tmp/monitor_oceanico_174_dashboard.json
           git fetch origin main
           git reset --hard origin/main
           cp /tmp/monitor_oceanico_174.json monitor_oceanico_174.json
-          git add monitor_oceanico_174.json
+          cp /tmp/monitor_oceanico_174_dashboard.json monitor_oceanico_174_dashboard.json
+          git add monitor_oceanico_174.json monitor_oceanico_174_dashboard.json
           git diff --cached --quiet && exit 0
           git commit -m "Atualiza diagnóstico experimental do Monitor Oceânico #174"
           git push origin HEAD:main

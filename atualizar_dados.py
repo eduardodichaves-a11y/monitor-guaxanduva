@@ -15874,12 +15874,37 @@ def estimativa_radar_quantitativa_168(radar):
         quadros=(radar or {}).get("quadros") or []
         if not quadros:return base
         q=quadros[-1]; d=q.get("classificacao_qualitativa_local_130") or q.get("eco_oficial_local_129") or {}
+        # #168 deve distinguir presença qualitativa de eco de refletividade C1–C16 validada.
+        # Um eco reconhecido pela paleta operacional não autoriza inventar classe/dBZ,
+        # mas também não pode ser exibido como se o RadarSC estivesse indisponível.
+        por_raio=d.get("por_raio") or {}
+        raio_qual=None
+        pixels_qual=0
+        familias=[]
+        for rr in ("2","5","10","25"):
+            item=por_raio.get(rr) or {}
+            if item.get("eco_qualitativo_detectado") is True:
+                raio_qual=int(rr)
+                pixels_qual=int(item.get("pixels_eco_qualitativo") or item.get("pixels_oficiais_classificados") or 0)
+                familias=item.get("familias_cor") or []
+                break
+        if raio_qual is not None:
+            base.update({
+                "eco_qualitativo_detectado": True,
+                "menor_raio_eco_qualitativo_km": raio_qual,
+                "pixels_eco_qualitativo": pixels_qual,
+                "familias_cor": familias,
+            })
         eco=d.get("eco_oficial_mais_proximo") or {}; classe=eco.get("classe")
         if not _num168(classe):
             r25=(d.get("por_raio") or {}).get("25") or {}; presentes=r25.get("classes_presentes") or r25.get("classes") or []
             cs=[x.get("classe") for x in presentes if isinstance(x,dict) and _num168(x.get("classe"))]
             classe=min(cs) if cs else None  # C1 é a maior refletividade.
-        if not _num168(classe):return base
+        if not _num168(classe):
+            if raio_qual is not None:
+                base["status"]="eco_qualitativo_sem_classe_dbz"
+                base["aviso"]="Eco qualitativo RadarSC detectado, porém sem C1–C16/dBZ validado para este eco. Conversão para mm/h permanece bloqueada."
+            return base
         c=max(1,min(16,int(classe))); info=mapa.get(c) or {}; lo,hi=info.get("dbz_min"),info.get("dbz_max")
         if not (_num168(lo) and _num168(hi)):
             base["status"]="bloqueado_faixa_dbz_ausente"; return base

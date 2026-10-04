@@ -1,0 +1,30 @@
+name: Auditoria histórica #175 R3D
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditar-r3d:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Executar auditoria R2 + R3C
+        run: python auditar_replay_175_R3D.py
+
+      - name: Resumo
+        if: always()
+        run: |
+          if [ -f auditoria_EH001_175_R3D.json ]; then
+            cat auditoria_EH001_175_R3D.json
+          fi

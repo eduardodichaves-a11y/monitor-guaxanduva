@@ -1442,7 +1442,7 @@ async function carregar(){
  
   // #170-N: quatro famílias de leitura rápida; a escala C1–C16 permanece como camada técnica.
   function familiaRadarClasse(cl){if(cl==null)return null;if(cl>=14)return "garoa";if(cl>=11)return "fraca";if(cl>=8)return "forte";return "temp";}
-  const classesDetectadas=escolhido?(escolhido.classes_presentes||[]).map(x=>Number(x.classe)).filter(Number.isFinite):[];
+  const classesDetectadas=escolhido?(escolhido.classes_presentes||[]).filter(x=>x&&x.classe!==null&&x.classe!==undefined&&x.classe!=="").map(x=>Number(x.classe)).filter(Number.isFinite):[];
   const classeAtual=classesDetectadas.length?Math.min(...classesDetectadas):null;
   const familiaAtualRadar=familiaRadarClasse(classeAtual);
   const famEl=$("dashRadarFamilias");
@@ -1467,9 +1467,12 @@ async function carregar(){
     $("dashRadarEco").innerHTML='<span class="aviso">⚠ FAIXAS dBZ TEMPORARIAMENTE NÃO PUBLICADAS</span><br><small>A detecção RGB C1–C16 continua ativa. A #169 bloqueou apenas os números dBZ'+(motivos?' • diagnóstico: '+motivos:'')+'.</small>';
   }
   if(escolhido&&classeAtual!==null&&radarFrescoReal){
-    const atualInfo=dicRadar.find(x=>Number(x.classe)===classeAtual)||{classe:classeAtual};
+    const atualInfo=dicRadar.find(x=>x&&x.classe!=null&&Number(x.classe)===classeAtual)||{classe:classeAtual};
     const famAtual=atualInfo.familia_cor||((escolhido.familias_cor||[])[0]||{}).familia||"não informada";
-    $("dashRadarEco").innerHTML='<span class="ok">▼ ECO AGORA • C'+classeAtual+' • '+faixaDbzDash(atualInfo)+'</span><br><small>Cor: '+nomeFamilia(famAtual)+' • eco RadarSC detectado em até '+escolhido.raio+' km da referência. A faixa em dBZ descreve refletividade do radar. Quando houver correspondência modelada e a guarda #170-M autorizar, o Monitor pode publicar mm/h ESTIMADO; isso não equivale a pluviômetro.</small>';
+    $("dashRadarEco").innerHTML='<span class="ok">▼ ECO AGORA • C'+classeAtual+' • '+faixaDbzDash(atualInfo)+'</span><br><small>Cor: '+nomeFamilia(famAtual)+' • eco RadarSC detectado em até '+escolhido.raio+' km da referência. A classe C1–C16 só é exibida quando há correspondência oficial validada. dBZ descreve refletividade do radar e não equivale a chuva medida no solo.</small>';
+  }else if(escolhido&&radarFrescoReal){
+    const famAtual=((escolhido.familias_cor||[])[0]||{}).familia||"não informada";
+    $("dashRadarEco").innerHTML='<span class="ok">▼ ECO AGORA • DETECÇÃO QUALITATIVA</span><br><small>Família visual: '+nomeFamilia(famAtual)+' • eco RadarSC detectado em até '+escolhido.raio+' km da referência. Sem correspondência oficial validada, o Monitor NÃO atribui C1–C16, dBZ, intensidade física nem mm/h a este eco.</small>';
   }else if(cq.status&&!radarFrescoReal){
     $("dashRadarEco").innerHTML='<span class="erro">⚠ QUADRO DESATUALIZADO • SEM CONCLUSÃO SOBRE AGORA</span><br><small>O último quadro não é recente o bastante para afirmar presença ou ausência de chuva neste momento.</small>';
   }else if(cq.status){
@@ -1480,7 +1483,8 @@ async function carregar(){
   const prevTemChuva=(ph.precipitacao_mm!=null&&Number(ph.precipitacao_mm)>0)||(ph.probabilidade_chuva_pct!=null&&Number(ph.probabilidade_chuva_pct)>=50);
   if($("dashRadarSintese")){
     if(!radarFrescoReal){$("dashRadarSintese").innerHTML='<strong>⚠ Radar desatualizado</strong>O último quadro tem '+(Number.isFinite(radarIdadeRealMin)?f(radarIdadeRealMin,0)+' min':'idade desconhecida')+'. O Monitor não afirma “sem eco agora” usando imagem antiga.';}
-    else if(escolhido&&classeAtual!==null){$("dashRadarSintese").innerHTML='<strong>📡 Eco detectado no radar agora</strong>Há refletividade classificada em até '+escolhido.raio+' km. A previsão da próxima hora é '+(ph.precipitacao_mm==null?'--':f(ph.precipitacao_mm,1)+' mm')+' ('+(ph.probabilidade_chuva_pct==null?'--':Math.round(ph.probabilidade_chuva_pct)+'%')+').';}
+    else if(escolhido&&classeAtual!==null){$("dashRadarSintese").innerHTML='<strong>📡 Eco classificado no radar agora</strong>Há eco RadarSC com correspondência C1–C16 validada em até '+escolhido.raio+' km. Radar mostra refletividade; não publica aqui a previsão de chuva nem a trata como medição do radar.';}
+    else if(escolhido){$("dashRadarSintese").innerHTML='<strong>📡 Eco detectado no radar agora</strong>Há eco qualitativo em até '+escolhido.raio+' km, mas sem classe C1–C16 validada. Portanto o Monitor não afirma intensidade, dBZ ou mm/h para este eco.';}
     else if(cq.status&&obsChuvaMax!=null&&obsChuvaMax>0){$("dashRadarSintese").innerHTML='<strong>⚠ FONTES DIVERGENTES • chuva observada × radar</strong>Pluviômetros regionais frescos registram até '+f(obsChuvaMax,1)+' mm/1h, enquanto a busca local do RadarSC não encontrou classe C1–C16 no raio analisado. O Monitor preserva as duas evidências e não transforma ausência de eco em ausência de chuva.';}
     else if(cq.status&&prevTemChuva){$("dashRadarSintese").innerHTML='<strong>📡 Sem eco detectado agora • ☔ chuva prevista na próxima hora</strong>Os dados não medem a mesma coisa: o radar procura eco no quadro recente; a previsão estima a próxima hora. Chuva prevista pode ainda não aparecer no radar local e a previsão pode mudar. Previsão: '+(ph.precipitacao_mm==null?'--':f(ph.precipitacao_mm,1)+' mm')+' • '+(ph.probabilidade_chuva_pct==null?'--':Math.round(ph.probabilidade_chuva_pct)+'%')+'.';}
     else if(cq.status){$("dashRadarSintese").innerHTML='<strong>📡 Sem eco detectado no raio analisado</strong>Nenhuma classe C1–C16 foi detectada nesta busca. Isso não prova ausência de chuva no solo.';}

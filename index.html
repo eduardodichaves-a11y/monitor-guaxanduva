@@ -1257,8 +1257,24 @@ async function carregar(){
   const setaResumo=classeResumo==="subindo"?"↗️":(classeResumo==="descendo"?"↘️":(classeResumo==="estavel"?"➡️":"❔"));
   $("resRio").textContent=nvResumo==null?"INDISPONÍVEL":f(nvResumo,2)+" m";
   $("resRioDet").textContent=nvResumo==null?"V0.21 sem forçantes completas":setaResumo+" "+nomeFamilia(tendResumo.classe||"tendência indisponível")+" • MODELADO/NÃO INSTRUMENTAL";
-  $("resChuva").textContent=!coletaFresca?"DESATUALIZADO":(a.precipitacao_mm==null?"INDISPONÍVEL":f(a.precipitacao_mm,2)+" mm");
-  $("resChuvaDet").textContent=!coletaFresca?("última coleta há "+Math.round(coletaIdadeMin)+" min • não representa agora"):("Open-Meteo • "+(a.horario?horaCurta(a.horario):"horário --")+" • modelo, não pluviômetro");
+  // Chuva no card principal: observação instrumental fresca tem prioridade.
+  // Open-Meteo permanece previsão/modelo e nunca substitui pluviômetro.
+  const estObsChuva=(Array.isArray(r165.estacoes)?r165.estacoes:[]).filter(e=>
+    e && e.dados_frescos===true && e.leitura_atual_disponivel===true &&
+    e.precipitacao_1h_mm!=null && Number.isFinite(Number(e.precipitacao_1h_mm))
+  );
+  const obsChuvaMax=estObsChuva.length?Math.max(...estObsChuva.map(e=>Number(e.precipitacao_1h_mm))):null;
+  const obsChuvaMed=estObsChuva.length?estObsChuva.reduce((s,e)=>s+Number(e.precipitacao_1h_mm),0)/estObsChuva.length:null;
+  if(!coletaFresca){
+    $("resChuva").textContent="DESATUALIZADO";
+    $("resChuvaDet").textContent="última coleta há "+Math.round(coletaIdadeMin)+" min • não representa agora";
+  }else if(obsChuvaMax!=null){
+    $("resChuva").textContent=f(obsChuvaMax,1)+" mm/1h";
+    $("resChuvaDet").textContent="OBSERVADO • maior estação fresca da rede regional"+(estObsChuva.length>1?" • média "+f(obsChuvaMed,1)+" mm/1h":"")+" • não equivale a pluviômetro no Comasa";
+  }else{
+    $("resChuva").textContent=a.precipitacao_mm==null?"INDISPONÍVEL":f(a.precipitacao_mm,2)+" mm";
+    $("resChuvaDet").textContent="MODELO Open-Meteo • "+(a.horario?horaCurta(a.horario):"horário --")+" • sem pluviômetro fresco disponível";
+  }
   $("resMare").textContent=entResumo.mare_jusante_m==null?(mo.nivel_m==null?"INDISPONÍVEL":f(mo.nivel_m,3)+" m"):f(entResumo.mare_jusante_m,3)+" m";
   $("resMareDet").textContent="Joinville/Babitonga • condição de jusante usada pelo modelo";
   const wmo=a.codigo_tempo_wmo;
@@ -1465,8 +1481,9 @@ async function carregar(){
   if($("dashRadarSintese")){
     if(!radarFrescoReal){$("dashRadarSintese").innerHTML='<strong>⚠ Radar desatualizado</strong>O último quadro tem '+(Number.isFinite(radarIdadeRealMin)?f(radarIdadeRealMin,0)+' min':'idade desconhecida')+'. O Monitor não afirma “sem eco agora” usando imagem antiga.';}
     else if(escolhido&&classeAtual!==null){$("dashRadarSintese").innerHTML='<strong>📡 Eco detectado no radar agora</strong>Há refletividade classificada em até '+escolhido.raio+' km. A previsão da próxima hora é '+(ph.precipitacao_mm==null?'--':f(ph.precipitacao_mm,1)+' mm')+' ('+(ph.probabilidade_chuva_pct==null?'--':Math.round(ph.probabilidade_chuva_pct)+'%')+').';}
+    else if(cq.status&&obsChuvaMax!=null&&obsChuvaMax>0){$("dashRadarSintese").innerHTML='<strong>⚠ FONTES DIVERGENTES • chuva observada × radar</strong>Pluviômetros regionais frescos registram até '+f(obsChuvaMax,1)+' mm/1h, enquanto a busca local do RadarSC não encontrou classe C1–C16 no raio analisado. O Monitor preserva as duas evidências e não transforma ausência de eco em ausência de chuva.';}
     else if(cq.status&&prevTemChuva){$("dashRadarSintese").innerHTML='<strong>📡 Sem eco detectado agora • ☔ chuva prevista na próxima hora</strong>Os dados não medem a mesma coisa: o radar procura eco no quadro recente; a previsão estima a próxima hora. Chuva prevista pode ainda não aparecer no radar local e a previsão pode mudar. Previsão: '+(ph.precipitacao_mm==null?'--':f(ph.precipitacao_mm,1)+' mm')+' • '+(ph.probabilidade_chuva_pct==null?'--':Math.round(ph.probabilidade_chuva_pct)+'%')+'.';}
-    else if(cq.status){$("dashRadarSintese").innerHTML='<strong>📡 Sem eco detectado agora</strong>Nenhuma classe C1–C16 foi detectada nesta busca. Isso não prova ausência de chuva no solo.';}
+    else if(cq.status){$("dashRadarSintese").innerHTML='<strong>📡 Sem eco detectado no raio analisado</strong>Nenhuma classe C1–C16 foi detectada nesta busca. Isso não prova ausência de chuva no solo.';}
     else{$("dashRadarSintese").innerHTML='<strong>📡 Radar sem classificação local</strong>A leitura qualitativa está indisponível nesta coleta.';}
   }
   // Método Guaxanduva #170-K/L/M — pista modelada separada da instrumental.

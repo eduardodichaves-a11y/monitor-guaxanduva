@@ -1,0 +1,58 @@
+name: Testar Monitor Oceânico #174
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monitor-guaxanduva-174-experimental
+  cancel-in-progress: true
+
+jobs:
+  testar-174:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar dependência mínima
+        run: pip install requests
+      - name: Executar motor experimental #174-B
+        run: python -u monitor_oceanico_174.py --saida monitor_oceanico_174.json --timeout 4 --tentativas 13
+      - name: Validar saída fail-closed
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("monitor_oceanico_174.json")
+          d = json.loads(p.read_text(encoding="utf-8"))
+          assert d.get("versao") == "#174-A"
+          assert d.get("uso_operacional") is False
+          assert d.get("status") in {"experimental_dados_processados", "fonte_indisponivel_fail_closed"}
+          if d.get("status") == "experimental_dados_processados":
+              assert isinstance(d.get("sistemas"), list)
+              for s in d["sistemas"]:
+                  assert s.get("eta_liberado_como_previsao") is False
+          print("VALIDAÇÃO #174-B OK:", d.get("status"), "sistemas=", d.get("sistemas_no_dominio"))
+          PY
+      - name: Publicar somente JSON experimental
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp monitor_oceanico_174.json /tmp/monitor_oceanico_174.json
+          git fetch origin main
+          git reset --hard origin/main
+          cp /tmp/monitor_oceanico_174.json monitor_oceanico_174.json
+          git add monitor_oceanico_174.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Atualiza diagnóstico experimental do Monitor Oceânico #174"
+          git push origin HEAD:main

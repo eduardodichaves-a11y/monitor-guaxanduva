@@ -322,7 +322,7 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=30, lote=5,
         for tentativa in range(1, max(1, tentativas) + 1):
             try:
                 r = requests.get(endpoint, params=params, timeout=timeout,
-                                 headers={"User-Agent": "Monitor-Guaxanduva/174-I"})
+                                 headers={"User-Agent": "Monitor-Guaxanduva/174-J"})
                 r.raise_for_status()
                 payload = r.json()
                 locais = payload if isinstance(payload, list) else [payload]
@@ -589,7 +589,7 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
                 "sistema_mais_proximo_com_apoio": min(fav, key=lambda x: ((x.get("destinos_geograficos_174i") or {}).get(chave) or {}).get("distancia_km", 1e9))["id_sistema"] if fav else None}
     destinos_174i = {"sul_brasil_rs_sc_pr": resumo_destino("sul_brasil"), "norte_sc_joinville": resumo_destino("norte_sc_joinville")}
     return {
-        "versao": "#174-I",
+        "versao": "#174-J",
         "status": "experimental_dados_processados",
         "uso_operacional": False,
         "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
@@ -637,10 +637,96 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
     }
 
 
+# #174-J: contrato leve e estável para o futuro dashboard. Não altera a ciência do #174-I;
+# apenas traduz os gates já calculados em campos pequenos, explícitos e auditáveis.
+def construir_dashboard_174j(resultado):
+    if resultado.get("status") != "experimental_dados_processados":
+        return {
+            "versao": "#174-J",
+            "status": "FONTE_INDISPONIVEL",
+            "uso_operacional": False,
+            "eta_liberado": False,
+            "mensagem_leiga": "Dados oceânicos indisponíveis; isso não significa ausência de tempestade.",
+            "oceanos": {},
+        }
+
+    sistemas = resultado.get("sistemas") or []
+    setores = {
+        "atlantico": "ATLANTICO_SUL_OU_FAIXA_COSTEIRA",
+        "pacifico": "PACIFICO_CHILE_OESTE_ANDES",
+    }
+    destinos = {
+        "sul_brasil": "sul_brasil",
+        "norte_sc_joinville": "norte_sc_joinville",
+    }
+
+    def nivel_para(grupo, chave_destino):
+        p60 = [x for x in grupo if ((x.get("destinos_geograficos_174i") or {}).get(chave_destino) or {}).get("persistencia_60min") == "CONFIRMADA"]
+        fav = [x for x in p60 if ((x.get("destinos_geograficos_174i") or {}).get(chave_destino) or {}).get("persistencia_sinotica_3h") == "FAVORAVEL_PERSISTENTE_3H"]
+        if fav:
+            nivel = "TRAJETORIA_REFORCADA_EXPERIMENTAL"
+        elif p60:
+            nivel = "ACOMPANHAMENTO"
+        else:
+            nivel = "OBSERVACAO"
+        melhor = None
+        if fav:
+            x = min(fav, key=lambda z: ((z.get("destinos_geograficos_174i") or {}).get(chave_destino) or {}).get("distancia_km", 1e9))
+            dg = ((x.get("destinos_geograficos_174i") or {}).get(chave_destino) or {})
+            melhor = {
+                "id_sistema": x.get("id_sistema"),
+                "fase": x.get("fase"),
+                "latitude": x.get("latitude"),
+                "longitude": x.get("longitude"),
+                "distancia_ao_destino_km": dg.get("distancia_km"),
+                "alvo_mais_proximo": dg.get("alvo_mais_proximo"),
+                "persistencia_trajetoria": "P60",
+                "persistencia_sinotica": dg.get("persistencia_sinotica_3h"),
+            }
+        return {
+            "nivel_evidencia": nivel,
+            "p60_em_acompanhamento": len(p60),
+            "p60_reforcados": len(fav),
+            "sistema_representativo": melhor,
+        }
+
+    cards = {}
+    for nome, setor in setores.items():
+        grupo = [x for x in sistemas if x.get("setor_geografico") == setor]
+        cards[nome] = {
+            "rotulo": "Oceano Atlântico" if nome == "atlantico" else "Oceano Pacífico / Andes",
+            "sistemas_detectados_setor": len(grupo),
+            "destinos": {saida: nivel_para(grupo, chave) for saida, chave in destinos.items()},
+        }
+
+    local = cards["atlantico"]["destinos"]["norte_sc_joinville"]
+    pac_local = cards["pacifico"]["destinos"]["norte_sc_joinville"]
+    if local["nivel_evidencia"] == "TRAJETORIA_REFORCADA_EXPERIMENTAL" or pac_local["nivel_evidencia"] == "TRAJETORIA_REFORCADA_EXPERIMENTAL":
+        msg = "Há sistema oceânico em trajetória reforçada experimental para o corredor Norte de SC/Joinville; não é previsão de chegada nem alerta."
+    else:
+        msg = "Nenhum sistema oceânico tem trajetória reforçada experimental para Norte de SC/Joinville neste quadro."
+
+    return {
+        "versao": "#174-J",
+        "status": "EXPERIMENTAL",
+        "uso_operacional": False,
+        "eta_liberado": False,
+        "produto_horario_utc": resultado.get("produto_horario_utc"),
+        "produto_horario_local": resultado.get("produto_horario_local"),
+        "fonte": resultado.get("fonte"),
+        "mensagem_leiga": msg,
+        "oceanos": cards,
+        "continental_nao_atribuido_a_oceano": sum(1 for x in sistemas if x.get("setor_geografico") == "CONTINENTE_SUL_AMERICA"),
+        "nota_metodologica": "Setor atual não prova origem oceânica. Sistemas continentais ficam separados para evitar atribuição falsa ao Atlântico ou Pacífico.",
+        "estados_permitidos": ["OBSERVACAO", "ACOMPANHAMENTO", "TRAJETORIA_REFORCADA_EXPERIMENTAL"],
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--entrada", help="GeoJSON TATHU local para teste reprodutivel")
     ap.add_argument("--saida", default=SAIDA_PADRAO)
+    ap.add_argument("--saida-dashboard", default="monitor_oceanico_174_dashboard.json")
     ap.add_argument("--timeout", type=float, default=4.0, help="Timeout HTTP por tentativa em segundos")
     ap.add_argument("--tentativas", type=int, default=13, help="Quantidade maxima de quadros de 10 min a procurar")
     args = ap.parse_args()
@@ -652,7 +738,7 @@ def main():
         payload, horario, url, tentativas = buscar_ultimo(timeout=max(1.0, args.timeout), max_tentativas=max(1, min(args.tentativas, 25)))
         if payload is None:
             resultado = {
-                "versao": "#174-I", "status": "fonte_indisponivel_fail_closed",
+                "versao": "#174-J", "status": "fonte_indisponivel_fail_closed",
                 "uso_operacional": False, "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
                 "sistemas_no_dominio": None, "sistemas_geometricamente_compativeis": None,
                 "sistema_compativel_mais_proximo": None, "sistemas": [], "tentativas_fonte": tentativas,
@@ -667,7 +753,7 @@ def main():
                 uu = TATHU_BASE + hh.strftime("%Y/%m/") + "goes19_diagnostic_" + hh.strftime("%Y%m%d%H%M") + ".json"
                 pp = None
                 try:
-                    rr = requests.get(uu, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-I"})
+                    rr = requests.get(uu, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-J"})
                     if rr.status_code == 200:
                         candidato = rr.json()
                         if isinstance(candidato, dict) and isinstance(candidato.get("features"), list):
@@ -679,6 +765,8 @@ def main():
             resultado = processar(payload, horario, url, tentativas, payload_anterior, horario_anterior if payload_anterior else None, url_anterior if payload_anterior else None, historico)
 
     Path(args.saida).write_text(json.dumps(resultado, ensure_ascii=False, indent=2), encoding="utf-8")
+    dashboard = construir_dashboard_174j(resultado)
+    Path(args.saida_dashboard).write_text(json.dumps(dashboard, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({k: resultado.get(k) for k in ("versao", "status", "sistemas_no_dominio", "sistemas_geometricamente_compativeis")}, ensure_ascii=False))
 
 

@@ -1,0 +1,30 @@
+{
+  "id": "EH-001-ENVELOPE-CAUSAL-175",
+  "natureza": "ANALISE_HISTORICA_NAO_OPERACIONAL",
+  "objetivo": "Delimitar o que pode e não pode ser inferido sobre antecedência sem inventar a distribuição horária da chuva.",
+  "restricoes": {
+    "janela_desastre_oficial": "2020-12-31 22:00 a 2021-01-01 03:00",
+    "P6h_aprox_mm": 169.0,
+    "P2h_epagri_mm": 120.0,
+    "P1h_cemaden_iririu_mm": 90.0,
+    "P2h_contemporaneo_22_00_mm": 139.0,
+    "primeiro_impacto_validacao_aprox": "2021-01-01T00:30:00-03:00"
+  },
+  "regras": [
+    "Não assumir que P1h=90 mm ocorreu em uma hora específica.",
+    "Não tratar P2h=120 mm Epagri como sendo a mesma estação/janela do acumulado contemporâneo de 139 mm.",
+    "Não decompor acumulados em bins de 10 min sem observação.",
+    "Não usar impacto posterior como entrada do modelo.",
+    "Não produzir probabilidade estatística a partir de distribuições arbitrárias.",
+    "Maré reconstruída é contexto de fase, não observação."
+  ],
+  "metodo": "ENVELOPE_DE_RESTRICOES, não Monte Carlo probabilístico",
+  "resultado": {
+    "lead_time_min": null,
+    "hora_alerta": null,
+    "probabilidade_alerta": null,
+    "status": "INDETERMINADO_SEM_SERIE_CAUSAL",
+    "explicacao": "Os acumulados restringem a intensidade do evento, mas não identificam a trajetória temporal necessária para executar honestamente o #175 frame a frame."
+  },
+  "proximo_desbloqueio": "Série temporal CEMADEN-Iririú/Epagri/radar com timestamps, ou regra operacional do #175 aplicável diretamente a acumulados observáveis sem decomposição temporal."
+}

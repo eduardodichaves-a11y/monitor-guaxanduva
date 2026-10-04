@@ -2151,7 +2151,8 @@ def mascara_oficial_133(imagem, legenda_oficial):
         if isinstance(rgb, list) and len(rgb) == 3 and classe is not None:
             mapa_rgb_classe[tuple(int(v) for v in rgb)] = int(classe)
  
-    if not mapa_rgb_classe:
+    cores_eco = set(RADARSC_PALETA_OPERACIONAL_RGB) | set(mapa_rgb_classe)
+    if not cores_eco:
         return set(), {}, {}
  
     paleta = imagem.getpalette()
@@ -2164,10 +2165,10 @@ def mascara_oficial_133(imagem, legenda_oficial):
         if (
             alpha_idx(transparencia, indice) > 0
             and rgb is not None
-            and tuple(rgb) in mapa_rgb_classe
+            and tuple(rgb) in cores_eco
         ):
             indices[indice] = rgb
-            classes_por_indice[indice] = mapa_rgb_classe[tuple(rgb)]
+            classes_por_indice[indice] = mapa_rgb_classe.get(tuple(rgb))
  
     pixels = imagem.load()
     pontos = {
@@ -2590,10 +2591,10 @@ def analisar(imagem, legenda_oficial=None):
             "diagnostico_espacial_ativo",
  
         "metodo":
-            "componentes_conectados_8_vizinhos_rgb_oficial_#133",
+            "componentes_conectados_8_vizinhos_paleta_operacional_#175",
  
         "fonte_mascara":
-            "somente_rgb_exato_da_legenda_oficial_radarsc",
+            "paleta_operacional_png_radarsc_mais_rgb_oficial_#175",
  
         "dbz_numerico_validado":
             False,
@@ -5243,89 +5244,54 @@ def rastreamento_operacional_135(rastreamento, funil):
 # #129 - ECO OFICIAL RADARSC AO REDOR DO COMASA
 # =========================================================
  
+RADARSC_PALETA_OPERACIONAL_RGB = {
+    (165,255,255), (110,200,255), (55,145,255), (0,90,255),
+    (170,255,0), (128,206,0), (85,156,0), (43,107,0), (0,57,0),
+    (255,255,0), (255,192,0), (255,128,0), (255,64,0),
+    (190,0,0), (255,0,255),
+}
+
 def diagnostico_eco_oficial_local(imagem, legenda_oficial):
-    """Cruza o PNG com as cores RGB da legenda oficial em 2, 5, 10 e 25 km."""
-    classes = (legenda_oficial or {}).get("classes", [])
-    cores = {}
+    """#175: eco qualitativo pela paleta realmente usada nos PNGs COMP."""
+    classes=(legenda_oficial or {}).get("classes",[])
+    oficiais={}
     for item in classes:
-        rgb = item.get("rgb") if isinstance(item, dict) else None
-        if isinstance(rgb, list) and len(rgb) == 3:
-            cores[tuple(rgb)] = item.get("classe")
-    base = {
-        "status": "sem_classes_oficiais",
-        "metodo": "pixels_rgb_exatos_legenda_oficial_#129",
-        "referencia": "Comasa - coordenada pública aproximada",
-        "raios_km": [2, 5, 10, 25],
-        "classes_legenda_total": len(cores),
-        "dbz_numerico_validado": False,
-        "equivale_chuva_medida": False,
-        "eta_liberado": False,
-    }
-    if not cores:
-        return base
-    rgba = imagem.convert("RGBA")
-    px = rgba.load()
-    contagens = {2: Counter(), 5: Counter(), 10: Counter(), 25: Counter()}
-    total = {2: 0, 5: 0, 10: 0, 25: 0}
-    mais_proximo = None
-    lat_delta = 25 / 111.32
-    lon_delta = 25 / (111.32 * max(0.2, math.cos(math.radians(LAT))))
-    x1, y2 = geo2px(LON - lon_delta, LAT - lat_delta, rgba.width, rgba.height)
-    x2, y1 = geo2px(LON + lon_delta, LAT + lat_delta, rgba.width, rgba.height)
-    xa, xb = sorted((x1, x2))
-    ya, yb = sorted((y1, y2))
-    for y in range(ya, yb + 1):
-        for x in range(xa, xb + 1):
-            r, g, b, a = px[x, y]
-            if a <= 0:
-                continue
-            cor = (r, g, b)
-            classe = cores.get(cor)
-            if classe is None:
-                continue
-            lat, lon = px2geo(x, y, rgba.width, rgba.height)
-            d = hav(LAT, LON, lat, lon)
-            if d <= 25:
-                if mais_proximo is None or d < mais_proximo[0]:
-                    mais_proximo = (d, classe, cor, lat, lon)
-                for raio in (2, 5, 10, 25):
-                    if d <= raio:
-                        total[raio] += 1
-                        contagens[raio][classe] += 1
-    por_raio = {}
-    for raio in (2, 5, 10, 25):
-        por_raio[str(raio)] = {
-            "pixels_classes_oficiais": total[raio],
-            "eco_oficial_detectado": total[raio] > 0,
-            "classes_presentes": [
-                {"classe": int(classe), "pixels": qtd}
-                for classe, qtd in sorted(contagens[raio].items())
-            ],
-        }
-    resultado = {**base, "status": "diagnostico_ativo", "por_raio": por_raio}
-    if mais_proximo:
-        d, classe, cor, lat, lon = mais_proximo
-        resultado["eco_oficial_mais_proximo"] = {
-            "distancia_comasa_km": round(d, 2),
-            "classe": int(classe),
-            "rgb": list(cor),
-            "latitude": round(lat, 5),
-            "longitude": round(lon, 5),
-        }
-    else:
-        resultado["eco_oficial_mais_proximo"] = None
-    resultado["regra_seguranca"] = (
-        "Detecção significa pixel com RGB idêntico a uma classe da legenda oficial RadarSC. "
-        "Não significa chuva medida no solo e não atribui dBZ enquanto a escala numérica não for validada."
-    )
-    return resultado
- 
- 
- 
+        rgb=item.get("rgb") if isinstance(item,dict) else None
+        if isinstance(rgb,list) and len(rgb)==3: oficiais[tuple(map(int,rgb))]=item.get("classe")
+    cores_eco=set(RADARSC_PALETA_OPERACIONAL_RGB)|set(oficiais)
+    base={"status":"diagnostico_ativo","versao":"#129+#175","metodo":"paleta_operacional_png_radarsc_qualitativa",
+          "referencia":"Comasa - coordenada pública aproximada","raios_km":[2,5,10,25],
+          "classes_legenda_total":len(oficiais),"cores_operacionais_total":len(cores_eco),
+          "dbz_numerico_validado":False,"equivale_chuva_medida":False,"eta_liberado":False}
+    rgba=imagem.convert("RGBA"); px=rgba.load(); cont={r:Counter() for r in (2,5,10,25)}; total={r:0 for r in (2,5,10,25)}; perto=None
+    lat_delta=25/111.32; lon_delta=25/(111.32*max(.2,math.cos(math.radians(LAT))))
+    xa,ya=geo2px(LON-lon_delta,LAT+lat_delta,rgba.width,rgba.height); xb,yb=geo2px(LON+lon_delta,LAT-lat_delta,rgba.width,rgba.height)
+    xa,xb=max(0,min(xa,xb)),min(rgba.width-1,max(xa,xb)); ya,yb=max(0,min(ya,yb)),min(rgba.height-1,max(ya,yb))
+    for y in range(ya,yb+1):
+      for x in range(xa,xb+1):
+        r,g,b,a=px[x,y]; cor=(r,g,b)
+        if a<=0 or cor not in cores_eco: continue
+        lat,lon=px2geo(x,y,rgba.width,rgba.height); d=hav(LAT,LON,lat,lon)
+        if d>25: continue
+        if perto is None or d<perto[0]: perto=(d,oficiais.get(cor),cor,lat,lon)
+        for raio in (2,5,10,25):
+          if d<=raio: total[raio]+=1; cont[raio][cor]+=1
+    por={}
+    for raio in (2,5,10,25):
+      por[str(raio)]={"pixels_eco_radar":total[raio],"pixels_classes_oficiais":sum(n for c,n in cont[raio].items() if c in oficiais),
+        "eco_radar_detectado":total[raio]>0,"eco_oficial_detectado":total[raio]>0,
+        "cores_presentes":[{"rgb":list(c),"pixels":n,"classe_oficial":oficiais.get(c)} for c,n in cont[raio].most_common()]}
+    out={**base,"por_raio":por,"eco_oficial_mais_proximo":None}
+    if perto:
+      d,cl,cor,lat,lon=perto; out["eco_oficial_mais_proximo"]={"distancia_comasa_km":round(d,2),"classe":cl,"rgb":list(cor),"latitude":round(lat,5),"longitude":round(lon,5),"tipo":"eco_qualitativo_paleta_operacional"}
+    out["regra_seguranca"]="#175: paleta operacional confirma somente eco qualitativo no PNG RadarSC; não equivale a chuva no solo e não converte RGB em dBZ/mm/h."
+    return out
+
+
 # =========================================================
 # #130 - DICIONÁRIO QUALITATIVO DE CORES DO RADAR
 # =========================================================
- 
+
 def familia_cor_radar(rgb):
     """Classifica apenas a família visual da cor oficial.
  
@@ -5401,6 +5367,9 @@ def construir_dicionario_cores_130(legenda_oficial):
 def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
     dicionario = construir_dicionario_cores_130(legenda_oficial)
     mapa = {tuple(x["rgb"]): x for x in dicionario.get("classes", []) if x.get("rgb")}
+    # #175: cores indexadas realmente presentes nos PNGs COMP também contam como eco qualitativo.
+    for cor in RADARSC_PALETA_OPERACIONAL_RGB:
+        mapa.setdefault(cor, {"classe": None, "familia_cor": familia_cor_radar(cor)})
     base = {
         "versao": "#130",
         "referencia": "Comasa - coordenada pública aproximada",
@@ -5433,7 +5402,8 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
             dist = hav(LAT, LON, lat, lon)
             for raio in (2, 5, 10, 25):
                 if dist <= raio:
-                    contagens[raio][int(info["classe"])] += 1
+                    chave = (info.get("classe"), tuple(px[:3]))
+                    contagens[raio][chave] += 1
                     familias[raio][info["familia_cor"]] += 1
     por_raio = {}
     for raio in (2, 5, 10, 25):
@@ -5442,7 +5412,8 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
             "pixels_oficiais_classificados": total,
             "eco_oficial_detectado": total > 0,
             "classes_presentes": [
-                {"classe": c, "pixels": n} for c, n in sorted(contagens[raio].items())
+                {"classe": chave[0], "rgb": list(chave[1]), "pixels": n}
+                for chave, n in contagens[raio].most_common()
             ],
             "familias_cor": [
                 {"familia": f, "pixels": n, **significado_qualitativo_familia(f)}
@@ -5454,8 +5425,8 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
         "status": "diagnostico_qualitativo_ativo",
         "por_raio": por_raio,
         "regra_seguranca": (
-            "Presença de cor oficial é detecção por radar, não medição de chuva no solo. "
-            "Faixa dBZ disponível somente quando #169 está íntegra; mm/h continua não atribuído e dBZ não equivale a chuva medida no solo."
+            "#175: presença de cor da paleta operacional é detecção qualitativa por radar, não medição de chuva no solo. "
+            "RGB operacional não recebe dBZ automaticamente; mm/h continua bloqueado."
         ),
     }
  
@@ -5486,7 +5457,7 @@ def auditoria_espacial_132(imagem, legenda_oficial):
         "referencia": "Comasa - coordenada pública aproximada",
         "coordenada_referencia": {"latitude": LAT, "longitude": LON},
         "metodo_legado": "todo_pixel_visivel_exceto_cinza_200_200_200",
-        "metodo_oficial": "somente_rgb_exato_da_legenda_oficial_radarsc",
+        "metodo_oficial": "paleta_operacional_png_radarsc_mais_rgb_oficial_#175",
         "dbz_numerico_validado": False,
         "equivale_chuva_medida": False,
         "eta_liberado": False,
@@ -6183,7 +6154,7 @@ def buscar_radar():
             "correcao_rastreamento_133": {
                 "versao": "#133",
                 "status": "ativa",
-                "mascara_operacional": "somente_rgb_exato_da_legenda_oficial_radarsc",
+                "mascara_operacional": "paleta_operacional_png_radarsc_mais_rgb_oficial_#175",
                 "pixels_visiveis_nao_oficiais": "excluidos_de_componentes_trilhas_e_autovalidacao",
                 "criterio_legado": "mantido_apenas_na_auditoria_132_para_comparacao",
                 "dbz_numerico_validado": False,

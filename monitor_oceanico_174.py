@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""#174-A — Monitor Oceânico experimental do Monitor Guaxanduva.
+"""#174-C — Monitor Oceânico experimental do Monitor Guaxanduva.
 
 Lê o diagnóstico GOES-19/TATHU do CPTEC/INPE, faz triagem ampla de sistemas
 convectivos no entorno da América do Sul e calcula, de forma fail-closed,
-distância, rumo para Joinville, compatibilidade angular e ETA cinemático
-SOMENTE quando velocidade/direção são válidas.
+distância e rumo para Joinville e compara dois quadros consecutivos para verificar
+se a distância do mesmo sistema realmente diminuiu. Vetores instantâneos são apenas
+diagnóstico secundário; ETA continua bloqueado para uso operacional.
 
 Este módulo NÃO altera dados.json e NÃO gera alerta operacional.
 """
@@ -117,27 +118,26 @@ def normalizar(feature):
     rumo = bearing(lat, lon, LAT_JOINVILLE, LON_JOINVILLE)
     direcao = numero(p.get("Dir"))
     vel_ms = numero(p.get("Vel"))
+    # Vel=0 não define direção de deslocamento. Mantemos o valor bruto, mas o
+    # vetor só é utilizável quando há velocidade estritamente positiva.
+    vetor_valido = vel_ms is not None and vel_ms > 0 and direcao is not None
     vel_kmh = None if vel_ms is None else vel_ms * 3.6
-    dif = None if direcao is None else diferenca_angular(direcao, rumo)
+    dif = diferenca_angular(direcao, rumo) if vetor_valido else None
 
-    if dif is None:
+    if not vetor_valido:
         compat = "SEM_VETOR_VALIDO"
     elif dif <= 30:
-        compat = "FORTE_COMPATIBILIDADE_GEOMETRICA"
+        compat = "ALINHAMENTO_ANGULAR_FORTE_NAO_CONFIRMADO"
     elif dif <= 60:
-        compat = "COMPATIBILIDADE_GEOMETRICA_PARCIAL"
+        compat = "ALINHAMENTO_ANGULAR_PARCIAL_NAO_CONFIRMADO"
     elif dif <= 100:
-        compat = "TRAJETORIA_LATERAL"
+        compat = "ALINHAMENTO_LATERAL"
     else:
-        compat = "AFASTAMENTO_GEOMETRICO"
+        compat = "VETOR_NAO_ALINHADO"
 
-    # ETA puramente cinemático; não é previsão meteorológica. Restrito para
-    # evitar extrapolação absurda de sistemas muito distantes/lentos.
+    # #174-C: ETA fica bloqueado até a convenção de Dir/Vel ser documentalmente
+    # validada e a aproximação ser confirmada em múltiplos quadros.
     eta_h = None
-    if vel_kmh and vel_kmh >= 5 and dif is not None and dif <= 45 and dist <= 2000:
-        eta_h = dist / vel_kmh
-        if eta_h > 72:
-            eta_h = None
 
     return {
         "id_sistema": p.get("name"),
@@ -158,7 +158,7 @@ def normalizar(feature):
         "eta_liberado_como_previsao": False,
         "temperatura_minima_topo_k": numero(p.get("Tmin")),
         "taxa_resfriamento_k_10min": numero(p.get("TxResf")),
-        "fracao_convectiva_pct": numero(p.get("FracConv")),
+        "fracao_convectiva_bruta": numero(p.get("FracConv")),
         "timestamp_fonte": p.get("timestamp"),
     }
 
@@ -185,19 +185,52 @@ def buscar_ultimo(timeout=4, max_tentativas=13):
     return None, None, None, tentativas
 
 
-def processar(payload, horario_produto=None, url=None, tentativas=None):
+def indexar_distancias(payload):
+    """Indexa distância por ID no quadro anterior, sem inferir trajetória."""
+    out = {}
+    for f in (payload or {}).get("features", []):
+        x = normalizar(f)
+        if x and x.get("id_sistema"):
+            out[str(x["id_sistema"])] = x["distancia_joinville_km"]
+    return out
+
+
+def aplicar_tendencia_observada(sistemas, payload_anterior, intervalo_minutos=10):
+    anteriores = indexar_distancias(payload_anterior) if payload_anterior else {}
+    for s in sistemas:
+        anterior = anteriores.get(str(s.get("id_sistema")))
+        s["distancia_quadro_anterior_km"] = anterior
+        s["delta_distancia_km"] = None
+        s["tendencia_distancia_observada"] = "SEM_PAREAMENTO_QUADRO_ANTERIOR"
+        if anterior is None:
+            continue
+        delta = round(s["distancia_joinville_km"] - anterior, 1)
+        s["delta_distancia_km"] = delta
+        # Coordenadas TATHU aparecem centesimais; banda morta de 2 km evita
+        # transformar quantização/ruído de centroide em tendência meteorológica.
+        if delta <= -2.0:
+            s["tendencia_distancia_observada"] = "APROXIMANDO_OBSERVADO"
+        elif delta >= 2.0:
+            s["tendencia_distancia_observada"] = "AFASTANDO_OBSERVADO"
+        else:
+            s["tendencia_distancia_observada"] = "SEM_TENDENCIA_SIGNIFICATIVA"
+        s["intervalo_comparacao_min"] = intervalo_minutos
+    return sistemas
+
+
+def processar(payload, horario_produto=None, url=None, tentativas=None, payload_anterior=None, horario_anterior=None, url_anterior=None):
     agora = datetime.now(UTC)
     sistemas = []
     for f in (payload or {}).get("features", []):
         x = normalizar(f)
         if x:
             sistemas.append(x)
+    sistemas = aplicar_tendencia_observada(sistemas, payload_anterior)
     sistemas.sort(key=lambda x: x["distancia_joinville_km"])
-    compativeis = [x for x in sistemas if x["compatibilidade_trajetoria"] in {
-        "FORTE_COMPATIBILIDADE_GEOMETRICA", "COMPATIBILIDADE_GEOMETRICA_PARCIAL"
-    }]
+    aproximando = [x for x in sistemas if x["tendencia_distancia_observada"] == "APROXIMANDO_OBSERVADO"]
+    aproximando.sort(key=lambda x: x["distancia_joinville_km"])
     return {
-        "versao": "#174-A",
+        "versao": "#174-C",
         "status": "experimental_dados_processados",
         "uso_operacional": False,
         "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
@@ -209,17 +242,21 @@ def processar(payload, horario_produto=None, url=None, tentativas=None):
         "referencia": {"local": "Joinville/SC - coordenada publica aproximada", "lat": LAT_JOINVILLE, "lon": LON_JOINVILLE},
         "dominio_triagem": {"lat_min": -60, "lat_max": 5, "lon_min": -100, "lon_max": -20},
         "sistemas_no_dominio": len(sistemas),
-        "sistemas_geometricamente_compativeis": len(compativeis),
-        "sistema_compativel_mais_proximo": compativeis[0] if compativeis else None,
+        "sistemas_geometricamente_compativeis": None,
+        "sistemas_aproximando_observado": len(aproximando),
+        "sistema_aproximando_mais_proximo": aproximando[0] if aproximando else None,
+        "quadro_anterior_horario_utc": horario_anterior.isoformat() if horario_anterior else None,
+        "quadro_anterior_url": url_anterior,
         "sistemas": sistemas,
         "tentativas_fonte": tentativas or [],
         "regras_seguranca": [
-            "Compatibilidade angular nao significa que o sistema chegara a Joinville.",
-            "ETA cinemático usa apenas distancia/velocidade instantaneas e nao e previsao meteorologica.",
-            "Vel do TATHU e tratado como m/s e convertido explicitamente para km/h por fator 3.6.",
+            "Alinhamento angular isolado nao significa que o sistema chegara a Joinville.",
+            "Aproximacao observada exige o mesmo ID em dois quadros e reducao de distancia superior a banda morta de 2 km.",
+            "ETA permanece bloqueado no #174-C.",
+            "Vel do TATHU e preservado e convertido de m/s para km/h apenas como diagnostico; Vel=0 invalida o vetor direcional.",
             "Valores sentinela <= -900 sao tratados como ausentes.",
             "Ausencia/erro da fonte nunca significa ausencia de tempestade.",
-            "#174-A nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
+            "#174-C nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
         ],
     }
 
@@ -239,14 +276,28 @@ def main():
         payload, horario, url, tentativas = buscar_ultimo(timeout=max(1.0, args.timeout), max_tentativas=max(1, min(args.tentativas, 25)))
         if payload is None:
             resultado = {
-                "versao": "#174-A", "status": "fonte_indisponivel_fail_closed",
+                "versao": "#174-C", "status": "fonte_indisponivel_fail_closed",
                 "uso_operacional": False, "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
                 "sistemas_no_dominio": None, "sistemas_geometricamente_compativeis": None,
                 "sistema_compativel_mais_proximo": None, "sistemas": [], "tentativas_fonte": tentativas,
                 "regra_seguranca": "Falha de consulta nao equivale a ausencia de tempestade."
             }
         else:
-            resultado = processar(payload, horario, url, tentativas)
+            # Busca o quadro imediatamente anterior ao produto encontrado. Se ele
+            # faltar, não pula silenciosamente para outro horário: tendência fica
+            # sem pareamento, preservando a cronologia científica.
+            horario_anterior = horario - timedelta(minutes=10)
+            url_anterior = TATHU_BASE + horario_anterior.strftime("%Y/%m/") + "goes19_diagnostic_" + horario_anterior.strftime("%Y%m%d%H%M") + ".json"
+            payload_anterior = None
+            try:
+                rr = requests.get(url_anterior, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-C"})
+                if rr.status_code == 200:
+                    candidato = rr.json()
+                    if isinstance(candidato, dict) and isinstance(candidato.get("features"), list):
+                        payload_anterior = candidato
+            except Exception:
+                payload_anterior = None
+            resultado = processar(payload, horario, url, tentativas, payload_anterior, horario_anterior if payload_anterior else None, url_anterior if payload_anterior else None)
 
     Path(args.saida).write_text(json.dumps(resultado, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({k: resultado.get(k) for k in ("versao", "status", "sistemas_no_dominio", "sistemas_geometricamente_compativeis")}, ensure_ascii=False))

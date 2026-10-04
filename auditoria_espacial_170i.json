@@ -2,14 +2,14 @@
   "monitor": "Monitor Guaxanduva",
   "tipo": "auditoria_espacial_radarsc_cemaden",
   "versao": "#170-I.1",
-  "atualizado_em": "2026-10-04T08:06:30.217994-03:00",
+  "atualizado_em": "2026-10-04T08:15:14.971297-03:00",
   "arquivo_fonte_bruto": "historico_zr_170.json",
   "arquivo_saida": "auditoria_espacial_170i.json",
   "base_temporal": {
     "versao": "#170-H2",
     "status": "VALIDADO",
     "semantica_cemaden": "valor horario rotulado em T = acumulado em (T-60min,T]",
-    "episodios_positivos_persistidos": 42,
+    "episodios_positivos_persistidos": 43,
     "observacao_170_g": "auditoria_temporal_170.json permanece registro legado #170-G. #170-H2 e a evidencia temporal posterior e vigente; #170-I.1 consome automaticamente todas as confirmacoes positivas persistidas."
   },
   "criterio_espacial": {
@@ -53477,6 +53477,70 @@
         }
       ],
       "resultado": "SEM_PAREAMENTO_ESPACIAL_VALIDO"
+    },
+    {
+      "estacao": {
+        "id": "6960",
+        "codigo": "420910208A",
+        "nome": "Nova Brasília"
+      },
+      "t_utc": "2026-10-04T11:00:00+00:00",
+      "janela_radar_utc": {
+        "inicio_exclusivo": "2026-10-04T10:00:00+00:00",
+        "fim_inclusivo": "2026-10-04T11:00:00+00:00"
+      },
+      "chuva_cemaden_1h_mm_h2": 0.2,
+      "prova_temporal_h2": {
+        "chave_h1": "6960|2026-10-04T11:00:00+00:00",
+        "janela_testada": "(T-60min,T]",
+        "diferenca_mm": 0.0,
+        "fonte": "CEMADEN_grafico_pcds_publico"
+      },
+      "chave_historico": "CEMADEN|6960|2026-10-04T11:00:00+00:00",
+      "coordenadas_estacao": {
+        "latitude": -26.3309,
+        "longitude": -48.875
+      },
+      "frames": [
+        {
+          "arquivo": "2026100410100000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-04T10:10:00+00:00",
+          "erro": "name 'raio' is not defined",
+          "diagnostico": "EVIDENCIA_INSUFICIENTE"
+        },
+        {
+          "arquivo": "2026100410200000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-04T10:20:00+00:00",
+          "erro": "name 'raio' is not defined",
+          "diagnostico": "EVIDENCIA_INSUFICIENTE"
+        },
+        {
+          "arquivo": "2026100410300000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-04T10:30:00+00:00",
+          "erro": "name 'raio' is not defined",
+          "diagnostico": "EVIDENCIA_INSUFICIENTE"
+        },
+        {
+          "arquivo": "2026100410400000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-04T10:40:00+00:00",
+          "erro": "name 'raio' is not defined",
+          "diagnostico": "EVIDENCIA_INSUFICIENTE"
+        },
+        {
+          "arquivo": "2026100410500000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-04T10:50:00+00:00",
+          "erro": "name 'raio' is not defined",
+          "diagnostico": "EVIDENCIA_INSUFICIENTE"
+        },
+        {
+          "arquivo": "2026100411000000dBZ.cappi_top.png",
+          "horario_utc": "2026-10-04T11:00:00+00:00",
+          "erro": "name 'raio' is not defined",
+          "diagnostico": "EVIDENCIA_INSUFICIENTE"
+        }
+      ],
+      "resultado": "EVIDENCIA_INSUFICIENTE",
+      "motivo": "frames_com_evidencia_espacial_incompleta"
     }
   ],
   "placar_gates": {
@@ -53494,11 +53558,11 @@
   "fonte_episodios_h2": "historico_cemaden_subhorario_170h2.json",
   "latencia_integracao": "atualizar_dados.py roda antes da auditoria H2 no workflow atual; confirmacoes H2 criadas na mesma execucao entram no #170-I.1 na execucao seguinte.",
   "resumo": {
-    "episodios_h2": 42,
+    "episodios_h2": 43,
     "estacoes_h2_distintas": 3,
     "pareamento_espacial_valido": 2,
     "sem_pareamento_espacial_valido": 36,
-    "evidencia_insuficiente": 4
+    "evidencia_insuficiente": 5
   },
   "status": "EVIDENCIA_INSUFICIENTE",
   "proximo_gate": "Z-R permanece bloqueado. Somente uma etapa posterior, explicitamente separada, pode avaliar elegibilidade de pares espaciais e temporais para calibracao; #170-I nao ajusta nem libera relacao Z-R."

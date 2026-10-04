@@ -937,17 +937,18 @@ function nivel174k(n){
 function destino174k(titulo,d){
  d=d||{}; const n=nivel174k(d.nivel_evidencia), r=d.sistema_representativo;
  let detalhe=r?('Sistema representativo: <b>'+esc174k(r.fase||"fase não informada")+'</b> • '+
-   (r.distancia_ao_destino_km==null?'distância --':Number(r.distancia_ao_destino_km).toFixed(0)+' km do destino')+
+   (r.distancia_ao_destino_km==null?'distância atual --':Number(r.distancia_ao_destino_km).toFixed(0)+' km do destino • esta distância NÃO é tempo de chegada')+
    (r.alvo_mais_proximo?' • alvo '+esc174k(r.alvo_mais_proximo):'')+
-   (r.persistencia_trajetoria?' • '+esc174k(r.persistencia_trajetoria==='P60'?'trajetória observada por 60 min':r.persistencia_trajetoria):'')+
-   (r.persistencia_sinotica?' • '+esc174k(r.persistencia_sinotica==='FAVORAVEL_PERSISTENTE_3H'?'apoio atmosférico persistente • 3 h':r.persistencia_sinotica.replaceAll('_',' ').toLowerCase()):'')):
+   (r.persistencia_trajetoria?' • '+esc174k(r.persistencia_trajetoria==='P60'?'trajetória acompanhada durante 60 min':r.persistencia_trajetoria):'')+
+   (r.persistencia_sinotica?' • '+esc174k(r.persistencia_sinotica==='FAVORAVEL_PERSISTENTE_3H'?'condições atmosféricas favoráveis persistem há 3 h • NÃO significa chegada em 3 h':r.persistencia_sinotica.replaceAll('_',' ').toLowerCase()):'')+
+   ' • <b>Chegada ao destino: NÃO CONFIRMADA</b> • <b>ETA: NÃO CALCULADO</b>'):
    'Nenhum sistema representativo promovido para este destino nesta coleta.';
  return '<div class="ocean174k-dest"><h4>'+titulo+'</h4><div class="ocean174k-gauge" style="--pct:'+n.pct+';--g:'+n.cor+'"><span>'+n.icone+'<br>'+n.rotulo+'</span></div>'+ 
- '<div class="ocean174k-status" style="color:'+n.cor+'">'+n.rotulo+'</div><div class="ocean174k-stats"><div class="ocean174k-stat"><b>'+(d.p60_em_acompanhamento??0)+'</b><small>P60 acompanhados</small></div><div class="ocean174k-stat"><b>'+(d.p60_reforcados??0)+'</b><small>P60 reforçados</small></div></div><div class="ocean174k-detail">'+detalhe+'</div></div>';
+ '<div class="ocean174k-status" style="color:'+n.cor+'">'+n.rotulo+'</div><div class="ocean174k-stats"><div class="ocean174k-stat"><b>'+(d.p60_em_acompanhamento??0)+'</b><small>sistemas acompanhados por 60 min</small></div><div class="ocean174k-stat"><b>'+(d.p60_reforcados??0)+'</b><small>trajetórias reforçadas após 60 min</small></div></div><div class="ocean174k-detail">'+detalhe+'</div></div>';
 }
 function oceano174k(o,icone){
  o=o||{}; const ds=o.destinos||{};
- return '<div class="ocean174k-head"><div><b>'+icone+' '+esc174k(o.rotulo||"Oceano")+'</b><small>setor monitorado pelo #174</small></div><div class="ocean174k-count">'+(o.sistemas_detectados_setor??0)+'<small>sistemas no setor</small></div></div><div class="ocean174k-destinos">'+destino174k('🇧🇷 SUL DO BRASIL • RS/SC/PR',ds.sul_brasil)+destino174k('📍 NORTE SC / JOINVILLE',ds.norte_sc_joinville)+'</div>';
+ return '<div class="ocean174k-head"><div><b>'+icone+' '+esc174k(o.rotulo||"Oceano")+'</b><small>setor monitorado pelo #174</small></div><div class="ocean174k-count">'+(o.sistemas_detectados_setor??0)+'<small>objetos meteorológicos detectados • não significa '+(o.sistemas_detectados_setor??0)+' tempestades</small></div></div><div class="ocean174k-destinos">'+destino174k('🇧🇷 SUL DO BRASIL • RS/SC/PR',ds.sul_brasil)+destino174k('📍 NORTE SC / JOINVILLE',ds.norte_sc_joinville)+'</div>';
 }
 async function carregarOceanico174k(){
  try{
@@ -963,7 +964,7 @@ async function carregarOceanico174k(){
   const local=d.produto_horario_local?new Date(d.produto_horario_local).toLocaleString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"--";
   $("ocean174kEstado").innerHTML='<span class="ok">🟢 CONTRATO #174-J CARREGADO</span> • produto '+esc174k(local)+' • '+esc174k(d.fonte||"fonte não informada");
   $("ocean174kMensagem").textContent=d.mensagem_leiga||"Sem síntese disponível.";
-  $("ocean174kMeta").textContent='Continental não atribuído a oceano: '+(d.continental_nao_atribuido_a_oceano??0)+' • ETA '+(d.eta_liberado===true?'LIBERADO':'BLOQUEADO')+' • uso operacional '+(d.uso_operacional===true?'LIBERADO':'BLOQUEADO')+' • '+(d.nota_metodologica||'Setor atual não prova origem oceânica.');
+  $("ocean174kMeta").innerHTML='<b>COMO LER:</b> distância = posição atual; 60 min = tempo de trajetória já observada; 3 h = tempo em que o ambiente permaneceu favorável. <b>Nenhum desses tempos é previsão de chegada.</b> Um horário só será mostrado quando o ETA estiver cientificamente liberado.<br><br>Continental não atribuído a oceano: '+(d.continental_nao_atribuido_a_oceano??0)+' • ETA '+(d.eta_liberado===true?'LIBERADO':'BLOQUEADO')+' • uso operacional '+(d.uso_operacional===true?'LIBERADO':'BLOQUEADO')+' • '+esc174k(d.nota_metodologica||'Setor atual não prova origem oceânica.');
  }catch(e){
   ["ocean174kResumoAtlSul","ocean174kResumoAtlJoinville","ocean174kResumoPacSul","ocean174kResumoPacJoinville"].forEach(id=>$(id).textContent="⚪ INCONCLUSIVO • fonte indisponível");
   $("ocean174kEstado").innerHTML='<span class="erro">🔴 Monitor Oceânico indisponível nesta coleta.</span><br><small>'+esc174k(e.message)+'</small>';

@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0",
+  "projeto": "Monitor Guaxanduva",
+  "finalidade": "Base auditável para replay histórico cego do #175; não é alerta operacional.",
+  "timezone": "America/Sao_Paulo",
+  "eventos": [
+    {
+      "id": "EH-001",
+      "nome": "Chuvas intensas de 31/12/2020–01/01/2021",
+      "replay": {
+        "inicio": "2020-12-31T18:00:00-03:00",
+        "fim": "2021-01-01T06:00:00-03:00",
+        "passo_min": 10,
+        "modo": "cego_causal",
+        "regra": "Em cada instante t, somente evidências com disponivel_em <= t podem entrar no motor. Gabaritos de impacto nunca entram no cálculo."
+      },
+      "janela_oficial_desastre": {
+        "inicio": "2020-12-31T22:00:00-03:00",
+        "fim": "2021-01-01T03:00:00-03:00",
+        "fonte_id": "F001"
+      },
+      "evidencias_entrada": [
+        {
+          "id": "E001",
+          "variavel": "chuva_acumulada",
+          "valor": 169.0,
+          "unidade": "mm",
+          "janela": "6h",
+          "resolucao": "agregado_documental",
+          "tipo": "observado_documental",
+          "local": "Joinville",
+          "fonte_id": "F001",
+          "disponivel_em": "2021-01-05T00:00:00-03:00",
+          "usar_no_replay_em_tempo_real": false,
+          "nota": "Valor oficial retrospectivo; serve para reconstrução/validação, não pode vazar para instantes anteriores à publicação."
+        },
+        {
+          "id": "E002",
+          "variavel": "chuva_acumulada",
+          "valor": 120.0,
+          "unidade": "mm",
+          "janela": "2h",
+          "resolucao": "agregado_documental",
+          "tipo": "observado_documental",
+          "local": "Estação Epagri/Ciram não identificada no decreto",
+          "fonte_id": "F001",
+          "disponivel_em": "2021-01-05T00:00:00-03:00",
+          "usar_no_replay_em_tempo_real": false,
+          "nota": "Dado oficial retrospectivo. Não interpolar em blocos de 10 min."
+        },
+        {
+          "id": "E003",
+          "variavel": "chuva_1h_max",
+          "valor": 90.0,
+          "unidade": "mm",
+          "janela": "1h",
+          "resolucao": "agregado_documental",
+          "tipo": "observado_documental",
+          "local": "CEMADEN Iririú",
+          "fonte_id": "F001",
+          "disponivel_em": "2021-01-05T00:00:00-03:00",
+          "usar_no_replay_em_tempo_real": false,
+          "nota": "Máximo oficial retrospectivo. Série sub-horária original ainda não recuperada."
+        }
+      ],
+      "gabarito_impactos": [
+        {
+          "id": "I001",
+          "tipo": "imovel_atingido",
+          "bairro": "Comasa",
+          "logradouro": "Rua Itapoá",
+          "numero": "39",
+          "horario_inicio": null,
+          "fonte_id": "F002",
+          "nota": "Presença confirma impacto comunicado; ausência de endereço na lista não prova ausência de inundação."
+        },
+        {
+          "id": "I002",
+          "tipo": "imovel_atingido",
+          "bairro": "Comasa",
+          "logradouro": "Rua Itapoá",
+          "numero": "145",
+          "horario_inicio": null,
+          "fonte_id": "F002"
+        },
+        {
+          "id": "I003",
+          "tipo": "imovel_atingido",
+          "bairro": "Comasa",
+          "logradouro": "Rua Victor Konder",
+          "numero": "70",
+          "horario_inicio": null,
+          "fonte_id": "F002"
+        }
+      ],
+      "lacunas_criticas": [
+        "Série CEMADEN-Iririú sub-horária original de 31/12/2020–01/01/2021",
+        "Série de maré observada/prevista com horários para Baía da Babitonga/Joinville",
+        "Horário local dos primeiros impactos no eixo Guaxanduva/Fortuna/Comasa",
+        "Radar histórico com timestamps compatíveis, se recuperável",
+        "Estado histórico da drenagem antes e durante o evento"
+      ],
+      "fontes": [
+        {
+          "id": "F001",
+          "titulo": "Decreto Municipal nº 40.333, de 05/01/2021",
+          "tipo": "oficial",
+          "url": "https://wwwold.joinville.sc.gov.br/public/portaladm/pdf/jornal/21027386363e8f795d873a5ee0fc7410.pdf",
+          "qualidade": "alta"
+        },
+        {
+          "id": "F002",
+          "titulo": "Lista de endereços atingidos por alagamentos em 31/12/2020 e 01/01/2021",
+          "tipo": "documental",
+          "url": "https://static.ndmais.com.br/2021/03/Lista-de-Endere%C3%A7os-do-Munic%C3%ADpio-de-Joinville-Atingidos-por-Alagamentos-em-31-12-2020-e-01-01-2021.pdf",
+          "qualidade": "alta_para_presenca"
+        }
+      ]
+    }
+  ]
+}

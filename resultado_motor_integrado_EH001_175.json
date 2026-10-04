@@ -1,0 +1,51 @@
+{
+  "id": "EH001_175_MOTOR_INTEGRADO_R1",
+  "natureza": "HINDCAST_ENSEMBLE_COM_MOTOR_175_A1_PARCIAL_RECONSTRUIVEL",
+  "n_propostas": 50000,
+  "n_aceitas": 37342,
+  "motor": {
+    "pesos_nominais_175_A1": {
+      "chuva_observada": 0.24,
+      "chuva_prevista_24h": 0.12,
+      "memoria_bacia": 0.12,
+      "radar_tendencia": 0.14,
+      "rio_tendencia_modelada": 0.16,
+      "mare_jusante": 0.16,
+      "drenagem_urbana": 0.06
+    },
+    "fatores_reconstruidos": [
+      "chuva_observada",
+      "memoria_bacia",
+      "mare_jusante"
+    ],
+    "fatores_indisponiveis": [
+      "chuva_prevista_24h",
+      "radar_tendencia",
+      "rio_tendencia_modelada",
+      "drenagem_urbana"
+    ],
+    "regra_indisponiveis": "exclusao + renormalizacao, coerente com #175-A1",
+    "segmentos_drenagem_modelados": 119,
+    "segmentos_usados_numericamente_neste_hindcast": 0,
+    "nota_drenagem": "A topologia de 119 segmentos existe, mas faltam estados/parametros historicos suficientes; não foi inventada resposta hidráulica por segmento."
+  },
+  "politica_alerta": {
+    "primeiro_limiar": 25,
+    "classe": "ATENCAO",
+    "custo": "FN >> FP"
+  },
+  "resultado": {
+    "fracao_ensembles_com_alerta": 1.0,
+    "hora_alerta_p05": "22:10",
+    "hora_alerta_p50": "22:10",
+    "hora_alerta_p95": "22:20",
+    "impacto_referencia": "00:30",
+    "lead_time_vs_00h30_min": {
+      "p05": 130,
+      "p50": 140,
+      "p95": 140
+    }
+  },
+  "interpretacao": "Lead time MODELADO/CONDICIONAL ao ensemble e ao subconjunto reconstruível do #175; não é horário observado nem validação operacional.",
+  "uso_operacional": false
+}

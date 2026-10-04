@@ -1,0 +1,14 @@
+name: Auditoria motor integrado EH-001 #175
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  auditar-motor-integrado:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python auditar_motor_integrado_EH001_175.py

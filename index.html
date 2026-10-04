@@ -478,7 +478,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <div class="radar-grid">
 <div class="radar-item">⏱️ Temporal CEMADEN H2<b id="a170Temporal">--</b></div>
 <div class="radar-item">🧪 Episódios H2<b id="a170Confirmacoes">--</b></div>
-<div class="radar-item">📍 Validação espacial<b id="a170Espacial">--</b></div>
+<div class="radar-item">📍 Gate espacial #170-I (atual)<b id="a170Espacial">--</b></div>
 <div class="radar-item">📡 Pareamentos válidos<b id="a170Pareamentos">--</b></div>
 <div class="radar-item">🧮 Calibração Z–R<b id="a170ZR">BLOQUEADA</b></div>
 <div class="radar-item">🌧️ dBZ → mm/h<b id="a170MMH">BLOQUEADA</b></div>
@@ -787,7 +787,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <div class="box"><small>ℹ️ Previsões, estimativas e produtos modelados não substituem avisos oficiais da Defesa Civil.</small></div>
 </div></details>
  
-<section class="card"><div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2><div id="sistema" class="box aviso">Carregando dados.json...</div><p><small id="coleta">Última coleta: --</small></p><div class="radar-grid"><div class="radar-item">📡 dBZ oficial<b id="vigDbz">--</b></div><div class="radar-item">🕐 CEMADEN temporal<b id="vigTemporal">--</b></div><div class="radar-item">🗺️ Radar × pluviômetro<b id="vigEspacial">--</b></div><div class="radar-item">🌧️ Z–R instrumental<b id="vigZr">--</b></div><div class="radar-item">📏 Nível Guaxanduva<b id="vigNivel">--</b></div><div class="radar-item">🌦️ Rede de chuva<b id="vigRede">--</b></div></div><small>Resumo científico vigente <b id="vigVersao">#171.1</b>. Registros históricos permanecem preservados na auditoria, mas não definem estes badges.<br><span id="vigEspacialDetalhe">Carregando evidência espacial vigente...</span></small></section>
+<section class="card"><div class="local">📡 SISTEMA AUTOMÁTICO</div><h2>Estado da coleta</h2><div id="sistema" class="box aviso">Carregando dados.json...</div><p><small id="coleta">Última coleta: --</small></p><div class="radar-grid"><div class="radar-item">📡 dBZ oficial<b id="vigDbz">--</b></div><div class="radar-item">🕐 CEMADEN temporal<b id="vigTemporal">--</b></div><div class="radar-item">🗺️ Evidência histórica #170-I.3<b id="vigEspacial">--</b></div><div class="radar-item">🌧️ Z–R instrumental<b id="vigZr">--</b></div><div class="radar-item">📏 Nível Guaxanduva<b id="vigNivel">--</b></div><div class="radar-item">🌦️ Rede de chuva<b id="vigRede">--</b></div></div><small>Resumo científico vigente <b id="vigVersao">#171.1</b>. Registros históricos permanecem preservados na auditoria, mas não definem estes badges.<br><span id="vigEspacialDetalhe">Carregando evidência espacial vigente...</span></small></section>
 
 <details class="card accordion" id="auditoriaEmpirica170I4Card"><summary><div><div class="accordion-kicker">🧪 #170-I.4 • CONFRONTO EMPÍRICO</div><div class="accordion-title">Radar modelado × chuva observada</div></div></summary><div class="accordion-body">
 <div class="radar-grid"><div class="radar-item">🌧️ Episódios<b id="i4Episodios">--</b></div><div class="radar-item">📍 Estações<b id="i4Estacoes">--</b></div><div class="radar-item">📈 Máximo × chuva<b id="i4RhoMax">--</b></div><div class="radar-item">📊 Média × chuva<b id="i4RhoMedia">--</b></div></div>
@@ -843,7 +843,7 @@ async function carregarAuditoria170(){
   $("a170Pareamentos").textContent=r.pareamento_espacial_valido??0;
   $("a170ZR").textContent=esp.zr_validada===true?"VALIDADA":"BLOQUEADA";
   $("a170MMH").textContent=esp.conversao_dbz_mm_h_liberada===true?"LIBERADA":"BLOQUEADA";
-  $("a170Estado").innerHTML=(temporal?'<span class="ok">🟢 TEMPORAL H2 VALIDADO • '+nH2+' CONFIRMAÇÕES HISTÓRICAS</span>':'<span class="aviso">🟡 TEMPORAL EM VALIDAÇÃO</span>')+' • '+(espacial?'<span class="ok">ESPACIAL VALIDADO</span>':'<span class="aviso">ESPACIAL EM INVESTIGAÇÃO</span>')+'<br><small>Status espacial: '+(esp.status||"--")+' • Z–R e dBZ → mm/h permanecem fail-closed enquanto os respectivos gates não forem validados.</small>';
+  $("a170Estado").innerHTML=(temporal?'<span class="ok">🟢 TEMPORAL H2 VALIDADO • '+nH2+' CONFIRMAÇÕES HISTÓRICAS</span>':'<span class="aviso">🟡 TEMPORAL EM VALIDAÇÃO</span>')+' • '+(espacial?'<span class="ok">GATE #170-I VALIDADO</span>':'<span class="aviso">GATE #170-I EM INVESTIGAÇÃO</span>')+'<br><small>Este é o gate operacional atual #170-I. O resumo #170-I.3 é evidência histórica/episódica e pode estar VALIDADO COM LACUNAS sem liberar este gate. Status: '+(esp.status||"--")+' • Z–R e dBZ → mm/h permanecem fail-closed.</small>';
  }catch(e){
   $("a170Estado").innerHTML='<span class="erro">🔴 Auditoria #170 indisponível</span><br><small>'+e.message+'</small>';
  }
@@ -954,7 +954,7 @@ async function carregarOceanico174k(){
  try{
   const r=await fetch("monitor_oceanico_174_dashboard.json?"+Date.now(),{cache:"no-store"}); if(!r.ok)throw Error("HTTP "+r.status);
   const d=await r.json(), o=d.oceanos||{};
-  const resumo=(dest)=>{const n=nivel174k(dest?.nivel_evidencia);return n.icone+' '+n.rotulo+(dest?.p60_reforcados?(' • '+dest.p60_reforcados+' P60 reforçado'+(dest.p60_reforcados===1?'':'s')):'');};
+  const resumo=(dest)=>{const n=nivel174k(dest?.nivel_evidencia),q=Number(dest?.p60_reforcados||0);return n.icone+' '+n.rotulo+(q?(' • '+q+' trajetória'+(q===1?'':'s')+' reforçada'+(q===1?'':'s')+' após 60 min'):'');};
   $("ocean174kResumoAtlSul").textContent=resumo(o.atlantico?.destinos?.sul_brasil);
   $("ocean174kResumoAtlJoinville").textContent=resumo(o.atlantico?.destinos?.norte_sc_joinville);
   $("ocean174kResumoPacSul").textContent=resumo(o.pacifico?.destinos?.sul_brasil);
@@ -1005,7 +1005,7 @@ async function carregar(){
   $("vigTemporal").textContent=badgeVigente(e171.temporal_cemaden)+(e171.temporal_cemaden?.episodios_positivos_persistidos!=null?" • "+e171.temporal_cemaden.episodios_positivos_persistidos+" episódios":"");
   $("vigEspacial").textContent=badgeVigente(e171.espacial_radarsc_cemaden)+(e171.espacial_radarsc_cemaden?.pares_espaciais_raster_validos!=null?" • "+e171.espacial_radarsc_cemaden.pares_espaciais_raster_validos+"/"+(e171.espacial_radarsc_cemaden.episodios_h2??"--")+" episódios":"");
   const evEsp=e171.espacial_radarsc_cemaden||{};
-  $("vigEspacialDetalhe").textContent=(evEsp.evidencia_vigente?"Evidência espacial "+evEsp.evidencia_vigente+". ":"")+(evEsp.validado===true?"Eco RadarSC e chuva observada coincidiram na mesma célula/janela em episódios reais. ":"")+(evEsp.com_lacunas_historicas===true?"Há lacunas históricas preservadas. ":"")+"Isso não libera Z–R nem transforma todas as cores do raster em dBZ oficial.";
+  $("vigEspacialDetalhe").textContent=(evEsp.evidencia_vigente?"Evidência histórica/episódica "+evEsp.evidencia_vigente+" — não é o mesmo gate operacional #170-I acima. ":"")+(evEsp.validado===true?"Eco RadarSC e chuva observada coincidiram na mesma célula/janela em episódios reais. ":"")+(evEsp.com_lacunas_historicas===true?"Há lacunas históricas preservadas. ":"")+"Isso não libera Z–R nem transforma todas as cores do raster em dBZ oficial.";
   $("vigZr").textContent=badgeVigente(e171.zr_instrumental);
   $("vigNivel").textContent=badgeVigente(e171.nivel_guaxanduva);
   const rv=e171.rede_pluviometrica||{};

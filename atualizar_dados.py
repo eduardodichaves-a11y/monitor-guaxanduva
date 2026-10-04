@@ -12883,9 +12883,12 @@ def calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_v019):
     chuva_hist, mare_hist = _v021_series_historicas(guaxanduva166)
  
     mare_atual = (guaxanduva166 or {}).get("mare_jusante_mais_recente") or {}
-    ref = _v021_dt(mare_atual.get("horario_medicao"))
-    if ref is None:
-        ref = agora()
+
+    # V0.21: a referência temporal do estado atual não pode ficar presa ao
+    # timestamp da maré. Em 04/10/2026 isso fez chuva EPAGRI das 06:00 ser
+    # ignorada porque a última maré era 05:30. O estado corrente passa a usar
+    # o instante da execução; cada forçante conserva seu próprio timestamp.
+    ref = agora()
  
     area = float(
         (hidrologia_v019.get("area_contribuinte_controle") or {}).get("km2")
@@ -13007,6 +13010,13 @@ def calcular_nivel_guaxanduva_v021(guaxanduva166, hidrologia_v019):
             "chuva_tau_h": round(tau_h, 3),
             "chuva_tau_origem": "Tc_V0.19_dividido_por_60",
             "chuva_amostras": chuva_detalhes,
+            "chuva_ultima_amostra_horario": (
+                max(chuva_hist).isoformat() if chuva_hist else None
+            ),
+            "chuva_ultima_amostra_idade_min": (
+                round(max(0.0, (ref - max(chuva_hist)).total_seconds() / 60.0), 1)
+                if chuva_hist else None
+            ),
             "mare_jusante_m": None if mare_m is None else round(mare_m, 3),
             "mare_horario": mare_atual.get("horario_medicao"),
             "area_km2": area,

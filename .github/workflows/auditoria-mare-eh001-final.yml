@@ -1,0 +1,14 @@
+name: Auditoria final maré EH-001
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  auditar-mare-final:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python auditar_mare_EH001_FINAL.py

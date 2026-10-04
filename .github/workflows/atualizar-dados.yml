@@ -2,7 +2,6 @@ name: Atualizar dados do Monitor Guaxanduva
 
 on:
   workflow_dispatch:
-
   schedule:
     - cron: "*/15 * * * *"
 
@@ -10,122 +9,50 @@ permissions:
   contents: write
 
 concurrency:
-  group: monitor-guaxanduva-atualizacao
-  cancel-in-progress: false
+  group: monitor-guaxanduva-operacional
+  cancel-in-progress: true
 
 jobs:
   atualizar:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 8
     steps:
       - name: Baixar repositório
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Instalar dependências
         run: |
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 pillow paho-mqtt
-
-      - name: Atualização operacional rápida
+      - name: Atualizar estado operacional
         run: python atualizar_operacional.py
-
-      - name: Publicar meteorologia operacional imediatamente
+      - name: Publicar dados operacionais
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add dados.json
-          if ! git diff --cached --quiet; then
-            git commit -m "Atualiza meteorologia operacional do Monitor Guaxanduva"
-
-            # A atualização operacional pode deixar arquivos auxiliares modificados.
-            # Eles serão regenerados pela etapa científica completa abaixo; não podem
-            # bloquear o rebase da publicação imediata de dados.json.
-            git reset --hard HEAD
-            git clean -fd
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
-
-      - name: Atualizar dados, modelos e históricos completos
-        run: python atualizar_dados.py
-
-      - name: Auditar proveniência temporal CEMADEN
-        run: python auditoria_cemaden_170h.py
-
-      - name: Auditar série sub-horária CEMADEN
-        run: python auditoria_cemaden_170h2.py
-
-      - name: Salvar dados, históricos, auditorias e grafo atualizados
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          ARQUIVOS="dados.json historico_validacao.json historico_guaxanduva_166.json historico_zr_170.json auditoria_temporal_170.json auditoria_espacial_170i.json auditoria_espacial_170i2.json auditoria_espacial_170i3.json auditoria_empirica_170i4.json auditoria_cemaden_170h.json historico_cemaden_chuva_170h1.json auditoria_cemaden_170h2.json historico_cemaden_subhorario_170h2.json grafo_guaxanduva.json"
-
-          git add $ARQUIVOS
-
-          if git diff --cached --quiet; then
-            echo "Nenhuma alteração nos dados, históricos, auditorias ou grafo."
-            exit 0
-          fi
-
-          mkdir -p /tmp/monitor-guaxanduva
-          for arquivo in $ARQUIVOS; do
-            cp "$arquivo" "/tmp/monitor-guaxanduva/$arquivo"
-          done
-
-          git reset --hard HEAD
+          cp dados.json /tmp/dados-operacional.json
           git fetch origin main
           git reset --hard origin/main
-
-          for arquivo in $ARQUIVOS; do
-            cp "/tmp/monitor-guaxanduva/$arquivo" "$arquivo"
-          done
-
-          git add $ARQUIVOS
-
+          cp /tmp/dados-operacional.json dados.json
+          git add dados.json
           if git diff --cached --quiet; then
-            echo "Os dados, históricos, auditorias e grafo mais recentes já estão publicados."
+            echo "Dados operacionais já publicados."
             exit 0
           fi
-
-          git commit -m "Atualiza dados, históricos, auditorias e grafo do Monitor Guaxanduva"
-
+          git commit -m "Atualiza estado operacional do Monitor Guaxanduva"
           for tentativa in 1 2 3; do
-            if git push origin HEAD:main; then
-              echo "Dados, históricos, auditorias e grafo publicados com sucesso."
-              exit 0
-            fi
-
-            echo "Conflito de atualização na tentativa ${tentativa}. Sincronizando novamente..."
-
-            for arquivo in $ARQUIVOS; do
-              cp "$arquivo" "/tmp/monitor-guaxanduva/$arquivo"
-            done
-
+            if git push origin HEAD:main; then exit 0; fi
             git fetch origin main
             git reset --hard origin/main
-
-            for arquivo in $ARQUIVOS; do
-              cp "/tmp/monitor-guaxanduva/$arquivo" "$arquivo"
-            done
-
-            git add $ARQUIVOS
-
-            if git diff --cached --quiet; then
-              echo "Os dados, históricos, auditorias e grafo já foram publicados por outra execução."
-              exit 0
-            fi
-
-            git commit -m "Atualiza dados, históricos, auditorias e grafo do Monitor Guaxanduva"
+            cp /tmp/dados-operacional.json dados.json
+            git add dados.json
+            git diff --cached --quiet && exit 0
+            git commit -m "Atualiza estado operacional do Monitor Guaxanduva"
           done
-
-          echo "Não foi possível publicar após 3 tentativas."
           exit 1

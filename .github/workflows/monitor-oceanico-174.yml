@@ -25,7 +25,7 @@ jobs:
           python-version: "3.12"
       - name: Instalar dependência mínima
         run: pip install requests
-      - name: Executar motor experimental #174-G
+      - name: Executar motor experimental #174-H
         run: python -u monitor_oceanico_174.py --saida monitor_oceanico_174.json --timeout 4 --tentativas 13
       - name: Validar saída fail-closed
         run: |
@@ -34,7 +34,7 @@ jobs:
           from pathlib import Path
           p = Path("monitor_oceanico_174.json")
           d = json.loads(p.read_text(encoding="utf-8"))
-          assert d.get("versao") == "#174-G"
+          assert d.get("versao") == "#174-H"
           assert d.get("uso_operacional") is False
           assert d.get("status") in {"experimental_dados_processados", "fonte_indisponivel_fail_closed"}
           if d.get("status") == "experimental_dados_processados":
@@ -65,7 +65,13 @@ jobs:
               for s in d["sistemas"]:
                   if s.get("estado_sinotico_174f") == "FONTE_INDISPONIVEL":
                       assert s.get("confirmacao_sinotica_850hpa") in {"FONTE_INDISPONIVEL", "SEM_AMOSTRA_MODELO"}
-          print("VALIDAÇÃO #174-G OK:", d.get("status"), "sistemas=", d.get("sistemas_no_dominio"), "aproximando_continuo=", d.get("sistemas_aproximando_observado_continuo"), "apoio_850=", d.get("sistemas_aproximando_com_apoio_sinotico_850hpa"))
+          # #174-H: todo P60 selecionado e avaliado deve carregar o novo gate de 3h.
+              for s in d["sistemas"]:
+                  if s.get("persistencia_60min") == "CONFIRMADA" and s.get("prioridade_sinotica_174g") == "P60":
+                      assert s.get("persistencia_sinotica_174h") in {"FAVORAVEL_PERSISTENTE_3H", "CONTRARIO_PERSISTENTE_3H", "FAVORAVEL_NAO_PERSISTENTE", "OSCILANTE_OU_INCONCLUSIVO", "FONTE_INDISPONIVEL_FAIL_CLOSED"}
+                      assert isinstance(s.get("janela_sinotica_3h"), list) and len(s.get("janela_sinotica_3h")) == 3
+              assert isinstance(d.get("sistemas_persistencia_60min_com_apoio_sinotico_persistente_3h"), int)
+          print("VALIDAÇÃO #174-H OK:", d.get("status"), "sistemas=", d.get("sistemas_no_dominio"), "aproximando_continuo=", d.get("sistemas_aproximando_observado_continuo"), "apoio_850=", d.get("sistemas_aproximando_com_apoio_sinotico_850hpa"))
           PY
       - name: Publicar somente JSON experimental
         run: |

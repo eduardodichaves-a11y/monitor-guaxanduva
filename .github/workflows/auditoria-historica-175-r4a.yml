@@ -1,0 +1,37 @@
+name: Auditoria histórica #175 R4A
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditar-r4a:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Reconstruir envelope relativo R4A
+        run: python reconstruir_mare_175_R4A.py
+
+      - name: Auditar R4A
+        run: python auditar_mare_175_R4A.py
+
+      - name: Exibir resultado da auditoria
+        if: always()
+        run: |
+          if [ -f auditoria_mare_175_R4A.json ]; then
+            cat auditoria_mare_175_R4A.json
+          else
+            echo "auditoria_mare_175_R4A.json não foi produzido."
+            exit 1
+          fi

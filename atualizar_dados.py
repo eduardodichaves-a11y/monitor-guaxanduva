@@ -88,17 +88,29 @@ def agora():
  
  
 def get(url, params=None, radar=False):
-    resposta = requests.get(
-        url,
-        params=params,
-        timeout=30,
-        headers={
-            "User-Agent": "Monitor-Guaxanduva/1.0"
-        },
-        verify=False if radar else True,
-    )
-    resposta.raise_for_status()
-    return resposta
+    """GET resiliente para fontes operacionais.
+
+    Uma falha transitória de rede não deve apagar uma previsão inteira na
+    publicação final. Faz até 3 tentativas com backoff curto; se todas
+    falharem, a função chamadora continua responsável pelo fail-closed.
+    """
+    ultimo_erro = None
+    for tentativa in range(1, 4):
+        try:
+            resposta = requests.get(
+                url,
+                params=params,
+                timeout=(10, 25),
+                headers={"User-Agent": "Monitor-Guaxanduva/1.0"},
+                verify=False if radar else True,
+            )
+            resposta.raise_for_status()
+            return resposta
+        except requests.RequestException as exc:
+            ultimo_erro = exc
+            if tentativa < 3:
+                time.sleep(1.5 * tentativa)
+    raise ultimo_erro
  
  
 def hav(lat1, lon1, lat2, lon2):

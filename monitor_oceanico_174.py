@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""#174-E — Monitor Oceânico experimental do Monitor Guaxanduva.
+"""#174-H — Monitor Oceânico experimental do Monitor Guaxanduva.
 
 Lê o diagnóstico GOES-19/TATHU do CPTEC/INPE, faz triagem ampla de sistemas
 convectivos no entorno da América do Sul e calcula, de forma fail-closed,
@@ -231,6 +231,11 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
     FAVORAVEL/CONTRARIO só existem quando uma amostra ECMWF 850 hPa válida foi obtida.
     Falha HTTP, timeout, JSON inválido ou ausência de amostra produz FONTE_INDISPONIVEL
     (ou SEM_AMOSTRA), nunca CONTRARIO. Consultas são feitas em lotes pequenos com retry.
+
+    #174-H acrescenta persistência sinótica MODELADA: para candidatos P60, avalia
+    três horas consecutivas centradas na hora do produto (H-1, H, H+1). Isso não
+    equivale a três observações independentes nem libera ETA; apenas verifica se
+    o próprio campo ECMWF mantém suporte ao corredor ao longo dessa janela.
     """
     # #174-G: prioridade por evidência. Persistência temporal vence proximidade instantânea.
     aproximando = [s for s in sistemas if s.get("tendencia_distancia_observada") == "APROXIMANDO_OBSERVADO_CONTINUO"]
@@ -246,6 +251,13 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
         s["ecmwf_850hpa"] = None
         if str(s.get("id_sistema")) in ids_selecionados:
             s["prioridade_sinotica_174g"] = "P60" if s.get("persistencia_60min") == "CONFIRMADA" else ("P30" if s.get("persistencia_30min") == "CONFIRMADA" else "P10")
+            if s.get("persistencia_60min") == "CONFIRMADA":
+                s["persistencia_sinotica_174h"] = "FONTE_INDISPONIVEL_FAIL_CLOSED"
+                s["janela_sinotica_3h"] = [
+                    {"offset_h": -1, "estado": "FONTE_INDISPONIVEL"},
+                    {"offset_h": 0, "estado": "FONTE_INDISPONIVEL"},
+                    {"offset_h": 1, "estado": "FONTE_INDISPONIVEL"},
+                ]
         else:
             s["prioridade_sinotica_174g"] = "FORA_DO_LIMITE" if s in aproximando else "NAO_CANDIDATO"
     fonte = "ECMWF via Open-Meteo ECMWF API"
@@ -265,14 +277,14 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
             "latitude": ",".join(str(s["latitude"]) for s in bloco),
             "longitude": ",".join(str(s["longitude"]) for s in bloco),
             "hourly": "wind_speed_850hPa,wind_direction_850hPa",
-            "forecast_days": 2, "timezone": "UTC", "cell_selection": "nearest"
+            "forecast_days": 2, "past_days": 1, "timezone": "UTC", "cell_selection": "nearest"
         }
         locais = None
         ultimo_erro = None
         for tentativa in range(1, max(1, tentativas) + 1):
             try:
                 r = requests.get(endpoint, params=params, timeout=timeout,
-                                 headers={"User-Agent": "Monitor-Guaxanduva/174-F"})
+                                 headers={"User-Agent": "Monitor-Guaxanduva/174-H"})
                 r.raise_for_status()
                 payload = r.json()
                 locais = payload if isinstance(payload, list) else [payload]
@@ -323,6 +335,50 @@ def confirmar_ecmwf_850(sistemas, horario_produto, timeout=8, limite=20, lote=5,
             s["ecmwf_850hpa"] = {"horario_utc": tt.isoformat(), "vento_km_h": round(sp,1),
                                   "direcao_de_graus": round(dfrom,1), "vetor_para_graus": round(dto,1),
                                   "erro_para_joinville_graus": round(erro,1), "natureza": "MODELADO_NAO_OPERACIONAL"}
+
+            # #174-H — persistência sinótica modelada H-1/H/H+1 somente para P60.
+            # Cada hora recebe estado independente; amostra ausente falha fechada.
+            if s.get("persistencia_60min") == "CONFIRMADA":
+                amostras_h = []
+                for desloc_h in (-1, 0, 1):
+                    alvo_h = alvo + timedelta(hours=desloc_h)
+                    candidatos_h = [(abs((t2-alvo_h).total_seconds()), k, t2)
+                                    for k,t0 in enumerate(tempos) if (t2:=parse_t(t0)) is not None]
+                    if not candidatos_h:
+                        amostras_h.append({"offset_h": desloc_h, "estado": "FONTE_INDISPONIVEL"})
+                        continue
+                    difs, k, t2 = min(candidatos_h)
+                    # Não aceitar uma hora distante como substituta da hora pedida.
+                    if difs > 1800:
+                        amostras_h.append({"offset_h": desloc_h, "estado": "FONTE_INDISPONIVEL"})
+                        continue
+                    sp2 = numero(vs[k]) if k < len(vs) else None
+                    df2 = numero(ds[k]) if k < len(ds) else None
+                    if sp2 is None or df2 is None:
+                        amostras_h.append({"offset_h": desloc_h, "horario_utc": t2.isoformat(), "estado": "FONTE_INDISPONIVEL"})
+                        continue
+                    dto2 = (df2 + 180.0) % 360.0
+                    er2 = diferenca_angular(dto2, s["rumo_sistema_para_joinville_graus"])
+                    est2 = "INCONCLUSIVO" if sp2 < 10 else ("FAVORAVEL" if er2 <= 60 else "CONTRARIO")
+                    amostras_h.append({"offset_h": desloc_h, "horario_utc": t2.isoformat(),
+                                       "vento_km_h": round(sp2,1), "vetor_para_graus": round(dto2,1),
+                                       "erro_para_joinville_graus": round(er2,1), "estado": est2})
+                estados_h = [a.get("estado") for a in amostras_h]
+                if len(estados_h) == 3 and all(e == "FAVORAVEL" for e in estados_h):
+                    persist_h = "FAVORAVEL_PERSISTENTE_3H"
+                elif "FONTE_INDISPONIVEL" in estados_h:
+                    persist_h = "FONTE_INDISPONIVEL_FAIL_CLOSED"
+                elif all(e == "CONTRARIO" for e in estados_h):
+                    persist_h = "CONTRARIO_PERSISTENTE_3H"
+                elif "FAVORAVEL" in estados_h and "CONTRARIO" not in estados_h:
+                    persist_h = "FAVORAVEL_NAO_PERSISTENTE"
+                else:
+                    persist_h = "OSCILANTE_OU_INCONCLUSIVO"
+                s["persistencia_sinotica_174h"] = persist_h
+                s["janela_sinotica_3h"] = amostras_h
+            else:
+                s["persistencia_sinotica_174h"] = "NAO_APLICAVEL_NAO_P60"
+                s["janela_sinotica_3h"] = None
 
     if avaliados and indisponiveis:
         status_geral = "coletado_parcial"
@@ -410,8 +466,9 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
     persist30 = [x for x in sistemas if x.get("persistencia_30min") == "CONFIRMADA"]
     persist60 = [x for x in sistemas if x.get("persistencia_60min") == "CONFIRMADA"]
     persist30_sinotica = [x for x in persist30 if x.get("confirmacao_sinotica_850hpa") == "APOIA_CORREDOR_PARA_JOINVILLE"]
+    persist60_sinotica_3h = [x for x in persist60 if x.get("persistencia_sinotica_174h") == "FAVORAVEL_PERSISTENTE_3H"]
     return {
-        "versao": "#174-G",
+        "versao": "#174-H",
         "status": "experimental_dados_processados",
         "uso_operacional": False,
         "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
@@ -429,6 +486,7 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
         "sistemas_persistencia_30min_confirmada": len(persist30),
         "sistemas_persistencia_60min_confirmada": len(persist60),
         "sistemas_persistencia_30min_com_apoio_sinotico": len(persist30_sinotica),
+        "sistemas_persistencia_60min_com_apoio_sinotico_persistente_3h": len(persist60_sinotica_3h),
         "sistema_aproximando_mais_proximo": aproximando[0] if aproximando else None,
         "confirmacao_sinotica": sinotica,
         "quadro_anterior_horario_utc": horario_anterior.isoformat() if horario_anterior else None,
@@ -443,13 +501,14 @@ def processar(payload, horario_produto=None, url=None, tentativas=None, payload_
             "ECMWF 850 hPa e confirmacao sinotica auxiliar; vento meteorologico DE e convertido para vetor PARA antes da comparacao.",
             "Persistencia de 30 min exige 3 passos consecutivos de 10 min, todos CONTINUITY, plausiveis e aproximando >=2 km por passo.",
             "Persistencia de 60 min exige 6 passos consecutivos sob a mesma regra.",
-            "ETA permanece bloqueado no #174-G.",
+            "ETA permanece bloqueado no #174-H.",
             "Vel do TATHU e preservado e convertido de m/s para km/h apenas como diagnostico; Vel=0 invalida o vetor direcional.",
             "Valores sentinela <= -900 sao tratados como ausentes.",
             "Ausencia/erro da fonte nunca significa ausencia de tempestade.",
-            "#174-G nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
-            "#174-G prioriza confirmacao ECMWF nesta ordem: persistentes 60 min, persistentes 30 min, candidatos 10 min; proximidade desempata dentro do mesmo nivel.",
+            "#174-H nao altera dados.json, nao dispara alerta e nao substitui Defesa Civil/INMET/CPTEC.",
+            "#174-H preserva a priorizacao #174-G e prioriza confirmacao ECMWF nesta ordem: persistentes 60 min, persistentes 30 min, candidatos 10 min; proximidade desempata dentro do mesmo nivel.",
             "FAVORAVEL, CONTRARIO e FONTE_INDISPONIVEL sao estados distintos; indisponibilidade jamais conta como rejeicao meteorologica.",
+            "#174-H exige, para o novo gate sinotico P60, coerencia modelada em H-1/H/H+1; isso nao equivale a observacao nem libera ETA.",
         ],
     }
 
@@ -469,14 +528,14 @@ def main():
         payload, horario, url, tentativas = buscar_ultimo(timeout=max(1.0, args.timeout), max_tentativas=max(1, min(args.tentativas, 25)))
         if payload is None:
             resultado = {
-                "versao": "#174-G", "status": "fonte_indisponivel_fail_closed",
+                "versao": "#174-H", "status": "fonte_indisponivel_fail_closed",
                 "uso_operacional": False, "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
                 "sistemas_no_dominio": None, "sistemas_geometricamente_compativeis": None,
                 "sistema_compativel_mais_proximo": None, "sistemas": [], "tentativas_fonte": tentativas,
                 "regra_seguranca": "Falha de consulta nao equivale a ausencia de tempestade."
             }
         else:
-            # #174-F: preserva a janela de persistência de 60 min do #174-E (janela de 60 min).
+            # #174-H: preserva a janela de persistência de 60 min do #174-E (janela de 60 min).
             # Não pula lacunas: quadro ausente quebra a persistência, em fail-closed.
             historico = []
             for passo in range(1, 7):
@@ -484,7 +543,7 @@ def main():
                 uu = TATHU_BASE + hh.strftime("%Y/%m/") + "goes19_diagnostic_" + hh.strftime("%Y%m%d%H%M") + ".json"
                 pp = None
                 try:
-                    rr = requests.get(uu, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-F"})
+                    rr = requests.get(uu, timeout=max(1.0, args.timeout), headers={"User-Agent": "Monitor-Guaxanduva/174-H"})
                     if rr.status_code == 200:
                         candidato = rr.json()
                         if isinstance(candidato, dict) and isinstance(candidato.get("features"), list):

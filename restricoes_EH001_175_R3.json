@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.1-R3C",
+  "projeto": "Monitor Guaxanduva",
+  "evento": "EH-001",
+  "status": "LABORATORIO_NAO_OPERACIONAL",
+  "base_auditada": {
+    "eventos_historicos_guaxanduva.json": "schema 1.1-R2",
+    "replay_historico_175.py": "#175-R2",
+    "fusion_guaxanduva_175.py": "#175-A1",
+    "workflow_operacional": "não alterado"
+  },
+  "objetivo": "Envelope matemático sem impor localização temporal não documentada aos 169 mm/6h e sem misturar medições de locais/fontes diferentes como se fossem uma única estação.",
+  "restricao_geradora": {
+    "id": "C001",
+    "tipo": "soma_janela",
+    "inicio": "2020-12-31T22:00:00-03:00",
+    "fim": "2021-01-01T00:00:00-03:00",
+    "valor_mm": 139.0,
+    "passo_min": 10,
+    "fonte": "F004 / base R2",
+    "disponivel_em": "2021-01-01T01:42:00-03:00",
+    "uso": "envelope retrospectivo; causal somente a partir da disponibilidade documental"
+  },
+  "evidencias_de_validacao_nao_impostas_ao_gerador": [
+    {
+      "id": "C002",
+      "descricao": "90 mm/1h máximo no CEMADEN-Iririú",
+      "motivo": "Local/estação diferente do agregado de 139 mm/2h; serve como evidência independente, não como restrição conjunta."
+    },
+    {
+      "id": "C003",
+      "descricao": "aprox. 169 mm/6h",
+      "motivo": "A posição temporal exata da janela de 6 h não foi recuperada; não é fixada em 21h–03h."
+    },
+    {
+      "id": "E002",
+      "descricao": "120 mm/2h Epagri/Ciram",
+      "motivo": "Estação não identificada no decreto; não é fundida numericamente ao agregado de 139 mm/2h."
+    }
+  ],
+  "regras": [
+    "Nenhuma trajetória gerada é observação histórica.",
+    "Não impor janela 21h–03h aos 169 mm/6h.",
+    "Não fundir medições de estações/fontes distintas como se fossem uma única série.",
+    "Pesos e limiares do #175-A1 permanecem congelados.",
+    "O R3C não altera index.html, dados.json, Fusion operacional ou workflow."
+  ]
+}

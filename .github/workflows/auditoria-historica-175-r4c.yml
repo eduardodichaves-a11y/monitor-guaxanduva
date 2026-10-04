@@ -1,0 +1,26 @@
+name: Auditoria histórica #175 R4C
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditar-r4c:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Auditar constantes locais JIC R4C
+        run: python auditar_JIC_175_R4C.py
+      - name: Exibir auditoria
+        if: always()
+        run: |
+          test -f auditoria_JIC_175_R4C.json
+          cat auditoria_JIC_175_R4C.json

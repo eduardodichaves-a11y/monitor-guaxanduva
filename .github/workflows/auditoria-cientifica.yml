@@ -36,14 +36,18 @@ jobs:
         run: python -u auditoria_cemaden_170h.py
       - name: Auditar série sub-horária CEMADEN
         run: python -u auditoria_cemaden_170h2.py
+      - name: Guard rail de crescimento do histórico Z-R
+        run: python -u auditar_tamanho_historico_zr_170.py
       - name: Revalidar estado operacional antes de publicar
         run: python -u atualizar_operacional.py
-      - name: Publicar auditoria e dados atualizados
+      - name: Recalcular Guaxanduva Fusion #175
+        run: python -u fusion_guaxanduva_175.py
+      - name: Publicar auditoria, dados e Fusion atualizados
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          ARQUIVOS="dados.json historico_validacao.json historico_guaxanduva_166.json historico_zr_170.json auditoria_temporal_170.json auditoria_espacial_170i.json auditoria_espacial_170i2.json auditoria_espacial_170i3.json auditoria_empirica_170i4.json auditoria_cemaden_170h.json historico_cemaden_chuva_170h1.json auditoria_cemaden_170h2.json historico_cemaden_subhorario_170h2.json grafo_guaxanduva.json"
+          ARQUIVOS="dados.json fusion_guaxanduva_175.json historico_validacao.json historico_guaxanduva_166.json historico_zr_170.json auditoria_temporal_170.json auditoria_espacial_170i.json auditoria_espacial_170i2.json auditoria_espacial_170i3.json auditoria_empirica_170i4.json auditoria_cemaden_170h.json historico_cemaden_chuva_170h1.json auditoria_cemaden_170h2.json historico_cemaden_subhorario_170h2.json grafo_guaxanduva.json"
           mkdir -p /tmp/mg-cientifico
           for f in $ARQUIVOS; do [ -f "$f" ] && cp "$f" "/tmp/mg-cientifico/$f"; done
           git fetch origin main
@@ -51,5 +55,5 @@ jobs:
           for f in $ARQUIVOS; do [ -f "/tmp/mg-cientifico/$f" ] && cp "/tmp/mg-cientifico/$f" "$f"; done
           git add $ARQUIVOS
           git diff --cached --quiet && exit 0
-          git commit -m "Atualiza auditoria científica do Monitor Guaxanduva"
+          git commit -m "Atualiza auditoria científica e Fusion do Monitor Guaxanduva"
           git push origin HEAD:main

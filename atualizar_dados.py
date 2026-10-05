@@ -5711,28 +5711,66 @@ def buscar_radar():
     try:
         leg = legenda()
  
-        nomes = get(
-            LISTA,
-            {
-                "prod": 4,
-                "radar": "COMP",
-                "data": "",
-            },
-            True,
-        ).json()
- 
-        if (
-            not isinstance(
-                nomes,
-                list,
-            )
-            or not nomes
-        ):
-            raise ValueError(
-                "Radar não retornou lista de imagens."
-            )
- 
-        nomes = nomes[-7:]
+        # #176 - Frescor RadarSC: consulta redundante anti-cache.
+        # O endpoint oficial pode continuar respondendo HTTP 200 mesmo quando a
+        # lista entregue por cache/intermediário está atrasada. Consultamos a
+        # rota normal e uma segunda vez com nonce; escolhemos SOMENTE a lista
+        # oficial cujo nome de arquivo contenha o timestamp mais recente.
+        # Isto não inventa quadros, não muda o limite de 30 min e não transforma
+        # dado antigo em atual. Se a própria fonte estiver parada, segue fail-closed.
+        consultas_lista = []
+
+        def _consultar_lista_radar(params, modo):
+            try:
+                resposta = get(LISTA, params, True)
+                valor = resposta.json()
+                if not isinstance(valor, list):
+                    raise ValueError("Resposta da lista RadarSC não é uma lista.")
+                valor = [x for x in valor if isinstance(x, str) and len(x) >= 14]
+                consultas_lista.append({
+                    "modo": modo,
+                    "status": "ok",
+                    "quantidade": len(valor),
+                    "ultimo_arquivo": valor[-1] if valor else None,
+                })
+                return valor
+            except Exception as exc:
+                consultas_lista.append({
+                    "modo": modo,
+                    "status": "erro",
+                    "erro": str(exc)[:240],
+                })
+                return []
+
+        candidatos_listas = [
+            _consultar_lista_radar(
+                {"prod": 4, "radar": "COMP", "data": ""},
+                "padrao",
+            ),
+            _consultar_lista_radar(
+                {
+                    "prod": 4,
+                    "radar": "COMP",
+                    "data": "",
+                    "_mg_ts": int(time.time()),
+                },
+                "anti_cache_nonce",
+            ),
+        ]
+        candidatos_listas = [x for x in candidatos_listas if x]
+        if not candidatos_listas:
+            raise ValueError("Radar não retornou lista de imagens em nenhuma consulta.")
+
+        def _timestamp_nome_radar(nome):
+            try:
+                return datetime.strptime(nome[:14], "%Y%m%d%H%M%S").replace(tzinfo=UTC)
+            except Exception:
+                return datetime.min.replace(tzinfo=UTC)
+
+        nomes = max(
+            candidatos_listas,
+            key=lambda lista: _timestamp_nome_radar(lista[-1]),
+        )[-7:]
  
         quadros = []
  
@@ -6111,6 +6149,14 @@ def buscar_radar():
  
             "produto_codigo":
                 4,
+
+            "diagnostico_lista_fonte_176": {
+                "status": "ATIVO",
+                "metodo": "consulta_padrao_mais_nonce_anti_cache_escolhendo_timestamp_oficial_mais_recente",
+                "consultas": consultas_lista,
+                "arquivo_selecionado": nomes[-1] if nomes else None,
+                "regra_seguranca": "Somente arquivos realmente retornados pelo RadarSC podem ser selecionados; nonce não cria nem altera timestamps.",
+            },
  
             "extent":
                 EXT,

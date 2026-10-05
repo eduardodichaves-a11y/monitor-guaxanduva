@@ -10095,16 +10095,37 @@ def granizo_operacional_inmet_157(diag156=None):
             infos_validas.append(info)
  
         if infos_validas:
-            candidatos.append((alerta, infos_validas))
+            # #180 - Segunda barreira temporal no próprio publicador operacional.
+            # CAP expirado permanece auditável, mas não pode continuar ativo.
+            agora_publicacao_utc = datetime.now(UTC)
+            infos_vigentes_publicacao = []
+            for info in infos_validas:
+                try:
+                    inicio_txt = info.get("onset") or info.get("effective") or alerta.get("sent")
+                    fim_txt = info.get("expires")
+                    inicio_dt = datetime.fromisoformat(str(inicio_txt).strip().replace("Z", "+00:00"))
+                    fim_dt = datetime.fromisoformat(str(fim_txt).strip().replace("Z", "+00:00"))
+                    if inicio_dt.tzinfo is None:
+                        inicio_dt = inicio_dt.replace(tzinfo=UTC)
+                    if fim_dt.tzinfo is None:
+                        fim_dt = fim_dt.replace(tzinfo=UTC)
+                    if inicio_dt.astimezone(UTC) <= agora_publicacao_utc <= fim_dt.astimezone(UTC):
+                        infos_vigentes_publicacao.append(info)
+                except Exception:
+                    continue
+            if infos_vigentes_publicacao:
+                candidatos.append((alerta, infos_vigentes_publicacao))
  
     if not candidatos:
         resultado["status"] = "online_sem_conclusao_negativa"
         resultado["ativo"] = None
         resultado["cobertura_referencia_publica_comasa"] = None
         resultado["observacao"] = (
-            "Os CAPs inspecionados foram decodificados, mas a #156 avalia apenas "
-            "uma amostra recente. Portanto, ausencia de candidato positivo nao "
-            "autoriza publicar 'sem alerta de granizo'."
+            "Nenhum CAP de granizo para Joinville passou simultaneamente pelas "
+            "barreiras de cobertura, conteudo e vigencia no instante desta coleta. "
+            "CAP expirado permanece no diagnostico/historico, mas nao e publicado "
+            "como alerta ativo. Ausencia de candidato positivo continua fail-closed "
+            "e nao equivale automaticamente a ausencia de risco."
         )
         return resultado
  

@@ -853,6 +853,18 @@ const f=(v,n=1)=>v==null?"--":Number(v).toFixed(n).replace(".",",");
 function relogio(){$("hora").textContent="🕒 "+new Date().toLocaleString("pt-BR")}
 function pontoCardinal(g){if(g==null)return "--";const p=["N","NE","L","SE","S","SO","O","NO"];return p[Math.round(Number(g)/45)%8]+" • "+Math.round(g)+"°"}
 function horaCurta(t){if(!t)return "--";const d=new Date(t);return isNaN(d)?String(t).slice(11,16):d.toLocaleTimeString("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit",hour12:false})}
+function capPT(tipo,valor){
+ const v=String(valor??"").trim(), k=v.toLowerCase();
+ const mapas={
+  severity:{minor:"Menor",moderate:"Moderada",severe:"Severa",extreme:"Extrema",unknown:"Desconhecida"},
+  certainty:{unlikely:"Improvável",possible:"Possível",likely:"Provável",observed:"Observada",unknown:"Desconhecida"},
+  urgency:{immediate:"Imediata",expected:"Esperada",future:"Futura",past:"Passada",unknown:"Desconhecida"},
+  status:{actual:"Atual",exercise:"Exercício",system:"Sistema",test:"Teste",draft:"Rascunho"},
+  msgtype:{alert:"Alerta",update:"Atualização",cancel:"Cancelamento",ack:"Confirmação",error:"Erro"},
+  scope:{public:"Público",restricted:"Restrito",private:"Privado"}
+ };
+ return (mapas[tipo]&&mapas[tipo][k])||v||"--";
+}
 function dataHoraBR(t){if(!t)return "--";const d=new Date(t);return isNaN(d)?String(t):d.toLocaleString("pt-BR")}
 function nomeFamilia(v){return v?String(v).replaceAll("_"," ").toUpperCase():"--"}
 function faixaHorarios(arr){
@@ -1806,8 +1818,8 @@ async function carregar(){
    $("granizo").innerHTML='<span class="erro">🔴 ALERTA OFICIAL ATIVO • POSSIBILIDADE DE GRANIZO</span><br><small>INMET / WIS2 / CAP • cobertura da referência pública do Comasa confirmada</small>';
    $("granizoDetalhe").innerHTML=
     '<b>'+(al.headline||al.event||"Aviso oficial do INMET")+'</b><br>'+
-    '<small>Severidade: '+(al.severity||"--")+
-    ' • certeza: '+(al.certainty||"--")+
+    '<small>Severidade: '+capPT("severity",al.severity)+
+    ' • certeza: '+capPT("certainty",al.certainty)+
     '<br>Início: '+dataHoraBR(al.onset)+
     '<br>Validade até: '+dataHoraBR(al.expires)+
     '<br><br>'+(al.description||"O CAP oficial menciona possibilidade de granizo.")+

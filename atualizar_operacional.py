@@ -30,6 +30,7 @@ from atualizar_dados import (
     diagnosticar_cap_recente_inmet_155,
     diagnosticar_conteudo_cap_inmet_156,
     granizo_operacional_inmet_157,
+    buscar_super_el_nino_173,
 )
 
 ARQUIVO = Path("dados.json")
@@ -81,8 +82,11 @@ def main():
     cap155 = seguro("CAP recente INMET #155", diagnosticar_cap_recente_inmet_155)
     cap156 = seguro("conteúdo CAP INMET #156", lambda: diagnosticar_conteudo_cap_inmet_156(cap155))
     granizo = seguro("granizo operacional INMET #157", lambda: granizo_operacional_inmet_157(cap156))
-    enso_existente = dados.get("super_el_nino_173", {}) if isinstance(dados, dict) else {}
-    impactos173 = seguro("impactos locais #173", lambda: construir_impactos_locais_173_a2(previsao, granizo, mare160, mare164, criterio163, v021, enso_existente))
+    # #185 - ENSO/RONI também precisa ser renovado pelo workflow de 15 min.
+    # O CPC atualiza em cadência mensal; consultas repetidas apenas mantêm o
+    # site sincronizado com a publicação oficial vigente.
+    super_el_nino173 = seguro("NOAA/CPC + PMEL #173/#185", buscar_super_el_nino_173)
+    impactos173 = seguro("impactos locais #173", lambda: construir_impactos_locais_173_a2(previsao, granizo, mare160, mare164, criterio163, v021, super_el_nino173))
 
     # Síntese operacional única para o card principal. Não confunde radar,
     # pluviômetro regional e modelo meteorológico.
@@ -175,6 +179,7 @@ def main():
         "diagnostico_cap_recente_inmet_155": cap155,
         "diagnostico_conteudo_cap_inmet_156": cap156,
         "granizo": granizo,
+        "super_el_nino_173": super_el_nino173,
         "impactos_locais_173": impactos173,
         "estado_canonico_operacional": estado_canonico,
         "estado_agora_operacional": estado_operacional,

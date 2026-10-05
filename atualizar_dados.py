@@ -5761,11 +5761,13 @@ def buscar_radar():
         if not candidatos_listas:
             raise ValueError("Radar não retornou lista de imagens em nenhuma consulta.")
 
+        # #177 - Timestamp do nome RadarSC/COMP interpretado no fuso local
+        # de Santa Catarina. O UTC é derivado depois, evitando conversão dupla.
         def _timestamp_nome_radar(nome):
             try:
-                return datetime.strptime(nome[:14], "%Y%m%d%H%M%S").replace(tzinfo=UTC)
+                return datetime.strptime(nome[:14], "%Y%m%d%H%M%S").replace(tzinfo=FUSO)
             except Exception:
-                return datetime.min.replace(tzinfo=UTC)
+                return datetime.min.replace(tzinfo=FUSO)
 
         nomes = max(
             candidatos_listas,
@@ -5776,21 +5778,21 @@ def buscar_radar():
  
         for nome in nomes:
             try:
-                horario_utc = (
+                horario_local = (
                     datetime.strptime(
                         nome[:14],
                         "%Y%m%d%H%M%S",
                     )
                     .replace(
-                        tzinfo=UTC
+                        tzinfo=FUSO
                     )
                 )
- 
-                horario_local = (
-                    horario_utc
-                    .astimezone(FUSO)
+
+                horario_utc = (
+                    horario_local
+                    .astimezone(UTC)
                 )
- 
+
                 quadros.append({
                     "arquivo":
                         nome,
@@ -6149,6 +6151,16 @@ def buscar_radar():
  
             "produto_codigo":
                 4,
+
+            "timestamp_radar_177": {
+                "status": "ATIVO",
+                "campo_origem": "14 primeiros dígitos do nome oficial do arquivo RadarSC",
+                "timezone_interpretado": "America/Sao_Paulo",
+                "regra": "timestamp do nome tratado como horário local; UTC derivado por conversão de fuso",
+                "arquivo_referencia": nomes[-1] if nomes else None,
+                "horario_local_referencia": ultimo.get("horario_local"),
+                "horario_utc_derivado": ultimo.get("horario_utc"),
+            },
 
             "diagnostico_lista_fonte_176": {
                 "status": "ATIVO",

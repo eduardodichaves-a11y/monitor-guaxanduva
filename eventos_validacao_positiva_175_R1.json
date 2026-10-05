@@ -1,0 +1,81 @@
+{
+  "versao": "#175-VALIDACAO-POSITIVA-R1",
+  "natureza": "BASE_HISTORICA_DE_VALIDACAO_INDEPENDENTE_NAO_OPERACIONAL",
+  "eventos": [
+    {
+      "id": "EH-002",
+      "data": "2022-03-11",
+      "rotulo": 1,
+      "tipo": "POSITIVO_CONVECTIVO_CURTO",
+      "chuva": {
+        "mm": 30.0,
+        "duracao_min": 30,
+        "janela_exata": null
+      },
+      "impacto": {
+        "alagamentos": true,
+        "bairros": [
+          "João Costa",
+          "Floresta",
+          "Atiradores",
+          "Paranaguamirim",
+          "Centro"
+        ]
+      },
+      "fonte": {
+        "tipo": "Prefeitura de Joinville / Defesa Civil",
+        "publicada": "2022-03-11 18:44",
+        "url": "https://www.joinville.sc.gov.br/noticias/defesa-civil-monitora-situacao-apos-chuva-intensa/"
+      },
+      "nota": "A fonte diz final da tarde e 30 mm/30 min, mas não fornece minuto inicial/final do acumulado; lead time exato permanece indisponível."
+    },
+    {
+      "id": "EH-003",
+      "data": "2022-05-04",
+      "rotulo": 1,
+      "tipo": "POSITIVO_CHUVA_PERSISTENTE_COM_COMASA",
+      "chuva": {
+        "media_urbana_24h_mm": 70.0,
+        "media_urbana_48h_mm": 110.0,
+        "media_municipal_24h_mm": 79.5,
+        "epagri_vila_nova_24h_mm": 89.0,
+        "epagri_vila_nova_48h_mm": 144.0,
+        "nova_brasilia_centro_6h_mm": 50.0
+      },
+      "impacto": {
+        "alagamentos": true,
+        "bairros": [
+          "Iririú",
+          "Aventureiro",
+          "Bom Retiro",
+          "Comasa",
+          "Jardim Iririú",
+          "Anita Garibaldi",
+          "Boemerwald",
+          "Centro",
+          "Jativoca"
+        ],
+        "residencias_alagadas_chamados_ate_12h43": false
+      },
+      "marcadores_temporais": {
+        "10:30": "boletim 24/48h publicado",
+        "10:51": "Estrada Arataca já alagada",
+        "~12:00": "grande volume e alagamentos; queda de muro próxima ao meio-dia",
+        "12:43": "boletim lista Comasa e demais bairros"
+      },
+      "fontes": [
+        "https://www.joinville.sc.gov.br/noticias/joinville-tem-acumulado-de-chuva-de-795-milimetros-nas-ultimas-24h/",
+        "https://www.joinville.sc.gov.br/noticias/defesa-civil-de-joinville-monitora-ponto-de-alagamento-no-fim-da-estrada-arataca/",
+        "https://www.joinville.sc.gov.br/noticias/defesa-civil-de-joinville-registra-pontos-de-alagamento-em-dez-bairros/",
+        "https://www.joinville.sc.gov.br/noticias/prefeitura-de-joinville-ativa-gabinete-de-crise-para-acompanhar-condicoes-climaticas/"
+      ],
+      "nota": "EH-003 é espacialmente mais relevante ao Guaxanduva por incluir Comasa/Aventureiro/Iririú. Os acumulados são de regiões/estações diferentes e não devem ser fundidos como uma única série."
+    }
+  ],
+  "regra_validacao": "Eventos definidos antes de qualquer ajuste adicional do #175. Não recalibrar pesos para fazê-los passar.",
+  "resultado": {
+    "EH-002": "POSITIVO_CONFIRMADO_DADOS_TEMPORAIS_INSUFICIENTES_PARA_REPLAY_10MIN",
+    "EH-003": "POSITIVO_CONFIRMADO_COM_MARCADORES_TEMPORAIS_E_COMASA",
+    "rodada_1": "BASE_POSITIVA_FIXADA"
+  }
+}

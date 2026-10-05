@@ -1,12 +1,12 @@
 {
-  "versao": "#175-A1",
+  "versao": "#175-A3",
   "status": "EXPERIMENTAL_NAO_OPERACIONAL",
-  "gerado_em": "2026-10-04T21:13:57.563471-03:00",
-  "indice_pressao_hidrometeorologica": 20.6,
+  "gerado_em": "2026-10-04T21:42:23.529657-03:00",
+  "indice_pressao_hidrometeorologica": 15.9,
   "classe_experimental": "BAIXO",
   "classe_css": "baixo",
-  "confianca_dados_pct": 65.8,
-  "cobertura_fatores_pct": 94.0,
+  "confianca_dados_pct": 56.0,
+  "cobertura_fatores_pct": 80.0,
   "natureza_indice": "Índice composto de pressão hidrometeorológica; NÃO é probabilidade percentual de inundação.",
   "fatores": {
     "chuva_observada": {
@@ -20,8 +20,8 @@
     },
     "chuva_prevista_24h": {
       "peso": 0.12,
-      "score": 12.9,
-      "valor": 10.3,
+      "score": 20.5,
+      "valor": 16.4,
       "nota": "Open-Meteo; previsão, não observação."
     },
     "memoria_bacia": {
@@ -32,19 +32,19 @@
     },
     "radar_tendencia": {
       "peso": 0.14,
-      "score": 55.0,
+      "score": null,
       "valor": {
-        "fresco": true,
+        "fresco": false,
         "tendencia": "afastando"
       },
       "nota": "Eco/tendência qualitativos; sem conversão automática para chuva no solo."
     },
     "rio_tendencia_modelada": {
       "peso": 0.16,
-      "score": 0,
+      "score": 1.0,
       "valor": {
-        "nivel_m": 1.058,
-        "cm_h": 0.0
+        "nivel_m": 1.212,
+        "cm_h": 0.21
       },
       "nota": "MODELADO/NÃO INSTRUMENTAL; nível absoluto não usa cotas de perigo não validadas."
     },
@@ -52,7 +52,7 @@
       "peso": 0.16,
       "score": 50.0,
       "valor": {
-        "observada_m": 0.701,
+        "observada_m": 1.011,
         "pico_24h_m": 1.5
       },
       "nota": "Condição de jusante; não é nível do Guaxanduva."
@@ -68,24 +68,34 @@
     "+30min": {
       "score": null,
       "status": "NAO_CALIBRADO",
-      "nota": "Aguardando replay histórico #175 e calibração independente."
+      "nota": "Fase histórica #175 congelada com validação parcial; amostra executada insuficiente para calibração independente."
     },
     "+60min": {
       "score": null,
       "status": "NAO_CALIBRADO",
-      "nota": "Aguardando replay histórico #175 e calibração independente."
+      "nota": "Fase histórica #175 congelada com validação parcial; amostra executada insuficiente para calibração independente."
     },
     "+120min": {
       "score": null,
       "status": "NAO_CALIBRADO",
-      "nota": "Aguardando replay histórico #175 e calibração independente."
+      "nota": "Fase histórica #175 congelada com validação parcial; amostra executada insuficiente para calibração independente."
     }
   },
   "historico": {
-    "status": "BASE_EM_CONSTRUCAO",
+    "status": "FASE_HISTORICA_CONGELADA_VALIDACAO_PARCIAL",
     "evento_benchmark": "EH-001 • 31/12/2020–01/01/2021",
+    "casos_rotulados": 5,
+    "casos_com_replay_motor": 1,
+    "cobertura_replay_pct": 20.0,
+    "eh001": {
+      "resultado": "POSITIVO_NO_HINDCAST_PARCIAL",
+      "alerta_modelado_aprox": "22:10–22:20",
+      "impacto_referencia_aprox": "00:30",
+      "antecedencia_modelada_min": "130–140"
+    },
     "uso_na_pontuacao": false,
-    "nota": "Eventos históricos serão usados em replay cego antes de liberar pesos/limiares calibrados."
+    "calibracao_operacional_liberada": false,
+    "nota": "R3 encerrada: EH-001 mostrou antecipação em hindcast parcial. EH-002/EH-003 e CN-001/CN-002 permanecem rotulados, mas sem replay executável suficiente; não contam como TP/TN/FP/FN."
   },
   "regras_seguranca": [
     "Ausência de dado não vira zero; fator indisponível é retirado e reduz cobertura/confiança.",
@@ -93,7 +103,7 @@
     "Nível do Guaxanduva permanece MODELADO/NÃO INSTRUMENTAL.",
     "Maré de Joinville/Babitonga é condição de jusante, não nível do rio.",
     "Radar não é convertido automaticamente em chuva no solo.",
-    "Horizontes +30/+60/+120 e ETA permanecem bloqueados até validação histórica.",
+    "Horizontes +30/+60/+120 e ETA permanecem bloqueados: validação histórica parcial não basta para calibração operacional.",
     "Defesa Civil/199 permanece referência oficial para emergência."
   ],
   "metodo": {
@@ -108,6 +118,7 @@
       "drenagem_urbana": 0.06
     },
     "calibrado_historicamente": false,
+    "validacao_historica": "PARCIAL_CONGELADA",
     "probabilidade_inundacao": false
   }
 }

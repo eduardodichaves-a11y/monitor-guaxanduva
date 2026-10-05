@@ -966,7 +966,7 @@ function renderEnso173(d){
     if(ots.length){
       out.innerHTML=ots.map(x=>{
         const f=x.faixa_50_c, faixa=Array.isArray(f)&&f.length===2?Number(f[0]).toFixed(2)+" a "+Number(f[1]).toFixed(2)+" °C":"N/D";
-        return '<p><b>'+esc(x.temporada||"--")+'</b> <strong>'+(x.mediana_p50_c==null?"--":Number(x.mediana_p50_c).toFixed(2)+" °C")+'</strong><br><small>Mediana • faixa central 50%: '+faixa+'</small></p>';
+        return '<p><b>'+esc174k(x.temporada||"--")+'</b> <strong>'+(x.mediana_p50_c==null?"--":Number(x.mediana_p50_c).toFixed(2)+" °C")+'</strong><br><small>Mediana • faixa central 50%: '+faixa+'</small></p>';
       }).join("");
     }else{
       out.innerHTML="<p>⚪ Projeção NOAA/CPC indisponível nesta coleta. Nenhum valor foi presumido.</p>";

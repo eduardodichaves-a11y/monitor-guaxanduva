@@ -865,17 +865,6 @@ function capPT(tipo,valor){
  };
  return (mapas[tipo]&&mapas[tipo][k])||v||"--";
 }
-function capHeadlinePT(valor){
- let v=String(valor??"");
- const trocas=[
-  [/Severidade Grau:\s*Moderate\b/gi,"Severidade Grau: Moderada"],
-  [/Severidade Grau:\s*Minor\b/gi,"Severidade Grau: Menor"],
-  [/Severidade Grau:\s*Severe\b/gi,"Severidade Grau: Severa"],
-  [/Severidade Grau:\s*Extreme\b/gi,"Severidade Grau: Extrema"]
- ];
- for(const [re,pt] of trocas)v=v.replace(re,pt);
- return v||"Aviso oficial do INMET";
-}
 function dataHoraBR(t){if(!t)return "--";const d=new Date(t);return isNaN(d)?String(t):d.toLocaleString("pt-BR")}
 function nomeFamilia(v){return v?String(v).replaceAll("_"," ").toUpperCase():"--"}
 function faixaHorarios(arr){
@@ -975,7 +964,7 @@ function renderEnso173(d){
   $("enso173Campo").textContent="0,607 m = referência hidráulica local fixa • "+(ms.length?"medições: "+ms.join(" e "):"validação de campo registrada")+" • não recalibra automaticamente a base.";
 
   // OBRA DE ARTE V1 • síntese leiga: usa exatamente os impactos já calculados pelo #173.
-  const nomesLeigo={chuva_24h:"Chuva 24 h",tempestade:"Tempestade • MODELO • PRÓXIMA HORA",granizo:"Granizo • AVISO OFICIAL",vento:"Rajadas",ciclone:"Ciclone",mare:"Maré",rio_guaxanduva:"Rio",chuva_mais_mare:"Chuva + maré"};
+  const nomesLeigo={chuva_24h:"Chuva",tempestade:"Tempestade",granizo:"Granizo",vento:"Rajadas",ciclone:"Ciclone",mare:"Maré",rio_guaxanduva:"Rio",chuva_mais_mare:"Chuva + maré"};
   const iconesLeigo={chuva_24h:"🌧️",tempestade:"⛈️",granizo:"🧊",vento:"💨",ciclone:"🌀",mare:"🌊",rio_guaxanduva:"🏞️",chuva_mais_mare:"🌧️🌊"};
   const peso={verde:0,azul:0,cinza:0,amarelo:1,laranja:2,vermelho:3};
   let pior=0, inconclusivos=0;
@@ -1828,7 +1817,7 @@ async function carregar(){
    const al=g.alerta||{};
    $("granizo").innerHTML='<span class="erro">🔴 ALERTA OFICIAL ATIVO • POSSIBILIDADE DE GRANIZO</span><br><small>INMET / WIS2 / CAP • cobertura da referência pública do Comasa confirmada</small>';
    $("granizoDetalhe").innerHTML=
-    <b>'+capHeadlinePT(al.headline||al.event||"Aviso oficial do INMET")+'</b><br>'+
+    '<b>'+(al.headline||al.event||"Aviso oficial do INMET")+'</b><br>'+
     '<small>Severidade: '+capPT("severity",al.severity)+
     ' • certeza: '+capPT("certainty",al.certainty)+
     '<br>Início: '+dataHoraBR(al.onset)+

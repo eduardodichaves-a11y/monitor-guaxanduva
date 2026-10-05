@@ -1,0 +1,82 @@
+{
+  "versao": "#175-VALIDACAO-FINAL-R3",
+  "status": "FASE_HISTORICA_CONGELADA_COM_VALIDACAO_PARCIAL",
+  "natureza": "CONSOLIDACAO_DE_EVIDENCIA_E_TESTES_EXECUTADOS_NAO_OPERACIONAL",
+  "politica": "C_FN >> C_FP",
+  "casos": {
+    "EH-001": {
+      "classe_real": "POSITIVO",
+      "teste_motor_175": "EXECUTADO_PARCIAL_RECONSTRUIVEL",
+      "predicao": "POSITIVO",
+      "alerta_modelado": {
+        "p05": "22:10",
+        "p50": "22:10",
+        "p95": "22:20"
+      },
+      "impacto_referencia": "00:30",
+      "lead_time_modelado_min": {
+        "p05": 130,
+        "p50": 140,
+        "p95": 140
+      },
+      "nota": "Hindcast condicionado ao ensemble e ao subconjunto reconstruível do #175; não é horário observado."
+    },
+    "EH-002": {
+      "classe_real": "POSITIVO",
+      "teste_motor_175": "NAO_EXECUTAVEL_COM_RESOLUCAO_ATUAL",
+      "predicao": null,
+      "evidencia": "30 mm/30 min + alagamentos; janela exata do acumulado não recuperada.",
+      "nota": "Evento independente fixado antes de ajuste; não pode ser contado como TP/FN sem replay."
+    },
+    "EH-003": {
+      "classe_real": "POSITIVO",
+      "teste_motor_175": "NAO_EXECUTAVEL_COM_RESOLUCAO_ATUAL",
+      "predicao": null,
+      "evidencia": "Alagamentos incluindo Comasa/Aventureiro/Iririú + acumulados regionais/estações.",
+      "nota": "Espacialmente relevante, mas séries temporais necessárias ao motor não foram recuperadas."
+    },
+    "CN-001": {
+      "classe_real": "NEGATIVO_ATE_CORTE",
+      "teste_motor_175": "NAO_EXECUTAVEL_COM_RESOLUCAO_ATUAL",
+      "predicao": null,
+      "evidencia": "56 mm/12h e zero ocorrências registradas até o corte documental.",
+      "nota": "Não pode ser contado como TN/FP sem replay do motor no mesmo recorte."
+    },
+    "CN-002": {
+      "classe_real": "NEGATIVO_ATE_CORTE",
+      "teste_motor_175": "NAO_EXECUTAVEL_COM_RESOLUCAO_ATUAL",
+      "predicao": null,
+      "evidencia": "20 mm/12h e zero ocorrências registradas até o corte documental.",
+      "nota": "Não pode ser contado como TN/FP sem replay do motor no mesmo recorte."
+    }
+  },
+  "matriz_confusao_executada": {
+    "TP": 1,
+    "FN": 0,
+    "TN": 0,
+    "FP": 0,
+    "N_testado": 1
+  },
+  "metricas": {
+    "POD": 1.0,
+    "FAR": 0.0,
+    "CSI": 1.0,
+    "F1": 1.0,
+    "taxa_acerto": 1.0,
+    "publicaveis_como_desempenho_global": false,
+    "motivo": "Apenas 1 caso possui predicao do motor; métricas 1.0 são descritivas do subconjunto N=1 e não estimam desempenho geral."
+  },
+  "cobertura_validacao": {
+    "casos_rotulados": 5,
+    "casos_com_replay_motor": 1,
+    "pct_replay": 20.0
+  },
+  "congelamento": {
+    "pesos_175_A1_alterados": false,
+    "limiar_atencao": 25,
+    "liberar_operacional": false,
+    "liberar_horizontes_30_60_120": false,
+    "conclusao": "Congelar a fase histórica atual. O #175 demonstrou capacidade de alerta antecipado no EH-001 sob hindcast parcial, mas ainda não possui amostra executada suficiente para calibração operacional."
+  },
+  "proximo_estado": "SEM_NOVA_RODADA_DESTA_FASE; retornar à operação experimental atual e ampliar validação somente quando novas séries históricas temporais forem recuperadas."
+}

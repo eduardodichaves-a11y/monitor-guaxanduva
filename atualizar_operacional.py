@@ -31,6 +31,7 @@ from atualizar_dados import (
     diagnosticar_conteudo_cap_inmet_156,
     granizo_operacional_inmet_157,
     buscar_super_el_nino_173,
+    construir_estatisticas_automaticas_186,
 )
 
 ARQUIVO = Path("dados.json")
@@ -87,6 +88,7 @@ def main():
     # site sincronizado com a publicação oficial vigente.
     super_el_nino173 = seguro("NOAA/CPC + PMEL #173/#185", buscar_super_el_nino_173)
     impactos173 = seguro("impactos locais #173", lambda: construir_impactos_locais_173_a2(previsao, granizo, mare160, mare164, criterio163, v021, super_el_nino173))
+    estat186 = seguro("estatísticas automáticas #186", construir_estatisticas_automaticas_186)
 
     # Síntese operacional única para o card principal. Não confunde radar,
     # pluviômetro regional e modelo meteorológico.
@@ -183,6 +185,7 @@ def main():
         "impactos_locais_173": impactos173,
         "estado_canonico_operacional": estado_canonico,
         "estado_agora_operacional": estado_operacional,
+        "estatisticas_automaticas_186": estat186,
         "atualizacao_operacional_rapida": {
             "status": "concluida",
             "gerado_em": agora().isoformat(),

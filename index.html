@@ -271,6 +271,18 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 .f175-timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:9px}.f175-step{border:1px solid #345564;border-radius:9px;padding:8px;background:#0a1e27;font-size:9px;line-height:1.35}.f175-step b{display:block;color:#ffd36a;font-size:11px;margin-bottom:3px}.f175-step.active{border-color:#a37a25;background:#2a210c}
 .f175-sourcekey{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.f175-sourcekey div{border-radius:8px;padding:7px;font-size:8.5px;line-height:1.35;background:#0a2029;border:1px solid #254c5d}.f175-sourcekey b{display:block;font-size:9px;margin-bottom:2px}.f175-sourcekey .obs{border-top:2px solid #52cef0}.f175-sourcekey .mod{border-top:2px solid #74e19a}.f175-sourcekey .prev{border-top:2px solid #f1cf56}
 @media(max-width:760px){.f175-compare{grid-template-columns:1fr}.f175-timeline{grid-template-columns:repeat(2,1fr)}.f175-sourcekey{grid-template-columns:1fr}.f175-ring{width:112px;height:112px}.f175-panel h3{font-size:10px}.f175-title{line-height:1.15}}
+
+/* #130-UX — legenda leiga clicável das famílias de refletividade RadarSC */
+.radar-cor-help{margin-top:12px;border:1px solid #315c6d;border-radius:12px;background:#091a23;overflow:hidden}
+.radar-cor-help>summary{cursor:pointer;list-style:none;padding:13px 14px;font-weight:900;color:#b9ecff;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.radar-cor-help>summary::-webkit-details-marker{display:none}.radar-cor-help>summary:after{content:"+";font-size:20px;color:#8fd6ec}.radar-cor-help[open]>summary:after{content:"−"}
+.radar-cor-help-body{padding:0 12px 12px}.radar-cor-classes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.radar-cor-classe{border:1px solid #294956;border-radius:10px;padding:10px;line-height:1.35;background:#071a22;min-width:0}
+.radar-cor-classe b{display:block;margin-bottom:3px}.radar-cor-classe small{font-size:11px}
+.radar-cor-classe.azul{border-left:5px solid #38cfff}.radar-cor-classe.verde{border-left:5px solid #39d66f}.radar-cor-classe.amarela{border-left:5px solid #ffd43b}.radar-cor-classe.vermelha{border-left:5px solid #ff4d62}
+.radar-cor-aviso{margin-top:9px;padding:10px;border-radius:9px;background:#0b2530;color:#b9d7e2;font-size:11px;line-height:1.5}
+@media(max-width:560px){.radar-cor-classes{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body><main>
@@ -552,7 +564,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <div class="radar-item">🎯 Trilhas elegíveis<b id="radarElegiveis">--</b></div>
 </div>
 <div id="etaEstado" class="box aviso">🧪 ETA em validação experimental</div>
-<small>DETECTADO POR RADAR ≠ chuva medida. O sistema acompanha ecos e testa retrospectivamente trajetórias. Enquanto a validação não for concluída, não publica horário automático de chegada da chuva.</small>
+<small>DETECTADO POR RADAR ≠ chuva medida. Os painéis “Radar meteorológico” e “Classificação qualitativa #130” usam a mesma alimentação RadarSC; não são dois radares independentes. Se o último quadro exceder o limite de frescor, ambos permanecem desatualizados/N/D. O sistema acompanha ecos e testa retrospectivamente trajetórias. Enquanto a validação não for concluída, não publica horário automático de chegada da chuva.</small>
 </section>
  
 <section class="card">
@@ -562,6 +574,18 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <div id="ecoQualEstado" class="box aviso">Carregando classificação das cores...</div>
 <div class="radar-grid">
 <div class="radar-item">🎨 Família de cor<b id="ecoQualCor">--</b></div>
+<details class="radar-cor-help" style="grid-column:1/-1">
+<summary>📖 O que esta cor / família de cores representa?</summary>
+<div class="radar-cor-help-body">
+<div class="radar-cor-classes">
+<div class="radar-cor-classe azul"><b>🔵 Azul / ciano — Garoa / chuvisco</b><small>Ecos de menor refletividade. Pode indicar precipitação muito fraca, mas radar não confirma chuva no solo.</small></div>
+<div class="radar-cor-classe verde"><b>🟢 Verde — Chuva fraca</b><small>Ecos qualitativamente mais intensos que azul/ciano, associados no Monitor à família de chuva fraca.</small></div>
+<div class="radar-cor-classe amarela"><b>🟡🟠 Amarelo / laranja — Chuva forte</b><small>Ecos de refletividade mais elevada; interpretação qualitativa, sem conversão automática para mm/h.</small></div>
+<div class="radar-cor-classe vermelha"><b>🔴🟣 Vermelho / magenta — Tempestade</b><small>Ecos de maior refletividade na classificação qualitativa; não significa, sozinho, tempestade observada no solo.</small></div>
+</div>
+<div class="radar-cor-aviso"><b>🛡️ Regra de segurança:</b> a cor descreve refletividade do quadro RadarSC, não chuva medida no Comasa. Se o quadro estiver desatualizado, a cor permanece apenas como diagnóstico do último quadro recebido e não representa a situação atual.</div>
+</div>
+</details>
 <div class="radar-item">🧩 Classe interna do Monitor<b id="ecoQualClasse">--</b></div>
 <div class="radar-item">📍 Menor raio com eco<b id="ecoQualRaio">--</b></div>
 <div class="radar-item">📡 Faixa RadarSC<b id="ecoQualDbz">--</b></div>

@@ -1,0 +1,78 @@
+name: Compactar histórico Z-R #188-A
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monitor-guaxanduva-migracao-188a
+  cancel-in-progress: false
+
+jobs:
+  compactar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compactar e validar histórico Z-R
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import hashlib
+          from pathlib import Path
+
+          p = Path("historico_zr_170.json")
+          original_bytes = p.stat().st_size
+          original = json.loads(p.read_text(encoding="utf-8"))
+          registros_antes = len(original.get("registros", []))
+
+          def canon(obj):
+              return json.dumps(
+                  obj, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+              ).encode("utf-8")
+
+          hash_antes = hashlib.sha256(canon(original)).hexdigest()
+
+          compacto = json.dumps(
+              original, ensure_ascii=False, separators=(",", ":")
+          )
+          p.write_text(compacto, encoding="utf-8")
+
+          depois = json.loads(p.read_text(encoding="utf-8"))
+          registros_depois = len(depois.get("registros", []))
+          hash_depois = hashlib.sha256(canon(depois)).hexdigest()
+          final_bytes = p.stat().st_size
+
+          if depois != original:
+              raise SystemExit("ERRO: conteúdo lógico mudou após compactação.")
+          if registros_depois != registros_antes:
+              raise SystemExit("ERRO: quantidade de registros mudou.")
+          if hash_depois != hash_antes:
+              raise SystemExit("ERRO: hash semântico mudou.")
+
+          print(f"Registros: {registros_antes} -> {registros_depois}")
+          print(f"Tamanho: {original_bytes} -> {final_bytes} bytes")
+          print(f"SHA256 semântico: {hash_depois}")
+          PY
+
+      - name: Publicar histórico compactado
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add historico_zr_170.json
+          if git diff --cached --quiet; then
+            echo "Histórico já está compactado; nenhuma alteração necessária."
+            exit 0
+          fi
+          git commit -m "Compacta histórico Z-R #188-A sem perda de dados"
+          git push origin HEAD:main

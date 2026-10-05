@@ -10172,8 +10172,13 @@ def granizo_operacional_inmet_157(diag156=None):
 # #186 - configuração, estrutura e estatísticas automáticas
 def construir_estatisticas_automaticas_186(auditoria_i4=None):
     def ler(nome):
-        try: return json.loads(Path(nome).read_text(encoding="utf-8"))
-        except Exception: return {}
+        # #186.1 — usa open() nativo. A versão anterior usava Path sem importar
+        # pathlib; a exceção era absorvida e fazia histórico/config/grafo virarem {}.
+        try:
+            with open(nome, "r", encoding="utf-8") as arquivo:
+                return json.load(arquivo)
+        except (FileNotFoundError, json.JSONDecodeError, OSError):
+            return {}
     cfg=ler("config_monitor_186.json"); grafo=ler("grafo_guaxanduva.json"); hist=ler("historico_guaxanduva_166.json")
     i4=auditoria_i4 if isinstance(auditoria_i4,dict) else ler("auditoria_empirica_170i4.json")
     regs=hist.get("registros") or []

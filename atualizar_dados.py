@@ -10168,6 +10168,31 @@ def granizo_operacional_inmet_157(diag156=None):
     }
     return resultado
  
+
+# #186 - configuração, estrutura e estatísticas automáticas
+def construir_estatisticas_automaticas_186(auditoria_i4=None):
+    def ler(nome):
+        try: return json.loads(Path(nome).read_text(encoding="utf-8"))
+        except Exception: return {}
+    cfg=ler("config_monitor_186.json"); grafo=ler("grafo_guaxanduva.json"); hist=ler("historico_guaxanduva_166.json")
+    i4=auditoria_i4 if isinstance(auditoria_i4,dict) else ler("auditoria_empirica_170i4.json")
+    regs=hist.get("registros") or []
+    chuva=[r.get("precipitacao_mm") for r in regs if r.get("tipo")=="chuva_horaria_observada"]
+    mare=[r.get("nivel_m") for r in regs if r.get("tipo")=="mare_observada_jusante"]
+    def resumo(vals):
+        vals=[float(v) for v in vals if isinstance(v,(int,float)) and not isinstance(v,bool) and math.isfinite(float(v))]
+        return {"n":len(vals),"min":round(min(vals),3) if vals else None,"media":round(sum(vals)/len(vals),3) if vals else None,"max":round(max(vals),3) if vals else None}
+    tempos=[str(r.get("horario_medicao")) for r in regs if r.get("horario_medicao")]
+    gr=grafo.get("resumo") or {}; ph=grafo.get("parametros_hidraulicos_documentados") or {}; ri=i4.get("resumo") or {}
+    metas=cfg.get("metas_validacao") or {}; me=int(metas.get("i4_episodios") or 20); ms=int(metas.get("i4_estacoes") or 4)
+    return {"versao":"#186","status":"calculado","gerado_em":agora().isoformat(),"configuracao_cientifica":cfg,
+      "historico":{"registros_total":len(regs),"inicio":min(tempos) if tempos else None,"fim":max(tempos) if tempos else None,"chuva_horaria":resumo(chuva),"mare_jusante":resumo(mare)},
+      "validacao_i4":{"episodios":ri.get("episodios_pareados_utilizados"),"estacoes":ri.get("estacoes_distintas"),"meta_episodios":me,"meta_estacoes":ms,
+        "progresso_episodios_pct":round(min(100,100*float(ri.get("episodios_pareados_utilizados") or 0)/me),1) if me else None,
+        "progresso_estacoes_pct":round(min(100,100*float(ri.get("estacoes_distintas") or 0)/ms),1) if ms else None},
+      "estrutura":{"segmentos_microbacia":gr.get("segmentos_microbacia"),"segmentos_conectados":gr.get("segmentos_componente_30960"),"juncoes":gr.get("juncoes_grau_3_ou_mais"),"bypass":ph.get("bypass_montezuma_odilon"),"victor_konder":ph.get("estrutura_victor_konder_canoas")},
+      "regra_seguranca":"Ausência não vira zero; histórico não equivale à condição atual; maré de jusante não é nível do Guaxanduva."}
+
 # =========================================================
 # #163 - CRITERIO HIDROMETEOROLOGICO CALCULADO • PLANCON
 # Diagnostico independente do acionamento oficial da Defesa Civil.
@@ -10202,10 +10227,13 @@ def calcular_criterio_hidrometeorologico_plancon_163(previsao, mare_observada):
         if not mare_fresca: faltantes.append("mare_observada_epagri_fresca")
         resultado["dados_faltantes"] = faltantes
         return resultado
-    mobilizacao_chuva = chuva > 20.0
-    atencao = chuva > 50.0 and mare >= 1.5
-    alerta_50_18 = chuva > 50.0 and mare >= 1.8
-    alerta_80_15 = chuva > 80.0 and mare >= 1.5
+    cfg186=construir_estatisticas_automaticas_186().get("configuracao_cientifica") or {}; lim=cfg186.get("plancon_163") or {}
+    l20=float(lim.get("chuva_mobilizacao_mm_24h",20)); l50=float(lim.get("chuva_atencao_mm_24h",50)); m15=float(lim.get("mare_atencao_m",1.5)); m18=float(lim.get("mare_alerta_a_m",1.8)); l80=float(lim.get("chuva_alerta_b_mm_24h",80))
+    resultado["limiares_configurados"]={"chuva_mobilizacao_mm_24h":l20,"chuva_atencao_mm_24h":l50,"mare_atencao_m":m15,"chuva_alerta_b_mm_24h":l80,"mare_alerta_a_m":m18,"fonte_config":"config_monitor_186.json"}
+    mobilizacao_chuva = chuva > l20
+    atencao = chuva > l50 and mare >= m15
+    alerta_50_18 = chuva > l50 and mare >= m18
+    alerta_80_15 = chuva > l80 and mare >= m15
     alerta = alerta_50_18 or alerta_80_15
     resultado["criterios"].update({"mobilizacao_chuva_superior_20mm_24h": mobilizacao_chuva, "mobilizacao_ocorrencia_confirmada": None, "atencao_chuva_superior_50mm_e_mare_desde_1_5m": atencao, "alerta_chuva_superior_50mm_e_mare_desde_1_8m": alerta_50_18, "alerta_chuva_superior_80mm_e_mare_desde_1_5m": alerta_80_15, "crise": None})
     resultado["status"] = "calculado"
@@ -17821,6 +17849,7 @@ def main():
 
         "auditoria_empirica_raster_chuva_170_i4":
             auditoria_empirica170i4,
+        "estatisticas_automaticas_186": construir_estatisticas_automaticas_186(auditoria_empirica170i4),
 
         "metodo_guaxanduva_refletividade_v01":
             metodo_guaxanduva_radar_v01,

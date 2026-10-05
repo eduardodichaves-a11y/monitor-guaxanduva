@@ -15946,7 +15946,7 @@ def registrar_historico_zr_170(coleta):
             "registros": registros,
         }
         with open(HISTORICO_ZR_170_ARQUIVO, "w", encoding="utf-8") as f:
-            json.dump(documento, f, ensure_ascii=False, indent=2)
+            json.dump(documento, f, ensure_ascii=False, separators=(",", ":"))
         return {
             "versao": "#170-F",
             "status": "historico_multirrede_atualizado" if coleta_tem_candidatos else "historico_preservado_censo_plte_j6_1_atualizado",

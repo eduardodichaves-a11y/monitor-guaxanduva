@@ -82,6 +82,30 @@ def main():
     # O index.html não consulta esta cópia dentro de dados.json.
     dados.pop("auditoria_espacial_zr_170_i", None)
 
+    # #187-C — projeção operacional do RadarSC para o navegador.
+    # O objeto completo é usado acima pelos cálculos (#168/estado canônico), mas
+    # o index.html atual consome somente estes campos. Assim evitamos enviar ao
+    # celular quadros e diagnósticos intermediários que não são renderizados.
+    if isinstance(dados.get("radar"), dict):
+        _radar_completo_187c = dados["radar"]
+        _campos_radar_index_187c = (
+            "status",
+            "quadros_png_validos",
+            "horario_ultimo_quadro",
+            "idade_ultimo_quadro_min",
+            "legenda_oficial",
+            "validacao_paleta_radar",
+            "dicionario_cores_130",
+            "classificacao_qualitativa_local_130",
+            "rastreamento_temporal",
+            "avaliacao_trajetorias",
+        )
+        dados["radar"] = {
+            campo: _radar_completo_187c[campo]
+            for campo in _campos_radar_index_187c
+            if campo in _radar_completo_187c
+        }
+
     ARQUIVO.write_text(json.dumps(dados,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
     print("Atualização operacional rápida concluída:",dados["gerado_em"])
 if __name__=="__main__": main()

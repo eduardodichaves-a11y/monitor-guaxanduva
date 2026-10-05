@@ -27,6 +27,9 @@ from atualizar_dados import (
     projetar_guaxanduva_24h_174,
     construir_liberacao_experimental_168,
     construir_impactos_locais_173_a2,
+    diagnosticar_cap_recente_inmet_155,
+    diagnosticar_conteudo_cap_inmet_156,
+    granizo_operacional_inmet_157,
 )
 
 ARQUIVO = Path("dados.json")
@@ -72,9 +75,14 @@ def main():
     # operacional evita que o painel misture o V0.21 atual com um snapshot antigo.
     tathu167 = dados.get("goes19_tathu_167", {}) if isinstance(dados, dict) else {}
     liberacao168 = seguro("liberação experimental #168", lambda: construir_liberacao_experimental_168(radar, tathu167, v021, mare160, mare164))
-    granizo_existente = dados.get("granizo", {}) if isinstance(dados, dict) else {}
+    # #181 - O workflow operacional precisa renovar o CAP de granizo.
+    # Antes ele apenas reaproveitava dados["granizo"], congelando um aviso
+    # expirado mesmo após a barreira temporal #180 existir em atualizar_dados.py.
+    cap155 = seguro("CAP recente INMET #155", diagnosticar_cap_recente_inmet_155)
+    cap156 = seguro("conteúdo CAP INMET #156", lambda: diagnosticar_conteudo_cap_inmet_156(cap155))
+    granizo = seguro("granizo operacional INMET #157", lambda: granizo_operacional_inmet_157(cap156))
     enso_existente = dados.get("super_el_nino_173", {}) if isinstance(dados, dict) else {}
-    impactos173 = seguro("impactos locais #173", lambda: construir_impactos_locais_173_a2(previsao, granizo_existente, mare160, mare164, criterio163, v021, enso_existente))
+    impactos173 = seguro("impactos locais #173", lambda: construir_impactos_locais_173_a2(previsao, granizo, mare160, mare164, criterio163, v021, enso_existente))
 
     # Síntese operacional única para o card principal. Não confunde radar,
     # pluviômetro regional e modelo meteorológico.
@@ -164,6 +172,9 @@ def main():
         "mare_prevista_24h_164": mare164,
         "projecao_guaxanduva_174": proj174,
         "liberacao_experimental_168": liberacao168,
+        "diagnostico_cap_recente_inmet_155": cap155,
+        "diagnostico_conteudo_cap_inmet_156": cap156,
+        "granizo": granizo,
         "impactos_locais_173": impactos173,
         "estado_canonico_operacional": estado_canonico,
         "estado_agora_operacional": estado_operacional,

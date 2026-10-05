@@ -283,7 +283,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 .radar-cor-aviso{margin-top:9px;padding:10px;border-radius:9px;background:#0b2530;color:#b9d7e2;font-size:11px;line-height:1.5}
 @media(max-width:560px){.radar-cor-classes{grid-template-columns:1fr}}
 
-.enso-edu{grid-column:1/-1;margin:4px 0 14px;display:grid;gap:12px}.enso-edu details{border:1px solid #31576a;border-radius:16px;background:#071f29;overflow:hidden}.enso-edu summary{padding:18px 20px;font-weight:800;color:#cbeeff;cursor:pointer}.enso-edu-body{padding:0 20px 18px;line-height:1.55}.enso-edu-body p{padding:12px 14px;border:1px solid #294958;border-radius:12px;background:#08232d}.enso-edu-body small{color:#a9bdc7}</style>
+.enso-edu{grid-column:1/-1;margin:4px 0 14px;display:grid;gap:12px}.enso-edu details{border:1px solid #31576a;border-radius:16px;background:#071f29;overflow:hidden}.enso-edu summary{padding:18px 20px;font-weight:800;color:#cbeeff;cursor:pointer}.enso-edu-body{padding:0 20px 18px;line-height:1.55}.enso-edu-body p{padding:12px 14px;border:1px solid #294958;border-radius:12px;background:#08232d}.enso-edu-body small{color:#a9bdc7}.enso173-proj{margin-top:10px;font-weight:800;color:#cbeeff;font-size:.98rem}\n</style>
 </head>
 <body><main>
 <header class="hero-monitor">
@@ -492,7 +492,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
     <div id="enso173Estado" class="box aviso">⚪ Carregando painel #173...</div>
     <div class="enso173-grid">
       <div class="radar-item">🌡️ RONI observado<div class="enso173-valor" id="enso173Roni">--</div><small id="enso173RoniPeriodo">--</small></div>
-      <div class="radar-item">📈 El Niño • próxima temporada<div class="enso173-valor" id="enso173Prob">--</div><small id="enso173ProbPeriodo">probabilidade oficial NOAA</small></div>
+      <div class="radar-item">📈 El Niño • próxima temporada<div class="enso173-valor" id="enso173Prob">--</div><small id="enso173ProbPeriodo">probabilidade oficial NOAA</small><div class="enso173-proj" id="enso173RoniProjetado">RONI projetado: --</div><small id="enso173RoniFaixa">faixa probabilística NOAA/CPC</small></div>
       <div class="enso-edu"><details><summary>📖 O que significam estes dados?</summary><div class="enso-edu-body">
 <p><b>🌡️ RONI — Relative Oceanic Niño Index</b><br>Índice da NOAA/CPC para caracterizar o ENSO de forma relativa: considera a anomalia da região Niño 3.4 em relação aos oceanos tropicais e aplica ajuste de variância.</p>
 <p><b>🗓️ JAS, ASO, SON, OND...</b><br>Médias móveis de três meses. JAS = julho–agosto–setembro; ASO = agosto–setembro–outubro; SON = setembro–outubro–novembro; OND = outubro–novembro–dezembro.</p>
@@ -500,14 +500,9 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <p><b>📊 “100% El Niño”</b><br>É a probabilidade da fase ENSO no trimestre indicado. Não significa 100% de intensidade nem 100% de chance de enchente, temporal ou impacto no Guaxanduva.</p>
 <p><b>🔎 Observado × projetado</b><br>O observado representa um trimestre já estimado. A projeção é probabilística: a mediana é o centro da distribuição prevista, não um valor futuro garantido.</p>
 </div></details><details><summary>📈 Próximas projeções do RONI • NOAA/CPC</summary><div class="enso-edu-body">
-<p><b>ASO</b> <strong>+2,07 °C</strong><br><small>Mediana • faixa central 50%: +1,96 a +2,18 °C</small></p>
-<p><b>SON</b> <strong>+2,43 °C</strong><br><small>Mediana • +2,26 a +2,60 °C</small></p>
-<p><b>OND</b> <strong>+2,67 °C</strong><br><small>Mediana • +2,44 a +2,90 °C • pico mediano projetado</small></p>
-<p><b>NDJ</b> <strong>+2,57 °C</strong><br><small>Mediana • +2,28 a +2,85 °C</small></p>
-<p><b>DJF</b> <strong>+2,27 °C</strong><br><small>Mediana • +1,94 a +2,59 °C</small></p>
-<p><b>JFM</b> <strong>+1,82 °C</strong><br><small>Mediana • +1,50 a +2,14 °C</small></p>
-<p><b>🛡️ Regra de segurança</b><br>RONI é contexto climático. Mesmo uma projeção muito elevada não aciona sozinha alerta local ou de enchente.</p>
-<small>Fonte: NOAA/CPC • RONI Outlook • setembro/2026.</small></div></details></div><div class="radar-item">🌀 Sistema regional<div class="enso173-valor" id="enso173Ciclone">--</div><small id="enso173CicloneMeta">modelo regional, não alerta oficial</small></div>
+<div id="enso173OutlookRoni"><p>⚪ Carregando projeções oficiais NOAA/CPC...</p></div>
+<small id="enso173OutlookFonte">Fonte: NOAA/CPC • Official RONI Outlook.</small>
+</div></details></div><div class="radar-item">🌀 Sistema regional<div class="enso173-valor" id="enso173Ciclone">--</div><small id="enso173CicloneMeta">modelo regional, não alerta oficial</small></div>
       <div class="radar-item">🏞️ Rio Guaxanduva<div class="enso173-valor" id="enso173Rio">--</div><small id="enso173RioMeta">MODELADO • não instrumental</small></div>
     </div>
     <h3>⚠️ Impactos para Joinville e Guaxanduva</h3>
@@ -953,6 +948,31 @@ function renderEnso173(d){
   let pv=pe?(pe.el_nino_pct??pe.el_nino??pe["El Nino"]):null;
   $("enso173Prob").textContent=pv==null?"--":Number(pv).toFixed(0)+"%";
   $("enso173ProbPeriodo").textContent=(pe&&(pe.temporada||pe.periodo||pe.season)||"probabilidade oficial NOAA")+" • El Niño";
+
+  // #185 — Official NOAA RONI Outlook, sem números congelados no HTML.
+  const OR=(E.enso||{}).outlook_roni_oficial_185||{};
+  const ots=Array.isArray(OR.temporadas)?OR.temporadas:[];
+  const prox=OR.proxima_temporada||ots[0]||null;
+  if(prox&&prox.mediana_p50_c!=null){
+    $("enso173RoniProjetado").textContent="RONI projetado: "+Number(prox.mediana_p50_c).toFixed(2)+" °C • mediana";
+    const f=prox.faixa_50_c;
+    $("enso173RoniFaixa").textContent=(prox.temporada||"")+" • "+(Array.isArray(f)&&f.length===2?"faixa central 50%: "+Number(f[0]).toFixed(2)+" a "+Number(f[1]).toFixed(2)+" °C":"faixa NOAA/CPC indisponível");
+  }else{
+    $("enso173RoniProjetado").textContent="RONI projetado: indisponível";
+    $("enso173RoniFaixa").textContent="NOAA/CPC • fail-closed";
+  }
+  const out=$("enso173OutlookRoni");
+  if(out){
+    if(ots.length){
+      out.innerHTML=ots.map(x=>{
+        const f=x.faixa_50_c, faixa=Array.isArray(f)&&f.length===2?Number(f[0]).toFixed(2)+" a "+Number(f[1]).toFixed(2)+" °C":"N/D";
+        return '<p><b>'+esc(x.temporada||"--")+'</b> <strong>'+(x.mediana_p50_c==null?"--":Number(x.mediana_p50_c).toFixed(2)+" °C")+'</strong><br><small>Mediana • faixa central 50%: '+faixa+'</small></p>';
+      }).join("");
+    }else{
+      out.innerHTML="<p>⚪ Projeção NOAA/CPC indisponível nesta coleta. Nenhum valor foi presumido.</p>";
+    }
+  }
+  if($("enso173OutlookFonte")) $("enso173OutlookFonte").textContent="Fonte: NOAA/CPC • Official RONI Outlook"+(OR.emitido?" • emissão "+OR.emitido:"")+" • atualização automática.";
   const sr=IF.sistema_referencia||{}, cm=CM.modelo||{};
   const cic=CM.ciclone_confirmado_monitor===true;
   const modOrg=CM.status==="SISTEMA_ORGANIZADO_MODELADO_NAO_CONFIRMADO";

@@ -16303,6 +16303,7 @@ def construir_estado_cientifico_vigente_171(radar_atual, chuva144, rede165, audi
 
 RONI_CPC_TXT_173 = "https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt"
 RONI_CPC_PROB_173 = "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/probabilities/"
+RONI_CPC_OUTLOOK_185 = "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/outlook/"
 PMEL_ERDDAP_173 = "https://data.pmel.noaa.gov/pmel/erddap/tabledap"
 
 
@@ -16424,6 +16425,79 @@ def _buscar_probabilidades_cpc_173():
     return base
 
 
+
+def _buscar_outlook_roni_cpc_185():
+    """#185 - Coleta automática do Official NOAA RONI Outlook.
+
+    A tabela oficial publica 9 temporadas sobrepostas e os percentis
+    5/15/25/50/75/85/95. Nenhum valor ausente é convertido em zero.
+    """
+    base = {
+        "status": "indisponivel",
+        "natureza": "PREVISTO_OFICIAL_PROBABILISTICO",
+        "fonte": "NOAA/CPC",
+        "produto": "Official NOAA Relative Oceanic Niño Index (RONI) Outlook",
+        "url": RONI_CPC_OUTLOOK_185,
+        "emitido": None,
+        "percentis": [5, 15, 25, 50, 75, 85, 95],
+        "temporadas": [],
+        "coletado_em": agora().isoformat(),
+        "uso_operacional_alerta_liberado": False,
+        "regra_seguranca": "RONI é contexto climático; projeção não aciona sozinha alerta local ou de enchente.",
+    }
+    try:
+        r = get(RONI_CPC_OUTLOOK_185)
+        soup = BeautifulSoup(r.text, "html.parser")
+        texto = soup.get_text(" ", strip=True)
+        m = re.search(r"Issued\s+([A-Za-z]+\s+20\d{2})", texto, re.I)
+        if m:
+            base["emitido"] = m.group(1)
+
+        temporadas = []
+        for tr in soup.find_all("tr"):
+            cel = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
+            if len(cel) < 8:
+                continue
+            mm = re.match(r"^\s*([A-Z]{3})\b(.*)$", cel[0].upper())
+            if not mm:
+                continue
+            temporada = mm.group(1)
+            valores = []
+            for c in cel[1:8]:
+                n = re.search(r"-?\d+(?:\.\d+)?", c.replace(",", "."))
+                valores.append(_numero_173(n.group(0)) if n else None)
+            if len(valores) != 7 or any(v is None or not (-10 <= v <= 10) for v in valores):
+                continue
+            temporadas.append({
+                "temporada": temporada,
+                "meses": cel[0],
+                "p05_c": valores[0],
+                "p15_c": valores[1],
+                "p25_c": valores[2],
+                "mediana_p50_c": valores[3],
+                "p75_c": valores[4],
+                "p85_c": valores[5],
+                "p95_c": valores[6],
+                "faixa_50_c": [valores[2], valores[4]],
+                "faixa_70_c": [valores[1], valores[5]],
+                "faixa_90_c": [valores[0], valores[6]],
+            })
+        if temporadas:
+            base["status"] = "online"
+            base["temporadas"] = temporadas[:9]
+            base["proxima_temporada"] = temporadas[0]
+            pico = max(temporadas, key=lambda x: x["mediana_p50_c"])
+            base["pico_mediano_projetado"] = {
+                "temporada": pico["temporada"],
+                "mediana_p50_c": pico["mediana_p50_c"],
+            }
+        else:
+            base["erro"] = "tabela_RONI_outlook_nao_reconhecida"
+    except Exception as e:
+        base["erro"] = str(e)[:500]
+    return base
+
+
 def _pmel_ultima_estacao_173(dataset, variavel, qualidade, estacao, unidade):
     base = {
         "status": "indisponivel",
@@ -16492,8 +16566,9 @@ def buscar_super_el_nino_173():
     heat = [_pmel_ultima_estacao_173("pmelTaoDyHeat", "HTC_130", "HTC_5130", e, "10^10_J_m-2") for e in estacoes]
     roni = _buscar_rONI_cpc_173()
     probabilidades = _buscar_probabilidades_cpc_173()
+    outlook_roni = _buscar_outlook_roni_cpc_185()
 
-    blocos = [roni, probabilidades] + sst + iso + heat
+    blocos = [roni, probabilidades, outlook_roni] + sst + iso + heat
     online = sum(1 for x in blocos if isinstance(x, dict) and str(x.get("status", "")).startswith("online"))
     total = len(blocos)
     if online == total:
@@ -16520,6 +16595,7 @@ def buscar_super_el_nino_173():
         "enso": {
             "roni_observado": roni,
             "probabilidades_oficiais": probabilidades,
+            "outlook_roni_oficial_185": outlook_roni,
         },
         "joinville_guaxanduva": {
             "status": "NAO_INFERIDO_NESTA_ETAPA",

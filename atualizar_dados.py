@@ -5761,13 +5761,14 @@ def buscar_radar():
         if not candidatos_listas:
             raise ValueError("Radar não retornou lista de imagens em nenhuma consulta.")
 
-        # #177 - Timestamp do nome RadarSC/COMP interpretado no fuso local
-        # de Santa Catarina. O UTC é derivado depois, evitando conversão dupla.
+        # #178 - Timestamp do nome RadarSC/COMP confirmado como UTC.
+        # Ex.: arquivo 202610050300... recebido às 00:07 BRT corresponde a
+        # 03:00 UTC = 00:00 America/Sao_Paulo.
         def _timestamp_nome_radar(nome):
             try:
-                return datetime.strptime(nome[:14], "%Y%m%d%H%M%S").replace(tzinfo=FUSO)
+                return datetime.strptime(nome[:14], "%Y%m%d%H%M%S").replace(tzinfo=UTC)
             except Exception:
-                return datetime.min.replace(tzinfo=FUSO)
+                return datetime.min.replace(tzinfo=UTC)
 
         nomes = max(
             candidatos_listas,
@@ -5778,19 +5779,19 @@ def buscar_radar():
  
         for nome in nomes:
             try:
-                horario_local = (
+                horario_utc = (
                     datetime.strptime(
                         nome[:14],
                         "%Y%m%d%H%M%S",
                     )
                     .replace(
-                        tzinfo=FUSO
+                        tzinfo=UTC
                     )
                 )
 
-                horario_utc = (
-                    horario_local
-                    .astimezone(UTC)
+                horario_local = (
+                    horario_utc
+                    .astimezone(FUSO)
                 )
 
                 quadros.append({
@@ -6152,14 +6153,15 @@ def buscar_radar():
             "produto_codigo":
                 4,
 
-            "timestamp_radar_177": {
-                "status": "ATIVO",
+            "timestamp_radar_178": {
+                "status": "UTC_CONFIRMADO_POR_COHERENCIA_TEMPORAL",
                 "campo_origem": "14 primeiros dígitos do nome oficial do arquivo RadarSC",
-                "timezone_interpretado": "America/Sao_Paulo",
-                "regra": "timestamp do nome tratado como horário local; UTC derivado por conversão de fuso",
+                "timezone_interpretado": "UTC",
+                "regra": "timestamp do nome tratado como UTC; horário local derivado para America/Sao_Paulo",
+                "evidencia": "quadro 202610050300 recebido na execução de 2026-10-05 00:07 BRT",
                 "arquivo_referencia": nomes[-1] if nomes else None,
                 "horario_local_referencia": ultimo.get("horario_local"),
-                "horario_utc_derivado": ultimo.get("horario_utc"),
+                "horario_utc_referencia": ultimo.get("horario_utc"),
             },
 
             "diagnostico_lista_fonte_176": {

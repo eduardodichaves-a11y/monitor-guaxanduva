@@ -1,0 +1,55 @@
+{
+  "versao": "#175-CONTROLES-R2",
+  "natureza": "CONTROLES_NEGATIVOS_TEMPORAIS_PREDEFINIDOS_NAO_OPERACIONAIS",
+  "criterio": "Controle negativo significa ausência de ocorrência/alagamento registrada ATÉ o horário explícito da fonte; não significa ausência garantida durante todo o dia.",
+  "controles": [
+    {
+      "id": "CN-001",
+      "data": "2024-11-07",
+      "corte_temporal": "09:49",
+      "chuva": {
+        "acumulado_mm": 56.0,
+        "janela_h": 12
+      },
+      "resultado_ate_corte": {
+        "ocorrencias_registradas": 0,
+        "alagamento_registrado": false
+      },
+      "plancon": "AMARELO desde 09:40",
+      "fonte": {
+        "tipo": "Prefeitura de Joinville / Defesa Civil",
+        "url": "https://www.joinville.sc.gov.br/noticias/joinville-eleva-plano-de-contingencia-para-alerta-amarelo-e-monitora-volume-de-chuva/"
+      },
+      "elegivel_TN": true,
+      "nota": "Controle temporal forte: chuva relevante, monitoramento oficial e nenhuma ocorrência registrada até a manhã/corte."
+    },
+    {
+      "id": "CN-002",
+      "data": "2025-12-09",
+      "corte_temporal": "09:16",
+      "chuva": {
+        "acumulado_mm": 20.0,
+        "janela_h": 12
+      },
+      "resultado_ate_corte": {
+        "ocorrencias_registradas": 0,
+        "alagamento_registrado": false
+      },
+      "plancon": "AMARELO",
+      "fonte": {
+        "tipo": "Prefeitura de Joinville / Defesa Civil",
+        "url": "https://www.joinville.sc.gov.br/noticias/defesa-civil-de-joinville-permanece-acompanhando-a-condicao-climatica-nas-proximas-horas/"
+      },
+      "elegivel_TN": true,
+      "nota": "Controle de menor intensidade; nenhuma ocorrência durante madrugada/início da manhã segundo a fonte."
+    }
+  ],
+  "comparador_excluido": {
+    "data": "2023-02-23",
+    "chuva": "40 mm/1h",
+    "motivo": "Houve pontos de alagamento nas regiões Norte e Leste, embora sem chamados à Defesa Civil; portanto NÃO é negativo.",
+    "url": "https://www.joinville.sc.gov.br/noticias/defesa-civil-de-joinville-mantem-alerta-para-risco-de-temporal-nessa-sexta-feira/"
+  },
+  "regra": "Nenhum controle altera pesos/limiares do #175. A classificação foi fixada antes da rodada final.",
+  "status": "RODADA_2_FIXADA"
+}

@@ -54,6 +54,12 @@ CEMADEN_PCD_QUARENTENA = {
         "motivo": "TRANSMISSAO_ATIVA_PLUVIOMETRO_NAO_VALIDADO",
         "desde": "2026-10-04",
     },
+    "420910206A": {
+        "nome": "Centro",
+        "id": 6262,
+        "motivo": "VALOR_24H_PERSISTENTE_SEM_RESPOSTA_A_EVENTOS_PLUVIOMETRICOS_REGIONAIS",
+        "desde": "2026-10-06",
+    },
 }
 DEFESA_CIVIL_SC_BUSCA = "https://www.defesacivil.sc.gov.br/"
  
@@ -5395,7 +5401,7 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
     base = {
         "versao": "#130",
         "referencia": "Comasa - coordenada pública aproximada",
-        "raios_km": [2, 5, 10, 25],
+        "raios_km": [2, 5, 10, 25, 50],
         "dbz_numerico_validado": bool((legenda_oficial or {}).get("dbz_numerico_validado")),
         "equivale_chuva_medida": False,
         "eta_liberado": False,
@@ -5409,9 +5415,9 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
     km_por_px_lat = abs((EXT[3] - EXT[1]) * 111.32 / max(1, altura - 1))
     km_por_px_lon = abs((EXT[2] - EXT[0]) * 111.32 * math.cos(math.radians(LAT)) / max(1, largura - 1))
     passo = max(0.01, min(km_por_px_lat, km_por_px_lon))
-    alcance_px = int(math.ceil(25 / passo)) + 2
-    contagens = {r: Counter() for r in (2, 5, 10, 25)}
-    familias = {r: Counter() for r in (2, 5, 10, 25)}
+    alcance_px = int(math.ceil(50 / passo)) + 2
+    contagens = {r: Counter() for r in (2, 5, 10, 25, 50)}
+    familias = {r: Counter() for r in (2, 5, 10, 25, 50)}
     for y in range(max(0, y0-alcance_px), min(altura, y0+alcance_px+1)):
         for x in range(max(0, x0-alcance_px), min(largura, x0+alcance_px+1)):
             px = rgba.getpixel((x, y))
@@ -5422,13 +5428,13 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
                 continue
             lat, lon = px2geo(x, y, largura, altura)
             dist = hav(LAT, LON, lat, lon)
-            for raio in (2, 5, 10, 25):
+            for raio in (2, 5, 10, 25, 50):
                 if dist <= raio:
                     chave = (info.get("classe"), tuple(px[:3]))
                     contagens[raio][chave] += 1
                     familias[raio][info["familia_cor"]] += 1
     por_raio = {}
-    for raio in (2, 5, 10, 25):
+    for raio in (2, 5, 10, 25, 50):
         total = sum(contagens[raio].values())
         por_raio[str(raio)] = {
             "pixels_eco_qualitativo": total,

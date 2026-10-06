@@ -123,17 +123,28 @@ def snapshot_stats(regs):
             for e in r.get('estacoes') or []:
                 k=f"{e.get('rede')}:{e.get('codigo')}"; z=station.setdefault(k,{'nome':e.get('nome'),'rede':e.get('rede'),'codigo':e.get('codigo'),'coletas':0,'recebidas':0})
                 z['coletas']+=1; z['recebidas']+=e.get('recebida') is True
-        for z in station.values(): z['disponibilidade_pct']=pct(z['recebidas'],z['coletas'])
+        for z in station.values():
+            # #198: uma coleta isolada descreve presença/ausência naquele instante, não disponibilidade histórica.
+            z['disponibilidade_pct']=pct(z['recebidas'],z['coletas']) if z['coletas'] >= 2 else None
+            z['maturidade']='amostra_em_formacao' if z['coletas'] < 8 else 'descritiva'
         nv=[r.get('guaxanduva_v021') or {} for r in w]; nvals=[num(x.get('nivel_m')) for x in nv]; nvals=[x for x in nvals if x is not None]
         cm=[num(x.get('cm_h')) for x in nv]; cm=[x for x in cm if x is not None]
+        # #198: subida e queda são sinais diferentes; uma subida positiva nunca pode virar 'queda'.
+        # Exigimos ao menos 2 snapshots para chamar extremos de estatística temporal da janela.
+        subidas=[x for x in cm if x > 0]; quedas=[x for x in cm if x < 0]; temporal_ok=len(nvals) >= 2
         gx={'amostras':len(nvals),'min_m':round(min(nvals),3) if nvals else None,'media_m':round(sum(nvals)/len(nvals),3) if nvals else None,'max_m':round(max(nvals),3) if nvals else None,
-            'maior_subida_cm_h':round(max(cm),2) if cm else None,'maior_queda_cm_h':round(min(cm),2) if cm else None,'natureza':'MODELADO_NAO_INSTRUMENTAL'}
+            'maior_subida_cm_h':round(max(subidas),2) if temporal_ok and subidas else None,
+            'maior_queda_cm_h':round(abs(min(quedas)),2) if temporal_ok and quedas else None,
+            'variacao_temporal_disponivel':temporal_ok,'natureza':'MODELADO_NAO_INSTRUMENTAL'}
         fu=[r.get('fusion_175') or {} for r in w]; inds=[num(x.get('indice')) for x in fu]; inds=[x for x in inds if x is not None]; conf=[num(x.get('confianca_pct')) for x in fu]; conf=[x for x in conf if x is not None]
         classes={}
         for x in fu:
             c=x.get('classe') or 'SEM_CLASSE'; classes[c]=classes.get(c,0)+1
         fusion={'amostras':len(inds),'max_indice':round(max(inds),1) if inds else None,'media_indice':round(sum(inds)/len(inds),1) if inds else None,
-                'confianca_media_pct':round(sum(conf)/len(conf),1) if conf else None,'tempo_por_classe_pct':{k:pct(v,len(fu)) for k,v in classes.items()},
+                'confianca_media_pct':round(sum(conf)/len(conf),1) if conf else None,
+                'tempo_por_classe_pct':{k:pct(v,len(fu)) for k,v in classes.items()} if len(fu) >= 2 else {},
+                'classe_observada_atual':fu[-1].get('classe') if fu else None,
+                'distribuicao_temporal_disponivel':len(fu) >= 2,
                 'natureza':'EXPERIMENTAL_NAO_OPERACIONAL'}
         jout[rot]={'inicio':ini.isoformat(),'fim':fim.isoformat(),'snapshots':len(w),'radar':radar,'rede_meteorologica':list(station.values()),'guaxanduva_v021':gx,'fusion_175':fusion,
                    'cobertura_temporal_desde_implantacao_h':round((fim-min(dt(r['horario']) for r in w)).total_seconds()/3600,2) if len(w)>1 else 0.0}

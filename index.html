@@ -1111,7 +1111,7 @@ function renderOceanAtl202(A){
  pts.forEach((p,i)=>{if(i===0||i===pts.length-1||i%7===0){out+='<circle cx="'+X(i)+'" cy="'+Y(p.v)+'" r="4" fill="#6ee7d8" stroke="#071923" stroke-width="2"/><text x="'+X(i)+'" y="'+(H-17)+'" text-anchor="middle" fill="#a9c7d2" font-size="9">'+esc174k(p.data.slice(5))+'</text>'}});
  svg.innerHTML=out;
  const u=pts[pts.length-1];if(atual)atual.textContent=(u.v>=0?'+':'')+u.v.toFixed(2)+' °C';if(meta)meta.textContent='anomalia SST • '+u.data;
- if(nota){const sst=Number.isFinite(u.sst)?' • SST '+u.sst.toFixed(2)+' °C':'';nota.innerHTML='<b>Como ler:</b> a linha mostra a anomalia diária observada da temperatura da superfície do mar no Atlântico Sul próximo a SC. Acima de 0 °C = mais quente que a climatologia usada pelo produto; abaixo de 0 °C = mais frio.'+sst+' • NOAA/NCEI OISST v2.1 • atualização automática diária. Não atribui causalidade ao El Niño e, sozinho, não prevê chuva ou enchente.';}
+ if(meta&&A&&A.status==='cache_ultimo_valido')meta.textContent='último OISST válido • '+u.data+(A.idade_dado_dias!=null?' • '+A.idade_dado_dias+' d':''); if(nota){const sst=Number.isFinite(u.sst)?' • SST '+u.sst.toFixed(2)+' °C':'';const cache=(A&&A.status==='cache_ultimo_valido')?' <b>Contingência:</b> a coleta atual falhou; o gráfico preserva o último dado oficial válido, com sua data original.':'';nota.innerHTML='<b>Como ler:</b> a linha mostra a anomalia diária observada da temperatura da superfície do mar no Atlântico Sul próximo a SC. Acima de 0 °C = mais quente que a climatologia usada pelo produto; abaixo de 0 °C = mais frio.'+sst+' • NOAA/NCEI OISST v2.1 • atualização automática diária.'+cache+' Não atribui causalidade ao El Niño e, sozinho, não prevê chuva ou enchente.';}
 }
 
 function renderOceanRoni201(r,OR){

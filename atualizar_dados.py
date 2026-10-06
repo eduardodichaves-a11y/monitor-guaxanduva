@@ -6,6 +6,7 @@ import math
 import hashlib
 import statistics
 import time
+import os
 import re
 from urllib.parse import urljoin
 from collections import Counter, defaultdict, deque
@@ -16612,11 +16613,12 @@ def _pmel_ultima_estacao_173(dataset, variavel, qualidade, estacao, unidade):
 
 
 def _buscar_atlantico_sul_oisst_202():
-    """#202 — SST/anomalia observada no Atlântico Sul próximo a SC.
+    """#204 — OISST Atlântico Sul resiliente, com último valor oficial válido.
 
-    Consulta NOAA/NCEI OISST v2.1 pelo serviço NCSS do NOAA/PSL. Mantém
-    semântica fail-closed: falha externa não vira 0 °C e não altera alertas.
-    A série é observacional e não atribui causalidade ao ENSO/RONI.
+    A NOAA/PSL continua sendo a fonte primária. Cada consulta recebe até 3
+    tentativas. Se a coleta atual falhar, reutiliza SOMENTE a última série OISST
+    oficial já gravada em dados.json, preservando data/idade e marcando-a como
+    cache oficial; nunca converte falha em zero nem inventa observação.
     """
     base = {
         "status": "indisponivel",
@@ -16629,96 +16631,81 @@ def _buscar_atlantico_sul_oisst_202():
             "latitude": OISST_ATLANTICO_LAT_202,
             "longitude": -47.0,
         },
-        "serie_30d": [],
-        "anomalia_atual_c": None,
-        "sst_atual_c": None,
-        "data_produto": None,
-        "coletado_em": agora().isoformat(),
+        "serie_30d": [], "anomalia_atual_c": None, "sst_atual_c": None,
+        "data_produto": None, "coletado_em": agora().isoformat(),
         "uso_operacional_alerta_liberado": False,
         "regra_seguranca": "SST/anomalia e contexto oceanico; nao aciona sozinha alerta local, temporal ou enchente.",
         "observacao": "OISST e produto diario; dados recentes podem ser revisados pela NOAA. Falha/ausencia nunca vira zero.",
     }
+
+    # Último estado oficial publicado: usado apenas como contingência explícita.
+    anterior = None
     try:
-        hoje = datetime.now(UTC).date()
-        inicio = hoje - timedelta(days=39)
-        anos = sorted({inicio.year, hoje.year})
-        serie = {}
-        urls = []
-        for ano in anos:
-            a = max(inicio, date(ano, 1, 1))
-            b = min(hoje, date(ano, 12, 31))
-            if a > b:
-                continue
-            # Arquivos anuais OISST: anomalia e SST absoluta.
-            coletados = {}
-            for tipo, arquivo, var in (
-                ("anomalia", f"sst.day.anom.{ano}.nc", "anom"),
-                ("sst", f"sst.day.mean.{ano}.nc", "sst"),
-            ):
-                url = f"{OISST_PSL_NCSS_202}/{arquivo}"
-                params = {
-                    "var": var,
-                    "latitude": str(OISST_ATLANTICO_LAT_202),
-                    "longitude": str(OISST_ATLANTICO_LON_202),
-                    "time_start": a.isoformat() + "T00:00:00Z",
-                    "time_end": b.isoformat() + "T23:59:59Z",
-                    "accept": "csv",
-                }
-                rr = requests.get(url, params=params, timeout=30, headers={"User-Agent": "Monitor-Guaxanduva/1.0"})
+        if os.path.exists(ARQUIVO):
+            with open(ARQUIVO, "r", encoding="utf-8") as f:
+                antigo = json.load(f)
+            anterior = (((antigo or {}).get("super_el_nino_173") or {}).get("atlantico_sul_202"))
+    except Exception:
+        anterior = None
+
+    def _get_ncss_204(url, params):
+        erros = []
+        for tentativa in range(1, 4):
+            try:
+                rr = requests.get(url, params=params, timeout=35, headers={"User-Agent": "Monitor-Guaxanduva/1.0"})
                 rr.raise_for_status()
-                urls.append(rr.url)
-                leitor = csv.DictReader(io.StringIO(rr.text))
-                linhas = list(leitor)
-                # NCSS/THREDDS normalmente devolve cabecalhos com unidade,
-                # por exemplo ``anom[degC]`` e ``sst[degC]``. Nao assumir
-                # que a coluna se chama apenas ``anom``/``sst``.
-                campos = [str(c or "").strip() for c in (leitor.fieldnames or [])]
-                def _coluna_ncss_202(nome):
-                    alvo = str(nome).strip().lower()
+                if not rr.text or len(rr.text) < 20:
+                    raise ValueError("resposta CSV vazia/curta")
+                return rr, tentativa
+            except Exception as exc:
+                erros.append(f"t{tentativa}:{type(exc).__name__}:{str(exc)[:120]}")
+                if tentativa < 3:
+                    time.sleep(2 * tentativa)
+        raise RuntimeError(" | ".join(erros))
+
+    try:
+        hoje = datetime.now(UTC).date(); inicio = hoje - timedelta(days=39)
+        anos = sorted({inicio.year, hoje.year}); serie = {}; urls = []; tentativas_total = 0
+        for ano in anos:
+            a=max(inicio,date(ano,1,1)); b=min(hoje,date(ano,12,31))
+            if a>b: continue
+            coletados={}
+            for tipo,arquivo,var in (("anomalia",f"sst.day.anom.{ano}.nc","anom"),("sst",f"sst.day.mean.{ano}.nc","sst")):
+                url=f"{OISST_PSL_NCSS_202}/{arquivo}"
+                params={"var":var,"latitude":str(OISST_ATLANTICO_LAT_202),"longitude":str(OISST_ATLANTICO_LON_202),"time_start":a.isoformat()+"T00:00:00Z","time_end":b.isoformat()+"T23:59:59Z","accept":"csv"}
+                rr,tent=_get_ncss_204(url,params); tentativas_total += tent; urls.append(rr.url)
+                leitor=csv.DictReader(io.StringIO(rr.text)); linhas=list(leitor); campos=[str(c or "").strip() for c in (leitor.fieldnames or [])]
+                def col(nome):
+                    alvo=str(nome).strip().lower()
                     for c in campos:
-                        cl = c.lower()
-                        if cl == alvo or cl.startswith(alvo + "[") or cl.startswith(alvo + " ("):
-                            return c
+                        cl=c.lower()
+                        if cl==alvo or cl.startswith(alvo+"[") or cl.startswith(alvo+" ("): return c
                     return None
-                col_tempo = _coluna_ncss_202("time") or _coluna_ncss_202("date")
-                col_valor = _coluna_ncss_202(var)
-                if not col_tempo or not col_valor:
-                    raise ValueError(
-                        "NOAA OISST CSV sem colunas esperadas "
-                        f"({var}); recebidas: {', '.join(campos[:12])}"
-                    )
-                vals = {}
+                ct=col("time") or col("date"); cv=col(var)
+                if not ct or not cv: raise ValueError(f"NOAA OISST CSV sem colunas esperadas ({var}); recebidas: {', '.join(campos[:12])}")
+                vals={}
                 for row in linhas:
-                    tv = row.get(col_tempo) or ""
-                    vv = _numero_173(row.get(col_valor))
-                    if vv is None or not tv:
-                        continue
-                    dia = str(tv)[:10]
-                    vals[dia] = round(vv, 3)
-                coletados[tipo] = vals
-            dias = sorted(set(coletados.get("anomalia", {})) | set(coletados.get("sst", {})))
-            for dia in dias:
-                serie[dia] = {
-                    "data": dia,
-                    "anomalia_c": coletados.get("anomalia", {}).get(dia),
-                    "sst_c": coletados.get("sst", {}).get(dia),
-                }
-        pontos = [serie[k] for k in sorted(serie)][-30:]
-        validos = [x for x in pontos if x.get("anomalia_c") is not None]
-        if not validos:
-            raise ValueError("NOAA OISST sem anomalia valida na janela consultada")
-        ult = validos[-1]
-        base.update({
-            "status": "online",
-            "serie_30d": pontos,
-            "anomalia_atual_c": ult.get("anomalia_c"),
-            "sst_atual_c": ult.get("sst_c"),
-            "data_produto": ult.get("data"),
-            "amostras_validas": len(validos),
-            "url_consulta": urls[-1] if urls else None,
-        })
+                    tv=row.get(ct) or ""; vv=_numero_173(row.get(cv))
+                    if vv is not None and tv: vals[str(tv)[:10]]=round(vv,3)
+                coletados[tipo]=vals
+            for dia in sorted(set(coletados.get("anomalia",{}))|set(coletados.get("sst",{}))):
+                serie[dia]={"data":dia,"anomalia_c":coletados.get("anomalia",{}).get(dia),"sst_c":coletados.get("sst",{}).get(dia)}
+        pontos=[serie[k] for k in sorted(serie)][-30:]; validos=[x for x in pontos if x.get("anomalia_c") is not None]
+        if not validos: raise ValueError("NOAA OISST sem anomalia valida na janela consultada")
+        ult=validos[-1]
+        base.update({"status":"online","serie_30d":pontos,"anomalia_atual_c":ult.get("anomalia_c"),"sst_atual_c":ult.get("sst_c"),"data_produto":ult.get("data"),"amostras_validas":len(validos),"url_consulta":urls[-1] if urls else None,"tentativas_http_204":tentativas_total,"cache_ultimo_valido":False})
     except Exception as e:
-        base["erro"] = str(e)[:700]
+        erro_atual=str(e)[:700]
+        serie_ant=(anterior or {}).get("serie_30d") if isinstance(anterior,dict) else None
+        validos_ant=[x for x in (serie_ant or []) if isinstance(x,dict) and x.get("anomalia_c") is not None]
+        if validos_ant:
+            ult=validos_ant[-1]; data_prod=ult.get("data") or (anterior or {}).get("data_produto")
+            idade_dias=None
+            try: idade_dias=(datetime.now(UTC).date()-date.fromisoformat(str(data_prod)[:10])).days
+            except Exception: pass
+            base.update({"status":"cache_ultimo_valido","serie_30d":serie_ant[-30:],"anomalia_atual_c":ult.get("anomalia_c"),"sst_atual_c":ult.get("sst_c"),"data_produto":data_prod,"amostras_validas":len(validos_ant),"cache_ultimo_valido":True,"idade_dado_dias":idade_dias,"erro_coleta_atual":erro_atual,"observacao":"Coleta NOAA atual falhou; exibindo a ultima serie oficial OISST previamente validada, com data original preservada. Nenhum valor foi presumido."})
+        else:
+            base["erro"]=erro_atual
     return base
 
 def buscar_super_el_nino_173():

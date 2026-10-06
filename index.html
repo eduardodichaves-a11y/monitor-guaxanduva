@@ -91,6 +91,10 @@ a{display:block;background:#d9eef6;color:#09202b;text-align:center;text-decorati
 .radar-familias{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:12px}
 .radar-familia{border:1px solid #315564;border-radius:10px;padding:8px 5px;text-align:center;background:#091d26;min-width:0}
 .radar-familia b{display:block;font-size:10px;line-height:1.2}.radar-familia small{display:block;color:#a9c1cb;font-size:8px;margin-top:3px;line-height:1.2}
+/* #192 — gatilho qualitativo visual do RadarSC. Não libera C1–C16, dBZ ou mm/h. */
+.radar-familia.gatilho-ativo{outline:2px solid currentColor;box-shadow:0 0 0 2px rgba(255,255,255,.08),0 0 18px currentColor;transform:translateY(-1px)}
+.radar-familia.gatilho-ativo small:after{content:" • GATILHO ATIVO";font-weight:900;color:currentColor}
+
 .radar-familia.ativa{border:2px solid #7ee787;box-shadow:0 0 0 2px rgba(126,231,135,.14)}
 .fam-garoa{background:linear-gradient(180deg,rgba(0,90,255,.18),#091d26)}.fam-fraca{background:linear-gradient(180deg,rgba(0,180,60,.18),#091d26)}.fam-forte{background:linear-gradient(180deg,rgba(255,210,0,.18),#091d26)}.fam-temp{background:linear-gradient(180deg,rgba(255,40,40,.20),#091d26)}
 details.card.accordion{padding:0;overflow:hidden}details.card.accordion>summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}details.card.accordion>summary::-webkit-details-marker{display:none}details.card.accordion>summary:after{content:'›';font-size:28px;color:#8fd6ec;font-weight:800;transition:transform .2s}details.card.accordion[open]>summary:after{transform:rotate(90deg)}details.card.accordion .accordion-body{padding:0 18px 18px}details.card.accordion .accordion-kicker{color:#8fd6ec;font-size:11px;letter-spacing:1.2px;font-weight:800;text-transform:uppercase}details.card.accordion .accordion-title{font-size:20px;font-weight:900;margin-top:4px}
@@ -1192,6 +1196,21 @@ async function carregar(){
    return validas.reduce((melhor,item)=>Number(item.classe)<Number(melhor.classe)?item:melhor);
   }
   const familiaQualAtual191=escolhido?familiaMaisIntensa191(escolhido.familias_cor):{};
+
+  // #192 — a família qualitativa fresca aciona a faixa visual correspondente.
+  // Isto NÃO promove o eco a C1–C16, dBZ, mm/h nem alerta oficial.
+  const gatilhosRadar192={
+   azul_ciano:"fam-garoa",
+   verde:"fam-fraca",
+   amarelo:"fam-forte",laranja:"fam-forte",
+   vermelho:"fam-temp",rosa_magenta_roxo:"fam-temp"
+  };
+  document.querySelectorAll("#dashRadarFamilias .radar-familia").forEach(el=>el.classList.remove("gatilho-ativo"));
+  const gatilhoClasse192=radarFrescoReal?gatilhosRadar192[familiaQualAtual191.familia]:null;
+  if(gatilhoClasse192){
+   const el=document.querySelector("#dashRadarFamilias ."+gatilhoClasse192);
+   if(el)el.classList.add("gatilho-ativo");
+  }
   if(escolhido){
    const cls=classeMaisIntensa191(escolhido.classes_presentes);
    const fam=familiaQualAtual191;

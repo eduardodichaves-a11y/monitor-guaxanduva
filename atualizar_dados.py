@@ -5307,42 +5307,49 @@ def diagnostico_eco_oficial_local(imagem, legenda_oficial):
 # #130 - DICIONÁRIO QUALITATIVO DE CORES DO RADAR
 # =========================================================
 
-def familia_cor_radar(rgb):
-    """Classifica apenas a família visual da cor oficial.
- 
-    A interpretação meteorológica é deliberadamente qualitativa:
-    SIMEPAR documenta verde/amarelo como chuva de menor intensidade e
-    vermelho/rosa como chuva mais intensa/tempestades. A Defesa Civil SC
-    publica CMAX (dBZ) com vermelho/rosa em instabilidades intensas.
-    Nenhum valor numérico de dBZ ou mm/h é inferido aqui.
+def familia_cor_radar(rgb, classe=None):
+    """#194: família qualitativa pela ordem discreta da escala RadarSC.
+
+    Prioriza C1-C16 quando a cor vem da legenda oficial. Para cores presentes
+    apenas na paleta operacional COMP, usa mapeamento RGB explícito observado
+    no próprio produto RadarSC. Não infere dBZ nem mm/h.
     """
+    try:
+        if classe is not None:
+            c = int(classe)
+            if 14 <= c <= 16:
+                return "azul_ciano"
+            if 11 <= c <= 13:
+                return "verde"
+            if 8 <= c <= 10:
+                return "amarelo" if c in (9, 10) else "laranja"
+            if 1 <= c <= 7:
+                return "rosa_magenta_roxo" if c <= 4 else "vermelho"
+    except (TypeError, ValueError):
+        pass
+
     if not isinstance(rgb, (list, tuple)) or len(rgb) < 3:
         return "outra"
-    r, g, b = [int(v) for v in rgb[:3]]
-    mx, mn = max(r, g, b), min(r, g, b)
-    if mx - mn < 28:
-        return "neutra"
-    # rosa/magenta/roxo: vermelho e azul dominantes
-    if r >= 150 and b >= 120 and g <= min(r, b) * 0.82:
-        return "rosa_magenta_roxo"
-    # vermelho: canal R claramente dominante
-    if r >= 160 and r >= g * 1.35 and r >= b * 1.25:
-        return "vermelho"
-    # laranja: R dominante com G intermediário
-    if r >= 180 and 55 <= g < 210 and b <= 120:
-        return "laranja"
-    # amarelo: R e G altos, B baixo
-    if r >= 170 and g >= 150 and b <= 130:
-        return "amarelo"
-    # verde: G dominante
-    if g >= 110 and g >= r * 1.15 and g >= b * 1.10:
-        return "verde"
-    # ciano/azul: B ou combinação G+B dominantes
-    if b >= 120 and (b >= r * 1.20 or g >= r * 1.25):
-        return "azul_ciano"
-    return "outra"
- 
- 
+    cor = tuple(int(v) for v in rgb[:3])
+    mapa_operacional = {
+        (165,255,255): "azul_ciano",
+        (110,200,255): "azul_ciano",
+        (55,145,255): "azul_ciano",
+        (0,90,255): "azul_ciano",
+        (170,255,0): "verde",
+        (128,206,0): "verde",
+        (85,156,0): "verde",
+        (43,107,0): "verde",
+        (0,57,0): "verde",
+        (255,255,0): "amarelo",
+        (255,192,0): "amarelo",
+        (255,128,0): "laranja",
+        (255,64,0): "laranja",
+        (190,0,0): "vermelho",
+        (255,0,255): "rosa_magenta_roxo",
+    }
+    return mapa_operacional.get(cor, "outra")
+
 def significado_qualitativo_familia(familia):
     if familia in ("verde", "amarelo"):
         return {
@@ -5369,7 +5376,7 @@ def construir_dicionario_cores_130(legenda_oficial):
     classes=(legenda_oficial or {}).get("classes") or []
     dbz_ok=bool((legenda_oficial or {}).get("dbz_numerico_validado")); saida=[]
     for item in classes:
-        rgb=item.get("rgb"); familia=familia_cor_radar(rgb); significado=significado_qualitativo_familia(familia)
+        rgb=item.get("rgb"); familia=familia_cor_radar(rgb, item.get("classe")); significado=significado_qualitativo_familia(familia)
         saida.append({"classe":item.get("classe"),"classe_tipo":"indice_interno_monitor","rgb":rgb,
             "familia_cor":familia,**significado,"dbz":item.get("dbz") if dbz_ok else None,
             "dbz_min":item.get("dbz_min") if dbz_ok else None,"dbz_max":item.get("dbz_max") if dbz_ok else None,"mm_h":None})

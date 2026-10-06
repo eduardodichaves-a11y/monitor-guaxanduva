@@ -31,6 +31,8 @@ jobs:
           pip install requests beautifulsoup4 pillow paho-mqtt
       - name: Atualizar estado operacional
         run: python atualizar_operacional.py
+      - name: Atualizar Monitor Oceânico #174
+        run: python monitor_oceanico_174.py --timeout 4 --tentativas 13
       - name: Calcular Guaxanduva Fusion #175
         run: python fusion_guaxanduva_175.py
       - name: Publicar dados operacionais
@@ -40,11 +42,15 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           cp dados.json /tmp/dados-operacional.json
           cp fusion_guaxanduva_175.json /tmp/fusion-guaxanduva-175.json
+          cp monitor_oceanico_174.json /tmp/monitor-oceanico-174.json
+          cp monitor_oceanico_174_dashboard.json /tmp/monitor-oceanico-174-dashboard.json
           git fetch origin main
           git reset --hard origin/main
           cp /tmp/dados-operacional.json dados.json
           cp /tmp/fusion-guaxanduva-175.json fusion_guaxanduva_175.json
-          git add dados.json fusion_guaxanduva_175.json
+          cp /tmp/monitor-oceanico-174.json monitor_oceanico_174.json
+          cp /tmp/monitor-oceanico-174-dashboard.json monitor_oceanico_174_dashboard.json
+          git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json
           if git diff --cached --quiet; then
             echo "Dados operacionais já publicados."
             exit 0
@@ -56,7 +62,9 @@ jobs:
             git reset --hard origin/main
             cp /tmp/dados-operacional.json dados.json
             cp /tmp/fusion-guaxanduva-175.json fusion_guaxanduva_175.json
-            git add dados.json fusion_guaxanduva_175.json
+            cp /tmp/monitor-oceanico-174.json monitor_oceanico_174.json
+            cp /tmp/monitor-oceanico-174-dashboard.json monitor_oceanico_174_dashboard.json
+            git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json
             git diff --cached --quiet && exit 0
             git commit -m "Atualiza estado operacional do Monitor Guaxanduva"
           done

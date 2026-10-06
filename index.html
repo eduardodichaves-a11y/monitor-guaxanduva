@@ -602,9 +602,9 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <div class="radar-cor-aviso"><b>🛡️ Regra de segurança:</b> a cor descreve refletividade do quadro RadarSC, não chuva medida no Comasa. Se o quadro estiver desatualizado, a cor permanece apenas como diagnóstico do último quadro recebido e não representa a situação atual.</div>
 </div>
 </details>
-<div class="radar-item">🧩 Classe interna do Monitor<b id="ecoQualClasse">--</b></div>
+<div class="radar-item">🧩 Classe interna do Monitor<b id="ecoQualClasse">NÃO ATRIBUÍDA</b></div>
 <div class="radar-item">📍 Menor raio com eco<b id="ecoQualRaio">--</b></div>
-<div class="radar-item">📡 Faixa RadarSC<b id="ecoQualDbz">--</b></div>
+<div class="radar-item">📡 Faixa dBZ do quadro atual<b id="ecoQualDbz">NÃO ATRIBUÍDA</b></div>
 <div class="radar-item">🔎 Pixels de eco / oficiais<b id="ecoQualPixels">--</b></div>
 </div>
 <div id="ecoQualInterpretacao" class="box aviso">Aguardando diagnóstico qualitativo...</div>
@@ -1164,8 +1164,8 @@ async function carregar(){
    const infoDbz=cls.classe==null?null:mapaDbz[Number(cls.classe)];
    const dbzOk=leg.dbz_numerico_validado===true&&v169.rgb_para_faixa_dbz_validado===true&&infoDbz&&infoDbz.dbz_min!=null&&infoDbz.dbz_max!=null;
    $("ecoQualCor").textContent=nomeFamilia(fam.familia);
-   $("ecoQualClasse").textContent=cls.classe==null?"--":"C"+cls.classe+" • ÍNDICE INTERNO";
-   $("ecoQualDbz").textContent=dbzOk?f(infoDbz.dbz_min,1)+"–"+f(infoDbz.dbz_max,1)+" dBZ":"BLOQUEADA";
+   $("ecoQualClasse").textContent=cls.classe==null?"NÃO ATRIBUÍDA":"C"+cls.classe+" • ÍNDICE INTERNO";
+   $("ecoQualDbz").textContent=dbzOk?f(infoDbz.dbz_min,1)+"–"+f(infoDbz.dbz_max,1)+" dBZ":"NÃO ATRIBUÍDA";
    $("ecoQualRaio").textContent="≤ "+escolhido.raio+" km";
    $("ecoQualPixels").textContent=(escolhido.pixels_oficiais_classificados??0)+" oficiais • "+(escolhido.pixels_eco_qualitativo??escolhido.pixels_oficiais_classificados??0)+" eco";
    const fresco=radarFrescoReal;

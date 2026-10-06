@@ -35,6 +35,8 @@ jobs:
         run: python monitor_oceanico_174.py --timeout 4 --tentativas 13
       - name: Calcular Guaxanduva Fusion #175
         run: python fusion_guaxanduva_175.py
+      - name: Calcular Estatística Operacional Contínua #190
+        run: python estatisticas_operacionais_190.py
       - name: Publicar dados operacionais
         run: |
           set -euo pipefail
@@ -44,13 +46,17 @@ jobs:
           cp fusion_guaxanduva_175.json /tmp/fusion-guaxanduva-175.json
           cp monitor_oceanico_174.json /tmp/monitor-oceanico-174.json
           cp monitor_oceanico_174_dashboard.json /tmp/monitor-oceanico-174-dashboard.json
+          cp historico_operacional_190.json /tmp/historico-operacional-190.json
+          cp estatisticas_operacionais_190.json /tmp/estatisticas-operacionais-190.json
           git fetch origin main
           git reset --hard origin/main
           cp /tmp/dados-operacional.json dados.json
           cp /tmp/fusion-guaxanduva-175.json fusion_guaxanduva_175.json
           cp /tmp/monitor-oceanico-174.json monitor_oceanico_174.json
           cp /tmp/monitor-oceanico-174-dashboard.json monitor_oceanico_174_dashboard.json
-          git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json
+          cp /tmp/historico-operacional-190.json historico_operacional_190.json
+          cp /tmp/estatisticas-operacionais-190.json estatisticas_operacionais_190.json
+          git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json historico_operacional_190.json estatisticas_operacionais_190.json
           if git diff --cached --quiet; then
             echo "Dados operacionais já publicados."
             exit 0
@@ -64,7 +70,9 @@ jobs:
             cp /tmp/fusion-guaxanduva-175.json fusion_guaxanduva_175.json
             cp /tmp/monitor-oceanico-174.json monitor_oceanico_174.json
             cp /tmp/monitor-oceanico-174-dashboard.json monitor_oceanico_174_dashboard.json
-            git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json
+            cp /tmp/historico-operacional-190.json historico_operacional_190.json
+            cp /tmp/estatisticas-operacionais-190.json estatisticas_operacionais_190.json
+            git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json historico_operacional_190.json estatisticas_operacionais_190.json
             git diff --cached --quiet && exit 0
             git commit -m "Atualiza estado operacional do Monitor Guaxanduva"
           done

@@ -1064,6 +1064,20 @@ async function carregarOceanico174k(){
  try{
   const r=await fetch("monitor_oceanico_174_dashboard.json?"+Date.now(),{cache:"no-store"}); if(!r.ok)throw Error("HTTP "+r.status);
   const d=await r.json(), o=d.oceanos||{};
+  const produtoMs=Date.parse(d.produto_horario_utc||d.produto_horario_local||"");
+  const idadeMin=Number.isFinite(produtoMs)?Math.max(0,(Date.now()-produtoMs)/60000):Infinity;
+  const limiteFrescorMin=150; // janela de busca #174 (até 120 min) + 30 min de tolerância operacional
+  const fresco=Number.isFinite(idadeMin)&&idadeMin<=limiteFrescorMin&&d.status==="EXPERIMENTAL";
+  const local=d.produto_horario_local?new Date(d.produto_horario_local).toLocaleString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"--";
+  if(!fresco){
+   ["ocean174kResumoAtlSul","ocean174kResumoAtlJoinville","ocean174kResumoPacSul","ocean174kResumoPacJoinville"].forEach(id=>$(id).textContent="⚪ DADO DESATUALIZADO • não interpretar");
+   $("ocean174kEstado").innerHTML='<span class="erro">🟠 DADOS OCEÂNICOS DESATUALIZADOS / INDISPONÍVEIS</span> • último produto '+esc174k(local)+(Number.isFinite(idadeMin)?' • idade '+Math.round(idadeMin)+' min':'')+' • limite '+limiteFrescorMin+' min';
+   $("ocean174kAtlantico").innerHTML='<div class="box aviso">Dados fora da janela de frescor • trajetórias antigas ocultadas por segurança.</div>';
+   $("ocean174kPacifico").innerHTML='<div class="box aviso">Dados fora da janela de frescor • trajetórias antigas ocultadas por segurança.</div>';
+   $("ocean174kMensagem").textContent='O último produto #174 não é recente o bastante para representar a situação atual. Isso não significa ausência de tempestade.';
+   $("ocean174kMeta").innerHTML='<b>FAIL-CLOSED #189:</b> o painel não reutiliza classificação oceânica antiga como se fosse atual. Fonte: '+esc174k(d.fonte||"não informada")+' • ETA BLOQUEADO • uso operacional BLOQUEADO.';
+   return;
+  }
   const resumo=(dest)=>{const n=nivel174k(dest?.nivel_evidencia),q=Number(dest?.p60_reforcados||0);return n.icone+' '+n.rotulo+(q?(' • '+q+' trajetória'+(q===1?'':'s')+' reforçada'+(q===1?'':'s')+' após 60 min'):'');};
   $("ocean174kResumoAtlSul").textContent=resumo(o.atlantico?.destinos?.sul_brasil);
   $("ocean174kResumoAtlJoinville").textContent=resumo(o.atlantico?.destinos?.norte_sc_joinville);
@@ -1071,10 +1085,9 @@ async function carregarOceanico174k(){
   $("ocean174kResumoPacJoinville").textContent=resumo(o.pacifico?.destinos?.norte_sc_joinville);
   $("ocean174kAtlantico").innerHTML=oceano174k(o.atlantico,"🌊");
   $("ocean174kPacifico").innerHTML=oceano174k(o.pacifico,"🌎");
-  const local=d.produto_horario_local?new Date(d.produto_horario_local).toLocaleString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"--";
-  $("ocean174kEstado").innerHTML='<span class="ok">🟢 CONTRATO #174-J CARREGADO</span> • produto '+esc174k(local)+' • '+esc174k(d.fonte||"fonte não informada");
+  $("ocean174kEstado").innerHTML='<span class="ok">🟢 CONTRATO #174-J ATUAL</span> • produto '+esc174k(local)+' • idade '+Math.round(idadeMin)+' min • '+esc174k(d.fonte||"fonte não informada");
   $("ocean174kMensagem").textContent=d.mensagem_leiga||"Sem síntese disponível.";
-  $("ocean174kMeta").innerHTML='<b>COMO LER:</b> distância = posição atual; 60 min = tempo de trajetória já observada; 3 h = tempo em que o ambiente permaneceu favorável. <b>Nenhum desses tempos é previsão de chegada.</b> Um horário só será mostrado quando o ETA estiver cientificamente liberado.<br><br>Continental não atribuído a oceano: '+(d.continental_nao_atribuido_a_oceano??0)+' • ETA '+(d.eta_liberado===true?'LIBERADO':'BLOQUEADO')+' • uso operacional '+(d.uso_operacional===true?'LIBERADO':'BLOQUEADO')+' • '+esc174k(d.nota_metodologica||'Setor atual não prova origem oceânica.');
+  $("ocean174kMeta").innerHTML='<b>COMO LER:</b> distância = posição atual; 60 min = tempo de trajetória já observada; 3 h = tempo em que o ambiente permaneceu favorável. <b>Nenhum desses tempos é previsão de chegada.</b> Um horário só será mostrado quando o ETA estiver cientificamente liberado.<br><br>Frescor #189: '+Math.round(idadeMin)+'/'+limiteFrescorMin+' min • Continental não atribuído a oceano: '+(d.continental_nao_atribuido_a_oceano??0)+' • ETA '+(d.eta_liberado===true?'LIBERADO':'BLOQUEADO')+' • uso operacional '+(d.uso_operacional===true?'LIBERADO':'BLOQUEADO')+' • '+esc174k(d.nota_metodologica||'Setor atual não prova origem oceânica.');
  }catch(e){
   ["ocean174kResumoAtlSul","ocean174kResumoAtlJoinville","ocean174kResumoPacSul","ocean174kResumoPacJoinville"].forEach(id=>$(id).textContent="⚪ INCONCLUSIVO • fonte indisponível");
   $("ocean174kEstado").innerHTML='<span class="erro">🔴 Monitor Oceânico indisponível nesta coleta.</span><br><small>'+esc174k(e.message)+'</small>';

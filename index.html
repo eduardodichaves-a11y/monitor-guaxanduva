@@ -1169,9 +1169,32 @@ async function carregar(){
    const x=pr[raio]||{};
    if(x.eco_qualitativo_detectado===true || x.eco_oficial_detectado===true){escolhido={raio,...x};break}
   }
+  // #191 — seleção coerente do eco atual.
+  // O menor raio continua tendo prioridade espacial. Dentro dele, a família
+  // exibida é a de maior refletividade qualitativa presente, não a mais numerosa.
+  // Para C1–C16, menor índice = maior refletividade na escala RadarSC.
+  const prioridadeFamilia191={
+   outra:0,neutra:0,azul_ciano:1,verde:2,amarelo:3,laranja:3,
+   vermelho:4,rosa_magenta_roxo:4
+  };
+  function familiaMaisIntensa191(lista){
+   return (Array.isArray(lista)?lista:[]).reduce((melhor,item)=>{
+    if(!item)return melhor;
+    const p=prioridadeFamilia191[item.familia]??0;
+    const pm=melhor?(prioridadeFamilia191[melhor.familia]??0):-1;
+    return p>pm?item:melhor;
+   },null)||{};
+  }
+  function classeMaisIntensa191(lista){
+   const validas=(Array.isArray(lista)?lista:[])
+    .filter(x=>x&&x.classe!==null&&x.classe!==undefined&&x.classe!==""&&Number.isFinite(Number(x.classe)));
+   if(!validas.length)return {};
+   return validas.reduce((melhor,item)=>Number(item.classe)<Number(melhor.classe)?item:melhor);
+  }
+  const familiaQualAtual191=escolhido?familiaMaisIntensa191(escolhido.familias_cor):{};
   if(escolhido){
-   const cls=(escolhido.classes_presentes||[])[0]||{};
-   const fam=(escolhido.familias_cor||[])[0]||{};
+   const cls=classeMaisIntensa191(escolhido.classes_presentes);
+   const fam=familiaQualAtual191;
    const leg=rad.legenda_oficial||{}, v169=leg.validacao_169||{}, mapaDbz={};
    (leg.classes||[]).forEach(x=>{if(x&&x.classe!=null)mapaDbz[Number(x.classe)]=x});
    const infoDbz=cls.classe==null?null:mapaDbz[Number(cls.classe)];
@@ -1714,10 +1737,10 @@ async function carregar(){
   }
   if(escolhido&&classeAtual!==null&&radarFrescoReal){
     const atualInfo=dicRadar.find(x=>x&&x.classe!=null&&Number(x.classe)===classeAtual)||{classe:classeAtual};
-    const famAtual=atualInfo.familia_cor||((escolhido.familias_cor||[])[0]||{}).familia||"não informada";
+    const famAtual=atualInfo.familia_cor||familiaQualAtual191.familia||"não informada";
     $("dashRadarEco").innerHTML='<span class="ok">▼ ECO AGORA • C'+classeAtual+' • '+faixaDbzDash(atualInfo)+'</span><br><small>Cor: '+nomeFamilia(famAtual)+' • eco RadarSC detectado em até '+escolhido.raio+' km da referência. A classe C1–C16 só é exibida quando há correspondência oficial validada. dBZ descreve refletividade do radar e não equivale a chuva medida no solo.</small>';
   }else if(escolhido&&radarFrescoReal){
-    const famAtual=((escolhido.familias_cor||[])[0]||{}).familia||"não informada";
+    const famAtual=familiaQualAtual191.familia||"não informada";
     $("dashRadarEco").innerHTML='<span class="ok">▼ ECO AGORA • DETECÇÃO QUALITATIVA</span><br><small>Família visual: '+nomeFamilia(famAtual)+' • eco RadarSC detectado em até '+escolhido.raio+' km da referência. Sem correspondência oficial validada, o Monitor NÃO atribui C1–C16, dBZ, intensidade física nem mm/h a este eco.</small>';
   }else if(cq.status&&!radarFrescoReal){
     $("dashRadarEco").innerHTML='<span class="erro">⚠ QUADRO DESATUALIZADO • SEM CONCLUSÃO SOBRE AGORA</span><br><small>O último quadro não é recente o bastante para afirmar presença ou ausência de chuva neste momento.</small>';

@@ -16667,11 +16667,30 @@ def _buscar_atlantico_sul_oisst_202():
                 rr = requests.get(url, params=params, timeout=30, headers={"User-Agent": "Monitor-Guaxanduva/1.0"})
                 rr.raise_for_status()
                 urls.append(rr.url)
-                linhas = list(csv.DictReader(io.StringIO(rr.text)))
+                leitor = csv.DictReader(io.StringIO(rr.text))
+                linhas = list(leitor)
+                # NCSS/THREDDS normalmente devolve cabecalhos com unidade,
+                # por exemplo ``anom[degC]`` e ``sst[degC]``. Nao assumir
+                # que a coluna se chama apenas ``anom``/``sst``.
+                campos = [str(c or "").strip() for c in (leitor.fieldnames or [])]
+                def _coluna_ncss_202(nome):
+                    alvo = str(nome).strip().lower()
+                    for c in campos:
+                        cl = c.lower()
+                        if cl == alvo or cl.startswith(alvo + "[") or cl.startswith(alvo + " ("):
+                            return c
+                    return None
+                col_tempo = _coluna_ncss_202("time") or _coluna_ncss_202("date")
+                col_valor = _coluna_ncss_202(var)
+                if not col_tempo or not col_valor:
+                    raise ValueError(
+                        "NOAA OISST CSV sem colunas esperadas "
+                        f"({var}); recebidas: {', '.join(campos[:12])}"
+                    )
                 vals = {}
                 for row in linhas:
-                    tv = row.get("time") or row.get("date") or ""
-                    vv = _numero_173(row.get(var))
+                    tv = row.get(col_tempo) or ""
+                    vv = _numero_173(row.get(col_valor))
                     if vv is None or not tv:
                         continue
                     dia = str(tv)[:10]

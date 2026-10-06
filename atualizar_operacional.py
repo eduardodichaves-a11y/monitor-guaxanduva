@@ -82,28 +82,38 @@ def main():
     # O index.html não consulta esta cópia dentro de dados.json.
     dados.pop("auditoria_espacial_zr_170_i", None)
 
-    # #187-C — projeção operacional do RadarSC para o navegador.
-    # O objeto completo é usado acima pelos cálculos (#168/estado canônico), mas
-    # o index.html atual consome somente estes campos. Assim evitamos enviar ao
-    # celular quadros e diagnósticos intermediários que não são renderizados.
+    # #187-D — contrato operacional mínimo do RadarSC.
+    # Mantém a projeção leve do #187-C, mas preserva também os campos pequenos
+    # consumidos pela Fusion #175 e a telemetria #176/#178 necessária à auditoria.
+    # Estruturas volumosas (como "quadros" e "ultimo_quadro") continuam fora
+    # do dados.json público para não reintroduzir a saturação removida no #187.
     if isinstance(dados.get("radar"), dict):
-        _radar_completo_187c = dados["radar"]
-        _campos_radar_index_187c = (
+        _radar_completo_187d = dados["radar"]
+        _campos_radar_operacionais_187d = (
             "status",
+            "dados_frescos",
+            "limite_frescor_min",
             "quadros_png_validos",
+            "quantidade_quadros",
+            "todos_png_validos",
+            "dimensoes_consistentes",
             "horario_ultimo_quadro",
             "idade_ultimo_quadro_min",
+            "diagnostico_lista_fonte_176",
+            "timestamp_radar_178",
             "legenda_oficial",
             "validacao_paleta_radar",
             "dicionario_cores_130",
             "classificacao_qualitativa_local_130",
+            "eco_oficial_local_129",
+            "analise_movimento",
             "rastreamento_temporal",
             "avaliacao_trajetorias",
         )
         dados["radar"] = {
-            campo: _radar_completo_187c[campo]
-            for campo in _campos_radar_index_187c
-            if campo in _radar_completo_187c
+            campo: _radar_completo_187d[campo]
+            for campo in _campos_radar_operacionais_187d
+            if campo in _radar_completo_187d
         }
 
     ARQUIVO.write_text(json.dumps(dados,ensure_ascii=False,separators=(",",":")),encoding="utf-8")

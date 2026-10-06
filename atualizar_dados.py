@@ -9,7 +9,7 @@ import time
 import re
 from urllib.parse import urljoin
 from collections import Counter, defaultdict, deque
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from zoneinfo import ZoneInfo
  
 import requests
@@ -16352,6 +16352,12 @@ RONI_CPC_PROB_173 = "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/
 RONI_CPC_OUTLOOK_185 = "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/outlook/"
 PMEL_ERDDAP_173 = "https://data.pmel.noaa.gov/pmel/erddap/tabledap"
 
+# #202 — Atlântico Sul próximo a SC: NOAA/NCEI OISST v2.1 via PSL/THREDDS NCSS.
+# Ponto oceânico de referência ~27 S, 47 W (313 E), fora da costa de SC.
+OISST_PSL_NCSS_202 = "https://psl.noaa.gov/thredds/ncss/grid/Datasets/noaa.oisst.v2.highres"
+OISST_ATLANTICO_LAT_202 = -27.0
+OISST_ATLANTICO_LON_202 = 313.0
+
 
 def _numero_173(valor):
     try:
@@ -16604,6 +16610,98 @@ def _pmel_ultima_estacao_173(dataset, variavel, qualidade, estacao, unidade):
     return base
 
 
+
+def _buscar_atlantico_sul_oisst_202():
+    """#202 — SST/anomalia observada no Atlântico Sul próximo a SC.
+
+    Consulta NOAA/NCEI OISST v2.1 pelo serviço NCSS do NOAA/PSL. Mantém
+    semântica fail-closed: falha externa não vira 0 °C e não altera alertas.
+    A série é observacional e não atribui causalidade ao ENSO/RONI.
+    """
+    base = {
+        "status": "indisponivel",
+        "natureza": "OBSERVADO_SST_ANOMALIA",
+        "fonte": "NOAA/NCEI OISST v2.1 via NOAA/PSL",
+        "produto": "Daily Optimum Interpolation Sea Surface Temperature v2.1",
+        "unidade": "grau_C_anomalia",
+        "ponto_referencia": {
+            "descricao": "Atlantico Sul proximo a Santa Catarina",
+            "latitude": OISST_ATLANTICO_LAT_202,
+            "longitude": -47.0,
+        },
+        "serie_30d": [],
+        "anomalia_atual_c": None,
+        "sst_atual_c": None,
+        "data_produto": None,
+        "coletado_em": agora().isoformat(),
+        "uso_operacional_alerta_liberado": False,
+        "regra_seguranca": "SST/anomalia e contexto oceanico; nao aciona sozinha alerta local, temporal ou enchente.",
+        "observacao": "OISST e produto diario; dados recentes podem ser revisados pela NOAA. Falha/ausencia nunca vira zero.",
+    }
+    try:
+        hoje = datetime.now(UTC).date()
+        inicio = hoje - timedelta(days=39)
+        anos = sorted({inicio.year, hoje.year})
+        serie = {}
+        urls = []
+        for ano in anos:
+            a = max(inicio, date(ano, 1, 1))
+            b = min(hoje, date(ano, 12, 31))
+            if a > b:
+                continue
+            # Arquivos anuais OISST: anomalia e SST absoluta.
+            coletados = {}
+            for tipo, arquivo, var in (
+                ("anomalia", f"sst.day.anom.{ano}.nc", "anom"),
+                ("sst", f"sst.day.mean.{ano}.nc", "sst"),
+            ):
+                url = f"{OISST_PSL_NCSS_202}/{arquivo}"
+                params = {
+                    "var": var,
+                    "latitude": str(OISST_ATLANTICO_LAT_202),
+                    "longitude": str(OISST_ATLANTICO_LON_202),
+                    "time_start": a.isoformat() + "T00:00:00Z",
+                    "time_end": b.isoformat() + "T23:59:59Z",
+                    "accept": "csv",
+                }
+                rr = requests.get(url, params=params, timeout=30, headers={"User-Agent": "Monitor-Guaxanduva/1.0"})
+                rr.raise_for_status()
+                urls.append(rr.url)
+                linhas = list(csv.DictReader(io.StringIO(rr.text)))
+                vals = {}
+                for row in linhas:
+                    tv = row.get("time") or row.get("date") or ""
+                    vv = _numero_173(row.get(var))
+                    if vv is None or not tv:
+                        continue
+                    dia = str(tv)[:10]
+                    vals[dia] = round(vv, 3)
+                coletados[tipo] = vals
+            dias = sorted(set(coletados.get("anomalia", {})) | set(coletados.get("sst", {})))
+            for dia in dias:
+                serie[dia] = {
+                    "data": dia,
+                    "anomalia_c": coletados.get("anomalia", {}).get(dia),
+                    "sst_c": coletados.get("sst", {}).get(dia),
+                }
+        pontos = [serie[k] for k in sorted(serie)][-30:]
+        validos = [x for x in pontos if x.get("anomalia_c") is not None]
+        if not validos:
+            raise ValueError("NOAA OISST sem anomalia valida na janela consultada")
+        ult = validos[-1]
+        base.update({
+            "status": "online",
+            "serie_30d": pontos,
+            "anomalia_atual_c": ult.get("anomalia_c"),
+            "sst_atual_c": ult.get("sst_c"),
+            "data_produto": ult.get("data"),
+            "amostras_validas": len(validos),
+            "url_consulta": urls[-1] if urls else None,
+        })
+    except Exception as e:
+        base["erro"] = str(e)[:700]
+    return base
+
 def buscar_super_el_nino_173():
     # Eixo equatorial dentro/adjacente a Nino 3.4. Cada estacao falha isoladamente.
     estacoes = ["0n170w", "0n155w", "0n140w", "0n125w"]
@@ -16613,8 +16711,9 @@ def buscar_super_el_nino_173():
     roni = _buscar_rONI_cpc_173()
     probabilidades = _buscar_probabilidades_cpc_173()
     outlook_roni = _buscar_outlook_roni_cpc_185()
+    atlantico_sul_202 = _buscar_atlantico_sul_oisst_202()
 
-    blocos = [roni, probabilidades, outlook_roni] + sst + iso + heat
+    blocos = [roni, probabilidades, outlook_roni, atlantico_sul_202] + sst + iso + heat
     online = sum(1 for x in blocos if isinstance(x, dict) and str(x.get("status", "")).startswith("online"))
     total = len(blocos)
     if online == total:
@@ -16633,6 +16732,7 @@ def buscar_super_el_nino_173():
         "fontes_testadas": total,
         "gates_existentes_alterados": False,
         "uso_operacional_alerta_liberado": False,
+        "atlantico_sul_202": atlantico_sul_202,
         "pacifico": {
             "sst_tao_triton": sst,
             "isoterma_20c_tao_triton": iso,

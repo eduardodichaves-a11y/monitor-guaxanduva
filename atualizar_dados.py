@@ -10371,39 +10371,74 @@ def _epagri_instante_165(texto):
     except Exception: return None
  
 def buscar_chuva_epagri_165():
-    resultado={"status":"indisponivel","fonte":"EPAGRI/CIRAM","tipo":"precipitacao_horaria_observada","variavel":271,"produto":"horario","grupo":4,"janela_h":1,"estacoes":[],"regra_seguranca":"Cada leitura pertence a sua propria estacao. Zero retornado no campo de precipitacao e preservado como zero; falha, ausencia ou valor invalido permanece null e nunca e convertido em zero."}
+    """#207-R: descobre a rede EPAGRI/CIRAM da variavel 271 e preserva fallback #165."""
+    resultado={"status":"indisponivel","fonte":"EPAGRI/CIRAM","tipo":"precipitacao_horaria_observada","variavel":271,"produto":"horario","grupo":4,"janela_h":1,"estacoes":[],"descoberta_rede_207_r":{"status":"nao_executada","raio_max_km":50,"referencia":{"latitude":LAT,"longitude":LON}},"regra_seguranca":"Cada leitura pertence a sua propria estacao. Zero retornado no campo de precipitacao e preservado como zero; falha, ausencia ou valor invalido permanece null e nunca e convertido em zero. A #207-R usa coordenadas devolvidas pelo proprio Agroconnect e distancia Haversine; proximidade radial nao prova coincidencia com o pixel do eco RadarSC."}
     sessao=requests.Session(); sessao.headers.update({"User-Agent":"Mozilla/5.0 Monitor-Guaxanduva/1.0","Accept":"*/*","Referer":EPAGRI_AGROCONNECT,"Origin":"https://ciram.epagri.sc.gov.br","X-Requested-With":"XMLHttpRequest"})
     filtros=[("0","todas"),("42","todas"),("0","epagri"),("42","epagri"),("0","0"),("42","0")]
-    for codigo,nome in EPAGRI_ESTACOES_CHUVA:
-        item={"codigo":str(codigo),"nome":nome,"fonte":"EPAGRI/CIRAM","rede":"EPAGRI/CIRAM","latitude":None,"longitude":None,"precipitacao_1h_mm":None,"horario_medicao":None,"idade_leitura_min":None,"dados_frescos":False,"leitura_atual_disponivel":False,"aquisicao_automatica_integrada":True,"status":"indisponivel","equivale_medicao_no_comasa":False}
+
+    def consultar(codigo, nome=""):
         ultimo_erro=None
         for estado,tipo_estacao in filtros:
             agora_ms=int(time.time()*1000); keyy=_epagri_keyy_165(agora_ms); hoje=agora().strftime("%d-%m-%Y")
-            params=[("cd_estacao",str(codigo)),("cd_cultura","0"),("produto","horario"),("cd_variavel","271"),("grupo","4"),("data",hoje),("nhoras","1"),("estado_",estado),("tipoEstacao_",tipo_estacao),("dt",str(agora_ms)),("date",_epagri_date_165(hoje,codigo)),("idestacao",f"{nome}: {codigo}"),("ka",keyy)]
+            params=[("cd_estacao",str(codigo)),("cd_cultura","0"),("produto","horario"),("cd_variavel","271"),("grupo","4"),("data",hoje),("nhoras","1"),("estado_",estado),("tipoEstacao_",tipo_estacao),("dt",str(agora_ms)),("date",_epagri_date_165(hoje,codigo)),("idestacao",f"{nome}: {codigo}" if nome else ""),("ka",keyy)]
             try:
                 r=sessao.post(EPAGRI_AGROCONNECT_BUSCA,params=params,timeout=30,allow_redirects=True); r.raise_for_status()
                 dec=_epagri_ack3uk_165(r.text.replace("\r","").replace("\n",""),keyy)
-                candidatos=[]
+                registros=[]
                 for registro in [x.strip() for x in dec.replace("\n","").split(";;") if x.strip()]:
                     campos=[x.strip() for x in registro.split(",")]
-                    if len(campos)<7 or campos[0]!=str(codigo): continue
+                    if len(campos)<7: continue
+                    if str(codigo)!="0" and campos[0]!=str(codigo): continue
+                    try: lat=float(campos[3]); lon=float(campos[2])
+                    except Exception: lat=lon=None
                     try: valor=float(campos[4])
                     except Exception: valor=None
-                    candidatos.append((_epagri_instante_165(campos[6]),valor,campos))
-                if not candidatos: continue
-                candidatos.sort(key=lambda x:x[0] or datetime.min.replace(tzinfo=FUSO)); instante,valor,campos=candidatos[-1]
+                    instante=_epagri_instante_165(campos[6])
+                    registros.append((instante,valor,campos,lat,lon))
+                if registros: return registros,None
+            except Exception as exc: ultimo_erro=str(exc)
+        return [],ultimo_erro
+
+    # O main.js oficial chama getDados com cd_estac=0 para montar os marcadores do mapa.
+    # A resposta de busca.jsp traz codigo,nome,longitude,latitude,valor,municipio,data,...
+    # #207-R tenta essa consulta ampla e retém somente estações <=50 km do ponto técnico.
+    amplos,erro_amplo=consultar(0)
+    por_codigo={}
+    for instante,valor,campos,lat,lon in amplos:
+        if lat is None or lon is None or not (-90<=lat<=90 and -180<=lon<=180): continue
+        distancia=hav(LAT,LON,lat,lon)
+        if distancia>50.0: continue
+        codigo=str(campos[0]); nome=campos[1] or f"EPAGRI {codigo}"
+        atual=por_codigo.get(codigo)
+        if atual is None or (instante or datetime.min.replace(tzinfo=FUSO)) > (atual[0] or datetime.min.replace(tzinfo=FUSO)):
+            por_codigo[codigo]=(instante,valor,campos,lat,lon,distancia,nome)
+
+    if por_codigo:
+        for codigo,(instante,valor,campos,lat,lon,distancia,nome) in sorted(por_codigo.items(),key=lambda kv:kv[1][5]):
+            idade=max(0.0,(agora()-instante).total_seconds()/60.0) if instante else None
+            valido=isinstance(valor,(int,float)) and not isinstance(valor,bool) and math.isfinite(valor) and valor>=0
+            resultado["estacoes"].append({"codigo":codigo,"nome":nome,"municipio":campos[5] if len(campos)>5 else None,"fonte":"EPAGRI/CIRAM","rede":"EPAGRI/CIRAM","latitude":lat,"longitude":lon,"distancia_guaxanduva_km":round(distancia,3),"raio_207_r_km":10 if distancia<=10 else 25 if distancia<=25 else 50,"precipitacao_1h_mm":valor if valido else None,"horario_medicao":instante.isoformat() if instante else campos[6],"idade_leitura_min":round(idade,1) if idade is not None else None,"dados_frescos":bool(idade is not None and idade<=120),"leitura_atual_disponivel":valido,"aquisicao_automatica_integrada":True,"status":"online" if valido and idade is not None and idade<=120 else "online_leitura_atrasada" if valido else "indisponivel","equivale_medicao_no_comasa":False,"origem_coordenada":"resposta_operacional_agroconnect_207_r"})
+        resultado["descoberta_rede_207_r"].update({"status":"ativa","estacoes_ate_50_km":len(resultado["estacoes"]),"consulta":"cd_estacao=0; variavel 271; produto horario"})
+    else:
+        # Fail-safe: se a descoberta ampla mudar/falhar, preserva as duas estações #165.
+        resultado["descoberta_rede_207_r"].update({"status":"fallback_165","erro":erro_amplo,"observacao":"Consulta ampla sem registros utilizaveis; mantidas as estacoes fixas #165."})
+        for codigo,nome in EPAGRI_ESTACOES_CHUVA:
+            regs,ultimo_erro=consultar(codigo,nome)
+            item={"codigo":str(codigo),"nome":nome,"fonte":"EPAGRI/CIRAM","rede":"EPAGRI/CIRAM","latitude":None,"longitude":None,"distancia_guaxanduva_km":None,"raio_207_r_km":None,"precipitacao_1h_mm":None,"horario_medicao":None,"idade_leitura_min":None,"dados_frescos":False,"leitura_atual_disponivel":False,"aquisicao_automatica_integrada":True,"status":"indisponivel","equivale_medicao_no_comasa":False}
+            if regs:
+                regs.sort(key=lambda x:x[0] or datetime.min.replace(tzinfo=FUSO)); instante,valor,campos,lat,lon=regs[-1]
                 idade=max(0.0,(agora()-instante).total_seconds()/60.0) if instante else None
                 valido=isinstance(valor,(int,float)) and not isinstance(valor,bool) and math.isfinite(valor) and valor>=0
-                item.update({"latitude":float(campos[3]) if campos[3] else None,"longitude":float(campos[2]) if campos[2] else None,"precipitacao_1h_mm":valor if valido else None,"horario_medicao":instante.isoformat() if instante else campos[6],"idade_leitura_min":round(idade,1) if idade is not None else None,"dados_frescos":bool(idade is not None and idade<=120),"leitura_atual_disponivel":valido,"status":"online" if valido and idade is not None and idade<=120 else "online_leitura_atrasada" if valido else "indisponivel"})
-                break
-            except Exception as exc: ultimo_erro=str(exc)
-        if item["status"]=="indisponivel" and ultimo_erro: item["erro"]=ultimo_erro
-        resultado["estacoes"].append(item)
+                dist=hav(LAT,LON,lat,lon) if lat is not None and lon is not None else None
+                item.update({"latitude":lat,"longitude":lon,"distancia_guaxanduva_km":round(dist,3) if dist is not None else None,"raio_207_r_km":10 if dist is not None and dist<=10 else 25 if dist is not None and dist<=25 else 50 if dist is not None and dist<=50 else None,"precipitacao_1h_mm":valor if valido else None,"horario_medicao":instante.isoformat() if instante else campos[6],"idade_leitura_min":round(idade,1) if idade is not None else None,"dados_frescos":bool(idade is not None and idade<=120),"leitura_atual_disponivel":valido,"status":"online" if valido and idade is not None and idade<=120 else "online_leitura_atrasada" if valido else "indisponivel","origem_coordenada":"resposta_operacional_agroconnect_165"})
+            elif ultimo_erro: item["erro"]=ultimo_erro
+            resultado["estacoes"].append(item)
+
     disponiveis=[e for e in resultado["estacoes"] if e.get("leitura_atual_disponivel") is True]; frescas=[e for e in disponiveis if e.get("dados_frescos") is True]
-    if len(frescas)==len(EPAGRI_ESTACOES_CHUVA): resultado["status"]="online"
+    if frescas: resultado["status"]="online" if len(frescas)==len(resultado["estacoes"]) else "parcial_ou_atrasado"
     elif disponiveis: resultado["status"]="parcial_ou_atrasado"
     return resultado
- 
+
 def construir_rede_pluviometrica_multifonte_165(chuva_cemaden,chuva_epagri):
     resultado={"status":"inventario_multifonte_com_dados_parciais","versao":"#165","tipo":"rede_pluviometrica_multifonte_joinville","municipio":"Joinville/SC","referencia":"Comasa - coordenada publica aproximada","coordenada_referencia":{"latitude":LAT,"longitude":LON},"estacoes":[],"fontes":[],"quantidade_estacoes":0,"quantidade_com_leitura_atual":0,"quantidade_sem_leitura_automatica_integrada":0,"uso_no_risco":False,"classificacao_risco_automatica":False,"regra_seguranca":"Cada pluviometro representa seu proprio ponto. Leituras de estacoes diferentes nao sao somadas, promediadas nem tratadas como medicao no Comasa. Ausencia, falha ou valor nulo nunca e convertido em 0 mm.","observacao":"CEMADEN e EPAGRI/CIRAM possuem aquisicao automatica integrada. A chuva EPAGRI e horaria e nao e convertida artificialmente em acumulado de 24 horas. ANA/SNIRH e Rede Municipal/Defesa Civil permanecem inventariadas sem telemetria atual integrada."}
     estacoes_cemaden=chuva_cemaden.get("estacoes_joinville_ativas",[]) if isinstance(chuva_cemaden,dict) else []

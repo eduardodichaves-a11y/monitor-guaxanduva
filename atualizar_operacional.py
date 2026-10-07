@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Atualização operacional rápida do Monitor Guaxanduva."""
 import json
+import time
+from datetime import datetime
 from pathlib import Path
 from atualizar_dados import (
     agora, buscar_previsao, buscar_radar, buscar_chuva_cemaden_136,
@@ -19,11 +21,45 @@ from atualizar_dados import (
 ARQUIVO = Path("dados.json")
 
 def seguro(nome, func):
-    try: return func()
+    inicio = time.monotonic()
+    try:
+        resultado = func()
+        print(f"[PERF #208.1] {nome}: {time.monotonic()-inicio:.2f}s", flush=True)
+        return resultado
     except Exception as exc:
+        print(f"[PERF #208.1] {nome}: FALHA após {time.monotonic()-inicio:.2f}s — {exc}", flush=True)
         return {"status":"indisponivel","erro":str(exc),
                 "regra_seguranca":"Falha de coleta não equivale a ausência do fenômeno.",
                 "fonte_operacional":nome}
+
+def super_el_nino_operacional(dados, max_idade_h=3.0):
+    """Evita 12+ consultas climáticas pesadas a cada ciclo de 15 min.
+
+    ENSO/PMEL/OISST não é variável de alerta instantâneo. Reutiliza o último
+    bloco oficial por até 3 h, preservando seu timestamp original. Depois
+    disso a coleta oficial é refeita normalmente. Nenhum valor é inventado.
+    """
+    anterior = dados.get("super_el_nino_173") if isinstance(dados, dict) else None
+    if isinstance(anterior, dict):
+        bruto = anterior.get("coletado_em")
+        try:
+            instante = datetime.fromisoformat(str(bruto).replace("Z", "+00:00"))
+            atual = agora()
+            if instante.tzinfo is None:
+                instante = instante.replace(tzinfo=atual.tzinfo)
+            idade_h = max(0.0, (atual - instante.astimezone(atual.tzinfo)).total_seconds()/3600.0)
+            if idade_h <= max_idade_h:
+                copia = dict(anterior)
+                copia["cache_operacional_208_1"] = True
+                copia["idade_cache_operacional_h"] = round(idade_h, 2)
+                copia["regra_cache_operacional"] = "ENSO/PMEL/OISST reutilizado por no máximo 3 h; timestamp oficial original preservado."
+                return copia
+        except Exception:
+            pass
+    novo = buscar_super_el_nino_173()
+    if isinstance(novo, dict):
+        novo["cache_operacional_208_1"] = False
+    return novo
 
 def main():
     try:
@@ -51,7 +87,7 @@ def main():
     cap155=seguro("CAP recente INMET #155",diagnosticar_cap_recente_inmet_155)
     cap156=seguro("conteúdo CAP INMET #156",lambda:diagnosticar_conteudo_cap_inmet_156(cap155))
     granizo=seguro("granizo operacional INMET #157",lambda:granizo_operacional_inmet_157(cap156))
-    super_el_nino173=seguro("NOAA/CPC + PMEL #173/#185",buscar_super_el_nino_173)
+    super_el_nino173=seguro("NOAA/CPC + PMEL #173/#185",lambda:super_el_nino_operacional(dados))
     impactos173=seguro("impactos locais #173",lambda:construir_impactos_locais_173_a2(previsao,granizo,mare160,mare164,criterio163,v021,super_el_nino173))
     estat186=seguro("estatísticas automáticas #186",construir_estatisticas_automaticas_186)
     estacoes_rede=rede.get("estacoes",[]) if isinstance(rede,dict) else []

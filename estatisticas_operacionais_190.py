@@ -34,7 +34,7 @@ def num(v):
 
 def pct(a,b): return round(100*a/b,1) if b else None
 
-def snapshot(d,f):
+def snapshot(d,f,hregs):
     rad=d.get('radar') or {}; rede=d.get('rede_pluviometrica_multifonte_165') or {}
     cq=rad.get('classificacao_qualitativa_local_130') or {}; pr=cq.get('por_raio') or {}
     def eco(r):
@@ -47,6 +47,18 @@ def snapshot(d,f):
                     'recebida':e.get('leitura_atual_disponivel') is True,
                     'fresca':e.get('dados_frescos') if e.get('dados_frescos') in (True,False) else None})
     v=d.get('nivel_guaxanduva_v021') or {}; tend=v.get('tendencia') or {}
+    agora=dt(d.get('gerado_em')) or datetime.now(TZ)
+    # #206-B: memória compacta chuva + maré + resposta no MESMO snapshot.
+    # P3h = maior acumulado de uma estação; nunca soma estações diferentes.
+    chuva=[r for r in hregs if r.get('tipo')=='chuva_horaria_observada']
+    por={}
+    for r in chuva:
+        tr=dt(r.get('horario_medicao')); vv=num(r.get('precipitacao_mm'))
+        if tr and vv is not None and timedelta(0)<=agora-tr<=timedelta(hours=3):
+            por.setdefault(str(r.get('codigo_estacao')),[]).append(vv)
+    p3=max((sum(vals) for vals in por.values()),default=None)
+    mo=d.get('mare_observada_joinville_160') or {}
+    mare=num(mo.get('nivel_m')) if mo.get('status')=='observado_disponivel' else None
     return {'horario':d.get('gerado_em') or datetime.now(TZ).isoformat(),
       'radar':{'online':rad.get('status')=='online','fresco':rad.get('dados_frescos') is True,
                'idade_min':num(rad.get('idade_ultimo_quadro_min')),'eco_10km':eco(10),'eco_25km':eco(25),'eco_50km':eco(50),
@@ -54,7 +66,12 @@ def snapshot(d,f):
       'estacoes':est,
       'guaxanduva_v021':{'nivel_m':num(v.get('nivel_estimado_m')),'cm_h':num(tend.get('cm_h')),'natureza':v.get('natureza')},
       'fusion_175':{'indice':num(f.get('indice_pressao_hidrometeorologica')),'classe':f.get('classe_experimental'),
-                    'confianca_pct':num(f.get('confianca_dados_pct'))}}
+                    'confianca_pct':num(f.get('confianca_dados_pct'))},
+      'memoria_bacia_206':{'p3h_max_estacao_mm':round(p3,2) if p3 is not None else None,
+                           'mare_observada_m':mare,
+                           'mare_horario':mo.get('horario') if mare is not None else None,
+                           'nivel_modelado_m':num(v.get('nivel_estimado_m')),
+                           'natureza':'DESCRITIVO_NAO_CAUSAL'}}
 
 def dedup_snapshots(regs):
     out={}
@@ -127,6 +144,9 @@ def snapshot_stats(regs):
             # #198: uma coleta isolada descreve presença/ausência naquele instante, não disponibilidade histórica.
             z['disponibilidade_pct']=pct(z['recebidas'],z['coletas']) if z['coletas'] >= 8 else None
             z['maturidade']='amostra_em_formacao' if z['coletas'] < 8 else 'descritiva'
+            # #206-A: quarentena significa falha de RECEPÇÃO pelo Monitor, não defeito físico da estação.
+            z['quarentena_operacional']=z['coletas'] >= 8 and z['recebidas']==0
+            z['motivo_quarentena']=(f"0/{z['coletas']} coletas recebidas na janela #190" if z['quarentena_operacional'] else None)
         nv=[r.get('guaxanduva_v021') or {} for r in w]; nvals=[num(x.get('nivel_m')) for x in nv]; nvals=[x for x in nvals if x is not None]
         cm=[num(x.get('cm_h')) for x in nv]; cm=[x for x in cm if x is not None]
         # #198: subida e queda são sinais diferentes; uma subida positiva nunca pode virar 'queda'.
@@ -151,27 +171,36 @@ def snapshot_stats(regs):
     return {'status':'calculado','janelas':jout}
 
 def relacao_chuva_mare_rio(regs190,h166):
-    # V0.21 só passa a ter série contínua a partir do #190; não retroprojeta níveis.
+    # #206-B: snapshots novos preservam P3h + maré observada + V0.21.
+    # Snapshots antigos continuam válidos, mas não recebem maré retroativamente.
     chuva=[r for r in h166 if r.get('tipo')=='chuva_horaria_observada']
     saida=[]
     for s in regs190:
         t=dt(s.get('horario')); nv=num((s.get('guaxanduva_v021') or {}).get('nivel_m'))
         if not t or nv is None: continue
-        p3=[num(r.get('precipitacao_mm')) for r in chuva if dt(r.get('horario_medicao')) and timedelta(0)<=t-dt(r.get('horario_medicao'))<=timedelta(hours=3)]
-        p3=[v for v in p3 if v is not None]
-        # máximo acumulado P3h entre estações, nunca soma estações diferentes.
-        por={}
-        for r in chuva:
-            tr=dt(r.get('horario_medicao'))
-            if tr and timedelta(0)<=t-tr<=timedelta(hours=3): por.setdefault(str(r.get('codigo_estacao')),[]).append(num(r.get('precipitacao_mm')) or 0.0)
-        p3max=max((sum(v) for v in por.values()),default=None)
-        saida.append({'horario':s.get('horario'),'p3h_max_estacao_mm':round(p3max,2) if p3max is not None else None,'nivel_modelado_m':nv})
-    return {'status':'em_formacao' if len(saida)<20 else 'amostra_descritiva_disponivel','n':len(saida),'amostra_recente':saida[-24:],
-            'regra_seguranca':'Relação descritiva em formação; não aprende coeficientes, não altera V0.21/Fusion e não implica causalidade.'}
+        mem=s.get('memoria_bacia_206') or {}
+        p3=num(mem.get('p3h_max_estacao_mm')); mare=num(mem.get('mare_observada_m'))
+        if p3 is None:
+            por={}
+            for r in chuva:
+                tr=dt(r.get('horario_medicao')); vv=num(r.get('precipitacao_mm'))
+                if tr and vv is not None and timedelta(0)<=t-tr<=timedelta(hours=3):
+                    por.setdefault(str(r.get('codigo_estacao')),[]).append(vv)
+            p3=max((sum(v) for v in por.values()),default=None)
+        saida.append({'horario':s.get('horario'),'p3h_max_estacao_mm':round(p3,2) if p3 is not None else None,
+                      'mare_observada_m':mare,'nivel_modelado_m':nv})
+    def resumo(campo):
+        vals=[num(x.get(campo)) for x in saida]; vals=[v for v in vals if v is not None]
+        return {'n':len(vals),'min':round(min(vals),3) if vals else None,'media':round(sum(vals)/len(vals),3) if vals else None,'max':round(max(vals),3) if vals else None}
+    completos=[x for x in saida if x.get('p3h_max_estacao_mm') is not None and x.get('mare_observada_m') is not None and x.get('nivel_modelado_m') is not None]
+    return {'status':'amostra_descritiva_disponivel' if len(saida)>=20 else 'em_formacao','n':len(saida),'n_triplas_completas':len(completos),
+            'estatisticas':{'p3h_mm':resumo('p3h_max_estacao_mm'),'mare_observada_m':resumo('mare_observada_m'),'nivel_modelado_m':resumo('nivel_modelado_m')},
+            'amostra_recente':saida[-24:],
+            'regra_seguranca':'Relação descritiva; maré é condição de jusante; não aprende coeficientes, não altera V0.21/Fusion e não implica causalidade.'}
 
 def main():
     d=ler(DADOS); f=ler(FUSION); h=ler(H166); hregs=h.get('registros') or []
-    old=ler(HIST,{'registros':[]}); regs=dedup_snapshots((old.get('registros') or [])+[snapshot(d,f)])
+    old=ler(HIST,{'registros':[]}); regs=dedup_snapshots((old.get('registros') or [])+[snapshot(d,f,hregs)])
     hist={'versao':'#190','atualizado_em':datetime.now(TZ).isoformat(),'retencao':'31 dias de snapshots operacionais compactos','registros':regs}
     HIST.write_text(json.dumps(hist,ensure_ascii=False,indent=2),encoding='utf-8')
     chuva=[r for r in hregs if r.get('tipo')=='chuva_horaria_observada']

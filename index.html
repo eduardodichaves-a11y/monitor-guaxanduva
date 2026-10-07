@@ -1941,8 +1941,10 @@ async function carregar(){
     const seen207=new Set();
     const add207=e=>{
       if(!e||seen207.has(String(e.rede||e.fonte||"")+"|"+String(e.codigo||e.nome||"")))return;
-      const dist=Number(e.distancia_guaxanduva_km??e.distancia_comasa_aprox_km);
-      if(!Number.isFinite(dist)||dist>50)return;
+      const distRaw=e.distancia_guaxanduva_km??e.distancia_comasa_aprox_km;
+      if(distRaw===null||distRaw===undefined||distRaw==="")return;
+      const dist=Number(distRaw);
+      if(!Number.isFinite(dist)||dist<0||dist>50)return;
       const fresca=e.dados_frescos===true||e.leitura_atual_disponivel===true;
       const p1=e.precipitacao_1h_mm;
       seen207.add(String(e.rede||e.fonte||"")+"|"+String(e.codigo||e.nome||""));

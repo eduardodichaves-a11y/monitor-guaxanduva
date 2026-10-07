@@ -553,7 +553,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
     </div>
     <h3>⚠️ Impactos para Joinville e Guaxanduva</h3>
     <div class="enso173-impactos" id="enso173Impactos"></div>
-    <div class="box"><b>📏 Validação de campo</b><br><span id="enso173Campo">0,607 m = referência hidráulica local fixa • medições de campo registradas: 1,34 m e 1,33 m.</span></div>
+    <div class="box"><b>📏 Validação de campo</b><br><span id="enso173Campo">#207-G • série de calibração de campo em formação • referência histórica de 03/10: 0,607 m.</span></div>
     <div class="enso173-legenda">
       🟢 sem sinal superior identificado • 🟡 atenção • 🟠 alta atenção • 🔴 sinal forte/positivo conforme a fonte • 🔵 informação/modelo • ⚪ inconclusivo.<br>
       <b>OBSERVADO</b> = medição/fonte observacional • <b>PREVISTO</b> = previsão meteorológica • <b>MODELADO</b> = cálculo do Monitor. O título do painel é descritivo e não antecipa classificação de intensidade. Qualquer classificação exibida deve vir explicitamente dos dados/critério científico do Monitor.
@@ -1063,7 +1063,7 @@ function renderEnso173(d){
     return '<div class="enso173-impacto enso173-'+cor+'"><span>'+ic+' '+(x.icone||"")+'</span><b>'+nomes[k]+'</b><small>'+(x.mensagem||x.estado||"Sem dado conclusivo")+'</small></div>';
   }).join("");
   const ms=(V.medicoes||[]).map(x=>x.nivel_m!=null?Number(x.nivel_m).toFixed(2)+" m"+(x.hora_local?" às "+x.hora_local:""):"").filter(Boolean);
-  $("enso173Campo").textContent="0,607 m = referência hidráulica local fixa • "+(ms.length?"medições: "+ms.join(" e "):"validação de campo registrada")+" • não recalibra automaticamente a base.";
+  $("enso173Campo").textContent="#207-G • 0,607 m = referência histórica de 03/10 em reavaliação • "+(ms.length?"medições: "+ms.join(" • "):"série de campo em formação")+" • não recalibra automaticamente o V0.21.";
 
   // OBRA DE ARTE V1 • síntese leiga: usa exatamente os impactos já calculados pelo #173.
   const nomesLeigo={chuva_24h:"Chuva",tempestade:"Tempestade",granizo:"Granizo",vento:"Rajadas",ciclone:"Ciclone",mare:"Maré",rio_guaxanduva:"Rio",chuva_mais_mare:"Chuva + maré"};
@@ -1698,12 +1698,9 @@ async function carregar(){
   if(!coletaFresca){
     $("resChuva").textContent="DESATUALIZADO";
     $("resChuvaDet").textContent="última coleta há "+Math.round(coletaIdadeMin)+" min • não representa agora";
-  }else if(agoraOp.status==="SINAIS_DE_CHUVA_AGORA"){
-    $("resChuva").textContent="🌧️ SINAIS DE CHUVA AGORA";
-    $("resChuvaDet").textContent=agoraOp.mensagem||"Radar local e rede pluviométrica regional apresentam sinal de precipitação.";
-  }else if(agoraOp.status==="ECO_RADAR_LOCAL_AGORA"){
-    $("resChuva").textContent="📡 ECO LOCAL AGORA";
-    $("resChuvaDet").textContent=agoraOp.mensagem||"Eco RadarSC local; sem pluviômetro no Comasa para confirmar chuva no solo.";
+  }else if(agoraOp.status==="ECO_RADAR_NAO_CONFIRMADO_NO_SOLO" || agoraOp.status==="SINAIS_DE_CHUVA_AGORA" || agoraOp.status==="ECO_RADAR_LOCAL_AGORA"){
+    $("resChuva").textContent="📡 ECO RADAR NÃO CONFIRMADO";
+    $("resChuvaDet").textContent=agoraOp.mensagem||"Eco RadarSC presente; ainda sem confirmação espacial independente de chuva no solo.";
   }else if(agoraOp.status==="CHUVA_OBSERVADA_REGIONAL_AGORA" || obsChuvaMax!=null&&obsChuvaMax>0){
     $("resChuva").textContent="🌧️ CHUVA NA REDE REGIONAL";
     $("resChuvaDet").textContent=(agoraOp.mensagem||("OBSERVADO • até "+f(obsChuvaMax,1)+" mm/1h"))+" • não equivale a pluviômetro no Comasa";
@@ -1750,7 +1747,7 @@ async function carregar(){
   // DASHBOARD V2: espelha somente dados já carregados acima.
   $("dashResumoLinha").textContent=frase;
   $("leigoAtualizacao").textContent=d.gerado_em?"Dados: "+new Date(d.gerado_em).toLocaleString("pt-BR"):"Horário da coleta indisponível";
-  const sinalAgora=agoraOp.status==="SINAIS_DE_CHUVA_AGORA"?"🌧️ SINAIS DE CHUVA AGORA • ":(agoraOp.status==="ECO_RADAR_LOCAL_AGORA"?"📡 ECO LOCAL AGORA • ":(agoraOp.status==="CHUVA_OBSERVADA_REGIONAL_AGORA"?"🌧️ CHUVA NA REDE REGIONAL • ":""));
+  const sinalAgora=(agoraOp.status==="ECO_RADAR_NAO_CONFIRMADO_NO_SOLO"||agoraOp.status==="SINAIS_DE_CHUVA_AGORA"||agoraOp.status==="ECO_RADAR_LOCAL_AGORA")?"📡 ECO RADAR NÃO CONFIRMADO • ":(agoraOp.status==="CHUVA_OBSERVADA_REGIONAL_AGORA"?"🌧️ CHUVA NA REDE REGIONAL • ":"");
   $("leigoAgora").textContent=sinalAgora+(a.temperatura_c==null?"Tempo indisponível":f(a.temperatura_c,1)+" °C • "+tempoNome)+(a.vento_kmh==null?"":" • vento "+f(a.vento_kmh,0)+" km/h");
   $("leigo1h").textContent=(ph.precipitacao_mm==null?"Chuva indisponível":f(ph.precipitacao_mm,1)+" mm")+(ph.probabilidade_chuva_pct==null?"":" • "+Math.round(ph.probabilidade_chuva_pct)+"%");
   const g174=d.projecao_guaxanduva_174||{}, pk174=g174.pico||{}, vw174=g174.vento||{}, ch174=g174.chuva||{};

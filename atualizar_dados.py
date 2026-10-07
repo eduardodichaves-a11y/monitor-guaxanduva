@@ -17728,17 +17728,26 @@ def main():
     projecao_guaxanduva174 = projetar_guaxanduva_24h_174(previsao, mare_observada160, mare_prevista164, nivel_guaxanduva_v021, hidrologia_guaxanduva_v019)
     impactos_locais173 = construir_impactos_locais_173_a2(previsao, granizo157, mare_observada160, mare_prevista164, criterio163, nivel_guaxanduva_v021, super_el_nino173)
     ciclone_multifonte173 = sintetizar_ciclone_173_a325(diag156, dominio_ciclonico173, impactos_locais173)
+    # #207-G — medições de campo preservadas como evidência observacional.
+    # A calibração de 0,607 m de 03/10 continua no histórico, mas deixa de ser
+    # descrita como uma verdade física fixa. Nenhuma medição isolada altera V0.21.
     validacao_campo_guaxanduva = {
-        "versao": "GXA-CAMPO-V1-FINAL",
-        "status": "referencias_de_campo_registradas",
+        "versao": "GXA-CAMPO-207-G",
+        "status": "serie_de_calibracao_em_formacao",
         "natureza": "MEDICAO_MANUAL_DE_CAMPO",
-        "referencia_base_fixa_m": 0.607,
-        "regra": "0,607 m permanece fixo; novas medicoes validam a dinamica e nao recalibram a base.",
+        "referencia_historica_2026_10_03_m": 0.607,
+        "referencia_historica_status": "HIPOTESE_DE_CALIBRACAO_A_REAVALIAR",
+        "regra": "0,607 m e preservado como calibracao historica de 03/10; novas medicoes formam a serie #207-G e nao recalibram automaticamente o V0.21.",
         "medicoes": [
-            {"data": "2026-10-03", "nivel_m": 1.34, "origem": "medicao_manual_usuario"},
-            {"data": "2026-10-03", "hora_local": "15:49", "timezone": "America/Sao_Paulo", "nivel_m": 1.33, "origem": "medicao_manual_usuario"}
+            {"data": "2026-10-03", "nivel_m": 1.34, "origem": "medicao_manual_usuario", "qualidade": "OBSERVACAO_DE_CAMPO_NAO_INSTRUMENTAL"},
+            {"data": "2026-10-03", "hora_local": "15:49", "timezone": "America/Sao_Paulo", "nivel_m": 1.33, "origem": "medicao_manual_usuario", "qualidade": "OBSERVACAO_DE_CAMPO_NAO_INSTRUMENTAL"},
+            {"data": "2026-10-07", "hora_local_aproximada": "12:50", "timezone": "America/Sao_Paulo", "nivel_m": 1.75, "origem": "medicao_manual_usuario", "condicao_visual": "agua_aparentemente_parada", "qualidade": "OBSERVACAO_DE_CAMPO_NAO_INSTRUMENTAL"}
         ],
-        "uso_operacional": False
+        "quantidade_medicoes": 3,
+        "modelo_candidato": "Hrio(t)=H0+beta*M(t-tau)+gamma*P3h+delta*dM+epsilon",
+        "maturidade": "AMOSTRA_EM_FORMACAO",
+        "uso_operacional": False,
+        "altera_v021": False
     }
     influencia_joinville173 = avaliar_influencia_joinville_173_a33(dominio_ciclonico173, previsao, impactos_locais173)
     goes19_tathu167 = buscar_goes19_tathu_167()

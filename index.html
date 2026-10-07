@@ -1945,32 +1945,34 @@ async function carregar(){
       if(distRaw===null||distRaw===undefined||distRaw==="")return;
       const dist=Number(distRaw);
       if(!Number.isFinite(dist)||dist<0||dist>50)return;
-      const fresca=e.dados_frescos===true||e.leitura_atual_disponivel===true;
+      const disponivel=e.leitura_atual_disponivel===true;
+      const fresca=e.dados_frescos===true||disponivel;
       const p1=e.precipitacao_1h_mm;
+      const comparavel1h=e.leitura_1h_comparavel===true||(e.dados_frescos===true&&p1!=null&&Number.isFinite(Number(p1)));
       seen207.add(String(e.rede||e.fonte||"")+"|"+String(e.codigo||e.nome||""));
-      est207.push({nome:e.nome||e.codigo||"Estação",rede:e.rede||e.fonte||"fonte",codigo:e.codigo||"",dist, fresca, p1:(p1!=null&&Number.isFinite(Number(p1)))?Number(p1):null});
+      est207.push({nome:e.nome||e.codigo||"Estação",rede:e.rede||e.fonte||"fonte",codigo:e.codigo||"",dist, disponivel, fresca, comparavel1h, p1:(comparavel1h&&p1!=null&&Number.isFinite(Number(p1)))?Number(p1):null});
     };
     (Array.isArray(r165.estacoes)?r165.estacoes:[]).forEach(add207);
     const ep207=d.chuva_observada_epagri_165||{};(Array.isArray(ep207.estacoes)?ep207.estacoes:[]).forEach(add207);
     const ecoRaios207=raios207.filter(r=>{const x=pr[String(r)]||{};return radarFrescoReal&&(x.eco_qualitativo_detectado===true||x.eco_oficial_detectado===true)});
     $("r207RadiusGrid").innerHTML=raios207.map(r=>{
       const mm=mp207[String(r)]||{};
-      const dentro=est207.filter(e=>e.dist<=r), frescas=dentro.filter(e=>e.fresca), p1=frescas.filter(e=>e.p1!=null);
-      const chuvaObs=p1.some(e=>e.p1>0), eco=ecoRaios207.includes(r), mod=mm.suporte_modelado_precipitacao_agora===true;
+      const dentro=est207.filter(e=>e.dist<=r), disponiveis=dentro.filter(e=>e.disponivel), comparaveis=dentro.filter(e=>e.comparavel1h&&e.p1!=null);
+      const chuvaObs=comparaveis.some(e=>e.p1>0), eco=ecoRaios207.includes(r), mod=mm.suporte_modelado_precipitacao_agora===true;
       const maxp=Number(mm.probabilidade_proxima_hora_max_pct); const pct=Number.isFinite(maxp)?Math.max(0,Math.min(100,maxp)):0;
-      return '<div class="r207-radius"><b>≤ '+r+' km</b><small>📡 '+(eco?'ECO':'sem eco')+'</small><small>🌧️ '+frescas.length+' est. c/ leitura'+(chuvaObs?' • chuva 1h':'')+'</small><small>🧮 agora '+(mod?'suporte':'sem suporte')+'</small><div class="r207-line"><i style="width:'+pct+'%"></i></div><small>próx. h • prob. máx. '+(Number.isFinite(maxp)?Math.round(maxp)+'%':'--')+'</small></div>';
+      return '<div class="r207-radius"><b>≤ '+r+' km</b><small>📡 '+(eco?'ECO':'sem eco')+'</small><small>🌧️ '+disponiveis.length+' disponíveis • '+comparaveis.length+' c/ 1 h'+(chuvaObs?' • chuva observada':'')+'</small><small>🧮 agora '+(mod?'suporte':'sem suporte')+'</small><div class="r207-line"><i style="width:'+pct+'%"></i></div><small>próx. h • prob. máx. '+(Number.isFinite(maxp)?Math.round(maxp)+'%':'--')+'</small></div>';
     }).join('');
     const menorEco207=ecoRaios207.length?Math.min(...ecoRaios207):null;
-    const obsNoEco207=menorEco207!=null?est207.filter(e=>e.dist<=menorEco207&&e.fresca&&e.p1!=null):[];
+    const obsNoEco207=menorEco207!=null?est207.filter(e=>e.dist<=menorEco207&&e.comparavel1h&&e.p1!=null):[];
     const chuvaNoEco207=obsNoEco207.filter(e=>e.p1>0);
     let titulo207='SEM ECO LOCAL CONFIRMÁVEL', msg207='O painel mantém RadarSC, observação no solo e modelo separados.';
     if(menorEco207!=null&&chuvaNoEco207.length){titulo207='ECO + CHUVA OBSERVADA NO MESMO RAIO';msg207='Há eco RadarSC e pluviômetro com chuva em até '+menorEco207+' km. Isto ainda NÃO é pareamento pixel × estação e, portanto, não libera “RADAR CONFIRMADO”.';}
     else if(menorEco207!=null&&obsNoEco207.length){titulo207='ECO NÃO CONFIRMADO NO SOLO';msg207='Há eco RadarSC em até '+menorEco207+' km, mas as estações com leitura numérica de 1 h nesse raio não registram chuva. Cobertura pontual não prova que o radar esteja errado.';}
     else if(menorEco207!=null){titulo207='ECO • COBERTURA OBSERVACIONAL INSUFICIENTE';msg207='Há eco RadarSC em até '+menorEco207+' km, mas não existe leitura pluviométrica de 1 h suficiente nesse mesmo raio. A malha modelada aparece apenas como contexto.';}
-    else if(est207.some(e=>e.fresca&&e.p1!=null&&e.p1>0)){titulo207='CHUVA OBSERVADA • SEM ECO LOCAL';msg207='Há chuva observada em estação regional, sem eco detectado nos raios analisados. As duas evidências são preservadas sem forçar concordância.';}
+    else if(est207.some(e=>e.comparavel1h&&e.p1!=null&&e.p1>0)){titulo207='CHUVA OBSERVADA • SEM ECO LOCAL';msg207='Há chuva observada em estação regional, sem eco detectado nos raios analisados. As duas evidências são preservadas sem forçar concordância.';}
     $("r207Verdict").innerHTML='<b>'+titulo207+'</b>'+msg207;
-    const listar207=est207.filter(e=>e.fresca).sort((a,b)=>a.dist-b.dist).slice(0,8);
-    $("r207Stations").innerHTML=listar207.length?listar207.map(e=>'<div class="r207-station"><span><b>'+e.nome+'</b><br><small>'+e.rede+(e.codigo?' • '+e.codigo:'')+' • '+f(e.dist,1)+' km</small></span><b>'+(e.p1==null?'leitura sem 1 h':f(e.p1,1)+' mm/1h')+'</b></div>').join(''):'<div class="r207-station"><span>Sem estação fresca georreferenciada ≤ 50 km nesta coleta.</span></div>';
+    const listar207=est207.filter(e=>e.disponivel||e.comparavel1h).sort((a,b)=>a.dist-b.dist).slice(0,8);
+    $("r207Stations").innerHTML=listar207.length?listar207.map(e=>'<div class="r207-station"><span><b>'+e.nome+'</b><br><small>'+e.rede+(e.codigo?' • '+e.codigo:'')+' • '+f(e.dist,1)+' km</small></span><b>'+(e.comparavel1h&&e.p1!=null?f(e.p1,1)+' mm/1h':'disponível • sem 1 h comparável')+'</b></div>').join(''):'<div class="r207-station"><span>Sem estação fresca georreferenciada ≤ 50 km nesta coleta.</span></div>';
   }
   // Método Guaxanduva #170-K/L/M — pista modelada separada da instrumental.
   function statusHumanoGxa(v){return ({MODELO_EXPERIMENTAL_CALCULADO:"Modelo experimental • calculado",LIBERADO_OPERACIONAL_MODELADO:"Operacional modelado • liberado",LIBERADO_PUBLICACAO_CONTROLADA_MODELADA:"Publicação controlada • liberada"})[v]||nomeFamilia(v||"INDISPONÍVEL");}

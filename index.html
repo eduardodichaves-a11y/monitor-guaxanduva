@@ -1959,16 +1959,23 @@ async function carregar(){
       const mm=mp207[String(r)]||{};
       const dentro=est207.filter(e=>e.dist<=r), disponiveis=dentro.filter(e=>e.disponivel), comparaveis=dentro.filter(e=>e.comparavel1h&&e.p1!=null);
       const chuvaObs=comparaveis.some(e=>e.p1>0), eco=ecoRaios207.includes(r), mod=mm.suporte_modelado_precipitacao_agora===true;
+      const maxAgora=Number(mm.precipitacao_modelada_atual_max_mm);
+      const maxProx=Number(mm.precipitacao_modelada_proxima_hora_max_mm);
       const maxp=Number(mm.probabilidade_proxima_hora_max_pct); const pct=Number.isFinite(maxp)?Math.max(0,Math.min(100,maxp)):0;
-      return '<div class="r207-radius"><b>≤ '+r+' km</b><small>📡 '+(eco?'ECO':'sem eco')+'</small><small>🌧️ '+disponiveis.length+' disponíveis • '+comparaveis.length+' c/ 1 h'+(chuvaObs?' • chuva observada':'')+'</small><small>🧮 agora '+(mod?'suporte':'sem suporte')+'</small><div class="r207-line"><i style="width:'+pct+'%"></i></div><small>próx. h • prob. máx. '+(Number.isFinite(maxp)?Math.round(maxp)+'%':'--')+'</small></div>';
+      const modeloAgora=Number.isFinite(maxAgora)?f(maxAgora,2)+' mm':'--';
+      const modeloProx=Number.isFinite(maxProx)?f(maxProx,2)+' mm':'--';
+      const sintonia=eco&&mod?' • RADAR + MODELO':eco?' • só RADAR':mod?' • só MODELO':'';
+      return '<div class="r207-radius"><b>≤ '+r+' km</b><small>📡 '+(eco?'ECO':'sem eco')+sintonia+'</small><small>🌧️ '+disponiveis.length+' disponíveis • '+comparaveis.length+' c/ 1 h'+(chuvaObs?' • chuva observada':'')+'</small><small>🧮 modelo AGORA: '+modeloAgora+(mod?' • precipitação modelada':' • sem precipitação modelada')+'</small><div class="r207-line"><i style="width:'+pct+'%"></i></div><small>próx. h: '+modeloProx+' • prob. máx. '+(Number.isFinite(maxp)?Math.round(maxp)+'%':'--')+'</small></div>';
     }).join('');
     const menorEco207=ecoRaios207.length?Math.min(...ecoRaios207):null;
     const obsNoEco207=menorEco207!=null?est207.filter(e=>e.dist<=menorEco207&&e.comparavel1h&&e.p1!=null):[];
     const chuvaNoEco207=obsNoEco207.filter(e=>e.p1>0);
     let titulo207='SEM ECO LOCAL CONFIRMÁVEL', msg207='O painel mantém RadarSC, observação no solo e modelo separados.';
-    if(menorEco207!=null&&chuvaNoEco207.length){titulo207='ECO + CHUVA OBSERVADA NO MESMO RAIO';msg207='Há eco RadarSC e pluviômetro com chuva em até '+menorEco207+' km. Isto ainda NÃO é pareamento pixel × estação e, portanto, não libera “RADAR CONFIRMADO”.';}
-    else if(menorEco207!=null&&obsNoEco207.length){titulo207='ECO NÃO CONFIRMADO NO SOLO';msg207='Há eco RadarSC em até '+menorEco207+' km, mas as estações com leitura numérica de 1 h nesse raio não registram chuva. Cobertura pontual não prova que o radar esteja errado.';}
-    else if(menorEco207!=null){titulo207='ECO • COBERTURA OBSERVACIONAL INSUFICIENTE';msg207='Há eco RadarSC em até '+menorEco207+' km, mas não existe leitura pluviométrica de 1 h suficiente nesse mesmo raio. A malha modelada aparece apenas como contexto.';}
+    const modeloEco207=menorEco207!=null?((mp207[String(menorEco207)]||{}).suporte_modelado_precipitacao_agora===true):false;
+    const modeloEcoMm207=menorEco207!=null?Number((mp207[String(menorEco207)]||{}).precipitacao_modelada_atual_max_mm):NaN;
+    if(menorEco207!=null&&chuvaNoEco207.length){titulo207='ECO + CHUVA OBSERVADA NO MESMO RAIO';msg207='Há eco RadarSC e pluviômetro com chuva em até '+menorEco207+' km'+(modeloEco207?' e o modelo também indica precipitação agora':'')+'. Isto ainda NÃO é pareamento pixel × estação e, portanto, não libera “RADAR CONFIRMADO”.';}
+    else if(menorEco207!=null&&obsNoEco207.length){titulo207=modeloEco207?'ECO + SUPORTE MODELADO • SEM CONFIRMAÇÃO NO SOLO':'ECO NÃO CONFIRMADO NO SOLO';msg207='Há eco RadarSC em até '+menorEco207+' km; as estações com 1 h comparável nesse raio não registram chuva.'+(modeloEco207?' O modelo indica precipitação agora'+(Number.isFinite(modeloEcoMm207)?' (máx. '+f(modeloEcoMm207,2)+' mm)':'')+', mas modelo não substitui pluviômetro.':' O modelo também não indica precipitação agora nesse raio.')+' Cobertura pontual não prova que o radar esteja errado.';}
+    else if(menorEco207!=null){titulo207=modeloEco207?'ECO COM SUPORTE METEOROLÓGICO • SEM OBSERVAÇÃO NO SOLO':'ECO • COBERTURA OBSERVACIONAL INSUFICIENTE';msg207='Há eco RadarSC em até '+menorEco207+' km, mas não existe leitura pluviométrica de 1 h suficiente nesse mesmo raio.'+(modeloEco207?' A malha modelada indica precipitação agora e funciona apenas como corroboração meteorológica, não como confirmação.':' A malha modelada também não indica precipitação agora; isso não invalida o eco do radar.') ;}
     else if(est207.some(e=>e.comparavel1h&&e.p1!=null&&e.p1>0)){titulo207='CHUVA OBSERVADA • SEM ECO LOCAL';msg207='Há chuva observada em estação regional, sem eco detectado nos raios analisados. As duas evidências são preservadas sem forçar concordância.';}
     $("r207Verdict").innerHTML='<b>'+titulo207+'</b>'+msg207;
     const listar207=est207.filter(e=>e.disponivel||e.comparavel1h).sort((a,b)=>a.dist-b.dist).slice(0,8);

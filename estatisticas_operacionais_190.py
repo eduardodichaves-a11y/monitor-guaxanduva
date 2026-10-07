@@ -193,7 +193,7 @@ def relacao_chuva_mare_rio(regs190,h166):
         vals=[num(x.get(campo)) for x in saida]; vals=[v for v in vals if v is not None]
         return {'n':len(vals),'min':round(min(vals),3) if vals else None,'media':round(sum(vals)/len(vals),3) if vals else None,'max':round(max(vals),3) if vals else None}
     completos=[x for x in saida if x.get('p3h_max_estacao_mm') is not None and x.get('mare_observada_m') is not None and x.get('nivel_modelado_m') is not None]
-    return {'status':'amostra_descritiva_disponivel' if len(saida)>=20 else 'em_formacao','n':len(saida),'n_triplas_completas':len(completos),
+    return {'status':'amostra_descritiva_disponivel' if len(completos)>=8 else 'em_formacao','n':len(saida),'n_triplas_completas':len(completos),'minimo_triplas_maturidade':8,
             'estatisticas':{'p3h_mm':resumo('p3h_max_estacao_mm'),'mare_observada_m':resumo('mare_observada_m'),'nivel_modelado_m':resumo('nivel_modelado_m')},
             'amostra_recente':saida[-24:],
             'regra_seguranca':'Relação descritiva; maré é condição de jusante; não aprende coeficientes, não altera V0.21/Fusion e não implica causalidade.'}

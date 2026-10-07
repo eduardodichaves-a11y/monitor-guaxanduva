@@ -3,6 +3,8 @@
 import json
 import time
 import math
+from io import BytesIO
+from PIL import Image
 from datetime import datetime
 from pathlib import Path
 from atualizar_dados import (
@@ -17,7 +19,9 @@ from atualizar_dados import (
     construir_liberacao_experimental_168, construir_impactos_locais_173_a2,
     diagnosticar_cap_recente_inmet_155, diagnosticar_conteudo_cap_inmet_156,
     granizo_operacional_inmet_157, buscar_super_el_nino_173,
-    construir_estatisticas_automaticas_186, get, LAT, LON, hav,
+    construir_estatisticas_automaticas_186, get, LAT, LON, hav, IMAGEM,
+    _mapa_classes_dbz_170, _amostrar_estacao_na_imagem_170,
+    _diagnostico_espacial_estacao_170_b3,
 )
 ARQUIVO = Path("dados.json")
 
@@ -131,6 +135,96 @@ def construir_malha_modelada_207_r():
         "gerado_em":agora().isoformat(),
     }
 
+
+def construir_pareamento_espacial_207_r4(radar, rede):
+    """#207-R4: RadarSC x modelo x pluviometro na coordenada da estacao.
+
+    Usa somente o quadro RadarSC mais recente ja selecionado por buscar_radar().
+    O radar e amostrado no ponto da estacao (janela 5x5) e tambem procura o eco
+    oficial mais proximo em ate 40 px. O Open-Meteo e consultado nas MESMAS
+    coordenadas. Apenas pluviometro fresco com produto 1 h comparavel e
+    observacao; modelo nunca confirma chuva no solo e nenhuma relacao Z-R e
+    liberada aqui.
+    """
+    saida={
+        "versao":"#207-R4","status":"indisponivel","natureza":"PAREAMENTO_ESPACIAL_EXPERIMENTAL_FAIL_CLOSED",
+        "estacoes":[],"resumo":{},"uso_operacional":False,"radar_confirmado":False,
+        "libera_calibracao_zr":False,"libera_conversao_dbz_mm_h":False,
+        "regra_seguranca":"Coincidencia RadarSC 5x5 + chuva observada 1 h na estacao e evidencia espacial forte, mas permanece experimental e nao libera Z-R/dBZ->mm/h. Open-Meteo e apenas suporte modelado."
+    }
+    if not isinstance(radar,dict) or radar.get("status")!="online" or radar.get("dados_frescos") is not True:
+        saida["status"]="bloqueado_radar_indisponivel_ou_antigo"; return saida
+    quadros=radar.get("quadros") or []
+    validos=[q for q in quadros if isinstance(q,dict) and q.get("download")=="ok" and q.get("arquivo")]
+    if not validos:
+        saida["status"]="bloqueado_sem_quadro_radar_valido"; return saida
+    ultimo=validos[-1]; nome=ultimo.get("arquivo")
+    classes=_mapa_classes_dbz_170(radar)
+    if not classes:
+        saida["status"]="bloqueado_paleta_dbz_nao_validada"; return saida
+    bruto=get(IMAGEM,{"prod":4,"radar":"COMP","file":nome},True).content
+    imagem=Image.open(BytesIO(bruto)).convert("RGBA")
+
+    candidatos=[]
+    for e in (rede or {}).get("estacoes",[]):
+        if not isinstance(e,dict) or e.get("aquisicao_automatica_integrada") is not True: continue
+        lat,lon=e.get("latitude"),e.get("longitude")
+        if not isinstance(lat,(int,float)) or isinstance(lat,bool) or not isinstance(lon,(int,float)) or isinstance(lon,bool): continue
+        dist=e.get("distancia_comasa_aprox_km")
+        if not isinstance(dist,(int,float)): dist=hav(LAT,LON,float(lat),float(lon))
+        if float(dist)>50: continue
+        candidatos.append((e,float(lat),float(lon),float(dist)))
+    if not candidatos:
+        saida["status"]="bloqueado_sem_estacoes_integradas_georreferenciadas_50km"; return saida
+
+    params={
+        "latitude":",".join(str(round(x[1],6)) for x in candidatos),
+        "longitude":",".join(str(round(x[2],6)) for x in candidatos),
+        "current":"precipitation,rain,showers,weather_code",
+        "hourly":"precipitation,precipitation_probability","forecast_hours":2,
+        "timezone":"America/Sao_Paulo",
+    }
+    resposta=get("https://api.open-meteo.com/v1/forecast",params).json()
+    blocos=resposta if isinstance(resposta,list) else [resposta]
+
+    for i,(e,lat,lon,dist) in enumerate(candidatos):
+        amostra=_amostrar_estacao_na_imagem_170(imagem,lat,lon,classes)
+        prox=_diagnostico_espacial_estacao_170_b3(imagem,lat,lon,classes,raio_max_px=40)
+        bloco=blocos[i] if i<len(blocos) and isinstance(blocos[i],dict) else {}
+        cur=bloco.get("current") or {}; hor=bloco.get("hourly") or {}
+        precs=hor.get("precipitation") or []; probs=hor.get("precipitation_probability") or []
+        obs_ok=e.get("leitura_1h_comparavel") is True and isinstance(e.get("precipitacao_1h_mm"),(int,float)) and not isinstance(e.get("precipitacao_1h_mm"),bool)
+        obs=float(e.get("precipitacao_1h_mm")) if obs_ok else None
+        eco_ponto=amostra.get("eco_oficial_detectado_5x5") is True
+        modelo_agora=cur.get("precipitation") if isinstance(cur.get("precipitation"),(int,float)) else None
+        classe=("COINCIDENCIA_RADAR_CHUVA_OBSERVADA_NO_PONTO" if eco_ponto and obs is not None and obs>0 else
+                "ECO_NO_PONTO_SEM_CHUVA_1H_OBSERVADA" if eco_ponto and obs is not None else
+                "ECO_NO_PONTO_SEM_OBSERVACAO_1H_COMPARAVEL" if eco_ponto else
+                "CHUVA_OBSERVADA_SEM_ECO_5X5" if obs is not None and obs>0 else
+                "SEM_COINCIDENCIA_RADAR_CHUVA_NO_PONTO")
+        saida["estacoes"].append({
+            "nome":e.get("nome"),"rede":e.get("rede") or e.get("fonte"),"codigo":e.get("codigo"),
+            "latitude":round(lat,6),"longitude":round(lon,6),"distancia_guaxanduva_km":round(dist,3),
+            "radar":{"arquivo":nome,"horario_local":ultimo.get("horario_local"),**amostra,
+                     "eco_mais_proximo_ate_40px":prox.get("eco_oficial_mais_proximo")},
+            "observacao":{"leitura_1h_comparavel":obs_ok,"precipitacao_1h_mm":obs,
+                          "horario_medicao":e.get("horario_medicao"),"dados_frescos":e.get("dados_frescos")},
+            "modelo":{"horario":cur.get("time"),"precipitacao_atual_mm":modelo_agora,
+                      "precipitacao_proxima_hora_mm":precs[0] if precs else None,
+                      "probabilidade_proxima_hora_pct":probs[0] if probs else None,
+                      "natureza":"MODELADO_NAO_OBSERVACIONAL"},
+            "classificacao_experimental":classe,"confirma_radar_operacionalmente":False,
+        })
+    coinc=[x for x in saida["estacoes"] if x["classificacao_experimental"]=="COINCIDENCIA_RADAR_CHUVA_OBSERVADA_NO_PONTO"]
+    eco=[x for x in saida["estacoes"] if (x.get("radar") or {}).get("eco_oficial_detectado_5x5") is True]
+    obspos=[x for x in saida["estacoes"] if isinstance((x.get("observacao") or {}).get("precipitacao_1h_mm"),(int,float)) and x["observacao"]["precipitacao_1h_mm"]>0]
+    modpos=[x for x in saida["estacoes"] if isinstance((x.get("modelo") or {}).get("precipitacao_atual_mm"),(int,float)) and x["modelo"]["precipitacao_atual_mm"]>0]
+    saida["resumo"]={"estacoes_pareadas":len(saida["estacoes"]),"estacoes_com_eco_5x5":len(eco),"estacoes_com_chuva_observada_1h":len(obspos),"estacoes_com_modelo_chuva_agora":len(modpos),"coincidencias_radar_chuva_observada_5x5":len(coinc),"coincidencias_nomes":[x.get("nome") for x in coinc]}
+    saida["status"]="coleta_experimental_concluida"
+    saida["quadro_radar"]={"arquivo":nome,"horario_local":ultimo.get("horario_local")}
+    saida["gerado_em"]=agora().isoformat()
+    return saida
+
 def main():
     try:
         dados=json.loads(ARQUIVO.read_text(encoding="utf-8"))
@@ -144,6 +238,7 @@ def main():
     epagri=seguro("EPAGRI/CIRAM",buscar_chuva_epagri_165)
     rede=seguro("rede multifonte #165",lambda:construir_rede_pluviometrica_multifonte_165(cemaden,epagri))
     geometria=seguro("geometria #172",lambda:construir_geometria_rede_observacional_172(rede))
+    pareamento207r4=seguro("pareamento espacial #207-R4",lambda:construir_pareamento_espacial_207_r4(radar,rede))
     inmet=seguro("INMET",buscar_chuva_observada_inmet)
     mare=seguro("tábua de maré prevista",buscar_mare)
     mare160=seguro("maré observada #160",buscar_mare_observada_joinville_160)
@@ -221,7 +316,7 @@ def main():
         estado_agora="SEM_CONFIRMACAO_LOCAL_DE_CHUVA"; mensagem_agora="Sem confirmação local suficiente nesta coleta; ausência de evidência não é tratada como ausência de chuva."
     estado_operacional={"status":estado_agora,"mensagem":mensagem_agora,"radar_fresco":radar_fresco,"eco_qualitativo_local":eco_local,"menor_raio_eco_km":raio_eco,"chuva_observada_regional_max_1h_mm":obs_max,"chuva_observada_regional_media_1h_mm":obs_media,"estacoes_regionais_frescas":len(obs_frescas),"estacoes_frescas_georreferenciadas":len(obs_com_dist),"estacoes_frescas_dentro_raio_eco":len(cobertura_no_raio),"estacoes_com_chuva_dentro_raio_eco":len(obs_no_raio_eco),"confirmacao_pixel_radar_estacao":False,"suporte_modelado_raio_eco":suporte_modelado_raio,"modelo_sustenta_eco":modelo_sustenta_eco,"chuva_modelo_openmeteo_mm":((previsao.get("atual") or {}).get("precipitacao_mm") if isinstance(previsao,dict) else None),"regra_seguranca":"#207-R: radar indica eco; pluviometros medem chuva em pontos. Concordancia no mesmo raio aumenta a evidencia regional, mas somente coincidencia espacial com o pixel do eco pode liberar RADAR_CONFIRMADO. Open-Meteo e contexto de modelo, nao prova observacional.","gerado_em":agora().isoformat()}
     estado_canonico={"gerado_em":agora().isoformat(),"rio":{"nivel_modelado_m":v021.get("nivel_estimado_m") if isinstance(v021,dict) else None,"faixa_m":v021.get("faixa_estimativa_m") if isinstance(v021,dict) else None,"tendencia":v021.get("tendencia") if isinstance(v021,dict) else None,"natureza":"MODELADO_NAO_INSTRUMENTAL","fonte":"GXA-V0.21"},"mare":{"observada_m":mare160.get("nivel_m") if isinstance(mare160,dict) else None,"horario_observado":mare160.get("horario") if isinstance(mare160,dict) else None,"proximo_extremo":mare.get("proximo") if isinstance(mare,dict) else None,"fonte":"EPAGRI/CIRAM"},"radar":{"status":radar.get("status") if isinstance(radar,dict) else "indisponivel","dados_frescos":radar_fresco,"eco_qualitativo_local":eco_local,"menor_raio_eco_km":raio_eco,"classe_dbz_atual":(liberacao168.get("radar_estimativa_quantitativa") or {}).get("classe_radar") if isinstance(liberacao168,dict) else None},"chuva":{"estado":estado_agora,"observada_regional_max_1h_mm":obs_max,"observada_regional_media_1h_mm":obs_media,"previsao_proxima_hora_mm":((previsao.get("proxima_hora") or {}).get("precipitacao_mm") if isinstance(previsao,dict) else None)}}
-    dados.update({"gerado_em":agora().isoformat(),"previsao":previsao,"malha_meteorologica_207_r2":malha207r,"mare":mare,"radar":radar,"chuva":cemaden,"chuva_observada_cemaden_144":cemaden144,"chuva_observada_epagri_165":epagri,"rede_pluviometrica_multifonte_165":rede,"geometria_rede_observacional_172":geometria,"chuva_observada_inmet":inmet,"mare_observada_joinville_160":mare160,"historico_hidrometeorologico_guaxanduva_166":h166,"hidrologia_guaxanduva_v019":h019,"nivel_guaxanduva_v021":v021,"criterio_hidrometeorologico_plancon_163":criterio163,"mare_prevista_24h_164":mare164,"projecao_guaxanduva_174":proj174,"liberacao_experimental_168":liberacao168,"diagnostico_cap_recente_inmet_155":cap155,"diagnostico_conteudo_cap_inmet_156":cap156,"granizo":granizo,"super_el_nino_173":super_el_nino173,"impactos_locais_173":impactos173,"estado_canonico_operacional":estado_canonico,"estado_agora_operacional":estado_operacional,"validacao_campo_guaxanduva":{"versao":"GXA-CAMPO-207-G","status":"serie_de_calibracao_em_formacao","natureza":"MEDICAO_MANUAL_DE_CAMPO","referencia_historica_2026_10_03_m":0.607,"referencia_historica_status":"HIPOTESE_DE_CALIBRACAO_A_REAVALIAR","regra":"0,607 m e preservado como calibracao historica de 03/10; novas medicoes formam a serie #207-G e nao recalibram automaticamente o V0.21.","medicoes":[{"data":"2026-10-03","nivel_m":1.34,"origem":"medicao_manual_usuario"},{"data":"2026-10-03","hora_local":"15:49","timezone":"America/Sao_Paulo","nivel_m":1.33,"origem":"medicao_manual_usuario"},{"data":"2026-10-07","hora_local_aproximada":"12:50","timezone":"America/Sao_Paulo","nivel_m":1.75,"origem":"medicao_manual_usuario","condicao_visual":"agua_aparentemente_parada"}],"quantidade_medicoes":3,"maturidade":"AMOSTRA_EM_FORMACAO","uso_operacional":False,"altera_v021":False},"estatisticas_automaticas_186":estat186,"atualizacao_operacional_rapida":{"status":"concluida","gerado_em":agora().isoformat(),"objetivo":"Atualizar meteorologia/radar antes das auditorias científicas pesadas.","fail_closed":True}})
+    dados.update({"gerado_em":agora().isoformat(),"previsao":previsao,"malha_meteorologica_207_r2":malha207r,"pareamento_espacial_radar_modelo_pluviometro_207_r4":pareamento207r4,"mare":mare,"radar":radar,"chuva":cemaden,"chuva_observada_cemaden_144":cemaden144,"chuva_observada_epagri_165":epagri,"rede_pluviometrica_multifonte_165":rede,"geometria_rede_observacional_172":geometria,"chuva_observada_inmet":inmet,"mare_observada_joinville_160":mare160,"historico_hidrometeorologico_guaxanduva_166":h166,"hidrologia_guaxanduva_v019":h019,"nivel_guaxanduva_v021":v021,"criterio_hidrometeorologico_plancon_163":criterio163,"mare_prevista_24h_164":mare164,"projecao_guaxanduva_174":proj174,"liberacao_experimental_168":liberacao168,"diagnostico_cap_recente_inmet_155":cap155,"diagnostico_conteudo_cap_inmet_156":cap156,"granizo":granizo,"super_el_nino_173":super_el_nino173,"impactos_locais_173":impactos173,"estado_canonico_operacional":estado_canonico,"estado_agora_operacional":estado_operacional,"validacao_campo_guaxanduva":{"versao":"GXA-CAMPO-207-G","status":"serie_de_calibracao_em_formacao","natureza":"MEDICAO_MANUAL_DE_CAMPO","referencia_historica_2026_10_03_m":0.607,"referencia_historica_status":"HIPOTESE_DE_CALIBRACAO_A_REAVALIAR","regra":"0,607 m e preservado como calibracao historica de 03/10; novas medicoes formam a serie #207-G e nao recalibram automaticamente o V0.21.","medicoes":[{"data":"2026-10-03","nivel_m":1.34,"origem":"medicao_manual_usuario"},{"data":"2026-10-03","hora_local":"15:49","timezone":"America/Sao_Paulo","nivel_m":1.33,"origem":"medicao_manual_usuario"},{"data":"2026-10-07","hora_local_aproximada":"12:50","timezone":"America/Sao_Paulo","nivel_m":1.75,"origem":"medicao_manual_usuario","condicao_visual":"agua_aparentemente_parada"}],"quantidade_medicoes":3,"maturidade":"AMOSTRA_EM_FORMACAO","uso_operacional":False,"altera_v021":False},"estatisticas_automaticas_186":estat186,"atualizacao_operacional_rapida":{"status":"concluida","gerado_em":agora().isoformat(),"objetivo":"Atualizar meteorologia/radar antes das auditorias científicas pesadas.","fail_closed":True}})
     # #187-A — compactação JSON sem perda de dados/estrutura.
     # #187-B — relatório espacial completo preservado em auditoria_espacial_170i.json.
     # O index.html não consulta esta cópia dentro de dados.json.

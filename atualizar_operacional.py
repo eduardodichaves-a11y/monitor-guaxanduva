@@ -170,7 +170,7 @@ def main():
         quadros=radar.get("quadros") or []
         if quadros and isinstance(quadros[-1],dict): qrad=quadros[-1].get("classificacao_qualitativa_local_130") or {}
     por_raio=qrad.get("por_raio",{}) if isinstance(qrad,dict) else {}
-    raio_eco=next((r for r in (2,5,10,25) if (por_raio.get(str(r)) or {}).get("eco_qualitativo_detectado") is True),None)
+    raio_eco=next((r for r in (2,5,10,25,50) if (por_raio.get(str(r)) or {}).get("eco_qualitativo_detectado") is True),None)
     radar_fresco=isinstance(radar,dict) and radar.get("status")=="online" and radar.get("dados_frescos") is True
     eco_local=radar_fresco and raio_eco is not None
 

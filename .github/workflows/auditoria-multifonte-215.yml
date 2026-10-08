@@ -9,7 +9,7 @@ permissions:
 jobs:
   auditar:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Baixar repositorio
         uses: actions/checkout@v4
@@ -19,14 +19,36 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Verificar script
+      - name: Conferir scripts e dados
         run: |
-          test -s auditar_multifonte_215.py
-          python -m py_compile auditar_multifonte_215.py
+          test -s dados.json
+          python -m py_compile auditar_cruzamento_geografico_212.py auditar_territorio_ecos_213.py auditar_multifonte_215.py
 
-      - name: Consultar eco historico e Open-Meteo
+      - name: Gerar auditoria geografica real
         run: |
-          python auditar_multifonte_215.py --territorio entrada_historica_215_ausente.json --saida auditoria_multifonte_215.json
+          python auditar_cruzamento_geografico_212.py dados.json --saida auditoria_geografica_212.json
+
+      - name: Gerar auditoria territorial real
+        run: |
+          python auditar_territorio_ecos_213.py auditoria_geografica_212.json --saida auditoria_territorial_213.json
+
+      - name: Verificar se ha ecos atuais
+        id: ecos
+        run: |
+          python - <<'PY'
+          import json, os
+          with open('auditoria_territorial_213.json', encoding='utf-8') as f:
+              dados = json.load(f)
+          quantidade = len(dados.get('agrupamentos') or [])
+          print('Ecos atuais:', quantidade)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as f:
+              f.write('presentes=' + ('true' if quantidade else 'false') + '\\n')
+          PY
+
+      - name: Consultar modelo meteorologico para os ecos atuais
+        if: steps.ecos.outputs.presentes == 'true'
+        run: |
+          python auditar_multifonte_215.py --territorio auditoria_territorial_213.json --saida auditoria_multifonte_215.json
 
       - name: Resumo cientifico
         if: always()
@@ -35,31 +57,42 @@ jobs:
           import json, os
           from pathlib import Path
           p = Path('auditoria_multifonte_215.json')
-          linhas = ['## Auditoria multifuente RadarSC #215']
+          linhas = ['## Auditoria multifonte RadarSC #215 / RGB #216']
           if not p.exists():
-              linhas.append('- Relatorio nao gerado: conferir logs.')
+              linhas.append('- Sem relatorio multifonte: nenhum eco atual detectado ou falha anterior; conferir logs.')
           else:
               d = json.loads(p.read_text(encoding='utf-8'))
-              linhas += [f"- Quadro: {d.get('quadro_radar')}", f"- Origem: {d.get('origem_ecos')}", f"- Ecos: {len(d.get('agrupamentos') or [])}", '- Modelo meteorologico nao confirma chuva observada.', f"- Calibracao de cores: {d.get('calibracao_cores')}"]
+              linhas += [f"- Quadro: {d.get('quadro_radar')}",
+                        f"- Origem: {d.get('origem_ecos')}",
+                        f"- Ecos: {len(d.get('agrupamentos') or [])}",
+                        f"- Calibracao de cores: {d.get('calibracao_cores')}"]
+              if d.get('origem_ecos') == 'ANCORA_HISTORICA_212_213':
+                  linhas.append('- ATENCAO: sem ecos no quadro de entrada; foi usada ancora historica. Nao representa nova deteccao.')
               for g in d.get('agrupamentos') or []:
                   linhas.append(f"### Eco {g.get('numero')} - {g.get('territorio_provavel') or 'territorio N/D'}")
+                  linhas.append(f"- RGB: {g.get('cores_rgb') or 'NAO DISPONIVEL'}")
+                  linhas.append(f"- Familia cromatica: {g.get('familias_cromaticas') or 'NAO DISPONIVEL'}")
+                  linhas.append(f"- Estado RGB: {g.get('estado_rgb')}")
                   for e in g.get('evidencias') or []:
                       linhas.append(f"- {e.get('provedor')}: {e.get('status') or e.get('tipo') or 'N/D'}")
                       if e.get('erro'):
                           linhas.append(f"  - Erro: {e['erro']}")
                       for a in e.get('amostras') or []:
                           linhas.append(f"  - {a.get('horario_local')}: precipitacao={a.get('precipitation')} mm, chuva={a.get('rain')} mm, pancadas={a.get('showers')} mm, codigo={a.get('weather_code')}")
-          resumo = '\n'.join(linhas) + '\n'
+          resumo = '\\n'.join(linhas) + '\\n'
           print(resumo)
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as f:
               f.write(resumo)
           PY
 
-      - name: Anexar relatorio JSON
+      - name: Anexar relatorios JSON
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: auditoria-multifonte-215
-          path: auditoria_multifonte_215.json
+          path: |
+            auditoria_geografica_212.json
+            auditoria_territorial_213.json
+            auditoria_multifonte_215.json
           if-no-files-found: warn
           retention-days: 30

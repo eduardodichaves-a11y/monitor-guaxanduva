@@ -1,0 +1,69 @@
+name: Auditoria territorial RadarSC 213
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditar-territorio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verificar arquivos
+        run: |
+          test -s dados.json
+          test -s auditar_cruzamento_geografico_212.py
+          test -s auditar_territorio_ecos_213.py
+          python -m py_compile auditar_cruzamento_geografico_212.py auditar_territorio_ecos_213.py
+
+      - name: Gerar agrupamentos e estacoes candidatas
+        run: |
+          python auditar_cruzamento_geografico_212.py dados.json --saida auditoria_geografica_212.json
+
+      - name: Consultar territorio dos agrupamentos
+        run: |
+          python auditar_territorio_ecos_213.py auditoria_geografica_212.json --saida auditoria_territorial_213.json
+
+      - name: Resumo da auditoria territorial
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          with open("auditoria_territorial_213.json", encoding="utf-8") as f:
+              d = json.load(f)
+          linhas = [
+              "## Auditoria territorial RadarSC #213",
+              f"- Quadro RadarSC: {d.get('quadro_radar') or 'N/D'}",
+              f"- Agrupamentos: {len(d.get('agrupamentos') or [])}",
+              "- Identificacao territorial aproximada; nao valida chuva.",
+          ]
+          for g in d.get("agrupamentos") or []:
+              territorio = g.get("territorio") or {}
+              local = territorio.get("municipio_provavel") or "Nao identificado"
+              erro = territorio.get("erro")
+              linhas.append(f"- Eco {g.get('numero')}: {local}" + (f" (consulta falhou: {erro})" if erro else ""))
+          resumo = "\n".join(linhas) + "\n"
+          print(resumo)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              f.write(resumo)
+          PY
+
+      - name: Anexar relatorios JSON
+        uses: actions/upload-artifact@v4
+        with:
+          name: auditoria-territorial-213
+          path: |
+            auditoria_geografica_212.json
+            auditoria_territorial_213.json
+          if-no-files-found: error
+          retention-days: 30

@@ -271,45 +271,37 @@ def _evento_independente_207_r52(eventos, horario, separacao_h=3.0):
 
 
 def _avaliar_promocao_207_r52(item):
-    """Regra automática, auditável e reversível de promoção/revalidação."""
+    """#219: aprendizado modelado nao constitui validacao observacional.
+
+    Preserva contagens para auditoria, mas impede promocao cientifica automatica
+    ate existir criterio de pareamento espacial/temporal independente validado.
+    """
     votos = item.get("votos_familias") or {}
     total = sum(int(v or 0) for v in votos.values())
     dominante = max(votos, key=votos.get) if votos else None
     n_dom = int(votos.get(dominante, 0)) if dominante else 0
-    concord = (100.0*n_dom/total) if total else 0.0
+    concord = 100.0 * n_dom / total if total else 0.0
     eventos = len(item.get("eventos_independentes") or [])
     fontes = set(item.get("familias_fontes_com_evidencia") or [])
-
-    # #207-R5.2: 12 rodadas, 10 concordantes (~83%), >=3 eventos separados.
-    # Pluviômetro NÃO é obrigatório nem tem veto. Quando existe chuva observada
-    # compatível, ela adiciona uma família de evidência; o modelo pode maturar
-    # sozinho por repetição temporal, mas isso fica explicitamente rastreado.
-    elegivel = total >= 12 and n_dom >= 10 and concord >= 83.0 and eventos >= 3 and dominante is not None
     item["rodadas_classificaveis"] = total
     item["categoria_dominante"] = dominante
     item["confirmacoes_dominantes"] = n_dom
     item["concordancia_pct"] = round(concord, 1)
-    item["eventos_independentes"] = item.get("eventos_independentes") or []
     item["quantidade_eventos_independentes"] = eventos
     item["familias_fontes_com_evidencia"] = sorted(fontes)
-    item["criterio_promocao"] = {"rodadas_min":12,"confirmacoes_mesma_categoria_min":10,"concordancia_min_pct":83.0,"eventos_independentes_min":3,"separacao_eventos_h":3,"pluviometro_obrigatorio":False}
-
-    anterior = item.get("estado_aprendizado")
-    if elegivel:
-        item["estado_aprendizado"] = "VALIDADO_AUTOMATICAMENTE"
-        item["significado_meteorologico_validado"] = True
-        item["categoria_meteorologica_validada"] = dominante
-        item["confianca_aprendizado_pct"] = round(concord, 1)
-    elif anterior == "VALIDADO_AUTOMATICAMENTE" and total >= 20 and concord < 70.0:
-        item["estado_aprendizado"] = "EM_REVALIDACAO"
-        item["significado_meteorologico_validado"] = False
-        item["categoria_meteorologica_validada"] = None
-        item["confianca_aprendizado_pct"] = round(concord, 1)
-    else:
-        item["estado_aprendizado"] = anterior if anterior in ("EM_REVALIDACAO",) else "EM_VALIDACAO"
-        item["significado_meteorologico_validado"] = False
-        item["categoria_meteorologica_validada"] = None
-        item["confianca_aprendizado_pct"] = round(concord, 1)
+    item["criterio_promocao"] = {
+        "status": "BLOQUEADO_219_PENDENTE_VALIDACAO_OBSERVACIONAL",
+        "rodadas_min_historico": 12,
+        "confirmacoes_modeladas_min_historico": 10,
+        "eventos_independentes_min_historico": 3,
+        "observacao_independente_espacial_temporal_exigida": True,
+        "regra": "Contagens e modelo nao validam cor nem intensidade de chuva",
+    }
+    item["estado_aprendizado"] = "EM_VALIDACAO"
+    item["significado_meteorologico_validado"] = False
+    item["categoria_meteorologica_validada"] = None
+    item["publicar_significado_na_classe_base"] = False
+    item["confianca_aprendizado_pct"] = None
     return item
 
 
@@ -332,6 +324,18 @@ def construir_auditoria_pixel_eco_207_r5(radar, rede, anterior=None):
     aprendizado=dict(prev.get("aprendizado_acumulado") or {})
     descobertas=dict(prev.get("descobertas_adaptativas") or {})
     fila=dict(prev.get("fila_rgb_desconhecidos") or {})
+    #219: revoga publicacoes herdadas da regra antiga, inclusive RGBs nao ativos.
+    for chave, anterior_item in list(aprendizado.items()):
+        if isinstance(anterior_item, dict):
+            aprendizado[chave] = _avaliar_promocao_207_r52(dict(anterior_item))
+    for chave, anterior_slot in list(descobertas.items()):
+        if isinstance(anterior_slot, dict):
+            slot = dict(anterior_slot)
+            slot["estado"] = "EM_VALIDACAO"
+            slot["publicar_no_site"] = False
+            slot["categoria_meteorologica"] = None
+            slot["confianca_pct"] = None
+            descobertas[chave] = slot
 
     if not isinstance(radar,dict) or radar.get("status")!="online" or radar.get("dados_frescos") is not True:
         saida.update({"status":"bloqueado_radar_indisponivel_ou_antigo","aprendizado_acumulado":aprendizado,"descobertas_adaptativas":descobertas,"fila_rgb_desconhecidos":fila}); return saida

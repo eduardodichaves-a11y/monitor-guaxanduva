@@ -5358,20 +5358,16 @@ def familia_cor_radar(rgb, classe=None):
     return mapa_operacional.get(cor, "outra")
 
 def significado_qualitativo_familia(familia):
-    if familia in ("verde", "amarelo"):
+    """#207-R5 — cor observada não é sinônimo de precipitação.
+
+    A família cromática descreve somente o RGB presente no PNG. Atribuição
+    meteorológica fica bloqueada até haver vínculo documental C1-C16 ou
+    validação empírica independente (radar × pluviômetro/modelo).
+    """
+    if familia in ("azul_ciano", "verde", "amarelo", "laranja", "vermelho", "rosa_magenta_roxo"):
         return {
-            "categoria": "precipitacao_menor_intensidade_documentada",
-            "nivel_evidencia": "documental_qualitativo",
-        }
-    if familia == "laranja":
-        return {
-            "categoria": "precipitacao_temporal_documentado_sem_faixa_numerica",
-            "nivel_evidencia": "documental_qualitativo",
-        }
-    if familia in ("vermelho", "rosa_magenta_roxo"):
-        return {
-            "categoria": "precipitacao_intensa_ou_tempestade_documentada",
-            "nivel_evidencia": "documental_qualitativo",
+            "categoria": "cor_radar_detectada_significado_em_validacao",
+            "nivel_evidencia": "rgb_observado_sem_inferencia_meteorologica",
         }
     return {
         "categoria": "sem_interpretacao_meteorologica_validada",
@@ -5400,7 +5396,7 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
     for cor in RADARSC_PALETA_OPERACIONAL_RGB:
         mapa.setdefault(cor, {"classe": None, "familia_cor": familia_cor_radar(cor)})
     base = {
-        "versao": "#130",
+        "versao": "#130+#207-R5",
         "referencia": "Comasa - coordenada pública aproximada",
         "raios_km": [2, 5, 10, 25, 50],
         "dbz_numerico_validado": bool((legenda_oficial or {}).get("dbz_numerico_validado")),
@@ -5456,8 +5452,8 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
         "status": "diagnostico_qualitativo_ativo",
         "por_raio": por_raio,
         "regra_seguranca": (
-            "#175: presença de cor da paleta operacional é detecção qualitativa por radar, não medição de chuva no solo. "
-            "Cores da paleta operacional sem classe oficial confirmam somente presença qualitativa de eco. Apenas RGB ligado a C1–C16 pode receber faixa dBZ validada; mm/h continua bloqueado."
+            "#207-R5: presença de RGB da paleta operacional confirma somente que a cor existe no PNG RadarSC; não prova precipitação. "
+            "RGB sem vínculo C1–C16 permanece SIGNIFICADO EM VALIDAÇÃO. Apenas vínculo documental validado pode receber faixa dBZ; mm/h continua bloqueado."
         ),
     }
  

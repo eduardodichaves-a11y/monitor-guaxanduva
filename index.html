@@ -1309,11 +1309,14 @@ async function carregar(){
   $("radarElegiveis").textContent=rt.quantidade_trilhas_elegiveis??"--";
   const radarTs=Date.parse(rad.horario_ultimo_quadro||"");
   const radarIdadeRealMin=Number.isFinite(radarTs)?Math.max(0,(Date.now()-radarTs)/60000):Infinity;
-  const radarFrescoReal=coletaFresca&&radarIdadeRealMin<=30;
+  // #226 — frescor do quadro e saude da coleta sao estados distintos.
+  const radarFrescoReal=coletaFresca&&radarIdadeRealMin<=30&&rad.dados_frescos===true;
+  const radarOperacionalAtual=rad.status==="online"&&radarFrescoReal;
   $("radarIdade").textContent=Number.isFinite(radarIdadeRealMin)?f(radarIdadeRealMin,1)+" min":"--";
-  if(rad.status==="online"&&radarFrescoReal){$("radarEstado").innerHTML='<span class="ok">🟢 Radar online • quadro atual</span>'}
-  else if(rad.status){$("radarEstado").innerHTML='<span class="erro">🔴 Radar '+rad.status+' • QUADRO DESATUALIZADO • não representa agora</span>'}
-  else{$("radarEstado").innerHTML='<span class="erro">🔴 Radar indisponível</span>'}
+  if(radarOperacionalAtual){$("radarEstado").innerHTML='<span class="ok">🟢 RadarSC • quadro recente e coleta íntegra</span>'}
+  else if(radarFrescoReal){$("radarEstado").innerHTML='<span class="aviso">🟡 RadarSC • quadro recente, coleta parcial</span>'}
+  else if(Number.isFinite(radarIdadeRealMin)){$("radarEstado").innerHTML='<span class="erro">🔴 RadarSC • quadro desatualizado ou coleta não recente</span>'}
+  else{$("radarEstado").innerHTML='<span class="erro">🔴 RadarSC • quadro indisponível</span>'}
   const cand=av.quantidade_candidatos_eta??0;
   $("etaEstado").innerHTML='<span class="aviso">🧪 ETA experimental bloqueado • candidatos atuais: '+cand+'</span>';
  
@@ -1321,7 +1324,7 @@ async function carregar(){
   let escolhido=null;
   for(const raio of ["2","5","10","25"]){
    const x=pr[raio]||{};
-   if(x.eco_qualitativo_detectado===true || x.eco_oficial_detectado===true){escolhido={raio,...x};break}
+   if(radarOperacionalAtual&&(x.eco_qualitativo_detectado===true || x.eco_oficial_detectado===true)){escolhido={raio,...x};break}
   }
   // #191 — seleção coerente do eco atual.
   // O menor raio continua tendo prioridade espacial. Dentro dele, a família
@@ -1913,14 +1916,14 @@ async function carregar(){
     const motivos=(v169Dash.motivos_bloqueio||[]).join(", ");
     $("dashRadarEco").innerHTML='<span class="aviso">⚠ FAIXAS dBZ TEMPORARIAMENTE NÃO PUBLICADAS</span><br><small>A detecção RGB C1–C16 continua ativa. A #169 bloqueou apenas os números dBZ'+(motivos?' • diagnóstico: '+motivos:'')+'.</small>';
   }
-  if(escolhido&&classeAtual!==null&&radarFrescoReal){
+  if(escolhido&&classeAtual!==null&&radarOperacionalAtual){
     const atualInfo=dicRadar.find(x=>x&&x.classe!=null&&Number(x.classe)===classeAtual)||{classe:classeAtual};
     const famAtual=atualInfo.familia_cor||familiaQualAtual191.familia||"não informada";
     $("dashRadarEco").innerHTML='<span class="ok">▼ ECO AGORA • C'+classeAtual+' • '+faixaDbzDash(atualInfo)+'</span><br><small>Cor: '+nomeFamilia(famAtual)+' • eco RadarSC detectado em até '+escolhido.raio+' km da referência. A classe C1–C16 só é exibida quando há correspondência oficial validada. dBZ descreve refletividade do radar e não equivale a chuva medida no solo.</small>';
-  }else if(escolhido&&radarFrescoReal){
+  }else if(escolhido&&radarOperacionalAtual){
     const famAtual=familiaQualAtual191.familia||"não informada";
     $("dashRadarEco").innerHTML='<span class="ok">▼ ECO AGORA • DETECÇÃO QUALITATIVA</span><br><small>Família visual: '+nomeFamilia(famAtual)+' • eco RadarSC detectado em até '+escolhido.raio+' km da referência. Sem correspondência oficial validada, o Monitor NÃO atribui C1–C16, dBZ, intensidade física nem mm/h a este eco.</small>';
-  }else if(cq.status&&!radarFrescoReal){
+  }else if(cq.status&&!radarOperacionalAtual){
     $("dashRadarEco").innerHTML='<span class="erro">⚠ QUADRO DESATUALIZADO • SEM CONCLUSÃO SOBRE AGORA</span><br><small>O último quadro não é recente o bastante para afirmar presença ou ausência de chuva neste momento.</small>';
   }else if(cq.status){
     $("dashRadarEco").innerHTML='<span class="aviso">○ SEM ECO OFICIAL DETECTADO ≤ 25 km</span><br><small>Nenhum índice interno C1–C16 foi detectado nesta busca. Isso não prova ausência de chuva no solo.</small>';
@@ -1929,7 +1932,7 @@ async function carregar(){
   }
   const prevTemChuva=(ph.precipitacao_mm!=null&&Number(ph.precipitacao_mm)>0)||(ph.probabilidade_chuva_pct!=null&&Number(ph.probabilidade_chuva_pct)>=50);
   if($("dashRadarSintese")){
-    if(!radarFrescoReal){$("dashRadarSintese").innerHTML='<strong>⚠ Radar desatualizado</strong>O último quadro tem '+(Number.isFinite(radarIdadeRealMin)?f(radarIdadeRealMin,0)+' min':'idade desconhecida')+'. O Monitor não afirma “sem eco agora” usando imagem antiga.';}
+    if(!radarOperacionalAtual){$("dashRadarSintese").innerHTML='<strong>⚠ Radar desatualizado</strong>O último quadro tem '+(Number.isFinite(radarIdadeRealMin)?f(radarIdadeRealMin,0)+' min':'idade desconhecida')+'. O Monitor não afirma “sem eco agora” usando imagem antiga.';}
     else if(escolhido&&classeAtual!==null){$("dashRadarSintese").innerHTML='<strong>📡 Eco classificado no radar agora</strong>Há eco RadarSC com correspondência C1–C16 validada em até '+escolhido.raio+' km. Radar mostra refletividade; não publica aqui a previsão de chuva nem a trata como medição do radar.';}
     else if(escolhido){$("dashRadarSintese").innerHTML='<strong>📡 Eco detectado no radar agora</strong>Há eco qualitativo em até '+escolhido.raio+' km, mas sem classe C1–C16 validada. Portanto o Monitor não afirma intensidade, dBZ ou mm/h para este eco.';}
     else if(cq.status&&obsChuvaMax!=null&&obsChuvaMax>0){$("dashRadarSintese").innerHTML='<strong>⚠ FONTES DIVERGENTES • chuva observada × radar</strong>Pluviômetros regionais frescos registram até '+f(obsChuvaMax,1)+' mm/1h, enquanto a busca local do RadarSC não encontrou classe C1–C16 no raio analisado. O Monitor preserva as duas evidências e não transforma ausência de eco em ausência de chuva.';}
@@ -1957,7 +1960,7 @@ async function carregar(){
     };
     (Array.isArray(r165.estacoes)?r165.estacoes:[]).forEach(add207);
     const ep207=d.chuva_observada_epagri_165||{};(Array.isArray(ep207.estacoes)?ep207.estacoes:[]).forEach(add207);
-    const ecoRaios207=raios207.filter(r=>{const x=pr[String(r)]||{};return radarFrescoReal&&(x.eco_qualitativo_detectado===true||x.eco_oficial_detectado===true)});
+    const ecoRaios207=raios207.filter(r=>{const x=pr[String(r)]||{};return radarOperacionalAtual&&(x.eco_qualitativo_detectado===true||x.eco_oficial_detectado===true)});
     $("r207RadiusGrid").innerHTML=raios207.map(r=>{
       const mm=mp207[String(r)]||{};
       const dentro=est207.filter(e=>e.dist<=r), disponiveis=dentro.filter(e=>e.disponivel), comparaveis=dentro.filter(e=>e.comparavel1h&&e.p1!=null);

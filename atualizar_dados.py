@@ -5358,16 +5358,17 @@ def familia_cor_radar(rgb, classe=None):
     return mapa_operacional.get(cor, "outra")
 
 def significado_qualitativo_familia(familia):
-    """#207-R5 — cor observada não é sinônimo de precipitação.
+    """#207-R5.1 — cor observada entra em aprendizado meteorológico multifuente.
 
-    A família cromática descreve somente o RGB presente no PNG. Atribuição
-    meteorológica fica bloqueada até haver vínculo documental C1-C16 ou
-    validação empírica independente (radar × pluviômetro/modelo).
+    A família cromática descreve o RGB presente no PNG. O significado é
+    aprendido por coordenada+horário com múltiplas evidências: modelos/nowcast,
+    previsões e observações disponíveis. Pluviômetro é testemunha importante,
+    mas não árbitro e não possui poder de veto isolado.
     """
     if familia in ("azul_ciano", "verde", "amarelo", "laranja", "vermelho", "rosa_magenta_roxo"):
         return {
-            "categoria": "cor_radar_detectada_significado_em_validacao",
-            "nivel_evidencia": "rgb_observado_sem_inferencia_meteorologica",
+            "categoria": "cor_radar_detectada_aprendizado_multifuente_em_formacao",
+            "nivel_evidencia": "rgb_observado_aguardando_convergencia_multifuente",
         }
     return {
         "categoria": "sem_interpretacao_meteorologica_validada",

@@ -1,0 +1,82 @@
+name: Auditoria espacial RadarSC #221
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditar-geometria:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar dependências
+        run: python -m pip install --disable-pip-version-check requests pillow
+      - name: Baixar PNG oficial selecionado pelo diagnostico #176
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, pathlib, re, requests, sys, warnings
+          from urllib3.exceptions import InsecureRequestWarning
+          from PIL import Image
+          from io import BytesIO
+          dados=json.loads(pathlib.Path('dados.json').read_text(encoding='utf-8'))
+          radar=dados.get('radar') or {}
+          diag=radar.get('diagnostico_lista_fonte_176') or {}
+          nome=diag.get('arquivo_selecionado')
+          if not isinstance(nome,str) or not re.fullmatch(r'\d{14}\d*dBZ\.cappi_top\.png',nome):
+              sys.exit('SEM_ARQUIVO_OFICIAL: diagnostico #176 sem arquivo valido')
+          if not any(isinstance(c,dict) and c.get('status')=='ok' for c in (diag.get('consultas') or [])):
+              sys.exit('SEM_CONFIRMACAO_LISTA: nenhuma consulta oficial confirmada')
+          url='https://sifap.defesacivil.sc.gov.br/radarsc/rest/radar/getImagem'
+          params={'prod':4,'radar':'COMP','file':nome}
+          tls='CERTIFICADO_VALIDADO'
+          try:
+              r=requests.get(url,params=params,timeout=(10,35));r.raise_for_status()
+          except requests.exceptions.SSLError:
+              tls='CERTIFICADO_NAO_VALIDADO'
+              print('AVISO: excecao TLS restrita ao RadarSC; autenticidade nao verificada.',flush=True)
+              with warnings.catch_warnings():
+                  warnings.simplefilter('ignore',InsecureRequestWarning)
+                  try:
+                      r=requests.get(url,params=params,timeout=(10,35),verify=False);r.raise_for_status()
+                  except requests.RequestException as exc:
+                      sys.exit('DOWNLOAD_FALHOU_APOS_FALLBACK_TLS: '+str(exc))
+          except requests.RequestException as exc:
+              sys.exit('DOWNLOAD_FALHOU: '+str(exc))
+          bruto=r.content
+          if not bruto.startswith(b'\x89PNG\r\n\x1a\n'):sys.exit('RESPOSTA_NAO_PNG')
+          try:
+              imagem=Image.open(BytesIO(bruto));imagem.verify()
+          except Exception as exc:sys.exit('PNG_INVALIDO: '+str(exc))
+          pathlib.Path('quadro_radarsc_221.png').write_bytes(bruto)
+          pathlib.Path('origem_quadro_221.json').write_text(json.dumps({
+              'versao':'#221','arquivo_oficial':nome,'tls':tls,
+              'sha256':hashlib.sha256(bruto).hexdigest(),
+              'observacao':'PNG diagnostico; se TLS nao validado, autenticidade nao comprovada.'
+          },ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('PNG recebido:',nome,'bytes:',len(bruto),'TLS:',tls)
+          PY
+      - name: Auditar transparencia e geometria #221
+        run: python auditar_geometria_radarsc_221.py --png quadro_radarsc_221.png --dados dados.json --saida auditoria_geometria_radarsc_221.json --imagem mapa_transparencia_radarsc_221.png
+      - name: Validar relatorio
+        run: python -m json.tool auditoria_geometria_radarsc_221.json > /dev/null
+      - name: Publicar artefatos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-espacial-radarsc-221
+          path: |
+            auditoria_geometria_radarsc_221.json
+            origem_quadro_221.json
+            mapa_transparencia_radarsc_221.png
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,42 +1,35 @@
 #!/usr/bin/env python3
-"""#215: auditoria exploratoria multifuente de eco historico, sem alterar dados.json.
-
-Consulta Open-Meteo (modelo, NAO pluviometro). Aceita JSON #213 ou usa
-ancora historica #212 de 08/10/2026 12:20 BRT se nenhum grupo existir.
-Nao atribui classe meteorologica a cor RadarSC nem valida chuva observada.
-"""
+"""#215/#216: auditoria multifonte com rastreabilidade RGB; sem calibracao automatica."""
 import argparse
 import json
-import math
 import urllib.parse
 import urllib.request
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ANCORA = {'numero': 1, 'latitude': -26.215039, 'longitude': -48.614186,
           'pixels': 1, 'territorio': {'municipio_provavel': 'Sao Francisco do Sul'},
           'proveniencia': 'Eco historico #212/#213; coordenada aproximada; nao observado neste run'}
 QUADRO = '2026-10-08T12:20:00-03:00'
 
-
 def consultar_open_meteo(lat, lon, quadro):
-    """Forecast API past_days: retrospectiva de modelo, nao serie de observacao."""
     parametros = {'latitude': lat, 'longitude': lon,
                   'hourly': 'precipitation,rain,showers,weather_code',
-                  'timezone': 'America/Sao_Paulo', 'past_days': 2,
-                  'forecast_days': 1}
+                  'timezone': 'America/Sao_Paulo', 'past_days': 2, 'forecast_days': 1}
     url = 'https://api.open-meteo.com/v1/forecast?' + urllib.parse.urlencode(parametros)
-    req = urllib.request.Request(url, headers={'User-Agent': 'MonitorGuaxanduva-Auditoria/215', 'Accept': 'application/json'})
+    req = urllib.request.Request(url, headers={'User-Agent': 'MonitorGuaxanduva-Auditoria/215',
+                                               'Accept': 'application/json'})
     with urllib.request.urlopen(req, timeout=25) as resp:
         d = json.load(resp)
     hourly = d.get('hourly') or {}
     horas = hourly.get('time') or []
-    alvo = quadro.astimezone(__import__('zoneinfo').ZoneInfo('America/Sao_Paulo'))
+    alvo = quadro.astimezone(ZoneInfo('America/Sao_Paulo'))
     candidatas = []
     for i, hora in enumerate(horas):
         try:
             t = datetime.fromisoformat(hora).replace(tzinfo=alvo.tzinfo)
-            delta = abs((t-alvo).total_seconds())/60
+            delta = abs((t-alvo).total_seconds()) / 60
             if delta <= 90:
                 registro = {'horario_local': t.isoformat(), 'diferenca_minutos': round(delta, 1)}
                 for campo in ('precipitation', 'rain', 'showers', 'weather_code'):
@@ -49,8 +42,7 @@ def consultar_open_meteo(lat, lon, quadro):
     return {'provedor': 'Open-Meteo', 'tipo': 'ESTIMATIVA_MODELO',
             'origem': 'https://open-meteo.com/',
             'descricao': 'Precipitacao horaria modelada; nao equivale a chuva observada no pixel.',
-            'amostras': candidatas[:3], 'horario_consulta_utc': datetime.now(__import__('datetime').timezone.utc).isoformat()}
-
+            'amostras': candidatas[:3], 'horario_consulta_utc': datetime.now(timezone.utc).isoformat()}
 
 def auditar(territorio, sem_rede=False):
     quadro_str = territorio.get('quadro_radar') or QUADRO
@@ -62,13 +54,18 @@ def auditar(territorio, sem_rede=False):
     if not grupos:
         grupos = [dict(ANCORA)]
         quadro_str, quadro, origem = QUADRO, datetime.fromisoformat(QUADRO), 'ANCORA_HISTORICA_212_213'
-    resultado = {'versao': '#215', 'quadro_radar': quadro_str, 'origem_ecos': origem,
+    resultado = {'versao': '#215+#216', 'quadro_radar': quadro_str, 'origem_ecos': origem,
                  'criterio': 'Modelo e previsao sao apoio, nao validacao observacional independente.',
                  'calibracao_cores': 'BLOQUEADA', 'agrupamentos': []}
     for g in grupos:
+        cores = g.get('cores_rgb') or []
         item = {'numero': g.get('numero'), 'latitude': g.get('latitude'),
                 'longitude': g.get('longitude'), 'pixels': g.get('pixels'),
                 'territorio_provavel': (g.get('territorio') or {}).get('municipio_provavel'),
+                'cores_rgb': cores, 'familias_cromaticas': g.get('familias_cromaticas') or [],
+                'origem_rgb': g.get('origem_rgb') if cores else None,
+                'rgb_preservado': bool(cores),
+                'estado_rgb': 'PRESERVADO_DA_FONTE' if cores else 'NAO_DISPONIVEL_NA_FONTE',
                 'evidencias': [], 'chuva_no_pixel_confirmada': False}
         if g.get('proveniencia'):
             item['proveniencia'] = g['proveniencia']
@@ -83,7 +80,6 @@ def auditar(territorio, sem_rede=False):
         resultado['agrupamentos'].append(item)
     return resultado
 
-
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--territorio', default='auditoria_territorial_213.json')
@@ -96,7 +92,6 @@ def main():
     Path(args.saida).write_text(json.dumps(resultado, indent=2, ensure_ascii=False), encoding='utf-8')
     print('Ecos:', len(resultado['agrupamentos']), '| origem:', resultado['origem_ecos'])
     print('Calibracao:', resultado['calibracao_cores'])
-
 
 if __name__ == '__main__':
     main()

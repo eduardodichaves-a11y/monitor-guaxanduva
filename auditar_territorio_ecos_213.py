@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""#213: identifica territorio provavel dos ecos; nao valida chuva nem altera dados.json."""
+"""#213/#216: territorio provavel e transporte fiel do RGB do eco, sem validar chuva."""
 import argparse
 import json
 import time
@@ -38,20 +38,24 @@ def consulta_osm(lat, lon, tentativas=2):
 
 def auditar(relatorio, consultar=True):
     saida = {
-        "versao": "#213", "quadro_radar": relatorio.get("quadro_radar"),
-        "aviso": "Territorio e estimativa cartografica, nao confirmacao de chuva. Estacoes existentes nao sao inventario regional completo.",
+        "versao": "#213+#216", "quadro_radar": relatorio.get("quadro_radar"),
+        "aviso": "Territorio aproximado; RGB observado nao confirma chuva. Sem calibracao meteorologica automatica.",
         "agrupamentos": []
     }
     for i, grupo in enumerate(relatorio.get("agrupamentos") or []):
         lat, lon = grupo.get("latitude"), grupo.get("longitude")
         item = {"numero": grupo.get("numero", i+1), "latitude": lat, "longitude": lon,
                 "pixels": grupo.get("pixels"), "validacao_chuva": "NAO REALIZADA",
+                "cores_rgb": grupo.get("cores_rgb") or [],
+                "familias_cromaticas": grupo.get("familias_cromaticas") or [],
+                "origem_rgb": grupo.get("origem_rgb"),
+                "rgb_preservado": bool(grupo.get("cores_rgb")),
                 "estacoes_proximas_cadastradas": grupo.get("estacoes_proximas_cadastradas", [])}
         if lat is None or lon is None:
             item["territorio"] = {"erro": "Centroide ausente"}
         elif consultar:
             item["territorio"] = consulta_osm(float(lat), float(lon))
-            time.sleep(1.1)  # respeitar limite de consultas do serviço
+            time.sleep(1.1)
         else:
             item["territorio"] = {"status": "Consulta desativada"}
         saida["agrupamentos"].append(item)

@@ -1,0 +1,30 @@
+name: Auditoria cartografica RadarSC #222
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  auditar-cartografia:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar dependencias
+        run: python -m pip install requests
+      - name: Consultar configuracao publica do RadarSC
+        run: python auditar_cartografia_radarsc_222.py
+      - name: Validar relatorio
+        run: python -m json.tool auditoria_cartografia_radarsc_222.json > /dev/null
+      - name: Disponibilizar evidencias
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-cartografia-radarsc-222
+          path: auditoria_cartografia_radarsc_222.json
+          if-no-files-found: warn
+          retention-days: 14

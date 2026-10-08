@@ -1,0 +1,27 @@
+name: Testes do registrador RGB 217
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'registrar_ecos_rgb_217.py'
+      - 'testar_registrador_ecos_217.py'
+      - '.github/workflows/testes-registrador-217.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  testar-registrador:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+      - name: Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Executar testes isolados do registrador RGB
+        run: python -m unittest -v testar_registrador_ecos_217

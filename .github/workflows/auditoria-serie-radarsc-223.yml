@@ -1,0 +1,85 @@
+name: Auditoria serie temporal RadarSC #223
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  auditar-serie:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar dependencias
+        run: python -m pip install --disable-pip-version-check requests pillow
+      - name: Consultar lista oficial e baixar ate seis PNGs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, re, pathlib, hashlib, warnings, requests, sys
+          from io import BytesIO
+          from PIL import Image
+          from urllib3.exceptions import InsecureRequestWarning
+          base='https://sifap.defesacivil.sc.gov.br/radarsc/rest/radar/'
+          sess=requests.Session()
+          def buscar(url,params):
+              tls='CERTIFICADO_VALIDADO'
+              try:
+                  r=sess.get(url,params=params,timeout=(10,40));r.raise_for_status()
+              except requests.exceptions.SSLError:
+                  tls='CERTIFICADO_NAO_VALIDADO'
+                  with warnings.catch_warnings():
+                      warnings.simplefilter('ignore',InsecureRequestWarning)
+                      r=sess.get(url,params=params,timeout=(10,40),verify=False);r.raise_for_status()
+              return r,tls
+          r,tls_lista=buscar(base+'getUltimasImagens',{'prod':4,'radar':'COMP'})
+          payload=r.json()
+          padrao=re.compile(r'^\d{14}\d*dBZ\.cappi_top\.png$')
+          encontrados=set()
+          def percorrer(obj):
+              if isinstance(obj,str):
+                  for candidato in re.findall(r'\d{14}\d*dBZ\.cappi_top\.png',obj):
+                      if padrao.fullmatch(candidato):encontrados.add(candidato)
+              elif isinstance(obj,list):
+                  for v in obj:percorrer(v)
+              elif isinstance(obj,dict):
+                  for v in obj.values():percorrer(v)
+          percorrer(payload)
+          nomes=sorted(encontrados,reverse=True)[:6]
+          if not nomes:sys.exit('SEM_QUADROS_NA_LISTA_OFICIAL: nao fabricar nomes')
+          pasta=pathlib.Path('quadros_223');pasta.mkdir(exist_ok=True)
+          quadros=[];falhas=[]
+          for nome in nomes:
+              try:
+                  resposta,tls=buscar(base+'getImagem',{'prod':4,'radar':'COMP','file':nome})
+                  bruto=resposta.content
+                  if not bruto.startswith(b'\x89PNG\r\n\x1a\n'):raise ValueError('Resposta nao PNG')
+                  imagem=Image.open(BytesIO(bruto));imagem.verify()
+                  (pasta/nome).write_bytes(bruto)
+                  quadros.append({'arquivo_oficial':nome,'sha256':hashlib.sha256(bruto).hexdigest(),'tls':tls,'bytes':len(bruto)})
+              except Exception as exc:
+                  falhas.append({'arquivo_oficial':nome,'erro':str(exc)[:350]})
+          origem={'versao':'#223','fonte_lista':base+'getUltimasImagens','tls_lista':tls_lista,'quantidade_nomes_oficiais':len(encontrados),'nomes_selecionados':nomes,'quadros':quadros,'falhas':falhas,'aviso':'Se certificado nao validado, autenticidade nao comprovada.'}
+          pathlib.Path('origens_quadros_223.json').write_text(json.dumps(origem,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('Nomes oficiais:',len(encontrados),'PNG validos:',len(quadros),'falhas:',len(falhas),'TLS lista:',tls_lista)
+          if not quadros:sys.exit('NENHUM_PNG_VALIDO')
+          PY
+      - name: Auditar sequencia espacial
+        run: python auditar_serie_radarsc_223.py
+      - name: Validar JSON
+        run: python -m json.tool auditoria_serie_radarsc_223.json > /dev/null
+      - name: Publicar diagnostico
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-serie-radarsc-223
+          path: |
+            origens_quadros_223.json
+            auditoria_serie_radarsc_223.json
+          if-no-files-found: warn
+          retention-days: 14

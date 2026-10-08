@@ -238,45 +238,122 @@ def _categoria_wmo_207_r5_1(codigo):
     return "OUTRO_FENOMENO_MODELADO"
 
 
-def construir_auditoria_pixel_eco_207_r5(radar, rede, anterior=None):
-    """#207-R5.1 — aprendizado RGB multifuente, georreferenciado e sem veto de estação.
+def _categoria_final_207_r52(categoria_modelada):
+    """Converte rótulos WMO/modelados nas quatro famílias didáticas do Monitor."""
+    mapa = {
+        "GAROA_CHUVISCO_MODELADO": "GAROA_CHUVISCO",
+        "CHUVA_FRACA_MODELADA": "CHUVA_FRACA",
+        "CHUVA_MODERADA_MODELADA": "CHUVA_FORTE",
+        "CHUVA_FORTE_MODELADA": "CHUVA_FORTE",
+        "TEMPESTADE_MODELADA": "TEMPESTADE",
+    }
+    return mapa.get(categoria_modelada)
 
-    O RGB do RadarSC é a variável que queremos aprender. A evidência é guardada
-    por coordenada+horário. Modelo/nowcast entra como evidência meteorológica
-    real do aprendizado (não como observação física); pluviômetros entram como
-    outra testemunha e nunca têm poder de veto isolado. Estações sem 1 h
-    comparável, atrasadas ou inconsistentes não viram prova de ausência de chuva.
+
+def _evento_independente_207_r52(eventos, horario, separacao_h=3.0):
+    """Conta nova rodada independente somente se estiver >=3 h das já registradas."""
+    try:
+        atual = datetime.fromisoformat(str(horario).replace("Z", "+00:00"))
+    except Exception:
+        return False
+    for bruto in eventos or []:
+        try:
+            antigo = datetime.fromisoformat(str(bruto).replace("Z", "+00:00"))
+            if atual.tzinfo is None and antigo.tzinfo is not None:
+                atual = atual.replace(tzinfo=antigo.tzinfo)
+            if antigo.tzinfo is None and atual.tzinfo is not None:
+                antigo = antigo.replace(tzinfo=atual.tzinfo)
+            if abs((atual-antigo).total_seconds()) < separacao_h*3600:
+                return False
+        except Exception:
+            continue
+    return True
+
+
+def _avaliar_promocao_207_r52(item):
+    """Regra automática, auditável e reversível de promoção/revalidação."""
+    votos = item.get("votos_familias") or {}
+    total = sum(int(v or 0) for v in votos.values())
+    dominante = max(votos, key=votos.get) if votos else None
+    n_dom = int(votos.get(dominante, 0)) if dominante else 0
+    concord = (100.0*n_dom/total) if total else 0.0
+    eventos = len(item.get("eventos_independentes") or [])
+    fontes = set(item.get("familias_fontes_com_evidencia") or [])
+
+    # #207-R5.2: 12 rodadas, 10 concordantes (~83%), >=3 eventos separados.
+    # Pluviômetro NÃO é obrigatório nem tem veto. Quando existe chuva observada
+    # compatível, ela adiciona uma família de evidência; o modelo pode maturar
+    # sozinho por repetição temporal, mas isso fica explicitamente rastreado.
+    elegivel = total >= 12 and n_dom >= 10 and concord >= 83.0 and eventos >= 3 and dominante is not None
+    item["rodadas_classificaveis"] = total
+    item["categoria_dominante"] = dominante
+    item["confirmacoes_dominantes"] = n_dom
+    item["concordancia_pct"] = round(concord, 1)
+    item["eventos_independentes"] = item.get("eventos_independentes") or []
+    item["quantidade_eventos_independentes"] = eventos
+    item["familias_fontes_com_evidencia"] = sorted(fontes)
+    item["criterio_promocao"] = {"rodadas_min":12,"confirmacoes_mesma_categoria_min":10,"concordancia_min_pct":83.0,"eventos_independentes_min":3,"separacao_eventos_h":3,"pluviometro_obrigatorio":False}
+
+    anterior = item.get("estado_aprendizado")
+    if elegivel:
+        item["estado_aprendizado"] = "VALIDADO_AUTOMATICAMENTE"
+        item["significado_meteorologico_validado"] = True
+        item["categoria_meteorologica_validada"] = dominante
+        item["confianca_aprendizado_pct"] = round(concord, 1)
+    elif anterior == "VALIDADO_AUTOMATICAMENTE" and total >= 20 and concord < 70.0:
+        item["estado_aprendizado"] = "EM_REVALIDACAO"
+        item["significado_meteorologico_validado"] = False
+        item["categoria_meteorologica_validada"] = None
+        item["confianca_aprendizado_pct"] = round(concord, 1)
+    else:
+        item["estado_aprendizado"] = anterior if anterior in ("EM_REVALIDACAO",) else "EM_VALIDACAO"
+        item["significado_meteorologico_validado"] = False
+        item["categoria_meteorologica_validada"] = None
+        item["confianca_aprendizado_pct"] = round(concord, 1)
+    return item
+
+
+def construir_auditoria_pixel_eco_207_r5(radar, rede, anterior=None):
+    """#207-R5.2 — paleta adaptativa autoexpansível C1..Cn.
+
+    C1-C16 continuam sendo a biblioteca-base pesquisada/validada do RadarSC.
+    As rodadas multifuente aprendem a família meteorológica dessas classes.
+    RGB recorrente fora da base ocupa deterministicamente o próximo slot livre
+    C17, C18, C19...; só aparece como nova C pública após promoção automática.
     """
     saida={
-        "versao":"#207-R5.1","status":"indisponivel",
-        "natureza":"APRENDIZADO_RGB_MULTIFONTE_GEOREFERENCIADO_FAIL_CLOSED",
+        "versao":"#207-R5.2","status":"indisponivel",
+        "natureza":"PALETA_ADAPTATIVA_AUTOEXPANSIVEL_MULTIFONTE_FAIL_CLOSED",
         "uso_operacional":False,"radar_confirmado":False,
         "libera_calibracao_zr":False,"libera_conversao_dbz_mm_h":False,
-        "regra_seguranca":"RGB é observação bruta do PNG. Previsão/nowcast/modelo participam do aprendizado; pluviômetros são testemunhas independentes, não árbitros e não têm veto isolado. Nenhuma fonte única promove uma cor a significado definitivo."
+        "regra_seguranca":"C1-C16 são a base. RGB externo só vira C17+ após maturidade estatística. Previsão/modelo participa do aprendizado; pluviômetro é testemunha sem veto isolado. dBZ/mm/h não são inventados para classes adaptativas."
     }
+    prev=anterior if isinstance(anterior,dict) else {}
+    aprendizado=dict(prev.get("aprendizado_acumulado") or {})
+    descobertas=dict(prev.get("descobertas_adaptativas") or {})
+    fila=dict(prev.get("fila_rgb_desconhecidos") or {})
+
     if not isinstance(radar,dict) or radar.get("status")!="online" or radar.get("dados_frescos") is not True:
-        saida["status"]="bloqueado_radar_indisponivel_ou_antigo"; return saida
+        saida.update({"status":"bloqueado_radar_indisponivel_ou_antigo","aprendizado_acumulado":aprendizado,"descobertas_adaptativas":descobertas,"fila_rgb_desconhecidos":fila}); return saida
     quadros=[q for q in (radar.get("quadros") or []) if isinstance(q,dict) and q.get("download")=="ok"]
     if not quadros:
-        saida["status"]="bloqueado_sem_quadro_radar_valido"; return saida
+        saida.update({"status":"bloqueado_sem_quadro_radar_valido","aprendizado_acumulado":aprendizado,"descobertas_adaptativas":descobertas,"fila_rgb_desconhecidos":fila}); return saida
     q=quadros[-1]; diag=q.get("eco_oficial_local_129") or {}
     alvo=diag.get("eco_oficial_mais_proximo") if isinstance(diag,dict) else None
     if not isinstance(alvo,dict) or not isinstance(alvo.get("latitude"),(int,float)) or not isinstance(alvo.get("longitude"),(int,float)):
-        saida["status"]="sem_rgb_candidato_ate_25km"; saida["quadro_radar"]={"arquivo":q.get("arquivo"),"horario_local":q.get("horario_local")}; return saida
+        saida.update({"status":"sem_rgb_candidato_ate_25km","quadro_radar":{"arquivo":q.get("arquivo"),"horario_local":q.get("horario_local")},"aprendizado_acumulado":aprendizado,"descobertas_adaptativas":descobertas,"fila_rgb_desconhecidos":fila}); return saida
 
     lat=float(alvo["latitude"]); lon=float(alvo["longitude"]); rgb=alvo.get("rgb"); classe=alvo.get("classe")
     bloco=get("https://api.open-meteo.com/v1/forecast",{
-        "latitude":lat,"longitude":lon,
-        "current":"precipitation,rain,showers,weather_code",
+        "latitude":lat,"longitude":lon,"current":"precipitation,rain,showers,weather_code",
         "hourly":"precipitation,precipitation_probability,weather_code","forecast_hours":2,
         "timezone":"America/Sao_Paulo",
     }).json()
     cur=bloco.get("current") or {}; hor=bloco.get("hourly") or {}
     precs=hor.get("precipitation") or []; probs=hor.get("precipitation_probability") or []; cods=hor.get("weather_code") or []
     categoria_modelo=_categoria_wmo_207_r5_1(cur.get("weather_code"))
+    categoria_final=_categoria_final_207_r52(categoria_modelo)
 
-    # Várias estações próximas são preservadas como testemunhas. Uma estação
-    # zerada não invalida as demais fontes, sobretudo sem leitura 1 h comparável.
     ests=[]
     for e in (rede or {}).get("estacoes",[]):
         if not isinstance(e,dict) or e.get("aquisicao_automatica_integrada") is not True: continue
@@ -284,52 +361,105 @@ def construir_auditoria_pixel_eco_207_r5(radar, rede, anterior=None):
         if not isinstance(ela,(int,float)) or isinstance(ela,bool) or not isinstance(elo,(int,float)) or isinstance(elo,bool): continue
         d=hav(lat,lon,float(ela),float(elo))
         obs_ok=e.get("leitura_1h_comparavel") is True and e.get("dados_frescos") is True and isinstance(e.get("precipitacao_1h_mm"),(int,float)) and not isinstance(e.get("precipitacao_1h_mm"),bool)
-        ests.append({"nome":e.get("nome"),"rede":e.get("rede") or e.get("fonte"),"codigo":e.get("codigo"),
-                     "latitude":e.get("latitude"),"longitude":e.get("longitude"),"distancia_ao_rgb_km":round(d,3),
-                     "leitura_1h_comparavel":obs_ok,"precipitacao_1h_mm":float(e.get("precipitacao_1h_mm")) if obs_ok else None,
-                     "horario_medicao":e.get("horario_medicao"),"dados_frescos":e.get("dados_frescos"),
-                     "papel":"TESTEMUNHA_OBSERVACIONAL_SEM_PODER_DE_VETO_ISOLADO"})
-    ests.sort(key=lambda x:x["distancia_ao_rgb_km"])
-    proximas=ests[:5]
+        ests.append({"nome":e.get("nome"),"rede":e.get("rede") or e.get("fonte"),"codigo":e.get("codigo"),"latitude":e.get("latitude"),"longitude":e.get("longitude"),"distancia_ao_rgb_km":round(d,3),"leitura_1h_comparavel":obs_ok,"precipitacao_1h_mm":float(e.get("precipitacao_1h_mm")) if obs_ok else None,"horario_medicao":e.get("horario_medicao"),"dados_frescos":e.get("dados_frescos"),"papel":"TESTEMUNHA_OBSERVACIONAL_SEM_PODER_DE_VETO_ISOLADO"})
+    ests.sort(key=lambda x:x["distancia_ao_rgb_km"]); proximas=ests[:5]
     obs_validas=[e for e in proximas if e["leitura_1h_comparavel"]]
     obs_positivas=[e for e in obs_validas if (e["precipitacao_1h_mm"] or 0)>0]
 
-    modelo_agora=cur.get("precipitation") if isinstance(cur.get("precipitation"),(int,float)) else None
-    status_cor="RGB_COM_CLASSE_C1_C16_DOCUMENTADA" if classe is not None else "RGB_OBSERVADO_SIGNIFICADO_EM_APRENDIZADO_MULTIFONTE"
     chave_rgb=",".join(map(str,rgb)) if isinstance(rgb,(list,tuple)) else str(rgb)
-    prev=anterior if isinstance(anterior,dict) else {}
-    aprendizado=dict(prev.get("aprendizado_acumulado") or {})
-    item=dict(aprendizado.get(chave_rgb) or {"rgb":rgb,"amostras":0,"categorias_modeladas":{},"observacoes_1h_positivas":0,"observacoes_1h_validas":0})
+    item=dict(aprendizado.get(chave_rgb) or {"rgb":rgb,"amostras":0,"categorias_modeladas":{},"votos_familias":{},"observacoes_1h_positivas":0,"observacoes_1h_validas":0,"eventos_independentes":[],"familias_fontes_com_evidencia":[]})
     item["amostras"]=int(item.get("amostras") or 0)+1
+    item["classe_base_c1_c16"]=int(classe) if classe is not None else item.get("classe_base_c1_c16")
     cats=dict(item.get("categorias_modeladas") or {}); cats[categoria_modelo]=int(cats.get(categoria_modelo,0))+1; item["categorias_modeladas"]=cats
+    if categoria_final:
+        votos=dict(item.get("votos_familias") or {}); votos[categoria_final]=int(votos.get(categoria_final,0))+1; item["votos_familias"]=votos
+        fontes=set(item.get("familias_fontes_com_evidencia") or []); fontes.add("OPEN_METEO_MODELO_NOWCAST"); item["familias_fontes_com_evidencia"]=sorted(fontes)
     item["observacoes_1h_validas"]=int(item.get("observacoes_1h_validas") or 0)+len(obs_validas)
     item["observacoes_1h_positivas"]=int(item.get("observacoes_1h_positivas") or 0)+len(obs_positivas)
-    item["ultima_ocorrencia"]={"horario_radar":q.get("horario_local"),"latitude":round(lat,6),"longitude":round(lon,6),"categoria_modelada":categoria_modelo}
-    # Não promove automaticamente RGB. Só registra qual rótulo modelado é mais recorrente.
-    item["categoria_modelada_mais_frequente"]=max(cats,key=cats.get) if cats else None
-    item["significado_meteorologico_validado"]=False
+    if obs_positivas:
+        fontes=set(item.get("familias_fontes_com_evidencia") or []); fontes.add("REDE_PLUVIOMETRICA_OBSERVACIONAL"); item["familias_fontes_com_evidencia"]=sorted(fontes)
+    horario_evento=q.get("horario_local") or cur.get("time")
+    eventos=list(item.get("eventos_independentes") or [])
+    if horario_evento and _evento_independente_207_r52(eventos,horario_evento): eventos.append(horario_evento)
+    item["eventos_independentes"]=eventos[-50:]
+    item["ultima_ocorrencia"]={"horario_radar":q.get("horario_local"),"latitude":round(lat,6),"longitude":round(lon,6),"categoria_modelada":categoria_modelo,"categoria_familia":categoria_final}
+
+    # Slots C17+ são determinísticos e sequenciais. Enquanto um slot está em
+    # validação, outros RGBs desconhecidos entram na fila; não há sorteio.
+    if classe is None:
+        validadas=[d for d in descobertas.values() if isinstance(d,dict) and d.get("estado")=="VALIDADO_AUTOMATICAMENTE"]
+        slot_ativo=next((d for d in descobertas.values() if isinstance(d,dict) and d.get("estado") in ("EM_VALIDACAO","EM_REVALIDACAO")),None)
+        if slot_ativo is None:
+            numero=17+len(validadas)
+            slot_ativo={"classe":numero,"rgb":rgb,"chave_rgb":chave_rgb,"estado":"EM_VALIDACAO","criado_em":agora().isoformat()}
+            descobertas[str(numero)]=slot_ativo
+        if slot_ativo.get("chave_rgb")==chave_rgb:
+            item["classe_adaptativa_candidata"]=int(slot_ativo["classe"])
+        else:
+            f=dict(fila.get(chave_rgb) or {"rgb":rgb,"ocorrencias":0}); f["ocorrencias"]=int(f.get("ocorrencias") or 0)+1; f["ultima_ocorrencia"]=horario_evento; fila[chave_rgb]=f
+
+    item=_avaliar_promocao_207_r52(item)
     aprendizado[chave_rgb]=item
+
+    # Sincroniza o slot adaptativo com a decisão estatística.
+    cad=item.get("classe_adaptativa_candidata")
+    if cad is not None and str(cad) in descobertas:
+        d=dict(descobertas[str(cad)])
+        d.update({"rgb":rgb,"estado":item.get("estado_aprendizado"),"categoria_meteorologica":item.get("categoria_meteorologica_validada"),"confianca_pct":item.get("confianca_aprendizado_pct"),"rodadas":item.get("rodadas_classificaveis"),"eventos_independentes":item.get("quantidade_eventos_independentes")})
+        if item.get("significado_meteorologico_validado"):
+            d["validado_em"]=agora().isoformat(); d["publicar_no_site"]=True
+        else:
+            d["publicar_no_site"]=False
+        descobertas[str(cad)]=d
+
+    # C1-C16 também recebem a família aprendida sem alterar sua faixa física dBZ.
+    if classe is not None and item.get("significado_meteorologico_validado"):
+        item["publicar_significado_na_classe_base"]=True
 
     saida.update({
         "status":"coleta_experimental_concluida","gerado_em":agora().isoformat(),
         "quadro_radar":{"arquivo":q.get("arquivo"),"horario_local":q.get("horario_local")},
-        "rgb_alvo":{"rgb":rgb,"classe_c1_c16":classe,"status_interpretacao":status_cor,
-                    "latitude":round(lat,6),"longitude":round(lon,6),"distancia_guaxanduva_km":alvo.get("distancia_comasa_km")},
-        "evidencias_multifonte":{
-            "open_meteo_no_pixel":{"horario":cur.get("time"),"weather_code":cur.get("weather_code"),"categoria_modelada":categoria_modelo,
-                "precipitacao_atual_mm":modelo_agora,"chuva_atual_mm":cur.get("rain"),"pancadas_atual_mm":cur.get("showers"),
-                "precipitacao_proxima_hora_mm":precs[0] if precs else None,"probabilidade_proxima_hora_pct":probs[0] if probs else None,
-                "weather_code_proxima_hora":cods[0] if cods else None,"natureza":"MODELO_NOWCAST_NAO_OBSERVACIONAL"},
-            "estacoes_proximas":proximas,
-            "resumo_estacoes":{"consultadas":len(proximas),"com_1h_comparavel":len(obs_validas),"com_chuva_1h":len(obs_positivas),
-                "regra":"zero de estação isolada não invalida RGB nem previsão/modelo; ausência/falha de leitura não significa ausência de chuva."},
-        },
-        "fontes_para_expansao":{"status":"arquitetura_aberta_sem_dado_inventado","candidatas":["INMET","EPAGRI/CIRAM","CEMADEN","Climatempo","UOL Tempo","outros serviços meteorológicos georreferenciados"],
-            "regra":"integrar somente quando houver endpoint/fonte tecnicamente acessível e sem confundir observação, nowcast e previsão."},
-        "aprendizado_acumulado":aprendizado,
-        "interpretacao_experimental":"APRENDIZADO_MULTIFONTE_EM_FORMACAO",
+        "rgb_alvo":{"rgb":rgb,"classe_c1_c16":classe,"classe_adaptativa_candidata":item.get("classe_adaptativa_candidata"),"latitude":round(lat,6),"longitude":round(lon,6),"distancia_guaxanduva_km":alvo.get("distancia_comasa_km")},
+        "evidencias_multifonte":{"open_meteo_no_pixel":{"horario":cur.get("time"),"weather_code":cur.get("weather_code"),"categoria_modelada":categoria_modelo,"categoria_familia":categoria_final,"precipitacao_atual_mm":cur.get("precipitation"),"chuva_atual_mm":cur.get("rain"),"pancadas_atual_mm":cur.get("showers"),"precipitacao_proxima_hora_mm":precs[0] if precs else None,"probabilidade_proxima_hora_pct":probs[0] if probs else None,"weather_code_proxima_hora":cods[0] if cods else None,"natureza":"MODELO_NOWCAST_NAO_OBSERVACIONAL"},"estacoes_proximas":proximas,"resumo_estacoes":{"consultadas":len(proximas),"com_1h_comparavel":len(obs_validas),"com_chuva_1h":len(obs_positivas),"regra":"zero de estação isolada não invalida RGB nem previsão/modelo"}},
+        "aprendizado_acumulado":aprendizado,"descobertas_adaptativas":descobertas,"fila_rgb_desconhecidos":fila,
+        "proximo_slot_livre":"C"+str(17+len([d for d in descobertas.values() if isinstance(d,dict) and d.get("estado")=="VALIDADO_AUTOMATICAMENTE"])),
+        "interpretacao_experimental":"PALETA_ADAPTATIVA_EM_APRENDIZADO_CONTINUO",
     })
     return saida
+
+
+def aplicar_paleta_adaptativa_207_r52(radar, auditoria):
+    """Publica C17+ validadas e significado aprendido de C1-C16 no dicionário do site."""
+    if not isinstance(radar,dict) or not isinstance(auditoria,dict): return radar
+    dic=radar.get("dicionario_cores_130")
+    if not isinstance(dic,dict): return radar
+    classes=list(dic.get("classes") or [])
+    aprendizado=auditoria.get("aprendizado_acumulado") or {}
+    # Enriquece C1-C16 já existentes.
+    for x in classes:
+        if not isinstance(x,dict): continue
+        chave=",".join(map(str,x.get("rgb"))) if isinstance(x.get("rgb"),(list,tuple)) else None
+        it=aprendizado.get(chave) if chave else None
+        if isinstance(it,dict) and it.get("significado_meteorologico_validado") is True:
+            x["categoria_meteorologica_aprendida"]=it.get("categoria_meteorologica_validada")
+            x["confianca_aprendizado_pct"]=it.get("confianca_aprendizado_pct")
+            x["estado_aprendizado"]="VALIDADO_AUTOMATICAMENTE"
+    # Acrescenta somente C17+ sacramentadas; sem dBZ/mm/h inventados.
+    existentes={int(x.get("classe")) for x in classes if isinstance(x,dict) and str(x.get("classe","")).isdigit()}
+    for d in (auditoria.get("descobertas_adaptativas") or {}).values():
+        if not isinstance(d,dict) or d.get("publicar_no_site") is not True: continue
+        c=int(d.get("classe"));
+        if c in existentes: continue
+        cat=d.get("categoria_meteorologica")
+        fam={"GAROA_CHUVISCO":"azul_ciano","CHUVA_FRACA":"verde","CHUVA_FORTE":"amarelo_laranja","TEMPESTADE":"vermelho_magenta"}.get(cat,"aprendida")
+        classes.append({"classe":c,"classe_tipo":"classe_adaptativa_aprendida","rgb":d.get("rgb"),"familia_cor":fam,"categoria":cat,"categoria_meteorologica_aprendida":cat,"estado_aprendizado":"VALIDADO_AUTOMATICAMENTE","confianca_aprendizado_pct":d.get("confianca_pct"),"dbz":None,"dbz_min":None,"dbz_max":None,"mm_h":None,"origem":"#207-R5.2"})
+        existentes.add(c)
+    classes.sort(key=lambda x:int(x.get("classe")) if str(x.get("classe","")).isdigit() else 9999)
+    dic["classes"]=classes
+    dic["versao"]="#130+#169+#207-R5.2"
+    dic["paleta_adaptativa"]={"ativa":True,"classes_base":"C1-C16","classes_autoexpansiveis":"C17+","regra":"C17+ só aparecem após promoção automática; sem dBZ/mm/h inventados."}
+    radar["dicionario_cores_130"]=dic
+    return radar
 
 def main():
     try:
@@ -345,7 +475,8 @@ def main():
     rede=seguro("rede multifonte #165",lambda:construir_rede_pluviometrica_multifonte_165(cemaden,epagri))
     geometria=seguro("geometria #172",lambda:construir_geometria_rede_observacional_172(rede))
     pareamento207r4=seguro("pareamento espacial #207-R4",lambda:construir_pareamento_espacial_207_r4(radar,rede))
-    auditoria207r5=seguro("aprendizado RGB multifuente #207-R5.1",lambda:construir_auditoria_pixel_eco_207_r5(radar,rede,dados.get("auditoria_rgb_pixel_radar_207_r5")))
+    auditoria207r5=seguro("paleta adaptativa autoexpansível #207-R5.2",lambda:construir_auditoria_pixel_eco_207_r5(radar,rede,dados.get("auditoria_rgb_pixel_radar_207_r5")))
+    radar=aplicar_paleta_adaptativa_207_r52(radar,auditoria207r5)
     inmet=seguro("INMET",buscar_chuva_observada_inmet)
     mare=seguro("tábua de maré prevista",buscar_mare)
     mare160=seguro("maré observada #160",buscar_mare_observada_joinville_160)

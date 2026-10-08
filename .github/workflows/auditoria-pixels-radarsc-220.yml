@@ -19,36 +19,49 @@ jobs:
           python-version: '3.12'
       - name: Instalar dependências
         run: python -m pip install --disable-pip-version-check requests pillow
-      - name: Baixar o PNG original correspondente ao quadro declarado
+      - name: Selecionar e baixar PNG oficial RadarSC #220.1
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json, pathlib, requests, sys
+          import json, pathlib, re, requests, sys
+          from datetime import datetime, timezone
           dados=json.loads(pathlib.Path('dados.json').read_text(encoding='utf-8'))
           radar=dados.get('radar') or {}
-          quadros=radar.get('quadros') or []
-          candidatos=[q for q in quadros if isinstance(q,dict) and q.get('download')=='ok' and q.get('arquivo')]
-          if not candidatos:
-              sys.exit('SEM_QUADRO_VALIDO: dados.json não possui PNG COMP com download confirmado')
-          quadro=candidatos[-1]
-          nome=quadro['arquivo']
-          if not isinstance(nome,str) or len(nome)>200 or '/' in nome or '\\' in nome:
-              sys.exit('Nome de arquivo do RadarSC inválido')
+          diag=radar.get('diagnostico_lista_fonte_176') or {}
+          nome=diag.get('arquivo_selecionado')
+          if not isinstance(nome,str) or not re.fullmatch(r'\d{14}\d*dBZ\.cappi_top\.png',nome):
+              sys.exit('SEM_ARQUIVO_OFICIAL: diagnostico_lista_fonte_176.arquivo_selecionado ausente ou fora do padrao esperado')
+          consultas=diag.get('consultas') or []
+          fontes=[c for c in consultas if isinstance(c,dict) and c.get('status')=='ok']
+          if not fontes:
+              sys.exit('SEM_CONFIRMACAO_LISTA: nenhuma consulta oficial com status ok no diagnostico #176')
+          try:
+              instante=datetime.strptime(nome[:14],'%Y%m%d%H%M%S').replace(tzinfo=timezone.utc)
+          except ValueError:
+              sys.exit('TIMESTAMP_INVALIDO: nome oficial nao contem data UTC valida')
+          idade_min=round((datetime.now(timezone.utc)-instante).total_seconds()/60,1)
           url='https://sifap.defesacivil.sc.gov.br/radarsc/rest/radar/getImagem'
-          resposta=requests.get(url,params={'prod':4,'radar':'COMP','file':nome},timeout=35)
-          resposta.raise_for_status()
+          try:
+              resposta=requests.get(url,params={'prod':4,'radar':'COMP','file':nome},timeout=35)
+              resposta.raise_for_status()
+          except requests.RequestException as e:
+              sys.exit('DOWNLOAD_FALHOU: '+str(e))
           if not resposta.content.startswith(b'\x89PNG\r\n\x1a\n'):
-              sys.exit('Resposta RadarSC não é PNG; auditoria interrompida sem conclusões')
+              sys.exit('RESPOSTA_NAO_PNG: o endpoint nao devolveu imagem PNG; sem conclusao sobre ecos')
           pathlib.Path('quadro_radarsc_220.png').write_bytes(resposta.content)
-          pathlib.Path('origem_quadro_220.json').write_text(json.dumps({
-              'arquivo_oficial':nome,'horario_local_quadro':quadro.get('horario_local'),
+          origem={
+              'versao':'#220.1', 'arquivo_oficial':nome,
+              'origem_nome':'dados.json/radar/diagnostico_lista_fonte_176/arquivo_selecionado',
+              'horario_utc_do_nome':instante.isoformat(), 'idade_quadro_min_no_download':idade_min,
+              'quadro_antigo_mais_de_30min':idade_min>30,
+              'dados_frescos_declarados_no_json':radar.get('dados_frescos'),
               'horario_ultimo_quadro_dados_json':radar.get('horario_ultimo_quadro'),
               'gerado_em_dados_json':dados.get('gerado_em'),
               'url_base':url,'parametros':{'prod':4,'radar':'COMP','file':nome},
-              'observacao':'Quadro escolhido a partir do dados.json versionado; pode estar desatualizado.'
-          },ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          print('PNG RadarSC obtido:',nome,'bytes:',len(resposta.content))
+              'regra':'Diagnostico historico: PNG antigo pode ser auditado, mas nao e considerado observacao atual nem prova de chuva.'}
+          pathlib.Path('origem_quadro_220.json').write_text(json.dumps(origem,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('PNG oficial:',nome,'bytes:',len(resposta.content),'idade_min:',idade_min)
           PY
       - name: Auditar RGB sem calibrar chuva
         run: python auditar_pixels_radarsc_220.py --png quadro_radarsc_220.png --dados dados.json --saida auditoria_pixels_radarsc_220.json

@@ -1,0 +1,66 @@
+name: Auditoria de pixels RadarSC #220
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditar-pixels:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar dependências
+        run: python -m pip install --disable-pip-version-check requests pillow
+      - name: Baixar o PNG original correspondente ao quadro declarado
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, pathlib, requests, sys
+          dados=json.loads(pathlib.Path('dados.json').read_text(encoding='utf-8'))
+          radar=dados.get('radar') or {}
+          quadros=radar.get('quadros') or []
+          candidatos=[q for q in quadros if isinstance(q,dict) and q.get('download')=='ok' and q.get('arquivo')]
+          if not candidatos:
+              sys.exit('SEM_QUADRO_VALIDO: dados.json não possui PNG COMP com download confirmado')
+          quadro=candidatos[-1]
+          nome=quadro['arquivo']
+          if not isinstance(nome,str) or len(nome)>200 or '/' in nome or '\\' in nome:
+              sys.exit('Nome de arquivo do RadarSC inválido')
+          url='https://sifap.defesacivil.sc.gov.br/radarsc/rest/radar/getImagem'
+          resposta=requests.get(url,params={'prod':4,'radar':'COMP','file':nome},timeout=35)
+          resposta.raise_for_status()
+          if not resposta.content.startswith(b'\x89PNG\r\n\x1a\n'):
+              sys.exit('Resposta RadarSC não é PNG; auditoria interrompida sem conclusões')
+          pathlib.Path('quadro_radarsc_220.png').write_bytes(resposta.content)
+          pathlib.Path('origem_quadro_220.json').write_text(json.dumps({
+              'arquivo_oficial':nome,'horario_local_quadro':quadro.get('horario_local'),
+              'horario_ultimo_quadro_dados_json':radar.get('horario_ultimo_quadro'),
+              'gerado_em_dados_json':dados.get('gerado_em'),
+              'url_base':url,'parametros':{'prod':4,'radar':'COMP','file':nome},
+              'observacao':'Quadro escolhido a partir do dados.json versionado; pode estar desatualizado.'
+          },ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('PNG RadarSC obtido:',nome,'bytes:',len(resposta.content))
+          PY
+      - name: Auditar RGB sem calibrar chuva
+        run: python auditar_pixels_radarsc_220.py --png quadro_radarsc_220.png --dados dados.json --saida auditoria_pixels_radarsc_220.json
+      - name: Conferir relatório JSON
+        run: python -m json.tool auditoria_pixels_radarsc_220.json > /dev/null
+      - name: Publicar artefatos de diagnóstico
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-radarsc-220
+          path: |
+            auditoria_pixels_radarsc_220.json
+            origem_quadro_220.json
+          if-no-files-found: warn
+          retention-days: 14

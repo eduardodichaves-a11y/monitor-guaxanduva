@@ -1690,7 +1690,13 @@ async function carregar(){
    $("prob").textContent=ph.probabilidade_chuva_pct==null?"--":Math.round(ph.probabilidade_chuva_pct)+"%";
    $("prevchuva").textContent=f(ph.precipitacao_mm)+" mm";
    $("vento").textContent=f(a.vento_kmh)+" km/h";$("rajada").textContent=f(a.rajada_kmh)+" km/h";$("direcao").textContent=pontoCardinal(a.direcao_graus);$("prevhora").textContent=horaCurta(ph.horario);
-   $("ps").innerHTML='<span class="ok">🟢 PREVISTO • modelo atualizado</span> • janela: próxima hora';
+   // #228: status online da API não prova que a previsão ainda é vigente.
+   const horaPrevistaMs=ph.horario?Date.parse(ph.horario+(/(?:Z|[+-]\d{2}:?\d{2})$/.test(ph.horario)?"":":00-03:00")):NaN;
+   const janelaVigente=Number.isFinite(horaPrevistaMs)&&Date.now()>=horaPrevistaMs-3600000&&Date.now()<horaPrevistaMs+3600000;
+   const previsaoVigente=coletaFresca&&janelaVigente;
+   $("ps").innerHTML=previsaoVigente
+     ?'<span class="ok">🟢 PREVISÃO MODELADA VIGENTE</span> • próxima hora; não é chuva observada'
+     :'<span class="erro">🔴 PREVISÃO DESATUALIZADA • não interpretar como atual</span>';
   }else{$("ps").innerHTML='<span class="erro">🔴 INDISPONÍVEL • previsão não recebida</span>'}
  
  

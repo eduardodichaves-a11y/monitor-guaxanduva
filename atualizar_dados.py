@@ -5416,6 +5416,7 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
     alcance_px = int(math.ceil(50 / passo)) + 2
     contagens = {r: Counter() for r in (2, 5, 10, 25, 50)}
     familias = {r: Counter() for r in (2, 5, 10, 25, 50)}
+    pontos_geo_211 = {}  # coordenadas de cada pixel RGB detectado, para agrupamento geográfico
     for y in range(max(0, y0-alcance_px), min(altura, y0+alcance_px+1)):
         for x in range(max(0, x0-alcance_px), min(largura, x0+alcance_px+1)):
             px = rgba.getpixel((x, y))
@@ -5426,11 +5427,52 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
                 continue
             lat, lon = px2geo(x, y, largura, altura)
             dist = hav(LAT, LON, lat, lon)
+            if dist <= 50:
+                pontos_geo_211[(x, y)] = (lat, lon, tuple(px[:3]), info["familia_cor"], dist)
             for raio in (2, 5, 10, 25, 50):
                 if dist <= raio:
                     chave = (info.get("classe"), tuple(px[:3]))
                     contagens[raio][chave] += 1
                     familias[raio][info["familia_cor"]] += 1
+    # #211: componentes conexos por vizinhança de 8 pixels, sem inferir chuva.
+    # O agrupamento preserva coordenadas e cor observadas; não atribui município
+    # sem malha municipal nem validação pluviométrica inexistente.
+    pendentes_211 = set(pontos_geo_211)
+    agrupamentos_211 = []
+    while pendentes_211:
+        origem = pendentes_211.pop()
+        fila = [origem]
+        grupo = [origem]
+        while fila:
+            xx, yy = fila.pop()
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    vizinho = (xx + dx, yy + dy)
+                    if vizinho in pendentes_211:
+                        pendentes_211.remove(vizinho)
+                        fila.append(vizinho)
+                        grupo.append(vizinho)
+        dados = [pontos_geo_211[p] for p in grupo]
+        lat_c = sum(p[0] for p in dados) / len(dados)
+        lon_c = sum(p[1] for p in dados) / len(dados)
+        distancias = [p[4] for p in dados]
+        familias_g = Counter(p[3] for p in dados)
+        cores_g = Counter(p[2] for p in dados)
+        agrupamentos_211.append({
+            "pixels": len(grupo),
+            "centroide": {"latitude": round(lat_c, 6), "longitude": round(lon_c, 6)},
+            "limites": {"lat_min": round(min(p[0] for p in dados), 6),
+                        "lat_max": round(max(p[0] for p in dados), 6),
+                        "lon_min": round(min(p[1] for p in dados), 6),
+                        "lon_max": round(max(p[1] for p in dados), 6)},
+            "distancia_min_comasa_km": round(min(distancias), 2),
+            "distancia_max_comasa_km": round(max(distancias), 2),
+            "familias_cromaticas": [{"familia": k, "pixels": v} for k, v in familias_g.most_common()],
+            "cores_rgb": [{"rgb": list(k), "pixels": v} for k, v in cores_g.most_common()],
+            "municipio": None,
+            "validacao_meteorologica": "nao_realizada",
+        })
+    agrupamentos_211.sort(key=lambda g: (-g["pixels"], g["distancia_min_comasa_km"]))
     por_raio = {}
     for raio in (2, 5, 10, 25, 50):
         total = sum(contagens[raio].values())
@@ -5452,6 +5494,7 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
         **base,
         "status": "diagnostico_qualitativo_ativo",
         "por_raio": por_raio,
+        "geolocalizacao_ecos_211": {"metodo": "componentes_conexos_8_vizinhos", "raio_max_km": 50, "total_agrupamentos": len(agrupamentos_211), "agrupamentos": agrupamentos_211},
         "regra_seguranca": (
             "#207-R5: presença de RGB da paleta operacional confirma somente que a cor existe no PNG RadarSC; não prova precipitação. "
             "RGB sem vínculo C1–C16 permanece SIGNIFICADO EM VALIDAÇÃO. Apenas vínculo documental validado pode receber faixa dBZ; mm/h continua bloqueado."

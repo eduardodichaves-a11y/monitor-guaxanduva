@@ -578,6 +578,10 @@ def main():
             "horario_ultimo_quadro",
             "idade_ultimo_quadro_min",
             "diagnostico_lista_fonte_176",
+            # #209.1 — preservar a sonda da virada UTC no dados.json público.
+            # É telemetria pequena e somente diagnóstica; não altera seleção
+            # operacional nem reintroduz quadros/imagens volumosos do RadarSC.
+            "diagnostico_virada_utc_radarsc_209",
             "timestamp_radar_178",
             "legenda_oficial",
             "validacao_paleta_radar",

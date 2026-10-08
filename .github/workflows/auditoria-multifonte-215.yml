@@ -42,7 +42,7 @@ jobs:
           quantidade = len(dados.get('agrupamentos') or [])
           print('Ecos atuais:', quantidade)
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as f:
-              f.write('presentes=' + ('true' if quantidade else 'false') + '\\n')
+              f.write('presentes=' + ('true' if quantidade else 'false') + '\n')
           PY
 
       - name: Consultar modelo meteorologico para os ecos atuais
@@ -56,30 +56,53 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
-          p = Path('auditoria_multifonte_215.json')
+
+          def ler(nome):
+              p = Path(nome)
+              if not p.is_file():
+                  return None
+              return json.loads(p.read_text(encoding='utf-8'))
+
+          geografico = ler('auditoria_geografica_212.json')
+          territorial = ler('auditoria_territorial_213.json')
+          multifonte = ler('auditoria_multifonte_215.json')
           linhas = ['## Auditoria multifonte RadarSC #215 / RGB #216']
-          if not p.exists():
-              linhas.append('- Sem relatorio multifonte: nenhum eco atual detectado ou falha anterior; conferir logs.')
+          if geografico is None:
+              linhas.append('- Auditoria geografica: arquivo ausente; conferir etapa #212.')
           else:
-              d = json.loads(p.read_text(encoding='utf-8'))
-              linhas += [f"- Quadro: {d.get('quadro_radar')}",
-                        f"- Origem: {d.get('origem_ecos')}",
-                        f"- Ecos: {len(d.get('agrupamentos') or [])}",
-                        f"- Calibracao de cores: {d.get('calibracao_cores')}"]
-              if d.get('origem_ecos') == 'ANCORA_HISTORICA_212_213':
-                  linhas.append('- ATENCAO: sem ecos no quadro de entrada; foi usada ancora historica. Nao representa nova deteccao.')
-              for g in d.get('agrupamentos') or []:
-                  linhas.append(f"### Eco {g.get('numero')} - {g.get('territorio_provavel') or 'territorio N/D'}")
+              linhas.append(f"- Quadro RadarSC: {geografico.get('quadro_radar') or 'N/D'}")
+              linhas.append(f"- Ecos identificados no dados.json: {geografico.get('total_agrupamentos', 0)}")
+              linhas.append(f"- Gerado na fonte: {geografico.get('gerado_em_fonte') or 'N/D'}")
+          if territorial is None:
+              linhas.append('- Auditoria territorial: arquivo ausente; conferir etapa #213.')
+          else:
+              grupos = territorial.get('agrupamentos') or []
+              linhas.append(f"- Ecos recebidos pela #213: {len(grupos)}")
+              linhas.append(f"- Ecos com RGB preservado: {sum(bool(g.get('cores_rgb')) for g in grupos)}")
+              if not grupos:
+                  linhas.append('- Situacao: nenhum eco no quadro de entrada. Consulta multifonte ignorada.')
+              for g in grupos:
+                  linhas.append(f"### Eco {g.get('numero')} - {(g.get('territorio') or {}).get('municipio_provavel') or 'territorio N/D'}")
                   linhas.append(f"- RGB: {g.get('cores_rgb') or 'NAO DISPONIVEL'}")
-                  linhas.append(f"- Familia cromatica: {g.get('familias_cromaticas') or 'NAO DISPONIVEL'}")
-                  linhas.append(f"- Estado RGB: {g.get('estado_rgb')}")
+                  linhas.append(f"- Familias: {g.get('familias_cromaticas') or 'NAO DISPONIVEL'}")
+          if multifonte is None:
+              if territorial is not None and not (territorial.get('agrupamentos') or []):
+                  linhas.append('- Modelo meteorologico: nao consultado porque nao ha ecos.')
+              else:
+                  linhas.append('- Modelo meteorologico: relatorio ausente; conferir logs.')
+          else:
+              linhas.append(f"- Origem da auditoria multifonte: {multifonte.get('origem_ecos')}")
+              linhas.append(f"- Calibracao de cores: {multifonte.get('calibracao_cores')}")
+              for g in multifonte.get('agrupamentos') or []:
+                  linhas.append(f"- Eco {g.get('numero')}: RGB {g.get('estado_rgb')}; chuva observada NAO CONFIRMADA")
                   for e in g.get('evidencias') or []:
-                      linhas.append(f"- {e.get('provedor')}: {e.get('status') or e.get('tipo') or 'N/D'}")
+                      linhas.append(f"  - {e.get('provedor')}: {e.get('status') or e.get('tipo') or 'N/D'}")
                       if e.get('erro'):
                           linhas.append(f"  - Erro: {e['erro']}")
                       for a in e.get('amostras') or []:
                           linhas.append(f"  - {a.get('horario_local')}: precipitacao={a.get('precipitation')} mm, chuva={a.get('rain')} mm, pancadas={a.get('showers')} mm, codigo={a.get('weather_code')}")
-          resumo = '\\n'.join(linhas) + '\\n'
+          linhas.append('- Regra cientifica: RGB nao comprova chuva; modelos nao substituem observacoes.')
+          resumo = '\n'.join(linhas) + '\n'
           print(resumo)
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as f:
               f.write(resumo)

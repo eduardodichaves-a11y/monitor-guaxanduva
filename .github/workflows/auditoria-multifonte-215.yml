@@ -1,0 +1,65 @@
+name: Auditoria multifonte RadarSC 215
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verificar script
+        run: |
+          test -s auditar_multifonte_215.py
+          python -m py_compile auditar_multifonte_215.py
+
+      - name: Consultar eco historico e Open-Meteo
+        run: |
+          python auditar_multifonte_215.py --territorio entrada_historica_215_ausente.json --saida auditoria_multifonte_215.json
+
+      - name: Resumo cientifico
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path('auditoria_multifonte_215.json')
+          linhas = ['## Auditoria multifuente RadarSC #215']
+          if not p.exists():
+              linhas.append('- Relatorio nao gerado: conferir logs.')
+          else:
+              d = json.loads(p.read_text(encoding='utf-8'))
+              linhas += [f"- Quadro: {d.get('quadro_radar')}", f"- Origem: {d.get('origem_ecos')}", f"- Ecos: {len(d.get('agrupamentos') or [])}", '- Modelo meteorologico nao confirma chuva observada.', f"- Calibracao de cores: {d.get('calibracao_cores')}"]
+              for g in d.get('agrupamentos') or []:
+                  linhas.append(f"### Eco {g.get('numero')} - {g.get('territorio_provavel') or 'territorio N/D'}")
+                  for e in g.get('evidencias') or []:
+                      linhas.append(f"- {e.get('provedor')}: {e.get('status') or e.get('tipo') or 'N/D'}")
+                      if e.get('erro'):
+                          linhas.append(f"  - Erro: {e['erro']}")
+                      for a in e.get('amostras') or []:
+                          linhas.append(f"  - {a.get('horario_local')}: precipitacao={a.get('precipitation')} mm, chuva={a.get('rain')} mm, pancadas={a.get('showers')} mm, codigo={a.get('weather_code')}")
+          resumo = '\n'.join(linhas) + '\n'
+          print(resumo)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as f:
+              f.write(resumo)
+          PY
+
+      - name: Anexar relatorio JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auditoria-multifonte-215
+          path: auditoria_multifonte_215.json
+          if-no-files-found: warn
+          retention-days: 30

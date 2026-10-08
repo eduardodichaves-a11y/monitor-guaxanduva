@@ -1,0 +1,50 @@
+name: Auditoria historica RGB INMET 218
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'historico_ecos_rgb_217.json'
+      - 'auditar_historico_inmet_218.py'
+      - 'coletar_inmet_regional_214.py'
+      - 'auditar_estacoes_regionais_214.py'
+      - '.github/workflows/auditoria-historico-inmet-218.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: auditoria-historico-inmet-218
+  cancel-in-progress: false
+
+jobs:
+  cruzar-historico:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+      - name: Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Auditar historico com observacoes INMET
+        run: |
+          python auditar_historico_inmet_218.py --historico historico_ecos_rgb_217.json --saida auditoria_historico_inmet_218.json --limite 5
+          python -m json.tool auditoria_historico_inmet_218.json > /dev/null
+          python - <<'PY'
+          import json
+          with open('auditoria_historico_inmet_218.json', encoding='utf-8') as f:
+              d = json.load(f)
+          print('Status:', d['status'])
+          print('Quadros no historico:', d['quadros_no_historico'])
+          print('Quadros analisados:', d['quadros_analisados'])
+          print('Validacao C1-C16: BLOQUEADA')
+          PY
+      - name: Publicar relatorio como artefato da execucao
+        uses: actions/upload-artifact@v4
+        with:
+          name: auditoria-historico-inmet-218
+          path: auditoria_historico_inmet_218.json
+          retention-days: 30

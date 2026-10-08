@@ -502,10 +502,17 @@ def main():
     obs_frescas=[e for e in estacoes_rede if isinstance(e,dict) and e.get("dados_frescos") is True and e.get("leitura_atual_disponivel") is True and isinstance(e.get("precipitacao_1h_mm"),(int,float))]
     obs_max=max((float(e["precipitacao_1h_mm"]) for e in obs_frescas),default=None)
     obs_media=(sum(float(e["precipitacao_1h_mm"]) for e in obs_frescas)/len(obs_frescas)) if obs_frescas else None
+    # #225: usar a classificacao canonica; fallback para quadros legados.
     qrad={}
     if isinstance(radar,dict):
-        quadros=radar.get("quadros") or []
-        if quadros and isinstance(quadros[-1],dict): qrad=quadros[-1].get("classificacao_qualitativa_local_130") or {}
+        direta=radar.get("classificacao_qualitativa_local_130")
+        if isinstance(direta,dict):
+            qrad=direta
+        else:
+            quadros=radar.get("quadros") or []
+            if quadros and isinstance(quadros[-1],dict):
+                legada=quadros[-1].get("classificacao_qualitativa_local_130")
+                if isinstance(legada,dict): qrad=legada
     por_raio=qrad.get("por_raio",{}) if isinstance(qrad,dict) else {}
     raio_eco=next((r for r in (2,5,10,25,50) if (por_raio.get(str(r)) or {}).get("eco_qualitativo_detectado") is True),None)
     radar_fresco=isinstance(radar,dict) and radar.get("status")=="online" and radar.get("dados_frescos") is True

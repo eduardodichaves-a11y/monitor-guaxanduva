@@ -1307,6 +1307,7 @@ async function carregar(){
   $("radarIdade").textContent=rad.idade_ultimo_quadro_min==null?"--":f(rad.idade_ultimo_quadro_min,1)+" min";
   $("radarTrilhas").textContent=rt.quantidade_trilhas??"--";
   $("radarElegiveis").textContent=rt.quantidade_trilhas_elegiveis??"--";
+  window.__radar226Estado={horario:rad.horario_ultimo_quadro||null,status:rad.status||"",dadosFrescos:rad.dados_frescos===true,coletaFresca:coletaFresca};
   const radarTs=Date.parse(rad.horario_ultimo_quadro||"");
   const radarIdadeRealMin=Number.isFinite(radarTs)?Math.max(0,(Date.now()-radarTs)/60000):Infinity;
   // #226 — frescor do quadro e saude da coleta sao estados distintos.
@@ -2208,6 +2209,22 @@ function iniciarCardsRecolhiveis(){
   });
  });
 }
+// #226.1: atualiza idade e estado mesmo com a pagina aberta, sem depender de novo fetch.
+function atualizarRelogioRadar226(){
+ const r=window.__radar226Estado;
+ if(!r)return;
+ const ts=Date.parse(r.horario||"");
+ const idade=Number.isFinite(ts)?Math.max(0,(Date.now()-ts)/60000):Infinity;
+ const el=document.getElementById("radarIdade"),estado=document.getElementById("radarEstado");
+ if(el)el.textContent=Number.isFinite(idade)?idade.toFixed(1).replace(".",",")+" min":"--";
+ if(!estado)return;
+ const recente=r.coletaFresca&&r.dadosFrescos&&idade<=30;
+ if(!Number.isFinite(idade))estado.textContent="🔴 RadarSC • quadro indisponível ou falha de comunicação";
+ else if(!recente)estado.textContent="🔴 RadarSC • quadro desatualizado ou coleta não recente";
+ else if(r.status==="online")estado.textContent="🟢 RadarSC • quadro recente e coleta íntegra";
+ else estado.textContent="🟡 RadarSC • quadro recente, coleta parcial";
+}
+setInterval(atualizarRelogioRadar226,15000);
 iniciarCardsRecolhiveis();
  
 const cemToggle=$("cemadenToggle");

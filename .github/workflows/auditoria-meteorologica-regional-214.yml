@@ -1,0 +1,75 @@
+name: Auditoria meteorologica regional 214
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verificar scripts
+        run: |
+          for f in dados.json auditar_cruzamento_geografico_212.py auditar_territorio_ecos_213.py coletar_inmet_regional_214.py auditar_estacoes_regionais_214.py; do test -s "$f" || exit 1; done
+          python -m py_compile auditar_cruzamento_geografico_212.py auditar_territorio_ecos_213.py coletar_inmet_regional_214.py auditar_estacoes_regionais_214.py
+
+      - name: Localizar ecos do RadarSC
+        run: python auditar_cruzamento_geografico_212.py dados.json --saida auditoria_geografica_212.json
+
+      - name: Identificar territorio aproximado
+        run: python auditar_territorio_ecos_213.py auditoria_geografica_212.json --saida auditoria_territorial_213.json
+
+      - name: Consultar estacoes INMET regionais
+        run: python coletar_inmet_regional_214.py auditoria_territorial_213.json --saida observacoes_regionais_214.json --raio-km 50
+
+      - name: Cruzar medicoes e ecos
+        run: python auditar_estacoes_regionais_214.py auditoria_territorial_213.json --observacoes observacoes_regionais_214.json --saida auditoria_estacoes_regionais_214.json
+
+      - name: Resumo cientifico
+        run: |
+          python - <<'PY'
+          import json, os
+          def ler(nome):
+              with open(nome, encoding='utf-8') as f:
+                  return json.load(f)
+          t = ler('auditoria_territorial_213.json')
+          o = ler('observacoes_regionais_214.json')
+          a = ler('auditoria_estacoes_regionais_214.json')
+          linhas = ['## Auditoria meteorologica regional #214',
+                   f"- Quadro RadarSC: {t.get('quadro_radar') or 'N/D'}",
+                   f"- Ecos agrupados: {len(t.get('agrupamentos') or [])}",
+                   f"- Observacoes INMET coletadas: {len(o.get('observacoes') or [])}",
+                   '- Observacoes horarias nao comprovam chuva sobre um pixel de radar.',
+                   '- Calibracao das classes C1-C16: BLOQUEADA.']
+          for d in o.get('diagnostico') or []:
+              linhas.append(f'- INMET: {d}')
+          for g in a.get('agrupamentos') or []:
+              linhas.append(f"- Eco {g.get('numero')}: {g.get('territorio_provavel') or 'territorio N/D'}; {g.get('status')}; medicoes compativeis: {len(g.get('medicoes_compativeis') or [])}")
+          resumo = '\n'.join(linhas) + '\n'
+          print(resumo)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as f:
+              f.write(resumo)
+          PY
+
+      - name: Anexar relatorios
+        uses: actions/upload-artifact@v4
+        with:
+          name: auditoria-meteorologica-regional-214
+          path: |
+            auditoria_geografica_212.json
+            auditoria_territorial_213.json
+            observacoes_regionais_214.json
+            auditoria_estacoes_regionais_214.json
+          if-no-files-found: error
+          retention-days: 30

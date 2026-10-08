@@ -5768,6 +5768,54 @@ def buscar_radar():
                 "anti_cache_nonce",
             ),
         ]
+
+        # #209 - SONDA DA VIRADA UTC DO RADARSC (somente diagnostico).
+        # A anomalia observada ocorre exatamente apos 23:50 UTC (=20:50 BRT).
+        # Consultamos explicitamente o dia UTC atual e o anterior no formato
+        # brasileiro usado pela interface RadarSC. Estas respostas NAO entram
+        # na selecao operacional abaixo: servem apenas para separar tres causas:
+        # (a) data="" congelada; (b) propria fonte sem quadros novos;
+        # (c) parser/selecao local. Nenhum quadro e inventado ou promovido.
+        agora_utc_sonda = datetime.now(UTC)
+        datas_utc_sonda = []
+        for deslocamento_dias in (0, -1):
+            data_sonda = (agora_utc_sonda + timedelta(days=deslocamento_dias)).strftime("%d/%m/%Y")
+            if data_sonda not in datas_utc_sonda:
+                datas_utc_sonda.append(data_sonda)
+
+        consultas_data_explicita_209 = []
+        for data_sonda in datas_utc_sonda:
+            antes = len(consultas_lista)
+            lista_sonda = _consultar_lista_radar(
+                {
+                    "prod": 4,
+                    "radar": "COMP",
+                    "data": data_sonda,
+                    "_mg_utc_probe": int(time.time()),
+                },
+                f"sonda_utc_data_{data_sonda}",
+            )
+            registro = consultas_lista[-1] if len(consultas_lista) > antes else {}
+            ultimo_sonda = lista_sonda[-1] if lista_sonda else None
+            horario_utc_sonda = None
+            horario_local_sonda = None
+            if ultimo_sonda:
+                try:
+                    instante_sonda = datetime.strptime(ultimo_sonda[:14], "%Y%m%d%H%M%S").replace(tzinfo=UTC)
+                    horario_utc_sonda = instante_sonda.isoformat()
+                    horario_local_sonda = instante_sonda.astimezone(FUSO).isoformat()
+                except Exception:
+                    pass
+            consultas_data_explicita_209.append({
+                "data_parametro": data_sonda,
+                "status": registro.get("status"),
+                "quantidade": len(lista_sonda),
+                "primeiro_arquivo": lista_sonda[0] if lista_sonda else None,
+                "ultimo_arquivo": ultimo_sonda,
+                "ultimo_horario_utc": horario_utc_sonda,
+                "ultimo_horario_local": horario_local_sonda,
+                "erro": registro.get("erro"),
+            })
         candidatos_listas = [x for x in candidatos_listas if x]
         if not candidatos_listas:
             raise ValueError("Radar não retornou lista de imagens em nenhuma consulta.")
@@ -6178,9 +6226,26 @@ def buscar_radar():
             "diagnostico_lista_fonte_176": {
                 "status": "ATIVO",
                 "metodo": "consulta_padrao_mais_nonce_anti_cache_escolhendo_timestamp_oficial_mais_recente",
-                "consultas": consultas_lista,
+                "consultas": consultas_lista[:2],
                 "arquivo_selecionado": nomes[-1] if nomes else None,
                 "regra_seguranca": "Somente arquivos realmente retornados pelo RadarSC podem ser selecionados; nonce não cria nem altera timestamps.",
+            },
+
+            "diagnostico_virada_utc_radarsc_209": {
+                "versao": "#209",
+                "status": "SONDA_DIAGNOSTICA_ATIVA",
+                "natureza": "DIAGNOSTICO_NAO_OPERACIONAL_FAIL_CLOSED",
+                "instante_coleta_utc": agora_utc_sonda.isoformat(),
+                "instante_coleta_local": agora_utc_sonda.astimezone(FUSO).isoformat(),
+                "timezone_fonte_em_teste": "UTC",
+                "timezone_monitor": "America/Sao_Paulo",
+                "fronteira_investigada": "23:50 UTC -> 00:00 UTC corresponde a 20:50 -> 21:00 BRT",
+                "formato_data_testado": "DD/MM/YYYY",
+                "consultas_data_explicita": consultas_data_explicita_209,
+                "comparacao_data_vazia": consultas_lista[:2],
+                "arquivo_operacional_selecionado": nomes[-1] if nomes else None,
+                "altera_selecao_operacional": False,
+                "regra_seguranca": "A sonda apenas registra respostas do endpoint. Consultas com data explicita nao alimentam o radar operacional nesta etapa.",
             },
  
             "extent":

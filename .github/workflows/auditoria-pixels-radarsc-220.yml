@@ -19,49 +19,77 @@ jobs:
           python-version: '3.12'
       - name: Instalar dependências
         run: python -m pip install --disable-pip-version-check requests pillow
-      - name: Selecionar e baixar PNG oficial RadarSC #220.1
+      - name: Selecionar e baixar PNG oficial RadarSC #220.2
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json, pathlib, re, requests, sys
+          import hashlib, json, pathlib, re, requests, sys, warnings
           from datetime import datetime, timezone
+          from PIL import Image
+          from io import BytesIO
+          from urllib3.exceptions import InsecureRequestWarning
+
           dados=json.loads(pathlib.Path('dados.json').read_text(encoding='utf-8'))
           radar=dados.get('radar') or {}
           diag=radar.get('diagnostico_lista_fonte_176') or {}
           nome=diag.get('arquivo_selecionado')
           if not isinstance(nome,str) or not re.fullmatch(r'\d{14}\d*dBZ\.cappi_top\.png',nome):
-              sys.exit('SEM_ARQUIVO_OFICIAL: diagnostico_lista_fonte_176.arquivo_selecionado ausente ou fora do padrao esperado')
-          consultas=diag.get('consultas') or []
-          fontes=[c for c in consultas if isinstance(c,dict) and c.get('status')=='ok']
-          if not fontes:
-              sys.exit('SEM_CONFIRMACAO_LISTA: nenhuma consulta oficial com status ok no diagnostico #176')
+              sys.exit('SEM_ARQUIVO_OFICIAL: nome ausente ou invalido no diagnostico #176')
+          if not any(isinstance(c,dict) and c.get('status')=='ok' for c in (diag.get('consultas') or [])):
+              sys.exit('SEM_CONFIRMACAO_LISTA: consulta oficial #176 nao confirmada')
           try:
               instante=datetime.strptime(nome[:14],'%Y%m%d%H%M%S').replace(tzinfo=timezone.utc)
           except ValueError:
-              sys.exit('TIMESTAMP_INVALIDO: nome oficial nao contem data UTC valida')
+              sys.exit('TIMESTAMP_INVALIDO: data do nome oficial invalida')
           idade_min=round((datetime.now(timezone.utc)-instante).total_seconds()/60,1)
           url='https://sifap.defesacivil.sc.gov.br/radarsc/rest/radar/getImagem'
+          parametros={'prod':4,'radar':'COMP','file':nome}
+          modo_tls='CERTIFICADO_VALIDADO'
           try:
-              resposta=requests.get(url,params={'prod':4,'radar':'COMP','file':nome},timeout=35)
+              resposta=requests.get(url,params=parametros,timeout=(10,35))
               resposta.raise_for_status()
-          except requests.RequestException as e:
-              sys.exit('DOWNLOAD_FALHOU: '+str(e))
-          if not resposta.content.startswith(b'\x89PNG\r\n\x1a\n'):
-              sys.exit('RESPOSTA_NAO_PNG: o endpoint nao devolveu imagem PNG; sem conclusao sobre ecos')
-          pathlib.Path('quadro_radarsc_220.png').write_bytes(resposta.content)
+          except requests.exceptions.SSLError:
+              # Excecao limitada ao host oficial RadarSC; a coleta operacional
+              # ja utiliza verify=False exclusivamente para radar.
+              print('AVISO: cadeia TLS RadarSC nao validada. Tentativa restrita ao host oficial.',flush=True)
+              modo_tls='CERTIFICADO_NAO_VALIDADO'
+              with warnings.catch_warnings():
+                  warnings.simplefilter('ignore',InsecureRequestWarning)
+                  try:
+                      resposta=requests.get(url,params=parametros,timeout=(10,35),verify=False)
+                      resposta.raise_for_status()
+                  except requests.RequestException as exc:
+                      sys.exit('DOWNLOAD_FALHOU_APOS_FALLBACK_TLS: '+str(exc))
+          except requests.RequestException as exc:
+              sys.exit('DOWNLOAD_FALHOU: '+str(exc))
+
+          bruto=resposta.content
+          if not bruto.startswith(b'\x89PNG\r\n\x1a\n'):
+              sys.exit('RESPOSTA_NAO_PNG: nenhuma conclusao sobre ecos')
+          try:
+              imagem=Image.open(BytesIO(bruto))
+              imagem.verify()
+          except Exception as exc:
+              sys.exit('PNG_INVALIDO: '+str(exc))
+          pathlib.Path('quadro_radarsc_220.png').write_bytes(bruto)
           origem={
-              'versao':'#220.1', 'arquivo_oficial':nome,
+              'versao':'#220.2','arquivo_oficial':nome,
               'origem_nome':'dados.json/radar/diagnostico_lista_fonte_176/arquivo_selecionado',
-              'horario_utc_do_nome':instante.isoformat(), 'idade_quadro_min_no_download':idade_min,
+              'horario_utc_do_nome':instante.isoformat(),
+              'idade_quadro_min_no_download':idade_min,
               'quadro_antigo_mais_de_30min':idade_min>30,
               'dados_frescos_declarados_no_json':radar.get('dados_frescos'),
               'horario_ultimo_quadro_dados_json':radar.get('horario_ultimo_quadro'),
               'gerado_em_dados_json':dados.get('gerado_em'),
-              'url_base':url,'parametros':{'prod':4,'radar':'COMP','file':nome},
-              'regra':'Diagnostico historico: PNG antigo pode ser auditado, mas nao e considerado observacao atual nem prova de chuva.'}
+              'url_base':url,'parametros':parametros,
+              'verificacao_certificado_tls':modo_tls,
+              'advertencia_integridade':('A autenticidade do servidor nao foi confirmada via TLS; nao usar este PNG como prova independente.' if modo_tls!='CERTIFICADO_VALIDADO' else None),
+              'sha256_png':hashlib.sha256(bruto).hexdigest(),
+              'tamanho_bytes':len(bruto),
+              'regra':'Diagnostico somente leitura; PNG antigo nao e observacao atual nem prova de chuva.'}
           pathlib.Path('origem_quadro_220.json').write_text(json.dumps(origem,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          print('PNG oficial:',nome,'bytes:',len(resposta.content),'idade_min:',idade_min)
+          print('PNG obtido:',nome,'bytes:',len(bruto),'idade_min:',idade_min,'TLS:',modo_tls)
           PY
       - name: Auditar RGB sem calibrar chuva
         run: python auditar_pixels_radarsc_220.py --png quadro_radarsc_220.png --dados dados.json --saida auditoria_pixels_radarsc_220.json

@@ -4,7 +4,7 @@
   "uso_operacional": false,
   "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
   "familia_metodo": "FORTRACC/TATHU",
-  "gerado_em_utc": "2026-10-09T00:19:23.382921+00:00",
+  "gerado_em_utc": "2026-10-09T00:21:47.484916+00:00",
   "produto_horario_utc": "2026-10-09T00:00:00+00:00",
   "produto_horario_local": "2026-10-08T21:00:00-03:00",
   "url_produto": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610090000.json",
@@ -36,7 +36,7 @@
   "sistemas_no_dominio": 143,
   "sistemas_geometricamente_compativeis": null,
   "sistemas_aproximando_observado_continuo": 46,
-  "sistemas_aproximando_com_apoio_sinotico_850hpa": 8,
+  "sistemas_aproximando_com_apoio_sinotico_850hpa": 11,
   "sistemas_persistencia_30min_confirmada": 16,
   "sistemas_persistencia_60min_confirmada": 7,
   "sistemas_persistencia_30min_com_apoio_sinotico": 4,
@@ -295,18 +295,16 @@
     "janela_sinotica_3h": null
   },
   "confirmacao_sinotica": {
-    "status": "coletado_parcial",
-    "estado_fonte": "PARCIAL",
-    "avaliados": 25,
-    "favoraveis": 8,
+    "status": "coletado",
+    "estado_fonte": "DISPONIVEL",
+    "avaliados": 30,
+    "favoraveis": 11,
     "contrarios": 15,
-    "inconclusivos": 2,
-    "indisponiveis": 5,
-    "apoiam": 8,
+    "inconclusivos": 4,
+    "indisponiveis": 0,
+    "apoiam": 11,
     "nao_apoiam": 15,
-    "erros": [
-      "lote=6 tentativa=2: HTTPSConnectionPool(host='api.open-meteo.com', port=443): Read timed out. (read timeout=8)"
-    ],
+    "erros": [],
     "lote_maximo": 5,
     "tentativas_por_lote": 2,
     "fonte": "ECMWF via Open-Meteo ECMWF API",
@@ -12145,7 +12143,10 @@
               "aproxima": true
             }
           ],
-          "trajetoria_persistente_gate": "NAO_PERSISTENTE"
+          "trajetoria_persistente_gate": "NAO_PERSISTENTE",
+          "sinotica_instantanea": "FAVORAVEL",
+          "melhor_alvo_sinotico": "SC_FLORIANOPOLIS",
+          "erro_angular_min_graus": 0.7
         },
         "norte_sc_joinville": {
           "alvo_mais_proximo": "JARAGUA_DO_SUL",
@@ -12220,7 +12221,10 @@
               "aproxima": true
             }
           ],
-          "trajetoria_persistente_gate": "NAO_PERSISTENTE"
+          "trajetoria_persistente_gate": "NAO_PERSISTENTE",
+          "sinotica_instantanea": "FAVORAVEL",
+          "melhor_alvo_sinotico": "JARAGUA_DO_SUL",
+          "erro_angular_min_graus": 1.6
         }
       },
       "direcao_movimento_graus": 0.0,
@@ -12294,10 +12298,19 @@
         }
       ],
       "trajetoria_persistente_gate": "NAO_PERSISTENTE",
-      "confirmacao_sinotica_850hpa": "FONTE_INDISPONIVEL",
-      "estado_sinotico_174f": "FONTE_INDISPONIVEL",
-      "ecmwf_850hpa": null,
-      "prioridade_sinotica_174g": "P10"
+      "confirmacao_sinotica_850hpa": "APOIA_CORREDOR_PARA_JOINVILLE",
+      "estado_sinotico_174f": "FAVORAVEL",
+      "ecmwf_850hpa": {
+        "horario_utc": "2026-10-09T00:00:00+00:00",
+        "vento_km_h": 14.3,
+        "direcao_de_graus": 307.0,
+        "vetor_para_graus": 127.0,
+        "erro_para_joinville_graus": 2.5,
+        "natureza": "MODELADO_NAO_OPERACIONAL"
+      },
+      "prioridade_sinotica_174g": "P10",
+      "persistencia_sinotica_174h": "NAO_APLICAVEL_NAO_P60",
+      "janela_sinotica_3h": null
     },
     {
       "id_sistema": "9a662470-3a54-4f2b-ae92-7ad0a8c36631",
@@ -14063,7 +14076,10 @@
               "motivo": "SEM_PAREAMENTO"
             }
           ],
-          "trajetoria_persistente_gate": "NAO_PERSISTENTE"
+          "trajetoria_persistente_gate": "NAO_PERSISTENTE",
+          "sinotica_instantanea": "INCONCLUSIVO",
+          "melhor_alvo_sinotico": null,
+          "erro_angular_min_graus": null
         },
         "norte_sc_joinville": {
           "alvo_mais_proximo": "JARAGUA_DO_SUL",
@@ -14118,7 +14134,10 @@
               "motivo": "SEM_PAREAMENTO"
             }
           ],
-          "trajetoria_persistente_gate": "NAO_PERSISTENTE"
+          "trajetoria_persistente_gate": "NAO_PERSISTENTE",
+          "sinotica_instantanea": "INCONCLUSIVO",
+          "melhor_alvo_sinotico": null,
+          "erro_angular_min_graus": null
         }
       },
       "direcao_movimento_graus": 0.0,
@@ -14172,10 +14191,19 @@
         }
       ],
       "trajetoria_persistente_gate": "NAO_PERSISTENTE",
-      "confirmacao_sinotica_850hpa": "FONTE_INDISPONIVEL",
-      "estado_sinotico_174f": "FONTE_INDISPONIVEL",
-      "ecmwf_850hpa": null,
-      "prioridade_sinotica_174g": "P10"
+      "confirmacao_sinotica_850hpa": "INCONCLUSIVO_VENTO_FRACO",
+      "estado_sinotico_174f": "INCONCLUSIVO",
+      "ecmwf_850hpa": {
+        "horario_utc": "2026-10-09T00:00:00+00:00",
+        "vento_km_h": 9.6,
+        "direcao_de_graus": 175.0,
+        "vetor_para_graus": 355.0,
+        "erro_para_joinville_graus": 99.4,
+        "natureza": "MODELADO_NAO_OPERACIONAL"
+      },
+      "prioridade_sinotica_174g": "P10",
+      "persistencia_sinotica_174h": "NAO_APLICAVEL_NAO_P60",
+      "janela_sinotica_3h": null
     },
     {
       "id_sistema": "4119c08e-f93b-4e7b-8c50-37cdda3cfa93",
@@ -14537,7 +14565,10 @@
               "motivo": "SEM_PAREAMENTO"
             }
           ],
-          "trajetoria_persistente_gate": "NAO_PERSISTENTE"
+          "trajetoria_persistente_gate": "NAO_PERSISTENTE",
+          "sinotica_instantanea": "INCONCLUSIVO",
+          "melhor_alvo_sinotico": null,
+          "erro_angular_min_graus": null
         },
         "norte_sc_joinville": {
           "alvo_mais_proximo": "JARAGUA_DO_SUL",
@@ -14596,7 +14627,10 @@
               "motivo": "SEM_PAREAMENTO"
             }
           ],
-          "trajetoria_persistente_gate": "NAO_PERSISTENTE"
+          "trajetoria_persistente_gate": "NAO_PERSISTENTE",
+          "sinotica_instantanea": "INCONCLUSIVO",
+          "melhor_alvo_sinotico": null,
+          "erro_angular_min_graus": null
         }
       },
       "direcao_movimento_graus": 0.0,
@@ -14654,10 +14688,19 @@
         }
       ],
       "trajetoria_persistente_gate": "NAO_PERSISTENTE",
-      "confirmacao_sinotica_850hpa": "FONTE_INDISPONIVEL",
-      "estado_sinotico_174f": "FONTE_INDISPONIVEL",
-      "ecmwf_850hpa": null,
-      "prioridade_sinotica_174g": "P10"
+      "confirmacao_sinotica_850hpa": "INCONCLUSIVO_VENTO_FRACO",
+      "estado_sinotico_174f": "INCONCLUSIVO",
+      "ecmwf_850hpa": {
+        "horario_utc": "2026-10-09T00:00:00+00:00",
+        "vento_km_h": 8.1,
+        "direcao_de_graus": 227.0,
+        "vetor_para_graus": 47.0,
+        "erro_para_joinville_graus": 54.2,
+        "natureza": "MODELADO_NAO_OPERACIONAL"
+      },
+      "prioridade_sinotica_174g": "P10",
+      "persistencia_sinotica_174h": "NAO_APLICAVEL_NAO_P60",
+      "janela_sinotica_3h": null
     },
     {
       "id_sistema": "df9d02fb-6630-4c4e-ba7f-a5cdad7f1bd9",
@@ -15499,7 +15542,10 @@
               "motivo": "SEM_PAREAMENTO"
             }
           ],
-          "trajetoria_persistente_gate": "NAO_PERSISTENTE"
+          "trajetoria_persistente_gate": "NAO_PERSISTENTE",
+          "sinotica_instantanea": "FAVORAVEL",
+          "melhor_alvo_sinotico": "RS_PORTO_ALEGRE",
+          "erro_angular_min_graus": 6.5
         },
         "norte_sc_joinville": {
           "alvo_mais_proximo": "JARAGUA_DO_SUL",
@@ -15554,7 +15600,10 @@
               "motivo": "SEM_PAREAMENTO"
             }
           ],
-          "trajetoria_persistente_gate": "NAO_PERSISTENTE"
+          "trajetoria_persistente_gate": "NAO_PERSISTENTE",
+          "sinotica_instantanea": "FAVORAVEL",
+          "melhor_alvo_sinotico": "JARAGUA_DO_SUL",
+          "erro_angular_min_graus": 17.4
         }
       },
       "direcao_movimento_graus": 0.0,
@@ -15608,10 +15657,19 @@
         }
       ],
       "trajetoria_persistente_gate": "NAO_PERSISTENTE",
-      "confirmacao_sinotica_850hpa": "FONTE_INDISPONIVEL",
-      "estado_sinotico_174f": "FONTE_INDISPONIVEL",
-      "ecmwf_850hpa": null,
-      "prioridade_sinotica_174g": "P10"
+      "confirmacao_sinotica_850hpa": "APOIA_CORREDOR_PARA_JOINVILLE",
+      "estado_sinotico_174f": "FAVORAVEL",
+      "ecmwf_850hpa": {
+        "horario_utc": "2026-10-09T00:00:00+00:00",
+        "vento_km_h": 22.6,
+        "direcao_de_graus": 332.0,
+        "vetor_para_graus": 152.0,
+        "erro_para_joinville_graus": 18.3,
+        "natureza": "MODELADO_NAO_OPERACIONAL"
+      },
+      "prioridade_sinotica_174g": "P10",
+      "persistencia_sinotica_174h": "NAO_APLICAVEL_NAO_P60",
+      "janela_sinotica_3h": null
     },
     {
       "id_sistema": "8ec8a51d-4bd0-4f0b-8012-5fa8c586f316",
@@ -16743,7 +16801,10 @@
               "motivo": "SEM_PAREAMENTO"
             }
           ],
-          "trajetoria_persistente_gate": "NAO_PERSISTENTE"
+          "trajetoria_persistente_gate": "NAO_PERSISTENTE",
+          "sinotica_instantanea": "FAVORAVEL",
+          "melhor_alvo_sinotico": "RS_PORTO_ALEGRE",
+          "erro_angular_min_graus": 47.8
         },
         "norte_sc_joinville": {
           "alvo_mais_proximo": "JOINVILLE",
@@ -16798,7 +16859,10 @@
               "motivo": "SEM_PAREAMENTO"
             }
           ],
-          "trajetoria_persistente_gate": "NAO_PERSISTENTE"
+          "trajetoria_persistente_gate": "NAO_PERSISTENTE",
+          "sinotica_instantanea": "FAVORAVEL",
+          "melhor_alvo_sinotico": "JARAGUA_DO_SUL",
+          "erro_angular_min_graus": 57.0
         }
       },
       "direcao_movimento_graus": 0.0,
@@ -16852,10 +16916,19 @@
         }
       ],
       "trajetoria_persistente_gate": "NAO_PERSISTENTE",
-      "confirmacao_sinotica_850hpa": "FONTE_INDISPONIVEL",
-      "estado_sinotico_174f": "FONTE_INDISPONIVEL",
-      "ecmwf_850hpa": null,
-      "prioridade_sinotica_174g": "P10"
+      "confirmacao_sinotica_850hpa": "APOIA_CORREDOR_PARA_JOINVILLE",
+      "estado_sinotico_174f": "FAVORAVEL",
+      "ecmwf_850hpa": {
+        "horario_utc": "2026-10-09T00:00:00+00:00",
+        "vento_km_h": 30.9,
+        "direcao_de_graus": 22.0,
+        "vetor_para_graus": 202.0,
+        "erro_para_joinville_graus": 57.8,
+        "natureza": "MODELADO_NAO_OPERACIONAL"
+      },
+      "prioridade_sinotica_174g": "P10",
+      "persistencia_sinotica_174h": "NAO_APLICAVEL_NAO_P60",
+      "janela_sinotica_3h": null
     },
     {
       "id_sistema": "92253af7-bb26-4978-a2d4-71675cfb1193",
@@ -31319,6 +31392,11 @@
     }
   ],
   "tentativas_fonte": [
+    {
+      "horario_utc": "2026-10-09T00:20:00+00:00",
+      "http": 404,
+      "url": "https://ftp.cptec.inpe.br/goes/goes19/goes19_web/tathu_web/diag/2026/10/goes19_diagnostic_202610090020.json"
+    },
     {
       "horario_utc": "2026-10-09T00:10:00+00:00",
       "http": 404,

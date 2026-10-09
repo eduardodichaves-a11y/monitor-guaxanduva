@@ -1350,7 +1350,7 @@ async function carregar(){
   // #191 — seleção coerente do eco atual.
   // O menor raio continua tendo prioridade espacial. Dentro dele, a família
   // exibida é a de maior refletividade qualitativa presente, não a mais numerosa.
-  // Para C1–C16, menor índice = maior refletividade na escala RadarSC.
+  // #236: a ordem numérica C1–C16 NÃO define intensidade; priorizar famílias RGB.
   const prioridadeFamilia191={
    outra:0,neutra:0,azul_ciano:1,verde:2,amarelo:3,laranja:3,
    vermelho:4,rosa_magenta_roxo:4
@@ -1364,10 +1364,16 @@ async function carregar(){
    },null)||{};
   }
   function classeMaisIntensa191(lista){
-   const validas=(Array.isArray(lista)?lista:[])
-    .filter(x=>x&&x.classe!==null&&x.classe!==undefined&&x.classe!==""&&Number.isFinite(Number(x.classe)));
+   // #236: escolher pela família cromática, jamais pela ordem PLTE ou C1–C16.
+   const validas=(Array.isArray(lista)?lista:[]).filter(x=>x&&x.classe!=null&&x.classe!=="");
    if(!validas.length)return {};
-   return validas.reduce((melhor,item)=>Number(item.classe)<Number(melhor.classe)?item:melhor);
+   const dicionario=(rad.dicionario_cores_130||{}).classes||[];
+   function familiaDe(item){
+    const cor=dicionario.find(x=>Number(x.classe)===Number(item.classe));
+    return item.familia_cor||item.familia||cor?.familia_cor||cor?.familia||"outra";
+   }
+   return validas.reduce((melhor,item)=>
+    (prioridadeFamilia191[familiaDe(item)]??0)>(prioridadeFamilia191[familiaDe(melhor)]??0)?item:melhor);
   }
   const familiaQualAtual191=escolhido?familiaMaisIntensa191(escolhido.familias_cor):{};
 
@@ -1918,7 +1924,8 @@ async function carregar(){
   // A ativação visual das quatro famílias ocorre somente pelo #192/#195 acima;
   // classe física não é convertida em rótulo de chuva no solo.
   const classesDetectadas=escolhido?(escolhido.classes_presentes||[]).filter(x=>x&&x.classe!==null&&x.classe!==undefined&&x.classe!=="").map(x=>Number(x.classe)).filter(Number.isFinite):[];
-  const classeAtual=classesDetectadas.length?Math.min(...classesDetectadas):null;
+  const classeEscolhida236=escolhido?classeMaisIntensa191(escolhido.classes_presentes):{};
+  const classeAtual=classeEscolhida236.classe!=null&&Number.isFinite(Number(classeEscolhida236.classe))?Number(classeEscolhida236.classe):null;
   const famEl=$("dashRadarFamilias");
   if(famEl){Array.from(famEl.children).forEach(el=>el.classList.remove("ativa"));}
 

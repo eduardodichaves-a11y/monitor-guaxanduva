@@ -101,6 +101,56 @@ def analisar_vizinhanca_cinza(rgba):
                  'Bordas externas da imagem nao contam como transparencia.')
     }
 
+def analisar_vizinhanca_transparencia(rgba):
+    """Matriz de fronteira transparente/cores: pares ortogonais exatos, sem inferir dBZ.
+
+    Cada par e contado uma unica vez, partindo do pixel transparente.
+    Proporcoes por cor usam os pixels visiveis daquela cor no PNG como denominador.
+    """
+    w, h = rgba.size
+    px = rgba.load()
+    frequencia_visivel = Counter()
+    transparentes = 0
+    for r, g, b, a in rgba.getdata():
+        if a == 0:
+            transparentes += 1
+        else:
+            frequencia_visivel[(r, g, b)] += 1
+    pares = Counter()
+    pixels_transparentes_com_vizinho = Counter()
+    for y in range(h):
+        for x in range(w):
+            if px[x, y][3] != 0:
+                continue
+            cores_vizinhas = set()
+            for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                if 0 <= nx < w and 0 <= ny < h:
+                    r, g, b, a = px[nx, ny]
+                    if a > 0:
+                        rgb = (r, g, b)
+                        pares[rgb] += 1
+                        cores_vizinhas.add(rgb)
+            for rgb in cores_vizinhas:
+                pixels_transparentes_com_vizinho[rgb] += 1
+    detalhes = []
+    for rgb, n in sorted(pares.items(), key=lambda kv: (-kv[1], kv[0])):
+        total = frequencia_visivel[rgb]
+        detalhes.append({
+            'rgb': list(rgb), 'pares_ortogonais_com_transparencia': n,
+            'pixels_transparentes_que_tocam_rgb': pixels_transparentes_com_vizinho[rgb],
+            'pixels_visiveis_dessa_cor': total,
+            'pares_por_1000_pixels_dessa_cor': round(1000 * n / total, 3) if total else None,
+        })
+    return {
+        'pixels_transparentes': transparentes,
+        'total_pares_transparente_visivel': sum(pares.values()),
+        'contatos_por_rgb_exato': detalhes,
+        'nota': ('Pares ortogonais entre transparencia e RGB exato; frequencias e '
+                 'normalizacao nao definem intensidade de chuva nem dBZ. '
+                 'Bordas externas nao sao consideradas pixels transparentes.')
+    }
+
+
 def analisar_png(nome, bruto, aviso_tls, rgb_legenda):
     img = Image.open(io.BytesIO(bruto))
     img.load()
@@ -141,6 +191,7 @@ def analisar_png(nome, bruto, aviso_tls, rgb_legenda):
         'cores_mais_frequentes': comuns, 'cores_legenda_exatas_presentes': exatas,
         'pixels_visiveis': sum(contagem.values()),
         'diagnostico_espacial_cinza': analisar_vizinhanca_cinza(rgba),
+        'diagnostico_vizinhanca_transparencia': analisar_vizinhanca_transparencia(rgba),
         'indices_plte_utilizados': indices_plte,
     }
 
@@ -197,7 +248,9 @@ def executar(dados, historico_anterior=None):
                 for x in quadro.get('indices_plte_utilizados', []) if x.get('visivel')
             ],
             'diagnostico_espacial_cinza': (quadro.get('diagnostico_espacial_cinza')
-                                            or anterior_quadro.get('diagnostico_espacial_cinza'))
+                                            or anterior_quadro.get('diagnostico_espacial_cinza')),
+            'diagnostico_vizinhanca_transparencia': (quadro.get('diagnostico_vizinhanca_transparencia')
+                                                      or anterior_quadro.get('diagnostico_vizinhanca_transparencia'))
         }
     registros = sorted(historico.values(), key=lambda x: x['arquivo'])[-240:]
     resultado['historico_indices_plte'] = registros

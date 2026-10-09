@@ -5842,7 +5842,7 @@ def diagnosticar_nucleos_locais_241(quadros):
                 dmax = float(n.get("distancia_max_comasa_km"))
                 centro = n["centroide"]
                 pixels = int(n.get("pixels") or 0)
-                if dmin <= 50 and dmax-dmin <= 12 and pixels >= 3:
+                if dmin <= 50 and pixels >= 3:
                     saida.append(n)
             except (ValueError, TypeError, KeyError):
                 continue
@@ -5853,7 +5853,7 @@ def diagnosticar_nucleos_locais_241(quadros):
     for q in quadros:
         cl = q.get("classificacao_qualitativa_local_130") or {}
         geo = cl.get("geolocalizacao_familias_230") or {}
-        totais.append({"horario": q.get("horario_local"), "nucleos_totais": len(geo.get("nucleos") or []), "nucleos_compactos_locais": len(candidatos(q))})
+        totais.append({"horario": q.get("horario_local"), "nucleos_totais": len(geo.get("nucleos") or []), "nucleos_locais_incluindo_extensos": len(candidatos(q))})
     for ant, atual in zip(quadros, quadros[1:]):
         try:
             dt = (datetime.fromisoformat(atual["horario_local"]) - datetime.fromisoformat(ant["horario_local"])).total_seconds()/3600
@@ -5877,8 +5877,8 @@ def diagnosticar_nucleos_locais_241(quadros):
             d_ant = float(velho["centroide"].get("distancia_comasa_km", velho.get("distancia_min_comasa_km", 0)))
             d_atu = float(n["centroide"].get("distancia_comasa_km", n.get("distancia_min_comasa_km", 0)))
             delta = d_atu-d_ant
-            pares.append({"de":ant.get("horario_local"), "para":atual.get("horario_local"), "familia":n.get("familia"), "centroide_anterior":velho["centroide"], "centroide_atual":n["centroide"], "distancia_centroide_atual_km":round(d_atu,2), "deslocamento_km":round(dist,2), "velocidade_aparente_kmh":round(vel,1), "variacao_distancia_km":round(delta,2), "tendencia_centroide":"aproximando" if delta < -0.5 else "afastando" if delta > 0.5 else "indeterminada", "eta_min":None, "eta_validado":False})
-    return {"versao":"#241", "status":"diagnostico_experimental_nao_operacional", "quadros":totais, "pares":pares[-80:], "total_pares":len(pares), "observacao":"Associacao exploratoria de nucleos compactos por familia e centroide; pareamento entre dois quadros nao confirma identidade ou chegada da chuva. ETA bloqueado.", "eta_liberado":False}
+            pares.append({"de":ant.get("horario_local"), "para":atual.get("horario_local"), "familia":n.get("familia"), "centroide_anterior":velho["centroide"], "centroide_atual":n["centroide"], "distancia_centroide_atual_km":round(d_atu,2), "deslocamento_km":round(dist,2), "velocidade_aparente_kmh":round(vel,1), "variacao_distancia_km":round(delta,2), "tendencia_centroide":"aproximando" if delta < -0.5 else "afastando" if delta > 0.5 else "indeterminada", "distancia_borda_atual_km":round(float(n.get("distancia_min_comasa_km",d_atu)),2), "nucleo_extenso":float(n.get("distancia_max_comasa_km",d_atu))-float(n.get("distancia_min_comasa_km",d_atu))>12, "eta_min":None, "eta_validado":False})
+    return {"versao":"#242", "status":"diagnostico_experimental_nao_operacional", "quadros":totais, "pares":pares[-80:], "total_pares":len(pares), "observacao":"Inclui nucleos extensos com borda ate 50 km. Associacao exploratoria por familia e centroide; centroide de eco extenso pode estar distante da borda. Pareamento nao confirma identidade ou chegada. ETA bloqueado.", "eta_liberado":False}
 
 
 def buscar_radar():
@@ -6513,6 +6513,7 @@ def buscar_radar():
                 serie,
  
             "diagnostico_nucleos_locais_241": diagnostico_local_241,
+            "rastreamento_local_242": diagnostico_local_241,
 
             "rastreamento_temporal":
                 rastreamento,

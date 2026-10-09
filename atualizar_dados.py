@@ -5818,6 +5818,69 @@ def baixar(nome, legenda_oficial=None):
 # RADAR
 # =========================================================
  
+def diagnosticar_nucleos_locais_241(quadros):
+    """Pareamento exploratorio de nucleos compactos por quadros consecutivos.
+
+    Nao autoriza ETA: componentes extensos e centroides nao representam bordas.
+    """
+    from math import radians, sin, cos, asin, sqrt
+    from datetime import datetime
+
+    def km(a, b):
+        la1, lo1 = radians(float(a["latitude"])), radians(float(a["longitude"]))
+        la2, lo2 = radians(float(b["latitude"])), radians(float(b["longitude"]))
+        h = sin((la2-la1)/2)**2 + cos(la1)*cos(la2)*sin((lo2-lo1)/2)**2
+        return 12742 * asin(min(1, sqrt(h)))
+
+    def candidatos(q):
+        cl = q.get("classificacao_qualitativa_local_130") or {}
+        geo = cl.get("geolocalizacao_familias_230") or {}
+        saida = []
+        for n in geo.get("nucleos") or []:
+            try:
+                dmin = float(n.get("distancia_min_comasa_km"))
+                dmax = float(n.get("distancia_max_comasa_km"))
+                centro = n["centroide"]
+                pixels = int(n.get("pixels") or 0)
+                if dmin <= 50 and dmax-dmin <= 12 and pixels >= 3:
+                    saida.append(n)
+            except (ValueError, TypeError, KeyError):
+                continue
+        return saida
+
+    pares = []
+    totais = []
+    for q in quadros:
+        cl = q.get("classificacao_qualitativa_local_130") or {}
+        geo = cl.get("geolocalizacao_familias_230") or {}
+        totais.append({"horario": q.get("horario_local"), "nucleos_totais": len(geo.get("nucleos") or []), "nucleos_compactos_locais": len(candidatos(q))})
+    for ant, atual in zip(quadros, quadros[1:]):
+        try:
+            dt = (datetime.fromisoformat(atual["horario_local"]) - datetime.fromisoformat(ant["horario_local"])).total_seconds()/3600
+        except (ValueError, KeyError, TypeError):
+            continue
+        if not 0 < dt <= 0.5:
+            continue
+        usados = set()
+        for n in sorted(candidatos(atual), key=lambda x: x.get("distancia_min_comasa_km", 999)):
+            opcoes = []
+            for i, velho in enumerate(candidatos(ant)):
+                if i in usados or velho.get("familia") != n.get("familia"):
+                    continue
+                dist = km(velho["centroide"], n["centroide"])
+                vel = dist/dt
+                if dist <= 8 and vel <= 100:
+                    opcoes.append((dist, i, velho, vel))
+            if not opcoes:
+                continue
+            dist, i, velho, vel = min(opcoes, key=lambda x:x[0]); usados.add(i)
+            d_ant = float(velho["centroide"].get("distancia_comasa_km", velho.get("distancia_min_comasa_km", 0)))
+            d_atu = float(n["centroide"].get("distancia_comasa_km", n.get("distancia_min_comasa_km", 0)))
+            delta = d_atu-d_ant
+            pares.append({"de":ant.get("horario_local"), "para":atual.get("horario_local"), "familia":n.get("familia"), "centroide_anterior":velho["centroide"], "centroide_atual":n["centroide"], "distancia_centroide_atual_km":round(d_atu,2), "deslocamento_km":round(dist,2), "velocidade_aparente_kmh":round(vel,1), "variacao_distancia_km":round(delta,2), "tendencia_centroide":"aproximando" if delta < -0.5 else "afastando" if delta > 0.5 else "indeterminada", "eta_min":None, "eta_validado":False})
+    return {"versao":"#241", "status":"diagnostico_experimental_nao_operacional", "quadros":totais, "pares":pares[-80:], "total_pares":len(pares), "observacao":"Associacao exploratoria de nucleos compactos por familia e centroide; pareamento entre dois quadros nao confirma identidade ou chegada da chuva. ETA bloqueado.", "eta_liberado":False}
+
+
 def buscar_radar():
     try:
         leg = legenda()
@@ -6060,6 +6123,8 @@ def buscar_radar():
                     ),
             })
  
+        diagnostico_local_241 = diagnosticar_nucleos_locais_241(validos)
+
         rastreamento = rastrear(
             validos
         )
@@ -6447,6 +6512,8 @@ def buscar_radar():
             "serie_espacial":
                 serie,
  
+            "diagnostico_nucleos_locais_241": diagnostico_local_241,
+
             "rastreamento_temporal":
                 rastreamento,
  

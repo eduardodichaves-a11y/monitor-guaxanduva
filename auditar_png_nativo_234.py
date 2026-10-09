@@ -49,6 +49,26 @@ def analisar_png(nome, bruto, aviso_tls, rgb_legenda):
     contagem = Counter((r, g, b) for r, g, b, a in rgba.getdata() if a > 0)
     paleta = img.getpalette() if img.mode == 'P' else None
     info = {str(k): str(v)[:120] for k, v in img.info.items() if k != 'transparency'}
+    # Inspecao dos indices PLTE nativos: indice de arquivo NAO e classe dBZ.
+    indices_plte = []
+    if img.mode == 'P' and paleta:
+        contagem_indices = Counter(img.getdata())
+        transparencia = img.info.get('transparency')
+        for indice, n in sorted(contagem_indices.items()):
+            pos = 3 * indice
+            if pos + 3 > len(paleta):
+                continue
+            rgb = tuple(paleta[pos:pos + 3])
+            if isinstance(transparencia, bytes):
+                alpha = transparencia[indice] if indice < len(transparencia) else 255
+            elif isinstance(transparencia, int):
+                alpha = 0 if indice == transparencia else 255
+            else:
+                alpha = 255
+            indices_plte.append({'indice_png': indice, 'rgb': list(rgb),
+                                 'pixels': n, 'alpha': alpha,
+                                 'visivel': alpha > 0,
+                                 'consta_legenda_rgb': rgb in rgb_legenda})
     comuns = [{'rgb': list(rgb), 'pixels': n} for rgb, n in contagem.most_common(40)]
     exatas = [{'rgb': list(rgb), 'pixels': contagem[rgb]} for rgb in sorted(rgb_legenda) if contagem[rgb]]
     return {
@@ -61,6 +81,9 @@ def analisar_png(nome, bruto, aviso_tls, rgb_legenda):
         'metadados_png': info, 'cores_rgba_visiveis_distintas': len(contagem),
         'cores_mais_frequentes': comuns, 'cores_legenda_exatas_presentes': exatas,
         'pixels_visiveis': sum(contagem.values()),
+        'indices_plte_utilizados': indices_plte,
+        'nota_indices_plte': ('Indices sao locais ao PNG e podem mudar entre quadros; '
+                              'ordem PLTE nao comprova ordem de refletividade.'),
     }
 
 
@@ -83,7 +106,23 @@ def executar(dados):
             resultado['quadros'].append(analisar_png(nome, bruto, aviso_tls, rgb_legenda))
         except Exception as e:
             resultado['erros'].append({'arquivo': nome, 'erro': f'{type(e).__name__}: {str(e)[:180]}'})
-    resultado['status'] = 'EVIDENCIA_PNG_COLETADA' if resultado['quadros'] else 'SEM_PNG_VALIDO'
+    # Teste empirico de estabilidade: o mesmo indice PNG manteve o mesmo RGB?
+    if len(resultado['quadros']) >= 2:
+        a, b = resultado['quadros'][-2:]
+        ma = {x['indice_png']: tuple(x['rgb']) for x in a['indices_plte_utilizados']}
+        mb = {x['indice_png']: tuple(x['rgb']) for x in b['indices_plte_utilizados']}
+        compartilhados = sorted(set(ma) & set(mb))
+        divergentes = [{'indice_png': i, 'rgb_quadro_anterior': list(ma[i]),
+                        'rgb_quadro_atual': list(mb[i])}
+                       for i in compartilhados if ma[i] != mb[i]]
+        resultado['comparacao_indices_plte'] = {
+            'indices_compartilhados': len(compartilhados),
+            'indices_rgb_alterado': len(divergentes),
+            'divergencias': divergentes,
+            'ordem_plte_estavel_nestes_quadros': len(divergentes) == 0 if compartilhados else None,
+            'aviso': 'Estabilidade entre dois quadros nao prova correspondencia com dBZ.'
+        }
+    resultado['status'] = 'EVIDENCIA_PNG_COLETADA' if resultado['quadros'] else 'SEM_PNG_VALIDO' 
     return resultado
 
 

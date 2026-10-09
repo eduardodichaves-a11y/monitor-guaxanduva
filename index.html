@@ -2349,6 +2349,11 @@ function renderAproximacaoGuax(rad){
  const ts=Date.parse(rad?.horario_ultimo_quadro||'');
  const idade=Number.isFinite(ts)?Math.max(0,(Date.now()-ts)/60000):Infinity;
  const fresco=rad?.status==='online'&&rad?.dados_frescos===true&&idade<=30;
+ const local242=rad?.rastreamento_local_242||rad?.diagnostico_nucleos_locais_241||{};
+ const paresLocais=Array.isArray(local242.pares)?local242.pares:[];
+ const recentesLocais=paresLocais.filter(p=>{
+   const t=Date.parse(p.para||'');return Number.isFinite(t)&&Number.isFinite(ts)&&Math.abs(ts-t)<=20*60000;
+ });
  const av=rad?.avaliacao_trajetorias||{};
  const trilhas=Array.isArray(av.avaliacoes)?av.avaliacoes:[];
  const n=x=>x===null||x===undefined||x===''?NaN:Number(x);
@@ -2362,6 +2367,7 @@ function renderAproximacaoGuax(rad){
  const locais=detalhes.filter(t=>t.dist<=50),externas=detalhes.length-locais.length;
  const fmt=x=>x.toFixed(1).replace('.',',');
  if(!fresco)status.textContent='⚪ Radar sem quadro recente (idade '+(Number.isFinite(idade)?fmt(idade)+' min':'indisponível')+'). Trajetórias e ETA suspensos.';
+ else if(recentesLocais.length)status.textContent='🧪 '+recentesLocais.length+' pareamento(s) local(is) recente(s) • diagnóstico #242, ainda sem ETA validado. Núcleos extensos podem produzir deslocamentos aparentes.';
  else if(!detalhes.length)status.textContent='🟡 Nenhuma trilha georreferenciada disponível. Os pixels locais não bastam para calcular movimento.';
  else status.textContent='📡 '+detalhes.length+' trilhas georreferenciadas • '+locais.length+' com centroide até 50 km • '+externas+' fora do raio. '+(detalhes.length?'Mais próxima: '+fmt(detalhes[0].dist)+' km. ':'')+'Pixel local ≠ trilha temporal.';
  rows.replaceChildren();
@@ -2369,7 +2375,14 @@ function renderAproximacaoGuax(rad){
  for(const raio of limites){
   const inferior=raio===50?25:raio===25?15:raio===15?5:raio===5?2:0;
   const candidatos=locais.filter(t=>t.dist>inferior&&t.dist<=raio);
-  const t=candidatos[0];let situacao='Sem trilha temporal nesta faixa',eta='--',cor='#9bb4c1';
+  const t=candidatos[0];
+  const locaisFaixa=recentesLocais.filter(p=>{const d=n(p.distancia_borda_atual_km??p.distancia_centroide_atual_km);return Number.isFinite(d)&&d>=0&&d<=raio&&d>inferior;});
+  const local=locaisFaixa.sort((a,b)=>n(a.distancia_borda_atual_km)-n(b.distancia_borda_atual_km))[0];
+  let situacao='Sem trilha temporal nesta faixa',eta='--',cor='#9bb4c1';
+  if(fresco&&local&&!t){
+    situacao=local.tendencia_centroide==='aproximando'?'🟠 Centroide aproximando (experimental)':local.tendencia_centroide==='afastando'?'🟢 Centroide afastando (experimental)':'🟡 Movimento local inconclusivo';
+    cor='#e3c86c';
+  }
   if(!fresco)situacao='Radar desatualizado';
   else if(t){
    const rumoAlvo=Number.isFinite(t.projecao)&&t.projecao>0;
@@ -2384,7 +2397,7 @@ function renderAproximacaoGuax(rad){
   const div=document.createElement('div');div.style.cssText='padding:9px 10px;margin:7px 0;border:1px solid #315564;border-radius:10px;background:#0b222c';
   const title=document.createElement('b');title.style.color=cor;title.textContent='📍 '+inferior+'–'+raio+' km • '+situacao;
   const desc=document.createElement('div');desc.className='dash-muted';
-  desc.textContent=t&&fresco?'Trilha #'+t.id+' • centroide a '+fmt(t.dist)+' km • rumo '+(Number.isFinite(t.rumo)?Math.round(t.rumo)+'°':'N/D')+' • ETA '+eta+(t.motivo?' • '+t.motivo:''):'ETA -- • sem deslocamento local validado';
+  desc.textContent=t&&fresco?'Trilha #'+t.id+' • centroide a '+fmt(t.dist)+' km • rumo '+(Number.isFinite(t.rumo)?Math.round(t.rumo)+'°':'N/D')+' • ETA '+eta+(t.motivo?' • '+t.motivo:''):local&&fresco?'Borda detectada a '+fmt(n(local.distancia_borda_atual_km))+' km • '+fmt(n(local.velocidade_aparente_kmh))+' km/h aparente • '+(local.nucleo_extenso?'eco extenso; centroide não representa borda • ':'')+'ETA -- (não validado)':'ETA -- • sem deslocamento local validado';
   div.append(title,desc);rows.appendChild(div);
  }
  if(detalhes.length){

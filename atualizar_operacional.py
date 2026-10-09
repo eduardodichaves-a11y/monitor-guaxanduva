@@ -609,6 +609,8 @@ def main():
             if campo in _radar_completo_187d
         }
 
+    from integrar_campo_guaxanduva import integrar_observacoes_campo
+    integrar_observacoes_campo(dados.get("validacao_campo_guaxanduva", {}))
     ARQUIVO.write_text(json.dumps(dados,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
     print("Atualização operacional rápida concluída:",dados["gerado_em"])
 if __name__=="__main__": main()

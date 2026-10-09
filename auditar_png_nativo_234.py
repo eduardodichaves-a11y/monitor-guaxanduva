@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""#234: evidencia dos bytes PNG RadarSC COMP, sem persistir imagens ou liberar dBZ/mm/h.
+Uso: python auditar_png_nativo_234.py [dados.json] [auditoria_png_234.json]
+Dependencias: requests, Pillow. Executar somente com rede; ate 2 PNGs por rodada.
+"""
+import hashlib
+import io
+import json
+import sys
+from collections import Counter
+from datetime import datetime, timezone
+from pathlib import Path
+
+import requests
+from PIL import Image
+
+URL = 'https://sifap.defesacivil.sc.gov.br/radarsc/rest/radar/getImagem'
+MAX_BYTES = 12 * 1024 * 1024
+MAX_FRAMES = 2
+
+
+def baixar(nome):
+    params = {'prod': 4, 'radar': 'COMP', 'file': nome}
+    aviso_tls = None
+    try:
+        r = requests.get(URL, params=params, timeout=(12, 35), stream=True)
+    except requests.exceptions.SSLError:
+        aviso_tls = 'CERTIFICADO_NAO_VALIDADO'
+        r = requests.get(URL, params=params, timeout=(12, 35), stream=True, verify=False)
+    with r:
+        r.raise_for_status()
+        partes, total = [], 0
+        for bloco in r.iter_content(65536):
+            total += len(bloco)
+            if total > MAX_BYTES:
+                raise ValueError('png_excede_limite_12_mib')
+            partes.append(bloco)
+    bruto = b''.join(partes)
+    if not bruto.startswith(b'\x89PNG\r\n\x1a\n'):
+        raise ValueError('resposta_nao_png')
+    return bruto, aviso_tls
+
+
+def analisar_png(nome, bruto, aviso_tls, rgb_legenda):
+    img = Image.open(io.BytesIO(bruto))
+    img.load()
+    # Inventario integral de pixels RGBA, sem aproximacao cromatica.
+    rgba = img.convert('RGBA')
+    contagem = Counter((r, g, b) for r, g, b, a in rgba.getdata() if a > 0)
+    paleta = img.getpalette() if img.mode == 'P' else None
+    info = {str(k): str(v)[:120] for k, v in img.info.items() if k != 'transparency'}
+    comuns = [{'rgb': list(rgb), 'pixels': n} for rgb, n in contagem.most_common(40)]
+    exatas = [{'rgb': list(rgb), 'pixels': contagem[rgb]} for rgb in sorted(rgb_legenda) if contagem[rgb]]
+    return {
+        'arquivo': nome, 'bytes': len(bruto), 'sha256': hashlib.sha256(bruto).hexdigest(),
+        'certificado': aviso_tls or 'VALIDADO_PELA_BIBLIOTECA',
+        'modo_png_original': img.mode, 'dimensoes_px': [img.width, img.height],
+        'tem_paleta_plte': paleta is not None,
+        'entradas_plte': len(paleta)//3 if paleta else 0,
+        'sha256_plte_rgb': hashlib.sha256(bytes(paleta)).hexdigest() if paleta else None,
+        'metadados_png': info, 'cores_rgba_visiveis_distintas': len(contagem),
+        'cores_mais_frequentes': comuns, 'cores_legenda_exatas_presentes': exatas,
+        'pixels_visiveis': sum(contagem.values()),
+    }
+
+
+def executar(dados):
+    radar = dados.get('radar') or {}
+    leg = (radar.get('legenda_oficial') or {}).get('classes') or []
+    rgb_legenda = {tuple(c['rgb']) for c in leg if isinstance(c, dict) and isinstance(c.get('rgb'), list) and len(c['rgb']) == 3}
+    quadros = (radar.get('validacao_paleta_radar') or {}).get('por_quadro') or []
+    nomes = list(dict.fromkeys(q.get('arquivo') for q in quadros if isinstance(q, dict) and q.get('arquivo')))[-MAX_FRAMES:]
+    resultado = {
+        'versao': '#234', 'gerado_em_utc': datetime.now(timezone.utc).isoformat(),
+        'produto': 'COMP', 'fonte': URL, 'limite_png_por_execucao': MAX_FRAMES,
+        'classes_legenda': len(rgb_legenda), 'quadros': [], 'erros': [],
+        'restricoes': {'rgb_dbz': False, 'mm_h': False, 'alerta_por_cor': False, 'eta_por_cor': False},
+        'observacao': 'Cores exatas observadas nao provam correspondencia fisica dBZ. Nao persiste PNG.'
+    }
+    for nome in nomes:
+        try:
+            bruto, aviso_tls = baixar(nome)
+            resultado['quadros'].append(analisar_png(nome, bruto, aviso_tls, rgb_legenda))
+        except Exception as e:
+            resultado['erros'].append({'arquivo': nome, 'erro': f'{type(e).__name__}: {str(e)[:180]}'})
+    resultado['status'] = 'EVIDENCIA_PNG_COLETADA' if resultado['quadros'] else 'SEM_PNG_VALIDO'
+    return resultado
+
+
+if __name__ == '__main__':
+    origem = Path(sys.argv[1]) if len(sys.argv) > 1 else Path('dados.json')
+    destino = Path(sys.argv[2]) if len(sys.argv) > 2 else Path('auditoria_png_234.json')
+    dados = json.loads(origem.read_text(encoding='utf-8'))
+    resultado = executar(dados)
+    destino.write_text(json.dumps(resultado, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    print(f"#234 {resultado['status']}: {len(resultado['quadros'])} PNGs; {len(resultado['erros'])} falhas")

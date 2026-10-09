@@ -1330,10 +1330,14 @@ async function carregar(){
   const radarFrescoReal=coletaFresca&&radarIdadeRealMin<=30&&rad.dados_frescos===true;
   const radarOperacionalAtual=rad.status==="online"&&radarFrescoReal;
   $("radarIdade").textContent=Number.isFinite(radarIdadeRealMin)?f(radarIdadeRealMin,1)+" min":"--";
-  if(radarOperacionalAtual){$("radarEstado").innerHTML='<span class="ok">🟢 RadarSC • quadro recente e coleta íntegra</span>'}
-  else if(radarFrescoReal){$("radarEstado").innerHTML='<span class="aviso">🟡 RadarSC • quadro recente, coleta parcial</span>'}
-  else if(Number.isFinite(radarIdadeRealMin)){$("radarEstado").innerHTML='<span class="erro">🔴 RadarSC • quadro desatualizado ou coleta não recente</span>'}
-  else{$("radarEstado").innerHTML='<span class="erro">🔴 RadarSC • quadro indisponível</span>'}
+  // #235 — distingue idade do PNG, integridade da coleta e indisponibilidade.
+  // A coleta pode continuar saudável mesmo quando a origem repete um quadro antigo.
+  if(radarOperacionalAtual){$("radarEstado").textContent="🟢 RadarSC • PNG recente e coleta íntegra"}
+  else if(!Number.isFinite(radarIdadeRealMin)){$("radarEstado").textContent="🔴 RadarSC • horário do PNG ausente; eco atual não verificável"}
+  else if(radarIdadeRealMin>30){$("radarEstado").textContent="🟠 RadarSC • imagem antiga ("+radarIdadeRealMin.toFixed(0)+" min); possível congelamento da origem. Não usar como chuva atual"}
+  else if(!coletaFresca){$("radarEstado").textContent="🟠 RadarSC • PNG recente, mas coleta do Monitor desatualizada"}
+  else if(!rad.dados_frescos){$("radarEstado").textContent="🟠 RadarSC • frescor do PNG não confirmado pela fonte"}
+  else{$("radarEstado").textContent="🟡 RadarSC • PNG recente, coleta parcial"}
   const cand=av.quantidade_candidatos_eta??0;
   $("etaEstado").innerHTML='<span class="aviso">🧪 ETA experimental bloqueado • candidatos atuais: '+cand+'</span>';
  
@@ -2281,7 +2285,9 @@ function atualizarRelogioRadar226(){
  const recente=r.coletaFresca&&r.dadosFrescos&&idade<=30;
  if(r.consultaFalhou)estado.textContent="🔴 RadarSC • falha de comunicação com dados.json; eco atual não verificável";
  else if(!Number.isFinite(idade))estado.textContent="🔴 RadarSC • quadro indisponível ou falha de comunicação";
- else if(!recente)estado.textContent="🔴 RadarSC • quadro desatualizado ou coleta não recente";
+ else if(idade>30)estado.textContent="🟠 RadarSC • imagem antiga ("+idade.toFixed(0)+" min); possível congelamento da origem. Não usar como chuva atual";
+ else if(!r.coletaFresca)estado.textContent="🟠 RadarSC • PNG recente, mas coleta do Monitor desatualizada";
+ else if(!r.dadosFrescos)estado.textContent="🟠 RadarSC • frescor do PNG não confirmado pela fonte";
  else if(r.status==="online")estado.textContent="🟢 RadarSC • quadro recente e coleta íntegra";
  else estado.textContent="🟡 RadarSC • quadro recente, coleta parcial";
 }

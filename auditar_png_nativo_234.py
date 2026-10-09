@@ -196,6 +196,46 @@ def analisar_png(nome, bruto, aviso_tls, rgb_legenda):
     }
 
 
+def analisar_transicao_temporal(pares):
+    """Compara dois PNGs no mesmo pixel, sem confundir contato espacial com evolucao.
+
+    Nao corrige adveccao do eco: transicao local nao comprova transformacao da chuva.
+    """
+    if len(pares) != 2:
+        return {'status': 'AGUARDANDO_DOIS_QUADROS_VALIDOS'}
+    (nome0, bruto0), (nome1, bruto1) = pares
+    im0 = Image.open(io.BytesIO(bruto0)).convert('RGBA')
+    im1 = Image.open(io.BytesIO(bruto1)).convert('RGBA')
+    if im0.size != im1.size:
+        return {'status': 'DIMENSOES_DIFERENTES', 'arquivos': [nome0, nome1]}
+    def familia(px):
+        r, g, b, a = px
+        if a == 0: return 'transparente'
+        if (r, g, b) == (200, 200, 200): return 'cinza'
+        if b >= r and b >= g and b >= 90: return 'azul_ciano'
+        if g > r and g > b: return 'verde'
+        if r >= 150 and g >= 55 and b < 120: return 'amarelo_laranja'
+        if r >= 130 and (g < 80 or b >= 110): return 'vermelho_magenta'
+        return 'outra_cor'
+    matriz = Counter()
+    for a, b in zip(im0.getdata(), im1.getdata()):
+        matriz[(familia(a), familia(b))] += 1
+    origens = ('cinza', 'transparente', 'azul_ciano', 'verde')
+    saidas = ('cinza', 'transparente', 'azul_ciano', 'verde', 'amarelo_laranja', 'vermelho_magenta', 'outra_cor')
+    linhas = {}
+    for origem in origens:
+        total = sum(matriz[(origem, destino)] for destino in saidas)
+        linhas[origem] = {
+            'pixels_origem': total,
+            'destinos': {destino: matriz[(origem, destino)] for destino in saidas},
+            'percentual_para_azul_ciano': round(100 * matriz[(origem, 'azul_ciano')] / total, 3) if total else None,
+        }
+    return {'status': 'COMPARACAO_EXPLORATORIA', 'arquivos': [nome0, nome1],
+            'dimensoes': list(im0.size), 'transicoes': linhas,
+            'nota': 'Mesma coordenada de pixel em dois horarios; deslocamento pelo vento nao corrigido. '
+                    'Transparencia nao representa chuva. Famílias RGB heuristicas; sem dBZ/mm/h.'}
+
+
 def executar(dados, historico_anterior=None):
     radar = dados.get('radar') or {}
     leg = (radar.get('legenda_oficial') or {}).get('classes') or []
@@ -209,12 +249,15 @@ def executar(dados, historico_anterior=None):
         'restricoes': {'rgb_dbz': False, 'mm_h': False, 'alerta_por_cor': False, 'eta_por_cor': False},
         'observacao': 'Cores exatas observadas nao provam correspondencia fisica dBZ. Nao persiste PNG.'
     }
+    pares_temporais = []
     for nome in nomes:
         try:
             bruto, aviso_tls = baixar(nome)
             resultado['quadros'].append(analisar_png(nome, bruto, aviso_tls, rgb_legenda))
+            pares_temporais.append((nome, bruto))
         except Exception as e:
             resultado['erros'].append({'arquivo': nome, 'erro': f'{type(e).__name__}: {str(e)[:180]}'})
+    resultado['diagnostico_transicao_temporal'] = analisar_transicao_temporal(pares_temporais)
     historico = {}
     anterior = historico_anterior if isinstance(historico_anterior, dict) else {}
     # Recuperacao automatica e idempotente do historico anterior ao auditor espacial.

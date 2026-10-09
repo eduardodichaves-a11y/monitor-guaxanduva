@@ -341,6 +341,33 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 .radar-familia.fam-cinza b{display:block;line-height:1.35}
 .radar-familia.fam-cinza small{display:block;margin-top:6px;line-height:1.4;color:#e5e9ec}
 .c0-amostra{display:inline-block;width:17px;height:17px;margin-right:5px;vertical-align:-3px;background:#c8c8c8;border:1px solid #f5f5f5;border-radius:4px}
+
+/* #239 — Contencao horizontal do painel RGB no celular.
+   Corrige min-content de grid/flex sem alterar contagens ou larguras percentuais. */
+.r229-toggle, .r229-body, .r229-rows, .r229-item,
+.r229-head, .r229-bar, .r229-values, .r229-status,
+.r229-help, .r229-foot, .r229-key {
+  box-sizing:border-box;
+  min-width:0;
+  max-width:100%;
+}
+.r229-toggle { width:100%; }
+.r229-body { width:100%; overflow-x:clip; }
+.r229-rows { grid-template-columns:minmax(0,1fr); width:100%; }
+.r229-item { width:100%; overflow:hidden; }
+.r229-head { flex-wrap:wrap; align-items:center; }
+.r229-head small { overflow-wrap:anywhere; }
+.r229-bar { width:100%; min-width:0; max-width:100%; }
+.r229-bar > span { flex:0 1 auto; min-width:0; max-width:100%; }
+.r229-values { width:100%; overflow-wrap:anywhere; }
+.r229-values span { white-space:normal; overflow-wrap:anywhere; }
+.r229-status, .r229-help, .r229-foot { overflow-wrap:anywhere; }
+@media(max-width:600px){
+  .r229-body { padding:0 10px 14px; }
+  .r229-item { padding:10px; }
+  .r229-head { gap:4px 8px; }
+}
+
 </style>
 </head>
 <body><main>
@@ -467,7 +494,7 @@ header,.card,.dash{box-shadow:0 12px 34px rgba(0,0,0,.22)}
 <div class="dash-summary"><b>EM RESUMO:</b> <span id="dashResumoLinha">Os dados acima preservam a diferença entre observação, previsão e modelagem. Ausência nunca vira zero.</span></div>
  
 <div class="dash-row">
-<div class="dash-panel"><h3>📡 Radar meteorológico • Santa Catarina</h3><div class="dash-statgrid"><div class="dash-stat">Estado<b id="dashRadarEstado">--</b></div><div class="dash-stat">Último quadro<b id="dashRadarHora">--</b></div><div class="dash-stat">Idade<b id="dashRadarIdade">--</b></div><div class="dash-stat">Quadros válidos<b id="dashRadarValidos">--</b></div></div><div id="dashRadarFamilias" class="radar-familias"><div class="radar-familia fam-cinza" aria-label="C0 cinza, hipotese experimental, sem alerta automatico"><b><span class="c0-amostra" aria-hidden="true"></span> C0 — CINZA / POSSÍVEL ECO FRACO</b><small>RGB(200,200,200) • hipótese experimental, próxima da família azul/ciano • não confirma garoa nem ativa alertas</small></div><div class="radar-familia fam-garoa"><b>🟦 FAMÍLIA AZUL / CIANO</b><small>eco qualitativo • não descreve chuva no solo</small></div><div class="radar-familia fam-fraca"><b>🟩 FAMÍLIA VERDE</b><small>eco qualitativo • não descreve chuva no solo</small></div><div class="radar-familia fam-forte"><b>🟨 FAMÍLIA AMARELO / LARANJA</b><small>eco qualitativo • não descreve chuva no solo</small></div><div class="radar-familia fam-temp"><b>🟥 FAMÍLIA VERMELHO / MAGENTA</b><small>eco qualitativo • não descreve chuva no solo</small></div></div><div class="dash-muted" style="margin-top:6px">Famílias = leitura qualitativa da cor do eco RadarSC. Elas não são rótulos de garoa, chuva fraca, chuva forte ou tempestade no solo. A escala-base C1–C16 permanece abaixo; classes C17+ validadas pelo aprendizado entram automaticamente depois dela.</div><div id="dashRadarSintese" class="radar-sintese"><strong>Radar agora</strong>Aguardando leitura do quadro mais recente...</div><details class="radar-tech-toggle"><summary>Ver escala técnica do radar • C1–C16 + classes aprendidas</summary><div class="radar-tech-body"><div id="dashRadarLegenda" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:4px"><span class="dash-muted" style="grid-column:1/-1">Carregando escala RadarSC...</span></div></div></details><details class="r207-toggle"><summary>Ver Radar × chuva no solo • raios 2–50 km</summary><div class="r207-body"><div class="r207-note">#207-R2 • comparação visual. Radar = eco/refletividade; pluviômetro = observação no solo; malha = suporte MODELADO. Modelo nunca confirma chuva observada.</div><div class="r207-legend"><span class="r207-chip rad">📡 RadarSC</span><span class="r207-chip obs">🌧️ Pluviômetros</span><span class="r207-chip mod">🧮 Modelo</span></div><div id="r207RadiusGrid" class="r207-grid"><span class="dash-muted" style="grid-column:1/-1">Carregando raios #207-R2...</span></div><div id="r207Verdict" class="r207-verdict" style="margin-top:8px"><b>Validação espacial</b>Aguardando cruzamento das fontes...</div><div id="r207Stations" class="r207-stations"></div></div></details><details class="r229-toggle"><summary>📊 Ecos por distância • painel de cores (até 50 km)</summary><div class="r229-body"><p class="r229-help">Veja onde aparecem as cores do radar. As barras representam <b>quantidade de pixels</b>, não volume ou força da chuva.</p><div id="r229Status" class="r229-status">Aguardando quadro RadarSC...</div><div class="r229-key"><span><i style="background:#c8c8c8"></i>C0 cinza (experimental)</span><span><i style="background:#67c9ff"></i>Azul/ciano</span><span><i style="background:#6dd95c"></i>Verde</span><span><i style="background:#ffd34f"></i>Amarelo</span><span><i style="background:#ff914d"></i>Laranja</span><span><i style="background:#f34e6a"></i>Vermelho/magenta</span></div><div id="r229Rows" class="r229-rows" aria-live="polite">Carregando...</div><p class="r229-foot">Raios <b>acumulados</b>: até 25 km inclui os ecos de 5 e 10 km. Barras proporcionais ao total de pixels do próprio raio. Cores são qualitativas; intensidade, trajetória e chegada ainda dependem de validação.</p></div></details><div id="dashRadarEco" class="dash-muted" style="margin-top:10px">Aguardando classificação local...</div><div class="dash-muted" style="margin-top:8px">C1–C16 = classes-base ligadas à escala física validada pela #169. C17+ = classes adaptativas que só aparecem após validação automática #207-R5.2; nelas o Monitor não inventa dBZ. dBZ é refletividade do radar, não chuva medida no solo. O Método Guaxanduva #170-K/L/M pode estimar mm/h de forma MODELADA quando a guarda de publicação autorizar; isso nunca substitui pluviômetro.</div></div>
+<div class="dash-panel"><h3>📡 Radar meteorológico • Santa Catarina</h3><div class="dash-statgrid"><div class="dash-stat">Estado<b id="dashRadarEstado">--</b></div><div class="dash-stat">Último quadro<b id="dashRadarHora">--</b></div><div class="dash-stat">Idade<b id="dashRadarIdade">--</b></div><div class="dash-stat">Quadros válidos<b id="dashRadarValidos">--</b></div></div><div id="dashRadarFamilias" class="radar-familias"><div class="radar-familia fam-cinza" aria-label="C0 cinza, hipotese experimental, sem alerta automatico"><b><span class="c0-amostra" aria-hidden="true"></span> C0 — CINZA / POSSÍVEL ECO FRACO</b><small>RGB(200,200,200) • hipótese experimental, próxima da família azul/ciano • não confirma garoa nem ativa alertas</small></div><div class="radar-familia fam-garoa"><b>🟦 FAMÍLIA AZUL / CIANO</b><small>eco qualitativo • não descreve chuva no solo</small></div><div class="radar-familia fam-fraca"><b>🟩 FAMÍLIA VERDE</b><small>eco qualitativo • não descreve chuva no solo</small></div><div class="radar-familia fam-forte"><b>🟨 FAMÍLIA AMARELO / LARANJA</b><small>eco qualitativo • não descreve chuva no solo</small></div><div class="radar-familia fam-temp"><b>🟥 FAMÍLIA VERMELHO / MAGENTA</b><small>eco qualitativo • não descreve chuva no solo</small></div></div><div class="dash-muted" style="margin-top:6px">Famílias = leitura qualitativa da cor do eco RadarSC. Elas não são rótulos de garoa, chuva fraca, chuva forte ou tempestade no solo. A escala-base C1–C16 permanece abaixo; classes C17+ validadas pelo aprendizado entram automaticamente depois dela.</div><div id="dashRadarSintese" class="radar-sintese"><strong>Radar agora</strong>Aguardando leitura do quadro mais recente...</div><details class="radar-tech-toggle"><summary>Ver escala técnica do radar • C1–C16 + classes aprendidas</summary><div class="radar-tech-body"><div id="dashRadarLegenda" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:4px"><span class="dash-muted" style="grid-column:1/-1">Carregando escala RadarSC...</span></div></div></details><details class="r207-toggle"><summary>Ver Radar × chuva no solo • raios 2–50 km</summary><div class="r207-body"><div class="r207-note">#207-R2 • comparação visual. Radar = eco/refletividade; pluviômetro = observação no solo; malha = suporte MODELADO. Modelo nunca confirma chuva observada.</div><div class="r207-legend"><span class="r207-chip rad">📡 RadarSC</span><span class="r207-chip obs">🌧️ Pluviômetros</span><span class="r207-chip mod">🧮 Modelo</span></div><div id="r207RadiusGrid" class="r207-grid"><span class="dash-muted" style="grid-column:1/-1">Carregando raios #207-R2...</span></div><div id="r207Verdict" class="r207-verdict" style="margin-top:8px"><b>Validação espacial</b>Aguardando cruzamento das fontes...</div><div id="r207Stations" class="r207-stations"></div></div></details><details class="r229-toggle"><summary>📊 Ecos por distância • painel de cores (até 50 km)</summary><div class="r229-body"><p class="r229-help">Veja onde aparecem as cores do radar. As barras representam <b>quantidade de pixels</b>, não volume ou força da chuva.</p><div id="r229Status" class="r229-status">Aguardando quadro RadarSC...</div><div class="r229-key"><span><i style="background:#67c9ff"></i>Azul/ciano</span><span><i style="background:#6dd95c"></i>Verde</span><span><i style="background:#ffd34f"></i>Amarelo</span><span><i style="background:#ff914d"></i>Laranja</span><span><i style="background:#f34e6a"></i>Vermelho/magenta</span></div><div id="r229Rows" class="r229-rows" aria-live="polite">Carregando...</div><p class="r229-foot">Raios <b>acumulados</b>: até 25 km inclui os ecos de 5 e 10 km. Barras proporcionais ao total de pixels do próprio raio. Cores são qualitativas; intensidade, trajetória e chegada ainda dependem de validação.</p></div></details><div id="dashRadarEco" class="dash-muted" style="margin-top:10px">Aguardando classificação local...</div><div class="dash-muted" style="margin-top:8px">C1–C16 = classes-base ligadas à escala física validada pela #169. C17+ = classes adaptativas que só aparecem após validação automática #207-R5.2; nelas o Monitor não inventa dBZ. dBZ é refletividade do radar, não chuva medida no solo. O Método Guaxanduva #170-K/L/M pode estimar mm/h de forma MODELADA quando a guarda de publicação autorizar; isso nunca substitui pluviômetro.</div></div>
 <div class="dash-panel"><h3>🌧️ Rede pluviométrica • medições numéricas</h3><div id="dashEstacoes" class="station-list"><div class="station-line"><span>Carregando estações...</span><b>--</b></div></div><div class="dash-muted" style="margin-top:8px">EPAGRI/CIRAM: precipitação horária (1 h). CEMADEN: acumulado de 24 h. Cada estação representa seu próprio ponto; grandezas de janelas diferentes não são somadas nem comparadas como equivalentes.</div></div>
 <div class="dash-panel"><h3>🌦️ Previsão • curto prazo</h3><div class="forecast-strip"><div class="forecast-cell">Agora<b id="dashPrevAgora">--</b><span id="dashPrevAgoraDet">--</span></div><div class="forecast-cell">Próx. h<b id="dashPrev1h">--</b><span id="dashPrev1hDet">--</span></div><div class="forecast-cell">Vento<b id="dashPrevVento">--</b><span id="dashPrevVentoDet">--</span></div><div class="forecast-cell">Nuvens<b id="dashPrevNuvens">--</b><span id="dashPrevNuvensDet">--</span></div></div><div class="dash-muted" style="margin-top:8px">Previsão/modelo meteorológico; não é observação instrumental local.</div></div>
 </div>
@@ -1981,12 +2008,9 @@ async function carregar(){
     else{$("dashRadarSintese").innerHTML='<strong>📡 Radar sem classificação local</strong>A leitura qualitativa está indisponível nesta coleta.';}
   }
 
-  const c0Aviso='<br><small style="color:#c8c8c8">C0 cinza: análise experimental; ainda sem contagem local por raio validada.</small>';
-  if($('dashRadarEco'))$('dashRadarEco').innerHTML+=c0Aviso;
-  if($('dashRadarSintese'))$('dashRadarSintese').innerHTML+=c0Aviso;
   // #229: painel cromático com os dados canônicos do radar, sem converter RGB em mm/h.
   if($('r229Rows')){
-    const labels229=[['cinza','C0 cinza','#c8c8c8'],['azul_ciano','Azul/ciano','#67c9ff'],['verde','Verde','#6dd95c'],['amarelo','Amarelo','#ffd34f'],['laranja','Laranja','#ff914d'],['vermelho_magenta','Vermelho/magenta','#f34e6a']];
+    const labels229=[['azul_ciano','Azul/ciano','#67c9ff'],['verde','Verde','#6dd95c'],['amarelo','Amarelo','#ffd34f'],['laranja','Laranja','#ff914d'],['vermelho_magenta','Vermelho/magenta','#f34e6a']];
     const nomes229=['2','5','10','25','50'];
     const format229=n=>Math.round(n).toLocaleString('pt-BR');
     const rows229=nomes229.map(k=>{
@@ -1995,11 +2019,9 @@ async function carregar(){
         const fam=String(x.familia||'');
         let chave=fam;
         if(fam==='rosa_magenta_roxo'||fam==='vermelho'||fam==='rosa_magenta'||fam==='roxo')chave='vermelho_magenta';
-        if(fam==='cinza'||fam==='c0'||fam==='cinza_c0')chave='cinza';
         if(Object.prototype.hasOwnProperty.call(totals,chave))totals[chave]+=Math.max(0,Number(x.pixels)||0);
       });
-      const possuiC0=(Array.isArray(registro.familias_cor)?registro.familias_cor:[]).some(x=>['cinza','c0','cinza_c0'].includes(String(x.familia||'').toLowerCase()));
-      return {k,totals,total:Object.values(totals).reduce((a,b)=>a+b,0),raw:registro,possuiC0};
+      return {k,totals,total:Object.values(totals).reduce((a,b)=>a+b,0),raw:registro};
     });
     const quadro229=String(rad.horario_ultimo_quadro||'');
     const idade229=Number(rad.idade_ultimo_quadro_min);
@@ -2011,8 +2033,7 @@ async function carregar(){
     else {$('r229Rows').innerHTML=rows229.map(row=>{
       const b=row.total?labels229.map(([id,_,color])=>'<span style="width:'+(row.totals[id]/row.total*100).toFixed(3)+'%;background:'+color+'" aria-hidden="true"></span>').join(''):'';
       const vals=labels229.filter(([id])=>row.totals[id]>0).map(([id,label,color])=>'<span><i style="background:'+color+'"></i>'+label+': <b>'+format229(row.totals[id])+'</b></span>').join('');
-      const notaC0=!row.possuiC0?'<span style="display:block;color:#c8c8c8;font-size:12px;margin-top:5px">C0 cinza: não contabilizado pela fonte neste raio (não significa zero).</span>':'';
-      return '<div class="r229-item"><div class="r229-head"><strong>Até '+row.k+' km</strong><small>'+format229(row.total)+' pixels classificados</small></div><div class="r229-bar" role="img" aria-label="Distribuição cromática no raio de '+row.k+' quilômetros">'+b+'</div><div class="r229-values">'+(vals||'Nenhum pixel classificado neste raio')+notaC0+'</div></div>';
+      return '<div class="r229-item"><div class="r229-head"><strong>Até '+row.k+' km</strong><small>'+format229(row.total)+' pixels classificados</small></div><div class="r229-bar" role="img" aria-label="Distribuição cromática no raio de '+row.k+' quilômetros">'+b+'</div><div class="r229-values">'+(vals||'Nenhum pixel classificado neste raio')+'</div></div>';
     }).join('');}
   }
   // #207-R2 — painel expansível dentro do card Radar. Somente leitura/visualização.

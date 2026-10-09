@@ -56,6 +56,8 @@ jobs:
         run: python auditar_cores_radarsc_232.py dados.json auditoria_cores_232.json
       - name: Auditar evidências da paleta RadarSC #233
         run: python auditar_evidencias_paleta_233.py dados.json auditoria_paleta_233.json
+      - name: Auditar PNGs nativos RadarSC #234
+        run: python auditar_png_nativo_234.py dados.json auditoria_png_234.json
       - name: Publicar dados operacionais
         run: |
           set -euo pipefail
@@ -71,6 +73,7 @@ jobs:
           if [ -f historico_nucleos_231.json ]; then cp historico_nucleos_231.json /tmp/historico-nucleos-231.json; fi
           cp auditoria_cores_232.json /tmp/auditoria-cores-232.json
           cp auditoria_paleta_233.json /tmp/auditoria-paleta-233.json
+          cp auditoria_png_234.json /tmp/auditoria-png-234.json
           git fetch origin main
           git reset --hard origin/main
           cp /tmp/dados-operacional.json dados.json
@@ -83,7 +86,8 @@ jobs:
           if [ -f /tmp/historico-nucleos-231.json ]; then cp /tmp/historico-nucleos-231.json historico_nucleos_231.json; fi
           cp /tmp/auditoria-cores-232.json auditoria_cores_232.json
           cp /tmp/auditoria-paleta-233.json auditoria_paleta_233.json
-          git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json historico_operacional_190.json estatisticas_operacionais_190.json historico_ecos_rgb_217.json historico_nucleos_231.json auditoria_cores_232.json auditoria_paleta_233.json
+          cp /tmp/auditoria-png-234.json auditoria_png_234.json
+          git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json historico_operacional_190.json estatisticas_operacionais_190.json historico_ecos_rgb_217.json historico_nucleos_231.json auditoria_cores_232.json auditoria_paleta_233.json auditoria_png_234.json
           if git diff --cached --quiet; then
             echo "Dados operacionais já publicados."
             exit 0
@@ -109,7 +113,8 @@ jobs:
             if [ -f /tmp/historico-nucleos-231.json ]; then cp /tmp/historico-nucleos-231.json historico_nucleos_231.json; fi
             cp /tmp/auditoria-cores-232.json auditoria_cores_232.json
             cp /tmp/auditoria-paleta-233.json auditoria_paleta_233.json
-            git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json historico_operacional_190.json estatisticas_operacionais_190.json historico_ecos_rgb_217.json historico_nucleos_231.json auditoria_cores_232.json auditoria_paleta_233.json
+          cp /tmp/auditoria-png-234.json auditoria_png_234.json
+            git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json historico_operacional_190.json estatisticas_operacionais_190.json historico_ecos_rgb_217.json historico_nucleos_231.json auditoria_cores_232.json auditoria_paleta_233.json auditoria_png_234.json
             git diff --cached --quiet && exit 0
             git commit -m "Atualiza estado operacional do Monitor Guaxanduva"
           done

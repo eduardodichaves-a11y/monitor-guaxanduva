@@ -258,6 +258,48 @@ def executar(dados, historico_anterior=None):
         except Exception as e:
             resultado['erros'].append({'arquivo': nome, 'erro': f'{type(e).__name__}: {str(e)[:180]}'})
     resultado['diagnostico_transicao_temporal'] = analisar_transicao_temporal(pares_temporais)
+    # Historico persistente de pares distintos; nunca confundir quadro com comparacao.
+    anterior = historico_anterior if isinstance(historico_anterior, dict) else {}
+    transicoes = {}
+    for item in anterior.get('historico_transicoes_temporais', []):
+        if (isinstance(item, dict) and isinstance(item.get('arquivos'), list)
+                and len(item['arquivos']) == 2
+                and all(isinstance(n, str) for n in item['arquivos'])):
+            transicoes[tuple(item['arquivos'])] = item
+    # Preserva a ultima comparacao de versoes anteriores do auditor.
+    legado = anterior.get('diagnostico_transicao_temporal')
+    if (isinstance(legado, dict) and legado.get('status') == 'COMPARACAO_EXPLORATORIA'
+            and isinstance(legado.get('arquivos'), list) and len(legado['arquivos']) == 2):
+        transicoes.setdefault(tuple(legado['arquivos']), legado)
+    atual = resultado['diagnostico_transicao_temporal']
+    if (isinstance(atual, dict) and atual.get('status') == 'COMPARACAO_EXPLORATORIA'
+            and isinstance(atual.get('arquivos'), list) and len(atual['arquivos']) == 2):
+        transicoes[tuple(atual['arquivos'])] = atual
+    historico_transicoes = [transicoes[k] for k in sorted(transicoes)[-240:]]
+    resultado['historico_transicoes_temporais'] = historico_transicoes
+    agregados = {nome: {'pixels_origem': 0, 'destinos': Counter()}
+                 for nome in ('cinza', 'transparente', 'azul_ciano', 'verde')}
+    for item in historico_transicoes:
+        for nome, linha in (item.get('transicoes') or {}).items():
+            if nome not in agregados or not isinstance(linha, dict):
+                continue
+            agregados[nome]['pixels_origem'] += int(linha.get('pixels_origem') or 0)
+            agregados[nome]['destinos'].update({k: int(v) for k, v in
+                                               (linha.get('destinos') or {}).items()})
+    resumo = {}
+    for nome, grupo in agregados.items():
+        total = grupo['pixels_origem']
+        resumo[nome] = {
+            'pixels_origem': total,
+            'destinos': dict(grupo['destinos']),
+            'percentual_para_azul_ciano': (round(100 * grupo['destinos'].get('azul_ciano', 0) / total, 3)
+                                           if total else None),
+        }
+    resultado['estatistica_transicoes_temporais'] = {
+        'pares_distintos': len(historico_transicoes), 'transicoes': resumo,
+        'nota': 'Contagens de pixels nas mesmas coordenadas; pares podem compartilhar quadros. '
+                'Nao ha compensacao por vento, previsao de chuva ou conversao dBZ/mm/h.'
+    }
     historico = {}
     anterior = historico_anterior if isinstance(historico_anterior, dict) else {}
     # Recuperacao automatica e idempotente do historico anterior ao auditor espacial.

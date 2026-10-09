@@ -38,6 +38,20 @@ jobs:
         run: python estatisticas_operacionais_190.py
       - name: Arquivar ecos e cores RGB #217
         run: python registrar_ecos_rgb_217.py --dados dados.json --historico historico_ecos_rgb_217.json
+      - name: Registrar e comparar núcleos RadarSC #231
+        run: |
+          python - <<'PY231'
+          import json, subprocess, sys
+          with open('dados.json', encoding='utf-8') as f:
+              radar = (json.load(f).get('radar') or {})
+          geo = ((radar.get('classificacao_qualitativa_local_130') or {})
+                 .get('geolocalizacao_familias_230') or {})
+          if radar.get('horario_ultimo_quadro') and isinstance(geo.get('nucleos'), list):
+              subprocess.run([sys.executable, 'rastrear_nucleos_231.py',
+                              'dados.json', 'historico_nucleos_231.json'], check=True)
+          else:
+              print('RadarSC sem núcleos #230 disponíveis: histórico #231 preservado.')
+          PY231
       - name: Publicar dados operacionais
         run: |
           set -euo pipefail
@@ -50,6 +64,7 @@ jobs:
           cp historico_operacional_190.json /tmp/historico-operacional-190.json
           cp estatisticas_operacionais_190.json /tmp/estatisticas-operacionais-190.json
           cp historico_ecos_rgb_217.json /tmp/historico-ecos-rgb-217.json
+          if [ -f historico_nucleos_231.json ]; then cp historico_nucleos_231.json /tmp/historico-nucleos-231.json; fi
           git fetch origin main
           git reset --hard origin/main
           cp /tmp/dados-operacional.json dados.json
@@ -59,7 +74,8 @@ jobs:
           cp /tmp/historico-operacional-190.json historico_operacional_190.json
           cp /tmp/estatisticas-operacionais-190.json estatisticas_operacionais_190.json
           cp /tmp/historico-ecos-rgb-217.json historico_ecos_rgb_217.json
-          git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json historico_operacional_190.json estatisticas_operacionais_190.json historico_ecos_rgb_217.json
+          if [ -f /tmp/historico-nucleos-231.json ]; then cp /tmp/historico-nucleos-231.json historico_nucleos_231.json; fi
+          git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json historico_operacional_190.json estatisticas_operacionais_190.json historico_ecos_rgb_217.json historico_nucleos_231.json
           if git diff --cached --quiet; then
             echo "Dados operacionais já publicados."
             exit 0
@@ -82,7 +98,8 @@ jobs:
             cp /tmp/historico-operacional-190.json historico_operacional_190.json
             cp /tmp/estatisticas-operacionais-190.json estatisticas_operacionais_190.json
             cp /tmp/historico-ecos-rgb-217.json historico_ecos_rgb_217.json
-            git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json historico_operacional_190.json estatisticas_operacionais_190.json historico_ecos_rgb_217.json
+            if [ -f /tmp/historico-nucleos-231.json ]; then cp /tmp/historico-nucleos-231.json historico_nucleos_231.json; fi
+            git add dados.json fusion_guaxanduva_175.json monitor_oceanico_174.json monitor_oceanico_174_dashboard.json historico_operacional_190.json estatisticas_operacionais_190.json historico_ecos_rgb_217.json historico_nucleos_231.json
             git diff --cached --quiet && exit 0
             git commit -m "Atualiza estado operacional do Monitor Guaxanduva"
           done

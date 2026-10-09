@@ -21,7 +21,7 @@ from atualizar_dados import (
     granizo_operacional_inmet_157, buscar_super_el_nino_173,
     construir_estatisticas_automaticas_186, get, LAT, LON, hav, IMAGEM,
     _mapa_classes_dbz_170, _amostrar_estacao_na_imagem_170,
-    _diagnostico_espacial_estacao_170_b3,
+    _diagnostico_espacial_estacao_170_b3, diagnosticar_nucleos_locais_241,
 )
 ARQUIVO = Path("dados.json")
 
@@ -481,6 +481,24 @@ def main():
     pareamento207r4=seguro("pareamento espacial #207-R4",lambda:construir_pareamento_espacial_207_r4(radar,rede))
     auditoria207r5=seguro("paleta adaptativa autoexpansível #207-R5.2",lambda:construir_auditoria_pixel_eco_207_r5(radar,rede,dados.get("auditoria_rgb_pixel_radar_207_r5")))
     radar=aplicar_paleta_adaptativa_207_r52(radar,auditoria207r5)
+    # #243 — A rotina operacional, usada pelo Actions, nao executa main()
+    # de atualizar_dados.py. Executar explicitamente o diagnostico #242.
+    # Falhas nao impedem o restante da coleta nem liberam ETA.
+    if isinstance(radar, dict):
+        _quadros_243 = radar.get("quadros") or []
+        if len(_quadros_243) >= 2:
+            _local_243 = seguro("nucleos locais #243", lambda: diagnosticar_nucleos_locais_241(_quadros_243))
+        else:
+            _local_243 = {"versao":"#243", "status":"sem_quadros_suficientes",
+                          "quadros_disponiveis":len(_quadros_243), "pares":[],
+                          "total_pares":0, "eta_liberado":False}
+        radar["diagnostico_nucleos_locais_241"] = _local_243
+        radar["rastreamento_local_242"] = _local_243
+        print("GXA243_RASTREAMENTO_LOCAL", json.dumps({
+            "status":_local_243.get("status"),
+            "quadros":len(_quadros_243),
+            "pares":_local_243.get("total_pares"),
+            "eta_liberado":False}, ensure_ascii=False), flush=True)
     inmet=seguro("INMET",buscar_chuva_observada_inmet)
     mare=seguro("tábua de maré prevista",buscar_mare)
     mare160=seguro("maré observada #160",buscar_mare_observada_joinville_160)
@@ -602,6 +620,8 @@ def main():
             "analise_movimento",
             "rastreamento_temporal",
             "avaliacao_trajetorias",
+            "diagnostico_nucleos_locais_241",
+            "rastreamento_local_242",
         )
         dados["radar"] = {
             campo: _radar_completo_187d[campo]

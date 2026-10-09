@@ -2342,49 +2342,57 @@ if(cemToggle){
  cemToggle.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();alternar()}});
 }
 
-/* #239 — Painel somente-leitura: reaproveita trilhas existentes; não altera gates. */
+/* #240 — Diagnóstico geográfico das trilhas, sem liberar ETA não validado. */
 function renderAproximacaoGuax(rad){
- const status=document.getElementById('guaxTrajetoStatus'), rows=document.getElementById('guaxTrajetoFaixas');
+ const status=document.getElementById('guaxTrajetoStatus'),rows=document.getElementById('guaxTrajetoFaixas');
  if(!status||!rows)return;
- const fresco=rad&&rad.dados_frescos===true;
- const av=rad&&rad.avaliacao_trajetorias||{};
+ const ts=Date.parse(rad?.horario_ultimo_quadro||'');
+ const idade=Number.isFinite(ts)?Math.max(0,(Date.now()-ts)/60000):Infinity;
+ const fresco=rad?.status==='online'&&rad?.dados_frescos===true&&idade<=30;
+ const av=rad?.avaliacao_trajetorias||{};
  const trilhas=Array.isArray(av.avaliacoes)?av.avaliacoes:[];
- const limites=[50,25,15,5,2];
- const num=x=>x==null||x===''?NaN:Number(x);
- const detalhes=trilhas.map(t=>{
-   const r=t.resultado||{};
-   return {r,dist:num(r.distancia_centroide_comasa_km??t.ultima_distancia_comasa_km),
-      rumo:num(r.rumo_movimento_graus),dif:num(r.diferenca_angular_graus),
-      lateral:num(r.distancia_lateral_trajetoria_km),
-      valid:r.validado_para_eta===true,eta:r.eta};
- }).filter(t=>Number.isFinite(t.dist));
- status.textContent=!fresco?'⚪ Radar sem atualização recente: trajetória e ETA suspensos.'
-   :!detalhes.length?'🟡 Ainda não há trilhas suficientes para determinar a aproximação.'
-   :'📡 '+detalhes.length+' trilhas analisadas • estimativa experimental; verifique a direção e a validade do radar.';
+ const n=x=>x===null||x===undefined||x===''?NaN:Number(x);
+ const detalhes=trilhas.map(t=>{const r=t.resultado||{};return {
+  dist:n(r.distancia_centroide_comasa_km??t.ultima_distancia_comasa_km),
+  rumo:n(r.rumo_movimento_graus),dif:n(r.diferenca_angular_graus),
+  lateral:n(r.distancia_lateral_trajetoria_km),projecao:n(r.projecao_adiante_km),
+  vel:n(r.velocidade_recente_media_kmh),id:r.trilha_id??t.id_trilha,
+  valid:r.validado_para_eta===true,eta:r.eta,motivo:r.motivo||''};
+ }).filter(t=>Number.isFinite(t.dist)&&t.dist>=0).sort((a,b)=>a.dist-b.dist);
+ const locais=detalhes.filter(t=>t.dist<=50),externas=detalhes.length-locais.length;
+ const fmt=x=>x.toFixed(1).replace('.',',');
+ if(!fresco)status.textContent='⚪ Radar sem quadro recente (idade '+(Number.isFinite(idade)?fmt(idade)+' min':'indisponível')+'). Trajetórias e ETA suspensos.';
+ else if(!detalhes.length)status.textContent='🟡 Nenhuma trilha georreferenciada disponível. Os pixels locais não bastam para calcular movimento.';
+ else status.textContent='📡 '+detalhes.length+' trilhas georreferenciadas • '+locais.length+' com centroide até 50 km • '+externas+' fora do raio. '+(detalhes.length?'Mais próxima: '+fmt(detalhes[0].dist)+' km. ':'')+'Pixel local ≠ trilha temporal.';
  rows.replaceChildren();
+ const limites=[50,25,15,5,2];
  for(const raio of limites){
-   // Anel externo: 25–50, 15–25, 5–15, 2–5 e 0–2 km.
-   const inferior=raio===50?25:raio===25?15:raio===15?5:raio===5?2:0;
-   const candidatos=detalhes.filter(t=>t.dist>inferior&&t.dist<=raio).sort((a,b)=>a.dist-b.dist);
-   const t=candidatos[0];let situacao='Sem trilha nessa faixa',eta='--',cor='#9bb4c1';
-   if(!fresco)situacao='Radar desatualizado';
-   else if(t){
-     const aproximando=Number.isFinite(t.dif)&&t.dif<=40;
-     const corredor=Number.isFinite(t.lateral)&&t.lateral<=15;
-     if(aproximando&&corredor){situacao='🟠 Aproximação possível';cor='#ffc16e';}
-     else if(aproximando){situacao='🟡 Movimento na direção geral; passagem lateral';cor='#e3c86c';}
-     else if(Number.isFinite(t.dif)&&t.dif>=120){situacao='🟢 Afastando-se';cor='#8bd5a7';}
-     else situacao='🟡 Direção inconclusiva';
-     // A saída do algoritmo anterior pode conter ETA em estrutura variável.
-     // Não apresentar contagem sem tempo numérico e gate explícito.
-     const valor=typeof t.eta==='number'?t.eta:(t.eta&&typeof t.eta==='object'?num(t.eta.minutos??t.eta.eta_min):NaN);
-     if(t.valid&&Number.isFinite(valor)&&valor>=0&&valor<=180)eta=Math.round(valor)+' min (estimativa)';
-   }
-   const div=document.createElement('div');div.style.cssText='padding:9px 10px;margin:7px 0;border:1px solid #315564;border-radius:10px;background:#0b222c';
-   const title=document.createElement('b');title.style.color=cor;title.textContent='📍 '+inferior+'–'+raio+' km • '+situacao;
-   const desc=document.createElement('div');desc.className='dash-muted';desc.textContent=t&&fresco?'Eco a '+t.dist.toFixed(1).replace('.',',')+' km • rumo '+(Number.isFinite(t.rumo)?Math.round(t.rumo)+'°':'N/D')+' • ETA '+eta:'ETA -- • aguardando trilha confiável';
-   div.append(title,desc);rows.appendChild(div);
+  const inferior=raio===50?25:raio===25?15:raio===15?5:raio===5?2:0;
+  const candidatos=locais.filter(t=>t.dist>inferior&&t.dist<=raio);
+  const t=candidatos[0];let situacao='Sem trilha temporal nesta faixa',eta='--',cor='#9bb4c1';
+  if(!fresco)situacao='Radar desatualizado';
+  else if(t){
+   const rumoAlvo=Number.isFinite(t.projecao)&&t.projecao>0;
+   const noCorredor=Number.isFinite(t.lateral)&&t.lateral<=15;
+   if(rumoAlvo&&noCorredor){situacao='🟠 Possível aproximação (não validada)';cor='#ffc16e';}
+   else if(Number.isFinite(t.projecao)&&t.projecao<0){situacao='🟢 Vetor aponta para longe do Comasa';cor='#8bd5a7';}
+   else if(rumoAlvo){situacao='🟡 Passagem lateral provável';cor='#e3c86c';}
+   else situacao='🟡 Movimento inconclusivo';
+   const valor=typeof t.eta==='number'?t.eta:(t.eta&&typeof t.eta==='object'?n(t.eta.minutos??t.eta.eta_min):NaN);
+   if(t.valid&&Number.isFinite(valor)&&valor>=0&&valor<=180)eta=Math.round(valor)+' min (validado)';
+  }
+  const div=document.createElement('div');div.style.cssText='padding:9px 10px;margin:7px 0;border:1px solid #315564;border-radius:10px;background:#0b222c';
+  const title=document.createElement('b');title.style.color=cor;title.textContent='📍 '+inferior+'–'+raio+' km • '+situacao;
+  const desc=document.createElement('div');desc.className='dash-muted';
+  desc.textContent=t&&fresco?'Trilha #'+t.id+' • centroide a '+fmt(t.dist)+' km • rumo '+(Number.isFinite(t.rumo)?Math.round(t.rumo)+'°':'N/D')+' • ETA '+eta+(t.motivo?' • '+t.motivo:''):'ETA -- • sem deslocamento local validado';
+  div.append(title,desc);rows.appendChild(div);
+ }
+ if(detalhes.length){
+  const div=document.createElement('div');div.className='dash-muted';div.style.cssText='margin-top:12px;padding:10px;border:1px solid #315564;border-radius:10px';
+  const t=detalhes[0];div.textContent='🔎 Diagnóstico: trilha mais próxima #'+t.id+' a '+fmt(t.dist)+' km; '+(t.motivo||'ETA não validado')+'. '+(externas?'Há '+externas+' trilha(s) fora dos 50 km. ':'')+'Ecos locais podem existir sem trilha temporal associada.';
+  rows.appendChild(div);
  }
 }
+
 </script>
 </main></body></html>

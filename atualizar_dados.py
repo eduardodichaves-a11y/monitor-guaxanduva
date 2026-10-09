@@ -5877,8 +5877,16 @@ def diagnosticar_nucleos_locais_241(quadros):
             d_ant = float(velho["centroide"].get("distancia_comasa_km", velho.get("distancia_min_comasa_km", 0)))
             d_atu = float(n["centroide"].get("distancia_comasa_km", n.get("distancia_min_comasa_km", 0)))
             delta = d_atu-d_ant
-            pares.append({"de":ant.get("horario_local"), "para":atual.get("horario_local"), "familia":n.get("familia"), "centroide_anterior":velho["centroide"], "centroide_atual":n["centroide"], "distancia_centroide_atual_km":round(d_atu,2), "deslocamento_km":round(dist,2), "velocidade_aparente_kmh":round(vel,1), "variacao_distancia_km":round(delta,2), "tendencia_centroide":"aproximando" if delta < -0.5 else "afastando" if delta > 0.5 else "indeterminada", "distancia_borda_atual_km":round(float(n.get("distancia_min_comasa_km",d_atu)),2), "nucleo_extenso":float(n.get("distancia_max_comasa_km",d_atu))-float(n.get("distancia_min_comasa_km",d_atu))>12, "eta_min":None, "eta_validado":False})
-    return {"versao":"#242", "status":"diagnostico_experimental_nao_operacional", "quadros":totais, "pares":pares[-80:], "total_pares":len(pares), "observacao":"Inclui nucleos extensos com borda ate 50 km. Associacao exploratoria por familia e centroide; centroide de eco extenso pode estar distante da borda. Pareamento nao confirma identidade ou chegada. ETA bloqueado.", "eta_liberado":False}
+            # #244: observar a borda real reportada em cada quadro, sem confundir
+            # deslocamento do centroide com deslocamento da frente de chuva.
+            borda_ant = float(velho.get("distancia_min_comasa_km", d_ant))
+            borda_atu = float(n.get("distancia_min_comasa_km", d_atu))
+            delta_borda = borda_atu - borda_ant
+            velocidade_radial_borda = -delta_borda / dt
+            tendencia_borda = ("aproximando" if delta_borda < -0.5 else
+                              "afastando" if delta_borda > 0.5 else "indeterminada")
+            pares.append({"de":ant.get("horario_local"), "para":atual.get("horario_local"), "familia":n.get("familia"), "distancia_borda_anterior_km":round(borda_ant,2), "variacao_distancia_borda_km":round(delta_borda,2), "velocidade_radial_borda_aparente_kmh":round(velocidade_radial_borda,1), "tendencia_borda":tendencia_borda, "borda_ja_na_regiao":borda_atu <= 2.0, "identidade_nucleo_confirmada":False, "eta_borda_min":None, "eta_borda_validado":False, "centroide_anterior":velho["centroide"], "centroide_atual":n["centroide"], "distancia_centroide_atual_km":round(d_atu,2), "deslocamento_km":round(dist,2), "velocidade_aparente_kmh":round(vel,1), "variacao_distancia_km":round(delta,2), "tendencia_centroide":"aproximando" if delta < -0.5 else "afastando" if delta > 0.5 else "indeterminada", "distancia_borda_atual_km":round(float(n.get("distancia_min_comasa_km",d_atu)),2), "nucleo_extenso":float(n.get("distancia_max_comasa_km",d_atu))-float(n.get("distancia_min_comasa_km",d_atu))>12, "eta_min":None, "eta_validado":False})
+    return {"versao":"#244", "status":"diagnostico_bordas_experimental_nao_operacional", "quadros":totais, "pares":pares[-80:], "total_pares":len(pares), "observacao":"#244 mede variacao da borda por par de quadros, inclusive nucleos extensos. Pareamento por familia e centroide nao comprova identidade, continuidade de tres quadros nem chegada. Velocidade radial de borda pode refletir crescimento/dissipacao. ETA bloqueado.", "eta_liberado":False}
 
 
 def buscar_radar():

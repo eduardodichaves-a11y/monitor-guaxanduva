@@ -109,6 +109,25 @@ def analisar_png(nome, bruto, aviso_tls, rgb_legenda):
     contagem = Counter((r, g, b) for r, g, b, a in rgba.getdata() if a > 0)
     paleta = img.getpalette() if img.mode == 'P' else None
     info = {str(k): str(v)[:120] for k, v in img.info.items() if k != 'transparency'}
+    indices_plte = []
+    if img.mode == 'P' and paleta:
+        contagem_indices = Counter(img.getdata())
+        transparencia = img.info.get('transparency')
+        for indice, n in sorted(contagem_indices.items()):
+            pos = 3 * indice
+            if pos + 3 > len(paleta):
+                continue
+            rgb = tuple(paleta[pos:pos + 3])
+            if isinstance(transparencia, bytes):
+                alpha = transparencia[indice] if indice < len(transparencia) else 255
+            elif isinstance(transparencia, int):
+                alpha = 0 if indice == transparencia else 255
+            else:
+                alpha = 255
+            indices_plte.append({'indice_png': indice, 'rgb': list(rgb),
+                                 'pixels': n, 'alpha': alpha,
+                                 'visivel': alpha > 0,
+                                 'consta_legenda_rgb': rgb in rgb_legenda})
     comuns = [{'rgb': list(rgb), 'pixels': n} for rgb, n in contagem.most_common(40)]
     exatas = [{'rgb': list(rgb), 'pixels': contagem[rgb]} for rgb in sorted(rgb_legenda) if contagem[rgb]]
     return {
@@ -122,10 +141,11 @@ def analisar_png(nome, bruto, aviso_tls, rgb_legenda):
         'cores_mais_frequentes': comuns, 'cores_legenda_exatas_presentes': exatas,
         'pixels_visiveis': sum(contagem.values()),
         'diagnostico_espacial_cinza': analisar_vizinhanca_cinza(rgba),
+        'indices_plte_utilizados': indices_plte,
     }
 
 
-def executar(dados):
+def executar(dados, historico_anterior=None):
     radar = dados.get('radar') or {}
     leg = (radar.get('legenda_oficial') or {}).get('classes') or []
     rgb_legenda = {tuple(c['rgb']) for c in leg if isinstance(c, dict) and isinstance(c.get('rgb'), list) and len(c['rgb']) == 3}
@@ -144,6 +164,38 @@ def executar(dados):
             resultado['quadros'].append(analisar_png(nome, bruto, aviso_tls, rgb_legenda))
         except Exception as e:
             resultado['erros'].append({'arquivo': nome, 'erro': f'{type(e).__name__}: {str(e)[:180]}'})
+    historico = {}
+    anterior = historico_anterior if isinstance(historico_anterior, dict) else {}
+    for registro in anterior.get('historico_indices_plte', []):
+        if isinstance(registro, dict) and isinstance(registro.get('arquivo'), str):
+            historico[registro['arquivo']] = registro
+    for quadro in resultado['quadros']:
+        historico[quadro['arquivo']] = {
+            'arquivo': quadro['arquivo'], 'sha256_png': quadro['sha256'],
+            'indices': [
+                {'indice': x['indice_png'], 'rgb': x['rgb'], 'pixels': x['pixels']}
+                for x in quadro.get('indices_plte_utilizados', []) if x.get('visivel')
+            ],
+            'diagnostico_espacial_cinza': quadro.get('diagnostico_espacial_cinza')
+        }
+    registros = sorted(historico.values(), key=lambda x: x['arquivo'])[-240:]
+    resultado['historico_indices_plte'] = registros
+    por_indice = {}
+    for registro in registros:
+        for item in registro.get('indices', []):
+            chave = str(item['indice'])
+            rgb = ','.join(str(v) for v in item['rgb'])
+            celula = por_indice.setdefault(chave, {})
+            celula[rgb] = celula.get(rgb, 0) + 1
+    resultado['estatistica_indices_plte'] = {
+        'quadros_distintos': len(registros),
+        'cores_por_indice': {
+            i: [{'rgb': [int(v) for v in rgb.split(',')], 'quadros': n}
+                for rgb, n in sorted(cores.items(), key=lambda x: (-x[1], x[0]))]
+            for i, cores in sorted(por_indice.items(), key=lambda x: int(x[0]))
+        },
+        'nota': 'Indices PNG nao sao valores dBZ; estatistica por quadro.'
+    }
     resultado['status'] = 'EVIDENCIA_PNG_COLETADA' if resultado['quadros'] else 'SEM_PNG_VALIDO'
     return resultado
 
@@ -152,6 +204,12 @@ if __name__ == '__main__':
     origem = Path(sys.argv[1]) if len(sys.argv) > 1 else Path('dados.json')
     destino = Path(sys.argv[2]) if len(sys.argv) > 2 else Path('auditoria_png_234.json')
     dados = json.loads(origem.read_text(encoding='utf-8'))
-    resultado = executar(dados)
+    anterior = None
+    if destino.is_file():
+        try:
+            anterior = json.loads(destino.read_text(encoding='utf-8'))
+        except (OSError, ValueError):
+            pass
+    resultado = executar(dados, anterior)
     destino.write_text(json.dumps(resultado, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print(f"#234 {resultado['status']}: {len(resultado['quadros'])} PNGs; {len(resultado['erros'])} falhas")

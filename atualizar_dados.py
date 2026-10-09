@@ -5473,6 +5473,43 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
             "validacao_meteorologica": "nao_realizada",
         })
     agrupamentos_211.sort(key=lambda g: (-g["pixels"], g["distancia_min_comasa_km"]))
+    # #230: componentes por familia cromatica; nao misturar familias adjacentes.
+    # Esta e uma segmentacao espacial, NAO um rastreamento temporal nem previsao de chuva.
+    pendentes_230 = set(pontos_geo_211)
+    nucleos_230 = []
+    while pendentes_230:
+        origem = pendentes_230.pop()
+        familia = pontos_geo_211[origem][3]
+        fila = [origem]
+        grupo = [origem]
+        while fila:
+            xx, yy = fila.pop()
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    vizinho = (xx + dx, yy + dy)
+                    if vizinho in pendentes_230 and pontos_geo_211[vizinho][3] == familia:
+                        pendentes_230.remove(vizinho)
+                        fila.append(vizinho)
+                        grupo.append(vizinho)
+        dados = [pontos_geo_211[p] for p in grupo]
+        distancias = [p[4] for p in dados]
+        lat_c = sum(p[0] for p in dados) / len(dados)
+        lon_c = sum(p[1] for p in dados) / len(dados)
+        cores = Counter(p[2] for p in dados)
+        nucleos_230.append({
+            "familia": familia,
+            "pixels": len(grupo),
+            "centroide": {"latitude": round(lat_c, 6), "longitude": round(lon_c, 6)},
+            "distancia_min_comasa_km": round(min(distancias), 2),
+            "distancia_max_comasa_km": round(max(distancias), 2),
+            "limites": {"lat_min": round(min(p[0] for p in dados), 6),
+                        "lat_max": round(max(p[0] for p in dados), 6),
+                        "lon_min": round(min(p[1] for p in dados), 6),
+                        "lon_max": round(max(p[1] for p in dados), 6)},
+            "cores_rgb": [{"rgb": list(c), "pixels": n} for c, n in cores.most_common()],
+            "validacao_meteorologica": "nao_realizada",
+        })
+    nucleos_230.sort(key=lambda g: (-g["pixels"], g["distancia_min_comasa_km"]))
     por_raio = {}
     for raio in (2, 5, 10, 25, 50):
         total = sum(contagens[raio].values())
@@ -5495,6 +5532,7 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
         "status": "diagnostico_qualitativo_ativo",
         "por_raio": por_raio,
         "geolocalizacao_ecos_211": {"metodo": "componentes_conexos_8_vizinhos", "raio_max_km": 50, "total_agrupamentos": len(agrupamentos_211), "agrupamentos": agrupamentos_211},
+        "geolocalizacao_familias_230": {"metodo": "componentes_conexos_8_vizinhos_mesma_familia", "raio_max_km": 50, "total_nucleos": len(nucleos_230), "nucleos": nucleos_230, "trajetoria_validada": False, "eta_liberado": False},
         "regra_seguranca": (
             "#207-R5: presença de RGB da paleta operacional confirma somente que a cor existe no PNG RadarSC; não prova precipitação. "
             "RGB sem vínculo C1–C16 permanece SIGNIFICADO EM VALIDAÇÃO. Apenas vínculo documental validado pode receber faixa dBZ; mm/h continua bloqueado."

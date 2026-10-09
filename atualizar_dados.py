@@ -5321,6 +5321,11 @@ def familia_cor_radar(rgb, classe=None):
     apenas na paleta operacional COMP, usa mapeamento RGB explícito observado
     no próprio produto RadarSC. Não infere dBZ nem mm/h.
     """
+    # C0: identificação pela cor real do PNG, independente do índice PLTE.
+    # Não corresponde a dBZ nem a precipitação confirmada.
+    if isinstance(rgb, (list, tuple)) and len(rgb) >= 3:
+        if tuple(int(v) for v in rgb[:3]) == (200, 200, 200):
+            return "cinza"
     try:
         if classe is not None:
             c = int(classe)
@@ -5365,6 +5370,11 @@ def significado_qualitativo_familia(familia):
     previsões e observações disponíveis. Pluviômetro é testemunha importante,
     mas não árbitro e não possui poder de veto isolado.
     """
+    if familia == "cinza":
+        return {
+            "categoria": "c0_cinza_experimental_sem_confirmacao_de_chuva",
+            "nivel_evidencia": "rgb_observado_sem_validacao_meteorologica",
+        }
     if familia in ("azul_ciano", "verde", "amarelo", "laranja", "vermelho", "rosa_magenta_roxo"):
         return {
             "categoria": "cor_radar_detectada_aprendizado_multifuente_em_formacao",
@@ -5396,6 +5406,9 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
     # #175: cores indexadas realmente presentes nos PNGs COMP também contam como eco qualitativo.
     for cor in RADARSC_PALETA_OPERACIONAL_RGB:
         mapa.setdefault(cor, {"classe": None, "familia_cor": familia_cor_radar(cor)})
+    # #238: cinza nativo é C0 experimental. Não classificar como chuva
+    # e não tratar pixels transparentes como eco.
+    mapa[(200, 200, 200)] = {"classe": None, "familia_cor": "cinza"}
     base = {
         "versao": "#130+#207-R5",
         "referencia": "Comasa - coordenada pública aproximada",
@@ -5526,6 +5539,12 @@ def diagnostico_qualitativo_local_130(imagem, legenda_oficial):
                 {"familia": f, "pixels": n, **significado_qualitativo_familia(f)}
                 for f, n in familias[raio].most_common()
             ],
+            "c0_cinza": {
+                "rgb": [200, 200, 200],
+                "pixels": familias[raio].get("cinza", 0),
+                "contabilizado": True,
+                "natureza": "eco_cromatico_experimental_nao_chuva_confirmada",
+            },
         }
     return {
         **base,

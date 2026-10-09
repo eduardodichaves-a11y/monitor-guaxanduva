@@ -166,17 +166,38 @@ def executar(dados, historico_anterior=None):
             resultado['erros'].append({'arquivo': nome, 'erro': f'{type(e).__name__}: {str(e)[:180]}'})
     historico = {}
     anterior = historico_anterior if isinstance(historico_anterior, dict) else {}
+    # Recuperacao automatica e idempotente do historico anterior ao auditor espacial.
+    # O commit antigo e imutavel; nao reverte codigo nem outros arquivos do repositorio.
+    URL_HISTORICO = ('https://raw.githubusercontent.com/'
+                     'eduardodichaves-a11y/monitor-guaxanduva/'
+                     '6a16ac7/auditoria_png_234.json')
+    try:
+        resposta = requests.get(URL_HISTORICO, timeout=(10, 25))
+        resposta.raise_for_status()
+        historico_legado = resposta.json().get('historico_indices_plte', [])
+        for registro in historico_legado:
+            if isinstance(registro, dict) and isinstance(registro.get('arquivo'), str):
+                historico[registro['arquivo']] = registro
+        resultado['recuperacao_historica'] = {
+            'origem_commit': '6a16ac7', 'quadros_legados': len(historico_legado),
+            'status': 'RECUPERADO'}
+    except (requests.RequestException, ValueError) as exc:
+        resultado['recuperacao_historica'] = {
+            'origem_commit': '6a16ac7', 'status': 'PENDENTE',
+            'motivo': f'{type(exc).__name__}: {str(exc)[:140]}'}
     for registro in anterior.get('historico_indices_plte', []):
         if isinstance(registro, dict) and isinstance(registro.get('arquivo'), str):
             historico[registro['arquivo']] = registro
     for quadro in resultado['quadros']:
+        anterior_quadro = historico.get(quadro['arquivo'], {})
         historico[quadro['arquivo']] = {
             'arquivo': quadro['arquivo'], 'sha256_png': quadro['sha256'],
             'indices': [
                 {'indice': x['indice_png'], 'rgb': x['rgb'], 'pixels': x['pixels']}
                 for x in quadro.get('indices_plte_utilizados', []) if x.get('visivel')
             ],
-            'diagnostico_espacial_cinza': quadro.get('diagnostico_espacial_cinza')
+            'diagnostico_espacial_cinza': (quadro.get('diagnostico_espacial_cinza')
+                                            or anterior_quadro.get('diagnostico_espacial_cinza'))
         }
     registros = sorted(historico.values(), key=lambda x: x['arquivo'])[-240:]
     resultado['historico_indices_plte'] = registros

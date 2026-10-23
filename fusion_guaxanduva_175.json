@@ -1,59 +1,59 @@
 {
   "versao": "#175-A3",
   "status": "EXPERIMENTAL_NAO_OPERACIONAL",
-  "gerado_em": "2026-10-22T21:41:15.102357-03:00",
-  "indice_pressao_hidrometeorologica": 23.8,
-  "classe_experimental": "BAIXO",
-  "classe_css": "baixo",
-  "confianca_dados_pct": 56.0,
-  "cobertura_fatores_pct": 80.0,
+  "gerado_em": "2026-10-23T02:26:58.675726-03:00",
+  "indice_pressao_hidrometeorologica": 30.0,
+  "classe_experimental": "ATENÇÃO",
+  "classe_css": "atencao",
+  "confianca_dados_pct": 65.8,
+  "cobertura_fatores_pct": 94.0,
   "natureza_indice": "Índice composto de pressão hidrometeorológica; NÃO é probabilidade percentual de inundação.",
   "fatores": {
     "chuva_observada": {
       "peso": 0.24,
-      "score": 22.7,
+      "score": 22.2,
       "valor": {
         "max_1h_mm": 3.2,
-        "max_24h_mm": 18.2
+        "max_24h_mm": 17.8
       },
       "nota": "Máximo entre estações disponíveis; não equivale a chuva medida no Comasa."
     },
     "chuva_prevista_24h": {
       "peso": 0.12,
-      "score": 18.1,
-      "valor": 14.5,
+      "score": 16.0,
+      "valor": 12.8,
       "nota": "Open-Meteo; previsão, não observação."
     },
     "memoria_bacia": {
       "peso": 0.12,
-      "score": 2.0,
-      "valor": 0.2,
+      "score": 6.0,
+      "valor": 0.6,
       "nota": "Forçante de memória hidrológica do V0.21."
     },
     "radar_tendencia": {
       "peso": 0.14,
-      "score": null,
+      "score": 45.0,
       "valor": {
-        "fresco": false,
+        "fresco": true,
         "tendencia": "aproximando"
       },
       "nota": "Eco/tendência qualitativos; sem conversão automática para chuva no solo."
     },
     "rio_tendencia_modelada": {
       "peso": 0.16,
-      "score": 0,
+      "score": 2.2,
       "valor": {
-        "nivel_m": 0.995,
-        "cm_h": -0.05
+        "nivel_m": 1.509,
+        "cm_h": 0.44
       },
       "nota": "MODELADO/NÃO INSTRUMENTAL; nível absoluto não usa cotas de perigo não validadas."
     },
     "mare_jusante": {
       "peso": 0.16,
-      "score": 70.0,
+      "score": 85.0,
       "valor": {
-        "observada_m": 0.576,
-        "pico_24h_m": 1.7
+        "observada_m": 1.604,
+        "pico_24h_m": 1.9
       },
       "nota": "Condição de jusante; não é nível do Guaxanduva."
     },

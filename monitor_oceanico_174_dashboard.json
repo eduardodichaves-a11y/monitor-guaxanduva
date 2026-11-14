@@ -1,8 +1,73 @@
 {
   "versao": "#174-J",
-  "status": "FONTE_INDISPONIVEL",
+  "status": "EXPERIMENTAL",
   "uso_operacional": false,
   "eta_liberado": false,
-  "mensagem_leiga": "Dados oceânicos indisponíveis; isso não significa ausência de tempestade.",
-  "oceanos": {}
+  "produto_horario_utc": "2026-11-14T20:10:00+00:00",
+  "produto_horario_local": "2026-11-14T17:10:00-03:00",
+  "fonte": "CPTEC/INPE DSAT - GOES-19 / TATHU",
+  "mensagem_leiga": "Há sistema oceânico em trajetória reforçada experimental para o corredor Norte de SC/Joinville; não é previsão de chegada nem alerta.",
+  "oceanos": {
+    "atlantico": {
+      "rotulo": "Oceano Atlântico",
+      "sistemas_detectados_setor": 124,
+      "destinos": {
+        "sul_brasil": {
+          "nivel_evidencia": "ACOMPANHAMENTO",
+          "p60_em_acompanhamento": 1,
+          "p60_reforcados": 0,
+          "sistema_representativo": null
+        },
+        "norte_sc_joinville": {
+          "nivel_evidencia": "ACOMPANHAMENTO",
+          "p60_em_acompanhamento": 1,
+          "p60_reforcados": 0,
+          "sistema_representativo": null
+        }
+      }
+    },
+    "pacifico": {
+      "rotulo": "Oceano Pacífico / Andes",
+      "sistemas_detectados_setor": 142,
+      "destinos": {
+        "sul_brasil": {
+          "nivel_evidencia": "TRAJETORIA_REFORCADA_EXPERIMENTAL",
+          "p60_em_acompanhamento": 7,
+          "p60_reforcados": 5,
+          "sistema_representativo": {
+            "id_sistema": "84481bdb-04e2-4d64-bf80-2bd597f89b5e",
+            "fase": "Desintensificando",
+            "latitude": -34.91,
+            "longitude": -87.6,
+            "distancia_ao_destino_km": 3435.8,
+            "alvo_mais_proximo": "RS_PORTO_ALEGRE",
+            "persistencia_trajetoria": "P60",
+            "persistencia_sinotica": "FAVORAVEL_PERSISTENTE_3H"
+          }
+        },
+        "norte_sc_joinville": {
+          "nivel_evidencia": "TRAJETORIA_REFORCADA_EXPERIMENTAL",
+          "p60_em_acompanhamento": 6,
+          "p60_reforcados": 4,
+          "sistema_representativo": {
+            "id_sistema": "84481bdb-04e2-4d64-bf80-2bd597f89b5e",
+            "fase": "Desintensificando",
+            "latitude": -34.91,
+            "longitude": -87.6,
+            "distancia_ao_destino_km": 3776.2,
+            "alvo_mais_proximo": "JARAGUA_DO_SUL",
+            "persistencia_trajetoria": "P60",
+            "persistencia_sinotica": "FAVORAVEL_PERSISTENTE_3H"
+          }
+        }
+      }
+    }
+  },
+  "continental_nao_atribuido_a_oceano": 96,
+  "nota_metodologica": "Setor atual não prova origem oceânica. Sistemas continentais ficam separados para evitar atribuição falsa ao Atlântico ou Pacífico.",
+  "estados_permitidos": [
+    "OBSERVACAO",
+    "ACOMPANHAMENTO",
+    "TRAJETORIA_REFORCADA_EXPERIMENTAL"
+  ]
 }
